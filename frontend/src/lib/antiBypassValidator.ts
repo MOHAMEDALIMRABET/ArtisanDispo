@@ -235,6 +235,33 @@ function convertNumberWords(text: string): string {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// L3c — NORMALISATION TRONCATURES INTENTIONNELLES
+// Reconstitue les mots-chiffres délibérément tronqués :
+// "troi" → "trois", "deu" → "deux", "quatr" → "quatre", etc.
+// ─────────────────────────────────────────────────────────────────────────────
+function normalizeTruncatedNumberWords(text: string): string {
+  return text
+    // Chiffres de base tronqués
+    .replace(/\bzer\b/gi, 'zéro')
+    .replace(/\bdeu\b/gi, 'deux')
+    .replace(/\btroi\b/gi, 'trois')
+    .replace(/\bquatr\b/gi, 'quatre')
+    .replace(/\bneu\b/gi, 'neuf')
+    // Dizaines tronquées
+    .replace(/\btrent\b/gi, 'trente')
+    .replace(/\bquarant\b/gi, 'quarante')
+    .replace(/\bcinquant\b/gi, 'cinquante')
+    .replace(/\bsoixant\b/gi, 'soixante')
+    .replace(/\bquatr[e]?[\s\-]?vingt\b/gi, 'quatre-vingt')
+    // Nombres composés tronqués
+    .replace(/\bonz\b/gi, 'onze')
+    .replace(/\bdouz\b/gi, 'douze')
+    .replace(/\btreiz\b/gi, 'treize')
+    .replace(/\bquatorz\b/gi, 'quatorze')
+    .replace(/\bquinz\b/gi, 'quinze');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // L3b — COLLER LES LETTRES ESPACÉES (attaque "z e r o s i x...")
 // "z e r o" → "zero", "t rente" → "trente", "deu x" → "deux"
 // ─────────────────────────────────────────────────────────────────────────────
@@ -248,8 +275,14 @@ function collapseSpacedLetters(text: string): string {
 }
 
 function detectPhoneInWordForm(text: string): boolean {
-  // Tester aussi la version avec lettres espacées recollées
-  const versions = [text, collapseSpacedLetters(text)];
+  // Tester toutes les combinaisons : original, lettres recollées, troncatures normalisées
+  const collapsed = collapseSpacedLetters(text);
+  const versions = [
+    text,
+    collapsed,
+    normalizeTruncatedNumberWords(text),
+    normalizeTruncatedNumberWords(collapsed),
+  ];
   for (const version of versions) {
     const converted = convertNumberWords(version);
     const digitsOnly = (converted.match(/\d+/g) || []).join('');
@@ -317,15 +350,25 @@ function extractDigitRuns(rawText: string): string {
   // Convertir les mots-chiffres UNIQUEMENT si le message en contient 3 ou plus
   // → évite que "une", "deux" dans une phrase normale polluent le contexte cross-message
   // → "zero six soixante quarante neuf un trois" (7 mots) passe bien
+  const collapsed = collapseSpacedLetters(noHomo);
+  const truncNorm = normalizeTruncatedNumberWords(noHomo);
+  const truncCollapsed = normalizeTruncatedNumberWords(collapsed);
+
   const wordCount = Math.max(
     countNumberWords(noHomo),
-    countNumberWords(collapseSpacedLetters(noHomo))
+    countNumberWords(collapsed),
+    countNumberWords(truncNorm),
+    countNumberWords(truncCollapsed)
   );
   if (wordCount < 3) return literalDigits;
 
-  const withCollapsed = convertNumberWords(collapseSpacedLetters(noHomo));
-  const d2 = (withCollapsed.match(/\d+/g) || []).join('');
-  return d2.length > literalDigits.length ? d2 : literalDigits;
+  const candidates = [
+    (convertNumberWords(collapsed).match(/\d+/g) || []).join(''),
+    (convertNumberWords(truncNorm).match(/\d+/g) || []).join(''),
+    (convertNumberWords(truncCollapsed).match(/\d+/g) || []).join(''),
+  ];
+  const best = candidates.reduce((a, b) => a.length >= b.length ? a : b, literalDigits);
+  return best;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -369,6 +412,7 @@ export function validateMessageWithHistory(
   const RESET_THRESHOLD = 4;
   const lastMsgs = recentSenderMsgs.slice(-WINDOW);
   // Un message avec mots-chiffres ("zero six...") n'est PAS sans chiffres
+  // extractDigitRuns inclut maintenant les troncatures et les mots espacés
   const noDigitStreak = lastMsgs
     .slice(-RESET_THRESHOLD)
     .filter(m => extractDigitRuns(m).length === 0).length;
@@ -425,8 +469,11 @@ export function validateMessage(content: string, isPaid: boolean = false): Valid
   if (detectReversedPhone(normalizedHomoglyph)) addBlocked('telephone');
 
   // L1 : Patterns regex directs
+  // ⚠️ Reset lastIndex avant chaque test : les patterns avec flag /g sont stateful
+  // et conservent lastIndex entre appels, causant des faux négatifs
   for (const [category, patterns] of Object.entries(BLOCKED_PATTERNS)) {
     for (const pattern of patterns) {
+      pattern.lastIndex = 0;
       if (pattern.test(normalizedHomoglyph)) {
         addBlocked(category);
         break;
