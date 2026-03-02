@@ -234,14 +234,31 @@ function convertNumberWords(text: string): string {
   return result;
 }
 
-function detectPhoneInWordForm(text: string): boolean {
-  const converted = convertNumberWords(text);
-  const digitsOnly = (converted.match(/\d+/g) || []).join('');
-  for (let i = 0; i <= digitsOnly.length - 10; i++) {
-    if (/^0[1-9]\d{8}$/.test(digitsOnly.substring(i, i + 10))) return true;
+// ─────────────────────────────────────────────────────────────────────────────
+// L3b — COLLER LES LETTRES ESPACÉES (attaque "z e r o s i x...")
+// "z e r o" → "zero", "t rente" → "trente", "deu x" → "deux"
+// ─────────────────────────────────────────────────────────────────────────────
+function collapseSpacedLetters(text: string): string {
+  let result = text.toLowerCase();
+  // 4 passes pour reconstituer des mots découpés caractère par caractère
+  for (let i = 0; i < 4; i++) {
+    result = result.replace(/([a-zéèêàâôùûîç]{1,6})\s+([a-zéèêàâôùûîç]{1,6})/g, '$1$2');
   }
-  for (let i = 0; i <= digitsOnly.length - 11; i++) {
-    if (/^33[1-9]\d{8}$/.test(digitsOnly.substring(i, i + 11))) return true;
+  return result;
+}
+
+function detectPhoneInWordForm(text: string): boolean {
+  // Tester aussi la version avec lettres espacées recollées
+  const versions = [text, collapseSpacedLetters(text)];
+  for (const version of versions) {
+    const converted = convertNumberWords(version);
+    const digitsOnly = (converted.match(/\d+/g) || []).join('');
+    for (let i = 0; i <= digitsOnly.length - 10; i++) {
+      if (/^0[1-9]\d{8}$/.test(digitsOnly.substring(i, i + 10))) return true;
+    }
+    for (let i = 0; i <= digitsOnly.length - 11; i++) {
+      if (/^33[1-9]\d{8}$/.test(digitsOnly.substring(i, i + 11))) return true;
+    }
   }
   return false;
 }
@@ -277,9 +294,13 @@ function extractDigitRuns(rawText: string): string {
   const clean = removeWhitelistedContexts(rawText);
   const norm = normalizeAltSeparators(clean);
   const noHomo = normalizeHomoglyphsInMixedSegments(norm);
-  // L3 cross-message : convertir aussi les mots-chiffres (ex: "zero six soixante")
+  // L3 cross-message : mots-chiffres normaux + version lettres espacées recollées
   const withWordDigits = convertNumberWords(noHomo);
-  return (withWordDigits.match(/\d+/g) || []).join('');
+  const withCollapsed = convertNumberWords(collapseSpacedLetters(noHomo));
+  const d1 = (withWordDigits.match(/\d+/g) || []).join('');
+  const d2 = (withCollapsed.match(/\d+/g) || []).join('');
+  // Retourner la version avec le plus de chiffres détectés
+  return d1.length >= d2.length ? d1 : d2;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
