@@ -25,7 +25,7 @@ export interface ValidationResult {
 // MESSAGE D'ERREUR STANDARDISÉ
 // ─────────────────────────────────────────────────────────────────────────────
 const BLOCKED_MSG =
-  "⚠️ Le partage de coordonnées personnelles (téléphone, email, adresse postale) est interdit avant l'acceptation du devis.\n\n✅ Utilisez la messagerie ArtisanDispo pour discuter en toute sécurité.";
+  "⚠️ Le partage de coordonnées personnelles (téléphone, email, adresse postale) est interdit avant l'acceptation du devis.";
 
 const BLOCKED_PHONE: ValidationResult = {
   isValid: false,
@@ -331,8 +331,9 @@ export function validateMessageWithHistory(
   const historyCumulatedDigits = lastMsgs.map(extractDigitRuns).join('');
   const newContentDigits = extractDigitRuns(newContent);
 
-  // Guard : nouveau message sans chiffres ET historique < 6 digits → safe
-  if (!newContentDigits && historyCumulatedDigits.length < 6) {
+  // Guard : si le nouveau message n'apporte aucun chiffre,
+  // il ne peut PAS être la pièce manquante d'un numéro fragmenté → safe
+  if (!newContentDigits) {
     return { isValid: true, blockedPatterns: [] };
   }
 
