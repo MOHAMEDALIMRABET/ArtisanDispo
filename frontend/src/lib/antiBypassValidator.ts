@@ -290,17 +290,42 @@ function detectReversedPhone(text: string): boolean {
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPER EXTRACTION DIGITS (pour cross-messages)
 // ─────────────────────────────────────────────────────────────────────────────
+/**
+ * Compte le nombre de mots-chiffres distincts trouvés dans un texte.
+ * Ex: "j'ai eu une fois" → 1 ("une")
+ *     "zero six soixante quarante neuf un trois" → 7
+ */
+function countNumberWords(text: string): number {
+  const lower = text.toLowerCase();
+  let count = 0;
+  for (const [pattern] of WORD_DIGIT_MAP) {
+    const re = new RegExp(pattern.source, 'gi');
+    const hits = lower.match(re);
+    if (hits) count += hits.length;
+  }
+  return count;
+}
+
 function extractDigitRuns(rawText: string): string {
   const clean = removeWhitelistedContexts(rawText);
   const norm = normalizeAltSeparators(clean);
   const noHomo = normalizeHomoglyphsInMixedSegments(norm);
-  // L3 cross-message : mots-chiffres normaux + version lettres espacées recollées
-  const withWordDigits = convertNumberWords(noHomo);
+
+  // Toujours extraire les chiffres littéraux
+  const literalDigits = (noHomo.match(/\d+/g) || []).join('');
+
+  // Convertir les mots-chiffres UNIQUEMENT si le message en contient 3 ou plus
+  // → évite que "une", "deux" dans une phrase normale polluent le contexte cross-message
+  // → "zero six soixante quarante neuf un trois" (7 mots) passe bien
+  const wordCount = Math.max(
+    countNumberWords(noHomo),
+    countNumberWords(collapseSpacedLetters(noHomo))
+  );
+  if (wordCount < 3) return literalDigits;
+
   const withCollapsed = convertNumberWords(collapseSpacedLetters(noHomo));
-  const d1 = (withWordDigits.match(/\d+/g) || []).join('');
   const d2 = (withCollapsed.match(/\d+/g) || []).join('');
-  // Retourner la version avec le plus de chiffres détectés
-  return d1.length >= d2.length ? d1 : d2;
+  return d2.length > literalDigits.length ? d2 : literalDigits;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
