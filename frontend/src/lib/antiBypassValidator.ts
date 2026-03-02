@@ -312,6 +312,38 @@ function normalizeTruncatedNumberWords(text: string): string {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// L3d — RECONSTRUCTION SYLLABES DÉCOUPÉES CROSS-MOTS
+// Attaque : "si x" → "six", "qua tre" → "quatre", "sep t" → "sept"...
+// Doit être appliqué AVANT collapseSpacedLetters dont le pairing greedy
+// gauche-droite détruirait les syllabes (ex: "tre si" → "tresi", "x sep" → "xsep").
+// ─────────────────────────────────────────────────────────────────────────────
+function reconstructSpacedNumberSyllables(text: string): string {
+  return text
+    // Chiffres simples coupés en fin de consonne
+    .replace(/\bsi\s+x\b/gi, 'six')
+    .replace(/\bse\s+pt?\b|\bsep\s+t\b/gi, 'sept')
+    .replace(/\bhu\s+it\b|\bhui\s+t\b/gi, 'huit')
+    .replace(/\bne\s+uf?\b|\bneu\s+f\b/gi, 'neuf')
+    .replace(/\bde\s+ux\b|\bdeu\s+x\b/gi, 'deux')
+    .replace(/\btro\s+is?\b|\btroi\s+s\b/gi, 'trois')
+    .replace(/\bci\s+nq\b|\bcin\s+q\b/gi, 'cinq')
+    .replace(/\bzer?\s+o\b/gi, 'zéro')
+    // Mots bi-syllabiques coupés
+    .replace(/\bqua\s+tre\b|\bquat\s+re\b/gi, 'quatre')
+    .replace(/\bon\s+ze\b/gi, 'onze')
+    .replace(/\bdou\s+ze\b|\bdo\s+uze\b/gi, 'douze')
+    .replace(/\btrei\s+ze\b/gi, 'treize')
+    .replace(/\bqua\s+torz\b|\bqua\s+torze\b/gi, 'quatorze')
+    .replace(/\bquin\s+ze\b/gi, 'quinze')
+    .replace(/\bsei\s+ze\b/gi, 'seize')
+    .replace(/\bvin\s+gt?\b|\bvint?\s+g?\b/gi, 'vingt')
+    .replace(/\btren\s+te\b/gi, 'trente')
+    .replace(/\bquar\s+ante\b|\bquaran\s+te\b|\bqua\s+rante\b/gi, 'quarante')
+    .replace(/\bcin\s+quante\b|\bcinquan\s+te\b/gi, 'cinquante')
+    .replace(/\bsoix\s+ante\b|\bsoixan\s+te\b/gi, 'soixante');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // L3b — COLLER LES LETTRES ESPACÉES (attaque "z e r o s i x...")
 // "z e r o" → "zero", "t rente" → "trente", "deu x" → "deux"
 // ─────────────────────────────────────────────────────────────────────────────
@@ -325,12 +357,15 @@ function collapseSpacedLetters(text: string): string {
 }
 
 function detectPhoneInWordForm(text: string): boolean {
-  // Tester toutes les combinaisons : original, lettres recollées, troncatures normalisées
-  const collapsed = collapseSpacedLetters(text);
+  // Tester toutes les combinaisons : original, syllabes reconstruites, lettres recollées, troncatures
+  const recon = reconstructSpacedNumberSyllables(text);
+  const collapsed = collapseSpacedLetters(recon);
   const versions = [
     text,
+    recon,
     collapsed,
     normalizeTruncatedNumberWords(text),
+    normalizeTruncatedNumberWords(recon),
     normalizeTruncatedNumberWords(collapsed),
   ];
   for (const version of versions) {
@@ -419,21 +454,27 @@ function extractDigitRuns(rawText: string): string {
   // → "j'ai eu une fois" (0 mots signif.) → pas de contribution
   // → "j'ai un devis avec deux options" (1 mot signif.) → pas de contribution
   // → "zero six soixante quarante ..." (4 mots signif.) → contribution
-  const collapsed = collapseSpacedLetters(noHomo);
+  const recon = reconstructSpacedNumberSyllables(noHomo);
+  const collapsed = collapseSpacedLetters(recon);
   const truncNorm = normalizeTruncatedNumberWords(noHomo);
+  const truncRecon = normalizeTruncatedNumberWords(recon);
   const truncCollapsed = normalizeTruncatedNumberWords(collapsed);
 
   const significantWordCount = Math.max(
     countSignificantNumberWords(noHomo),
+    countSignificantNumberWords(recon),
     countSignificantNumberWords(collapsed),
     countSignificantNumberWords(truncNorm),
+    countSignificantNumberWords(truncRecon),
     countSignificantNumberWords(truncCollapsed)
   );
   if (significantWordCount < 3) return literalDigits;
 
   const candidates = [
+    (convertNumberWords(recon).match(/\d+/g) || []).join(''),
     (convertNumberWords(collapsed).match(/\d+/g) || []).join(''),
     (convertNumberWords(truncNorm).match(/\d+/g) || []).join(''),
+    (convertNumberWords(truncRecon).match(/\d+/g) || []).join(''),
     (convertNumberWords(truncCollapsed).match(/\d+/g) || []).join(''),
   ];
   const best = candidates.reduce((a, b) => a.length >= b.length ? a : b, literalDigits);
@@ -452,14 +493,19 @@ function extractDigitRunsAlways(rawText: string): string {
 
   const literalDigits = (noHomo.match(/\d+/g) || []).join('');
 
-  const collapsed = collapseSpacedLetters(noHomo);
+  // Reconstruction des syllabes découpées AVANT le collapse (évite le mauvais appariement greedy)
+  const recon = reconstructSpacedNumberSyllables(noHomo);
+  const collapsed = collapseSpacedLetters(recon);
   const truncNorm = normalizeTruncatedNumberWords(noHomo);
+  const truncRecon = normalizeTruncatedNumberWords(recon);
   const truncCollapsed = normalizeTruncatedNumberWords(collapsed);
 
   const candidates = [
     (convertNumberWords(noHomo).match(/\d+/g) || []).join(''),
+    (convertNumberWords(recon).match(/\d+/g) || []).join(''),
     (convertNumberWords(collapsed).match(/\d+/g) || []).join(''),
     (convertNumberWords(truncNorm).match(/\d+/g) || []).join(''),
+    (convertNumberWords(truncRecon).match(/\d+/g) || []).join(''),
     (convertNumberWords(truncCollapsed).match(/\d+/g) || []).join(''),
   ];
   return candidates.reduce((a, b) => a.length >= b.length ? a : b, literalDigits);
@@ -511,23 +557,28 @@ export function validateMessageWithHistory(
   function sigWordsOf(m: string): number {
     const clean = removeWhitelistedContexts(m);
     const norm = normalizeAltSeparators(clean).toLowerCase();
-    const collapsed = collapseSpacedLetters(norm);
+    const recon = reconstructSpacedNumberSyllables(norm);
+    const collapsed = collapseSpacedLetters(recon);
     const truncNorm = normalizeTruncatedNumberWords(norm);
+    const truncRecon = normalizeTruncatedNumberWords(recon);
     const truncCollapsed = normalizeTruncatedNumberWords(collapsed);
     return Math.max(
       countSignificantNumberWords(norm),
+      countSignificantNumberWords(recon),
       countSignificantNumberWords(collapsed),
       countSignificantNumberWords(truncNorm),
+      countSignificantNumberWords(truncRecon),
       countSignificantNumberWords(truncCollapsed)
     );
   }
   const totalSigWords = allMsgs.reduce((sum, m) => sum + sigWordsOf(m), 0);
 
   // L6b — CONCAT FENÊTRE (attaque "mot découpé cross-messages")
-  // "t r o" [msg N] + "is" [msg N+1] → concat "t r o is" → collapseSpacedLetters → "trois" → "3"
-  // On doit calculer sigWordsOf sur la chaîne concaténée AVANT de choisir extractFn,
-  // car la concat peut révéler des mots-chiffres invisibles individuellement.
-  const allConcat = allMsgs.join(' ');
+  // "t r o" [msg N] + "is" [msg N+1] → concat "t r o is" → collapsed → "trois" → "3"
+  // Séparateur " . " (espace-point-espace) : le point n'est PAS un char [a-z],
+  // donc collapseSpacedLetters ne franchit jamais la frontière de message
+  // → "trois . un" garde \btrois\b intact (évite "troisun" qui perd le "3").
+  const allConcat = allMsgs.join(' . ');
   const concatSigWords = sigWordsOf(allConcat);
   const effectiveSigWords = Math.max(totalSigWords, concatSigWords);
 
