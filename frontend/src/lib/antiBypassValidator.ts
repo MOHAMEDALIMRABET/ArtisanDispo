@@ -235,9 +235,8 @@ function convertNumberWords(text: string): string {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// L3c — NORMALISATION TRONCATURES INTENTIONNELLES
-// Reconstitue les mots-chiffres délibérément tronqués :
-// "troi" → "trois", "deu" → "deux", "quatr" → "quatre", etc.
+// L3c — NORMALISATION TRONCATURES & VARIANTES ORTHOGRAPHIQUES
+// "troi" → "trois", "ving" → "vingt", "quanrente" → "quarante", etc.
 // ─────────────────────────────────────────────────────────────────────────────
 function normalizeTruncatedNumberWords(text: string): string {
   return text
@@ -247,18 +246,36 @@ function normalizeTruncatedNumberWords(text: string): string {
     .replace(/\btroi\b/gi, 'trois')
     .replace(/\bquatr\b/gi, 'quatre')
     .replace(/\bneu\b/gi, 'neuf')
-    // Dizaines tronquées
+    // vingt : "ving", "vint", "vingo"...
+    .replace(/\bving[t]?\b/gi, 'vingt')
+    .replace(/\bvint\b/gi, 'vingt')
+    // trente : "trant", "tren"
+    .replace(/\btrant\b/gi, 'trente')
+    .replace(/\btren\b/gi, 'trente')
     .replace(/\btrent\b/gi, 'trente')
+    // quarante : "quarant", "quanrente", "quarente", "quarrant", "quarante" (direct)
     .replace(/\bquarant\b/gi, 'quarante')
+    .replace(/\bquanrente\b/gi, 'quarante')
+    .replace(/\bquarente\b/gi, 'quarante')
+    .replace(/\bquarrant\b/gi, 'quarante')
+    // Fuzzy quarante : toute séquence commençant par qua/kan + ~ante/rante
+    .replace(/\bqua[nrm][aeiou]?[rn]?[ae]nt[e]?\b/gi, 'quarante')
+    // cinquante : "cinquant", "singkante"...
     .replace(/\bcinquant\b/gi, 'cinquante')
+    .replace(/\bsinkant\b/gi, 'cinquante')
+    // soixante : "soixant", "soixsant"
     .replace(/\bsoixant\b/gi, 'soixante')
+    .replace(/\bsoixsant\b/gi, 'soixante')
+    .replace(/\bswasant\b/gi, 'soixante')
+    // quatre-vingt : variations
     .replace(/\bquatr[e]?[\s\-]?vingt\b/gi, 'quatre-vingt')
     // Nombres composés tronqués
     .replace(/\bonz\b/gi, 'onze')
     .replace(/\bdouz\b/gi, 'douze')
     .replace(/\btreiz\b/gi, 'treize')
     .replace(/\bquatorz\b/gi, 'quatorze')
-    .replace(/\bquinz\b/gi, 'quinze');
+    .replace(/\bquinz\b/gi, 'quinze')
+    .replace(/\bseiz\b/gi, 'seize');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
