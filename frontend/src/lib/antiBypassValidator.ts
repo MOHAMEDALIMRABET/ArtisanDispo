@@ -523,9 +523,17 @@ export function validateMessageWithHistory(
   }
   const totalSigWords = allMsgs.reduce((sum, m) => sum + sigWordsOf(m), 0);
 
-  // Si le cumul ≥ 3 mots significatifs, on utilise extractDigitRunsAlways
+  // L6b — CONCAT FENÊTRE (attaque "mot découpé cross-messages")
+  // "t r o" [msg N] + "is" [msg N+1] → concat "t r o is" → collapseSpacedLetters → "trois" → "3"
+  // On doit calculer sigWordsOf sur la chaîne concaténée AVANT de choisir extractFn,
+  // car la concat peut révéler des mots-chiffres invisibles individuellement.
+  const allConcat = allMsgs.join(' ');
+  const concatSigWords = sigWordsOf(allConcat);
+  const effectiveSigWords = Math.max(totalSigWords, concatSigWords);
+
+  // Si le cumul effectif ≥ 3 mots significatifs, on utilise extractDigitRunsAlways
   // (sans seuil par message) pour ne pas rater les fragments éparpillés.
-  const extractFn = totalSigWords >= 3 ? extractDigitRunsAlways : extractDigitRuns;
+  const extractFn = effectiveSigWords >= 3 ? extractDigitRunsAlways : extractDigitRuns;
 
   // L7 — RESET : 4+ messages consécutifs sans aucun chiffre → accumulation repart à zéro
   const noDigitStreak = lastMsgs
@@ -535,30 +543,37 @@ export function validateMessageWithHistory(
     return { isValid: true, blockedPatterns: [] };
   }
 
-  // L6 — CUMUL CROSS-MESSAGES
+  // L6a — CUMUL SÉQUENTIEL (technique "1 nombre par message")
   const historyCumulatedDigits = lastMsgs.map(extractFn).join('');
   const newContentDigits = extractFn(newContent);
 
-  // Guard : safe seulement si le nouveau message n'apporte aucun chiffre
-  // ET que l'intention globale est insuffisante (<3 mots significatifs)
-  if (!newContentDigits && totalSigWords < 3) {
+  // Guard : safe seulement si effectivement pas d'intention détectée
+  if (!newContentDigits && effectiveSigWords < 3) {
     return { isValid: true, blockedPatterns: [] };
   }
 
+  // L6b — Digits par concaténation (technique "mot coupé cross-messages")
+  // ex: "t r o" + "is" → joinés → collapsed → "trois" → digit "3"
+  const concatDigits = extractDigitRunsAlways(allConcat);
+
   const combinedDigits = historyCumulatedDigits + newContentDigits;
 
-  // Fenêtre 10 : numéro français complet
-  for (let i = 0; i <= combinedDigits.length - 10; i++) {
-    if (/^0[1-9]\d{8}$/.test(combinedDigits.substring(i, i + 10))) return BLOCKED_PHONE;
+  // Vérifier les deux sources : cumul séquentiel ET concat fenêtre
+  function checkPhoneInDigits(digits: string): boolean {
+    for (let i = 0; i <= digits.length - 10; i++) {
+      if (/^0[1-9]\d{8}$/.test(digits.substring(i, i + 10))) return true;
+    }
+    for (let i = 0; i <= digits.length - 9; i++) {
+      if (/^0[67]\d{7}$/.test(digits.substring(i, i + 9))) return true;
+    }
+    for (let i = 0; i <= digits.length - 11; i++) {
+      if (/^33[1-9]\d{8}$/.test(digits.substring(i, i + 11))) return true;
+    }
+    return false;
   }
-  // Fenêtre 9 : mobile quasi-complet 06/07XXXXXXX
-  for (let i = 0; i <= combinedDigits.length - 9; i++) {
-    if (/^0[67]\d{7}$/.test(combinedDigits.substring(i, i + 9))) return BLOCKED_PHONE;
-  }
-  // Fenêtre 11 : format +33 / 0033
-  for (let i = 0; i <= combinedDigits.length - 11; i++) {
-    if (/^33[1-9]\d{8}$/.test(combinedDigits.substring(i, i + 11))) return BLOCKED_PHONE;
-  }
+
+  if (checkPhoneInDigits(combinedDigits)) return BLOCKED_PHONE;
+  if (checkPhoneInDigits(concatDigits)) return BLOCKED_PHONE;
 
   return { isValid: true, blockedPatterns: [] };
 }
