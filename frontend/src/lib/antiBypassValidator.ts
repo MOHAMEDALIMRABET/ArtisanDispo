@@ -524,6 +524,33 @@ function detectFragmentedPhoneNumbers(text: string): boolean {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// L8b — DÉTECTION MESSAGES PUREMENT NUMÉRIQUES CONSÉCUTIFS
+// Attaque : chaque message = un seul nombre espacé ("z e r o", "s i x", "N e u f"...)
+// Dans une conversation normale, PERSONNE n'envoie un unique mot-chiffre isolé.
+// Un message est "purement numérique" si, après toutes les normalisations,
+// il ne contient rien d'autre qu'un (ou plusieurs) chiffre(s).
+// ─────────────────────────────────────────────────────────────────────────────
+function isMessagePureNumberWord(msg: string): boolean {
+  const clean = removeWhitelistedContexts(msg).trim();
+  if (!clean) return false;
+  const norm = normalizeAltSeparators(clean).toLowerCase().trim();
+  const recon = reconstructSpacedNumberSyllables(norm);
+  const collapsed = collapseSpacedLetters(recon);
+  const truncCollapsed = normalizeTruncatedNumberWords(collapsed);
+
+  // Après conversion des mots → chiffres, retire les digits et la ponctuation
+  // Si le résidu est vide (ou quasi vide ≤ 2 chars de ponctuation), c'est un message purement numérique
+  const converted = convertNumberWords(truncCollapsed);
+  const hasDigits = /\d/.test(converted);
+  if (!hasDigits) return false;
+  const residue = converted
+    .replace(/\d+/g, '')      // retire les chiffres produits
+    .replace(/[\s.,!?;:"'()\-–]/g, '') // retire la ponctuation courante
+    .trim();
+  return residue.length <= 2; // tolérance 2 chars (ex: "ok", "?", émoji simple)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // L6 + L7 — VALIDATE WITH HISTORY
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -547,10 +574,24 @@ export function validateMessageWithHistory(
   if (!singleResult.isValid) return singleResult;
 
   // L7 — RESET BUFFER + L6 CUMUL CROSS-MESSAGES
-  const WINDOW = 6;
+  // Fenêtre élargie à 10 : permet de couvrir 10 messages d'un seul chiffre chacun (= 10 digits)
+  const WINDOW = 10;
   const RESET_THRESHOLD = 4;
   const lastMsgs = recentSenderMsgs.slice(-WINDOW);
   const allMsgs = [...lastMsgs, newContent];
+
+  // L8b — SÉRIE DE MESSAGES PUREMENT NUMÉRIQUES
+  // Si 3+ messages consécutifs récents (+ le nouveau) sont chacun uniquement un nombre,
+  // c'est une tentative de fragmentation lettre-par-lettre ("z e r o" / "s i x" / "N e u f"...).
+  // On bloque sans attendre d'avoir reconstitué les 10 digits complets.
+  const PURE_STREAK_BLOCK = 3;
+  const recentForStreak = [...lastMsgs.slice(-(PURE_STREAK_BLOCK - 1)), newContent];
+  if (
+    recentForStreak.length >= PURE_STREAK_BLOCK &&
+    recentForStreak.every(isMessagePureNumberWord)
+  ) {
+    return BLOCKED_PHONE;
+  }
 
   // Calcul cumulatif des mots-chiffres significatifs sur toute la fenêtre
   // (inclut le nouveau message). Permet de détecter la technique "1 mot par message".
