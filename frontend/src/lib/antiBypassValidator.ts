@@ -319,7 +319,28 @@ function normalizeTruncatedNumberWords(text: string): string {
 // ─────────────────────────────────────────────────────────────────────────────
 function reconstructSpacedNumberSyllables(text: string): string {
   return text
-    // Chiffres simples coupés en fin de consonne
+    // ─ Nombres complètement épelés lettre par lettre (ex: "v i n g t", "q u a t r e") ─
+    // Doit être fait EN PREMIER, avant les syllabes, car les syllabes peuvent
+    // être créées après coup en deux mots déjà reconstitués.
+    .replace(/\bz\s+[e\u00e9]\s+r\s+o\b/gi, 'z\u00e9ro')
+    .replace(/\bu\s+n\b/gi, 'un')              // mais pas 'une' – 'd\u00e9j\u00e0 couvert'
+    .replace(/\bd\s+e\s+u\s+x\b/gi, 'deux')
+    .replace(/\bt\s+r\s+o\s+i\s+s?\b/gi, 'trois')
+    .replace(/\bq\s+u\s+a\s+t\s+r\s+e\b/gi, 'quatre')
+    .replace(/\bc\s+i\s+n\s+q\b/gi, 'cinq')
+    .replace(/\bs\s+i\s+x\b/gi, 'six')
+    .replace(/\bs\s+e\s+p\s+t\b/gi, 'sept')
+    .replace(/\bh\s+u\s+i\s+t\b/gi, 'huit')
+    .replace(/\bn\s+e\s+u\s+f\b/gi, 'neuf')
+    .replace(/\bd\s+i\s+x\b/gi, 'dix')
+    .replace(/\bo\s+n\s+z\s+e\b/gi, 'onze')
+    .replace(/\bd\s+o\s+u\s+z\s+e\b/gi, 'douze')
+    .replace(/\bv\s+i\s+n\s*g?\s+t\b/gi, 'vingt')
+    .replace(/\bt\s+r\s+e\s+n\s+t\s+e\b/gi, 'trente')
+    .replace(/\bq\s+u\s+a\s+r\s+a\s+n\s+t\s+e\b/gi, 'quarante')
+    .replace(/\bc\s+i\s+n\s+q\s+u\s+a\s+n\s+t\s+e\b/gi, 'cinquante')
+    .replace(/\bs\s+o\s+i\s+x\s+a\s+n\s+t\s+e\b/gi, 'soixante')
+    // ─ Chiffres simples coupés en fin de consonne ─
     .replace(/\bsi\s+x\b/gi, 'six')
     .replace(/\bse\s+pt?\b|\bsep\s+t\b/gi, 'sept')
     .replace(/\bhu\s+it\b|\bhui\s+t\b/gi, 'huit')
@@ -349,6 +370,10 @@ function reconstructSpacedNumberSyllables(text: string): string {
 // ─────────────────────────────────────────────────────────────────────────────
 function collapseSpacedLetters(text: string): string {
   let result = text.toLowerCase();
+  // Étape 0 : supprimer les consonnes-bruit isolées qui précèdent une séquence
+  // de lettres espacées (ex: "c z e r o" → " z e r o", évite "cz"+"er"+"o"="czero").
+  // Condition : 1 consonne seule suivie de 3+ autres groupes "lettre espace"
+  result = result.replace(/\b([b-df-hj-np-tv-xz])\s+(?=(?:[a-zéèêàâôùûîç]\s+){2}[a-zéèêàâôùûîç]\b)/g, ' ');
   // 4 passes pour reconstituer des mots découpés caractère par caractère
   for (let i = 0; i < 4; i++) {
     result = result.replace(/([a-zéèêàâôùûîç]{1,6})\s+([a-zéèêàâôùûîç]{1,6})/g, '$1$2');
@@ -387,6 +412,7 @@ function detectPhoneInWordForm(text: string): boolean {
 function normalizeAltSeparators(text: string): string {
   return text
     .replace(/[\*\/\#\|\\]/g, ' ')
+    .replace(/[_]/g, ' ')            // éviterd \bquatre\b when "3_ 9" → "3 9"
     .replace(/\u00A0/g, ' ')
     .replace(/[\u200B\u200C\u200D\uFEFF]/g, '')
     .replace(/\u202F/g, ' ');
@@ -692,11 +718,15 @@ export function validateMessage(content: string, isPaid: boolean = false): Valid
 
   // L1 : Patterns regex directs
   // ⚠️ Reset lastIndex avant chaque test : les patterns avec flag /g sont stateful
-  // et conservent lastIndex entre appels, causant des faux négatifs
+  // et conservent lastIndex entre appels, causant des faux négatifs.
+  // On teste également la version collapsed pour attraper les mots-clés espacés
+  // (ex: "w h a t s a p p" → collapsed → "whatsapp", "m o n  n u m" → "monnum")
+  const reconL1 = reconstructSpacedNumberSyllables(normalizedHomoglyph);
+  const collapsedL1 = collapseSpacedLetters(reconL1);
   for (const [category, patterns] of Object.entries(BLOCKED_PATTERNS)) {
     for (const pattern of patterns) {
       pattern.lastIndex = 0;
-      if (pattern.test(normalizedHomoglyph)) {
+      if (pattern.test(normalizedHomoglyph) || (pattern.lastIndex = 0, pattern.test(collapsedL1))) {
         addBlocked(category);
         break;
       }
