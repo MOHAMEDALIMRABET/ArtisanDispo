@@ -281,13 +281,14 @@ function normalizeTruncatedNumberWords(text: string): string {
     // vingt : "ving", "vint", "vingo"...
     .replace(/\bving[t]?\b/gi, 'vingt')
     .replace(/\bvint\b/gi, 'vingt')
-    // trente : "trant", "tren"
+    // trente : "trant", "tren", "trentre" (faute de frappe)
     .replace(/\btrant\b/gi, 'trente')
     .replace(/\btren\b/gi, 'trente')
     .replace(/\btrent\b/gi, 'trente')
+    .replace(/\btrentr[e]?\b/gi, 'trente')
     // quarante : "quarant", "quanrente", "quarente", "quarrant", "quarante" (direct)
     .replace(/\bquarant\b/gi, 'quarante')
-    .replace(/\bquanrente\b/gi, 'quarante')
+    .replace(/\bquanrente[^a-z]?/gi, (m) => 'quarante' + (m.slice(9) ? ' ' : ''))
     .replace(/\bquarente\b/gi, 'quarante')
     .replace(/\bquarrant\b/gi, 'quarante')
     // Fuzzy quarante : toute séquence commençant par qua/kan + ~ante/rante
@@ -439,6 +440,31 @@ function extractDigitRuns(rawText: string): string {
   return best;
 }
 
+/**
+ * Version sans seuil de `extractDigitRuns` : convertit les mots-chiffres
+ * même si le message ne contient qu'un seul mot significatif.
+ * Utilisée quand le total cumulatif de la fenêtre ≥ 3 mots significatifs.
+ */
+function extractDigitRunsAlways(rawText: string): string {
+  const clean = removeWhitelistedContexts(rawText);
+  const norm = normalizeAltSeparators(clean);
+  const noHomo = normalizeHomoglyphsInMixedSegments(norm);
+
+  const literalDigits = (noHomo.match(/\d+/g) || []).join('');
+
+  const collapsed = collapseSpacedLetters(noHomo);
+  const truncNorm = normalizeTruncatedNumberWords(noHomo);
+  const truncCollapsed = normalizeTruncatedNumberWords(collapsed);
+
+  const candidates = [
+    (convertNumberWords(noHomo).match(/\d+/g) || []).join(''),
+    (convertNumberWords(collapsed).match(/\d+/g) || []).join(''),
+    (convertNumberWords(truncNorm).match(/\d+/g) || []).join(''),
+    (convertNumberWords(truncCollapsed).match(/\d+/g) || []).join(''),
+  ];
+  return candidates.reduce((a, b) => a.length >= b.length ? a : b, literalDigits);
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // ANCIENNE DÉTECTION FRAGMENTS PAR LETTRES (conservée)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -474,26 +500,48 @@ export function validateMessageWithHistory(
   const singleResult = validateMessage(newContent, isPaid);
   if (!singleResult.isValid) return singleResult;
 
-  // L7 — RESET BUFFER
-  // 4+ messages consécutifs sans aucun chiffre → l'accumulation repart à zéro
+  // L7 — RESET BUFFER + L6 CUMUL CROSS-MESSAGES
   const WINDOW = 6;
   const RESET_THRESHOLD = 4;
   const lastMsgs = recentSenderMsgs.slice(-WINDOW);
-  // Un message avec mots-chiffres significatifs n'est PAS sans chiffres
+  const allMsgs = [...lastMsgs, newContent];
+
+  // Calcul cumulatif des mots-chiffres significatifs sur toute la fenêtre
+  // (inclut le nouveau message). Permet de détecter la technique "1 mot par message".
+  function sigWordsOf(m: string): number {
+    const clean = removeWhitelistedContexts(m);
+    const norm = normalizeAltSeparators(clean).toLowerCase();
+    const collapsed = collapseSpacedLetters(norm);
+    const truncNorm = normalizeTruncatedNumberWords(norm);
+    const truncCollapsed = normalizeTruncatedNumberWords(collapsed);
+    return Math.max(
+      countSignificantNumberWords(norm),
+      countSignificantNumberWords(collapsed),
+      countSignificantNumberWords(truncNorm),
+      countSignificantNumberWords(truncCollapsed)
+    );
+  }
+  const totalSigWords = allMsgs.reduce((sum, m) => sum + sigWordsOf(m), 0);
+
+  // Si le cumul ≥ 3 mots significatifs, on utilise extractDigitRunsAlways
+  // (sans seuil par message) pour ne pas rater les fragments éparpillés.
+  const extractFn = totalSigWords >= 3 ? extractDigitRunsAlways : extractDigitRuns;
+
+  // L7 — RESET : 4+ messages consécutifs sans aucun chiffre → accumulation repart à zéro
   const noDigitStreak = lastMsgs
     .slice(-RESET_THRESHOLD)
-    .filter(m => extractDigitRuns(m).length === 0).length;
+    .filter(m => extractFn(m).length === 0).length;
   if (noDigitStreak >= RESET_THRESHOLD) {
     return { isValid: true, blockedPatterns: [] };
   }
 
   // L6 — CUMUL CROSS-MESSAGES
-  const historyCumulatedDigits = lastMsgs.map(extractDigitRuns).join('');
-  const newContentDigits = extractDigitRuns(newContent);
+  const historyCumulatedDigits = lastMsgs.map(extractFn).join('');
+  const newContentDigits = extractFn(newContent);
 
-  // Guard : si le nouveau message n'apporte aucun chiffre,
-  // il ne peut PAS être la pièce manquante d'un numéro fragmenté → safe
-  if (!newContentDigits) {
+  // Guard : safe seulement si le nouveau message n'apporte aucun chiffre
+  // ET que l'intention globale est insuffisante (<3 mots significatifs)
+  if (!newContentDigits && totalSigWords < 3) {
     return { isValid: true, blockedPatterns: [] };
   }
 
