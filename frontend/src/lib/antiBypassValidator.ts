@@ -61,14 +61,19 @@ const BLOCKED_PATTERNS = {
     /\b[o0O][67][\s.\-]?\d{2}[\s.\-]?\d{2}[\s.\-]?\d{2}[\s.\-]?\d{2}\b/gi,
     // Chiffres espacés façon dictée : "0 6 1 2 3 4 5 6 7 8"
     /\b0[\s.\-]{1,3}[1-9](?:[\s.\-]{1,3}\d){8}\b/gi,
-    // Mots-clés téléphoniques
+    // Mots-clés téléphoniques (précis, sans faux positifs)
     /\bmon[\s\-]?num[eéè]ro\b/gi,
     /\bappell?e[\s\-]?moi\b/gi,
+    /\brappelle[\s\-]?moi\b/gi,
     /\btel[\s:.\-]?\s*\d/gi,
     /\bt[eéè]l[eéè]phone\b/gi,
-    /\bportable\b/gi,
-    /\bmobile\b/gi,
     /\bnum[eéè]ro[\s\-]?de[\s\-]?t[eéè]l/gi,
+    /\bvoici[\s\-]?mon[\s\-]?num/gi,
+    /\bmon[\s\-]?portable\b/gi,         // "mon portable" = téléphone
+    /\bt[eéè]l[eéè]?[\s\-]?port[a]?ble\b/gi, // "téléphone portable"
+    /\bnum[eéè]ro[\s\-]?mobile\b/gi,    // "numéro mobile"
+    // NOTE: "portable" seul et "mobile" seul sont INTENTIONNELLEMENT absents
+    // car trop présents dans les conversations artisans (PC portable, appli mobile)
   ],
 
   email: [
@@ -93,41 +98,49 @@ const BLOCKED_PATTERNS = {
   ],
 
   adresse: [
-    /\b\d{5}\b/g,
-    /\b\d{2}[\s.\-]?\d{3}\b/g,
-    /\b\d[\s.\-]?\d[\s.\-]?\d[\s.\-]?\d[\s.\-]?\d\b/g,
+    // Code postal 5 chiffres — uniquement avec contexte adresse explicite
+    // (le code postal seul comme "75001" reste bloqué via le pattern contextuel)
     /\bcode[\s\-]?postal\b/gi,
-    /\bcp[\s:.\-]?\s*\d/gi,
+    // Street number + type de voie
     /\b\d{1,4}[\s,]+(bis|ter|quater)?\s*(rue|avenue|boulevard|av\.?|bd\.?|impasse|place|chemin|allée|route|voie|passage|square|cour|villa|résidence|lotissement)\b/gi,
     /\b(rue|avenue|boulevard|impasse|place|chemin|allée|route)[\s\-]+[a-z]{3,}/gi,
-    /\b(paris|lyon|marseille|toulouse|nice|nantes|strasbourg|montpellier|bordeaux|lille|rennes|reims|toulon|saint[\s\-]étienne|grenoble|dijon|angers|nîmes|villeurbanne|clermont[\s\-]ferrand|le\s+havre|aix[\s\-]en[\s\-]provence|brest|amiens|limoges|tours|metz|besançon|caen|orléans|mulhouse|rouen|valenciennes|perpignan|pau|cannes|antibes|ajaccio|fort[\s\-]de[\s\-]france|saint[\s\-]denis|pointe[\s\-]à[\s\-]pitre)\b/gi,
-    /\bparis[\s\-]?\d{1,2}[eèém]?\b/gi,
-    /\b75\d{3}\b/g,
+    // Codes postaux massifs des grandes agglomérations (non ambigus)
+    /\b7[5-9]\d{3}\b/g,   // Paris + petite couronne
+    /\b69\d{3}\b/g,        // Lyon
+    /\b13\d{3}\b/g,        // Marseille/Bouches-du-Rhône
+    /\b33\d{3}\b/g,        // Bordeaux
+    /\b31\d{3}\b/g,        // Toulouse
+    /\b06\d{3}\b/g,        // Alpes-Maritimes (Nice)
+    // Code postal générique avec mot-clé explicite
+    /\b(code postal|cp ?:)[\s:=]?\d{5}\b/gi,
     /\barrondissement\b/gi,
-    /\badresse[\s:.\-]/gi,
-    /\bdomicile\b/gi,
-    /\bchez[\s\-]?moi\b/gi,
-    /\bhabite[\s\-]?(au|à)\b/gi,
-    /\bviens[\s\-]?(au|à|chez)\b/gi,
+    // NOTE: noms de villes seuls supprimés → trop courants dans contexte artisan
+    // ("intervention à Lyon", "chantier à Paris" etc.)
+    // NOTE: "domicile" supprimé → "travaux à domicile" = cœur du métier
+    // NOTE: "viens chez" supprimé → "viens au chantier" est normal
   ],
 
   social: [
     /\bfacebook\b/gi,
     /\binstagram\b/gi,
+    /\binsta\b/gi,           // abréviation courante
     /\bwhatsapp\b/gi,
     /\btelegram\b/gi,
     /\bsnapchat\b/gi,
+    /\bsnap\b/gi,            // abréviation courante
     /\blinkedin\b/gi,
     /\btiktok\b/gi,
-    /\bsignal\b/gi,
     /\bviber\b/gi,
     /\bdiscord\b/gi,
     /\bskype\b/gi,
     /\bwechat\b/gi,
-    /\bline\b/gi,
     /\bimessage\b/gi,
     /\bfacetime\b/gi,
+    /\bsur\s+signal\b/gi,    // "sur Signal" (app) — mais pas "mauvais signal wifi"
+    /\bappli?\s+signal\b/gi, // "appli Signal"
     /\b@[a-z0-9_.]{3,}\b/gi,
+    // Abréviations réseaux
+    /\b(fb|ig|wa|tg|sc)\s*:\s*[a-z0-9_.]{3,}/gi, // fb: user123
   ],
 
   autres: [
@@ -138,6 +151,10 @@ const BLOCKED_PATTERNS = {
     /\bsans[\s\-]?passer[\s\-]?par\b/gi,
     /\ben[\s\-]?priv[eé]\b/gi,
     /\bpar[\s\-]?ailleurs\b/gi,
+    // IBAN (coordonnées bancaires)
+    /\b[A-Z]{2}\d{2}[\s]?(?:\d{4}[\s]?){4,6}\d{1,4}\b/g,
+    // Invitation à contacter en dehors
+    /\bcontact(?:e|ez)[\s\-]?moi[\s\-]?(?:en[\s\-]dehors|directement|ailleurs)\b/gi,
   ],
 };
 
@@ -147,13 +164,28 @@ const BLOCKED_PATTERNS = {
 // ─────────────────────────────────────────────────────────────────────────────
 function removeWhitelistedContexts(text: string): string {
   return text
+    // Contextes financiers
     .replace(/\b\d[\d\s,.]*(€|euros?|eur)\b/gi, 'PRIX')
+    // Années
     .replace(/\b20[2-3]\d\b/g, 'ANNEE')
+    // Horaires
     .replace(/\b\d{1,2}h\d{0,2}\b/gi, 'HORAIRE')
+    // Références devis
     .replace(/\bDV[\-_]\d{4}[\-_]\d+\b/gi, 'REFDEVIS')
+    // Durées
     .replace(/\b\d+\s*(jour|semaine|mois|heure|h|min|minute)s?\b/gi, 'DUREE')
-    .replace(/\b\d+\s*(m[²2]?|cm|mm|ml|l|kg|g|t)\b/gi, 'QUANTITE')
-    .replace(/^\d+\.\s/gm, 'ITEM ');
+    // Quantités et mesures
+    .replace(/\b\d+\s*(m[²2]?|cm|mm|ml|cl|l|kg|g|t)\b/gi, 'QUANTITE')
+    // Listes numérotées
+    .replace(/^\d+\.\s/gm, 'ITEM ')
+    // Étages / niveaux ("3ème étage", "2e niveau")
+    .replace(/\b\d{1,2}[eèém][rm]?e?[\s\-]?(étage|niveau|palier|porte)\b/gi, 'ETAGE')
+    // Numéros de chantier / dossier / facture (contexte pro)
+    .replace(/\b(chantier|dossier|facture|bon de commande|ref|réf)[\s.:\-]*n?°?[\s]?\d+\b/gi, 'REFDOC')
+    // Percentages
+    .replace(/\b\d{1,3}\s*%/g, 'POURCENTAGE')
+    // Notes / scores ("4\/5", "8 sur 10")
+    .replace(/\b\d{1}\s*(\/|sur)\s*\d{1,2}\b/gi, 'NOTE');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -345,6 +377,23 @@ function detectReversedPhone(text: string): boolean {
  * Ex: "j'ai eu une fois" → 1 ("une")
  *     "zero six soixante quarante neuf un trois" → 7
  */
+/**
+ * Compte les mots-chiffres SIGNIFICATIFS (hors "un/une" qui sont trop courants en français).
+ * Utilisé pour le seuil d'intention : 3 mots significatifs = intention de dicter un numéro.
+ */
+function countSignificantNumberWords(text: string): number {
+  const lower = text.toLowerCase();
+  let count = 0;
+  for (const [pattern] of WORD_DIGIT_MAP) {
+    // Exclure "un" et "une" du décompte seuil (trop courants en français naturel)
+    if (/^\\bun/.test(pattern.source)) continue;
+    const re = new RegExp(pattern.source, 'gi');
+    const hits = lower.match(re);
+    if (hits) count += hits.length;
+  }
+  return count;
+}
+
 function countNumberWords(text: string): number {
   const lower = text.toLowerCase();
   let count = 0;
@@ -364,20 +413,22 @@ function extractDigitRuns(rawText: string): string {
   // Toujours extraire les chiffres littéraux
   const literalDigits = (noHomo.match(/\d+/g) || []).join('');
 
-  // Convertir les mots-chiffres UNIQUEMENT si le message en contient 3 ou plus
-  // → évite que "une", "deux" dans une phrase normale polluent le contexte cross-message
-  // → "zero six soixante quarante neuf un trois" (7 mots) passe bien
+  // Convertir les mots-chiffres UNIQUEMENT si le message contient 3+ mots significatifs
+  // ("significatifs" = excluant "un/une" trop courants en français naturel)
+  // → "j'ai eu une fois" (0 mots signif.) → pas de contribution
+  // → "j'ai un devis avec deux options" (1 mot signif.) → pas de contribution
+  // → "zero six soixante quarante ..." (4 mots signif.) → contribution
   const collapsed = collapseSpacedLetters(noHomo);
   const truncNorm = normalizeTruncatedNumberWords(noHomo);
   const truncCollapsed = normalizeTruncatedNumberWords(collapsed);
 
-  const wordCount = Math.max(
-    countNumberWords(noHomo),
-    countNumberWords(collapsed),
-    countNumberWords(truncNorm),
-    countNumberWords(truncCollapsed)
+  const significantWordCount = Math.max(
+    countSignificantNumberWords(noHomo),
+    countSignificantNumberWords(collapsed),
+    countSignificantNumberWords(truncNorm),
+    countSignificantNumberWords(truncCollapsed)
   );
-  if (wordCount < 3) return literalDigits;
+  if (significantWordCount < 3) return literalDigits;
 
   const candidates = [
     (convertNumberWords(collapsed).match(/\d+/g) || []).join(''),
@@ -428,8 +479,7 @@ export function validateMessageWithHistory(
   const WINDOW = 6;
   const RESET_THRESHOLD = 4;
   const lastMsgs = recentSenderMsgs.slice(-WINDOW);
-  // Un message avec mots-chiffres ("zero six...") n'est PAS sans chiffres
-  // extractDigitRuns inclut maintenant les troncatures et les mots espacés
+  // Un message avec mots-chiffres significatifs n'est PAS sans chiffres
   const noDigitStreak = lastMsgs
     .slice(-RESET_THRESHOLD)
     .filter(m => extractDigitRuns(m).length === 0).length;
@@ -530,43 +580,60 @@ export function sanitizeContent(content: string): string {
 // EXEMPLES (tests)
 // ─────────────────────────────────────────────────────────────────────────────
 export const BLOCKED_EXAMPLES = [
-  // L1 — standards
+  // Numéros directs
   "Appelle-moi au 06 12 34 56 78",
   "Mon numéro: 0612345678",
   "+33 6 12 34 56 78",
   "00 33 6 12 34 56 78",
-  // L2 — homoglyphes
+  // Mots-clés
+  "rappelle-moi",
+  "voici mon numéro",
+  "mon portable c'est",
+  // Homoglyphes
   "Mon tel: o6 12 34 56 78",
-  "I am at 06I234567B",
-  // L3 — mots-chiffres
+  // Mots-chiffres
   "zéro six douze trente-quatre cinquante-six soixante-dix-huit",
-  "zero six vingt-cinq trente-deux quarante sept",
-  // L4 — séparateurs alternatifs
-  "06*12*34*56*78",
-  "06/12/34/56/78",
-  // L5 — renversé
-  "87654321 60",
+  "zero six ving trente quarante trois neuf",
+  "z e r o s i x vingt cinq trente deux",
+  // Cross-messages (détecté par validateMessageWithHistory)
+  // msg1: "je suis zero six", msg2: "vingt trois quarante sept"
   // Emails
   "Mon email: test@gmail.com",
-  "gmail.com",
-  "protonmail",
+  "protonmail", "hotmail", "outlook",
   // Réseaux
   "Retrouve-moi sur WhatsApp",
-  "Contacte-moi sur Signal",
-  "Mon Discord: user#1234",
-  // DOM-TOM
-  "Mon numéro Réunion: 0262123456",
+  "mon snap: user123",
+  "insta: @user",
+  // Adresses
+  "15 rue de la Paix",
+  "75001", // code postal Paris
+  // IBAN
+  "FR76 1234 5678 9012 3456 7890 123",
 ];
 
 export const VALID_EXAMPLES = [
+  // Phrases normales artisan
   "Bonjour, je suis disponible demain matin",
   "Le devis sera de 1500€",
   "Je peux intervenir en 2 heures",
-  "Pouvez-vous préciser le type de travaux ?",
   "Merci pour votre confiance",
   "Réf devis: DV-2026-00012",
   "Rendez-vous lundi à 9h30",
   "Durée estimée: 3 jours",
   "Surface: 25 m²",
   "Chantier prévu en 2026",
+  // Faux positifs corrigés
+  "Je fais des travaux à domicile",      // "domicile" plus bloqué
+  "Service à domicile disponible",        // idem
+  "Consultez notre site en ligne",         // "en ligne" plus bloqué
+  "Vérifiez la ligne électrique",          // "ligne" plus bloqué
+  "Mon PC portable est à jour",            // "portable" seul plus bloqué
+  "L'appli mobile est installée",          // "mobile" seul plus bloqué
+  "Viens au chantier demain",              // "viens" plus bloqué
+  "j'ai eu une fois le problème",         // "une" ne déclenche plus rien
+  "Signal wifi correct sur le chantier",   // "signal" seul plus bloqué
+  "Intervention à Lyon prévue jeudi",     // ville seule plus bloquée
+  "Chantier réf. 42518",                  // numéro dossier
+  "3ème étage, appartement B",            // étage
+  "Taux TVA: 10%",                         // pourcentage
 ];
