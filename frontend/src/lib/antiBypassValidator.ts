@@ -277,7 +277,9 @@ function extractDigitRuns(rawText: string): string {
   const clean = removeWhitelistedContexts(rawText);
   const norm = normalizeAltSeparators(clean);
   const noHomo = normalizeHomoglyphsInMixedSegments(norm);
-  return (noHomo.match(/\d+/g) || []).join('');
+  // L3 cross-message : convertir aussi les mots-chiffres (ex: "zero six soixante")
+  const withWordDigits = convertNumberWords(noHomo);
+  return (withWordDigits.match(/\d+/g) || []).join('');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -320,9 +322,10 @@ export function validateMessageWithHistory(
   const WINDOW = 6;
   const RESET_THRESHOLD = 4;
   const lastMsgs = recentSenderMsgs.slice(-WINDOW);
+  // Un message avec mots-chiffres ("zero six...") n'est PAS sans chiffres
   const noDigitStreak = lastMsgs
     .slice(-RESET_THRESHOLD)
-    .filter(m => !/\d/.test(m)).length;
+    .filter(m => extractDigitRuns(m).length === 0).length;
   if (noDigitStreak >= RESET_THRESHOLD) {
     return { isValid: true, blockedPatterns: [] };
   }
