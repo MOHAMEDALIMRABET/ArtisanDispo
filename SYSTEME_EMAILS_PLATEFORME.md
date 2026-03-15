@@ -35,7 +35,7 @@
   - Confirmation suppression définitive
   - Suspension de compte
   - Réactivation de compte
-- **Statut** : ✅ **ACTIF** (configuré avec `mohamedalimrabet22@gmail.com`)
+- **Statut** : ✅ **ACTIF** (configuré avec `contact.artisandispo@gmail.com`)
 
 **Architecture** :
 ```typescript
@@ -170,7 +170,7 @@ Objet : Réinitialisation de votre mot de passe - ArtisanSafe
 Bonjour,NODEMAILER + GMAIL (4 emails actifs)
 
 > **✅ SYSTÈME ACTIF** : Ces emails sont **opérationnels** via Nodemailer + Gmail SMTP.  
-> Configuration : `backend/.env` (SMTP_USER=mohamedalimrabet22@gmail.com)  
+> Configuration : `backend/.env` (SMTP_USER=contact.artisandispo@gmail.com)  
 > Fichiers : `frontend/src/lib/firebase/email-notification-service.ts` + `backend/src/services/email-service.ts`
 
 ---

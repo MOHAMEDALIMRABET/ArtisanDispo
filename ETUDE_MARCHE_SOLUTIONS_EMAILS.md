@@ -80,7 +80,7 @@ Aucune limite de volume
 - **Provider** : Google Gmail
 - **Type** : SMTP classique via Nodemailer
 - **Personnalisation** : ✅ TOTALE (100%)
-- **Compte actuel** : mohamedalimrabet22@gmail.com
+- **Compte actuel** : contact.artisandispo@gmail.com
 
 #### Coûts
 ```
@@ -1096,7 +1096,7 @@ Volume estimé :
 ### Configuration Gmail Actuelle
 
 ```env
-GMAIL_USER=mohamedalimrabet22@gmail.com
+GMAIL_USER=contact.artisandispo@gmail.com
 GMAIL_APP_PASSWORD=****
 ```
 

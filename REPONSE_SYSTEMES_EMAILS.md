@@ -51,7 +51,7 @@ await sendEmailVerification(user);
 ## 📧 Système 2 : Nodemailer + Gmail SMTP (Transactionnel)
 
 **Technologie** : Nodemailer + Gmail  
-**Statut** : ✅ **ACTIF** (configuré avec `mohamedalimrabet22@gmail.com`)
+**Statut** : ✅ **ACTIF** (configuré avec `contact.artisandispo@gmail.com`)
 
 ### ✅ OUI, il y a envoi d'emails via Gmail pour la suppression de compte !
 
@@ -70,7 +70,7 @@ import { sendDeletionWarningEmail } from './email-notification-service';
 
 // Admin programme suppression (15 jours avant)
 await sendDeletionWarningEmail(
-  user.email,              // mohamedalimrabet22@gmail.com (destinataire)
+  user.email,              // contact.artisandispo@gmail.com (destinataire)
   'Mohamed Ali',           // Nom utilisateur
   'Non-respect CGU',       // Raison suppression
   new Date('2026-03-07')   // Date suppression définitive
@@ -105,7 +105,7 @@ await sendDeletionWarningEmail(
 │          ↓                                          │
 │ Envoie via Nodemailer + Gmail SMTP                  │
 │   - SMTP_HOST: smtp.gmail.com                       │
-│   - SMTP_USER: mohamedalimrabet22@gmail.com         │
+│   - SMTP_USER: contact.artisandispo@gmail.com        │
 │   - SMTP_PASSWORD: rmhn dhal kpeh zypd              │
 │          ↓                                          │
 │ Marque status='sent' (succès) ou 'failed' (échec)  │
@@ -120,7 +120,7 @@ await sendDeletionWarningEmail(
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_SECURE=false
-SMTP_USER=mohamedalimrabet22@gmail.com
+SMTP_USER=contact.artisandispo@gmail.com
 SMTP_PASSWORD=rmhn dhal kpeh zypd  # Mot de passe d'application Gmail
 ```
 
@@ -172,7 +172,7 @@ if (process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
 
 **✅ OUI, confirmé !**
 - Système **ACTIF** depuis le début
-- Configuré avec `mohamedalimrabet22@gmail.com`
+- Configuré avec `contact.artisandispo@gmail.com`
 - Envoie 4 types d'emails via Gmail SMTP :
   - Avertissement suppression (15 jours avant)
   - Confirmation suppression définitive
