@@ -494,10 +494,13 @@ export default function MesDemandesPage() {
       // → Non annulée / terminée
       // → Statut compatible : publiee, attribuee ou matchee
       const hasDevisVisible = devis.some(dv => dv.statut === 'envoye' || dv.statut === 'en_attente_paiement');
+      // Exclure si tous les devis sont refusés → bascule dans "Traitées"
+      const tousDevisRefuses = devis.length > 0 && devis.every(dv => dv.statut === 'refuse');
 
       return !hasDevisPaye &&
              !isExpired &&
              !hasDevisVisible &&
+             !tousDevisRefuses &&
              d.statut !== 'annulee' &&
              d.statut !== 'terminee' &&
              (d.statut === 'publiee' || d.statut === 'attribuee' || d.statut === 'matchee');
@@ -564,9 +567,11 @@ export default function MesDemandesPage() {
       const isRefusee = d.statut === 'annulee';
       const isTerminee = d.statut === 'terminee';
       const isExpiree = d.dateExpiration ? isDemandeExpired(d.dateExpiration) : false;
+      const devis = devisMap.get(d.id) || [];
+      const tousDevisRefuses = devis.length > 0 && devis.every(dv => dv.statut === 'refuse');
       
-      // Traitée = devis payé OU refusée OU terminée OU expirée
-      return hasDevisPaye || isRefusee || isTerminee || isExpiree;
+      // Traitée = devis payé OU refusée OU terminée OU expirée OU tous les devis refusés
+      return hasDevisPaye || isRefusee || isTerminee || isExpiree || tousDevisRefuses;
     });
   }
 
@@ -601,9 +606,11 @@ export default function MesDemandesPage() {
             return devisPaye && ['travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(devisPaye.statut);
           case 'litiges':
             return devisPaye?.statut === 'litige';
-          case 'refusees':
-            // CORRECTION : Seulement les demandes annulées SANS devis payé
-            return d.statut === 'annulee' && !devisPaye;
+          case 'refusees': {
+            // Demandes annulées OU toutes les variantes refusées, sans devis payé
+            const tousRefuses = devisForDemande.length > 0 && devisForDemande.every(dv => dv.statut === 'refuse');
+            return (d.statut === 'annulee' || tousRefuses) && !devisPaye;
+          }
           case 'expirees':
             // CORRECTION : Seulement les demandes expirées SANS devis payé (vérification dateExpiration réelle)
             return d.dateExpiration && isDemandeExpired(d.dateExpiration) && !devisPaye;
