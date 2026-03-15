@@ -362,12 +362,18 @@ export default function MesDemandesPage() {
     }
     
     // ✅ PRIORITÉ 4 : DEMANDE DIRECTE (envoyée à un artisan spécifique)
-    // → Badge "Envoyé à artisan" dès la création (artisan déjà assigné)
-    // ✅ PRIORITÉ 4 : DEMANDE DIRECTE
-    // Une demande directe avec artisan assigné affiche TOUJOURS "🎯 Envoyé à artisan"
-    // (peu importe le statut Firestore — les priorités 1-3 ont déjà géré les cas contrat/devis)
+    // → Badge "Envoyé à artisan" sauf si tous les devis sont refusés
     if (demandeType === 'directe') {
       if (hasArtisan) {
+        // Si tous les devis sont refusés → afficher badge "Devis refusé"
+        const tousRefuses = devisForDemande.length > 0 && devisForDemande.every(d => d.statut === 'refuse');
+        if (tousRefuses) {
+          return (
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 border-2 border-red-400">
+              ❌ Devis refusé
+            </span>
+          );
+        }
         return (
           <span className="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 border-2 border-orange-300">
             🎯 Envoyé à artisan
