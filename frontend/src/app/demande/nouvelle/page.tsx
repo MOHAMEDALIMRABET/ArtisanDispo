@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { createDemande, publierDemande, addArtisansMatches, getDemandeById, updateDemande } from '@/lib/firebase/demande-service';
-import { notifyArtisanNouvelDemande, sendBulkNotifications } from '@/lib/firebase/notification-service';
+import { notifyArtisanNouvelDemande, sendBulkNotifications, notifyArtisansDemandePublique } from '@/lib/firebase/notification-service';
 import { uploadMultiplePhotos } from '@/lib/firebase/storage-service';
 import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
 import type { Artisan } from '@/types/firestore';
@@ -241,24 +241,40 @@ function NouvelleDemandeContent() {
       // Pas besoin de publierDemande() car statut déjà correct ('matchee' ou 'publiee')
       console.log('✅ Demande créée avec statut correct:', demandeData.statut);
 
-      // Envoyer notifications aux artisans matchés
+      // Envoyer notifications aux artisans
       if (demandeData.artisansMatches.length > 0) {
+        // Cas 1 : artisan présélectionné → notification directe
         try {
-          console.log('🔔 Envoi des notifications aux artisans...');
+          console.log('🔔 Envoi notification à l\'artisan présélectionné...');
           await sendBulkNotifications(
             demandeData.artisansMatches,
             {
               type: 'nouvelle_demande',
               titre: `Nouvelle demande: ${criteria.categorie}`,
               message: `Un client recherche un artisan à ${criteria.ville}. Consultez la demande pour envoyer un devis.`,
-              lien: `/demande/${demandeId}`,
+              lien: `/artisan/demandes`,
             }
           );
-          console.log('✅ Notifications envoyées');
+          console.log('✅ Notification artisan présélectionné envoyée');
         } catch (notifError) {
-          console.error('⚠️ Erreur envoi notifications:', notifError);
-          // Ne pas bloquer si notifications échouent
+          console.error('⚠️ Erreur envoi notification artisan présélectionné:', notifError);
         }
+      } else {
+        // Cas 2 : aucun artisan présélectionné → notifier tous les artisans qualifiés
+        // (même logique que demande publique)
+        notifyArtisansDemandePublique(
+          demandeId,
+          demandeData.categorie || criteria.categorie,
+          criteria.ville,
+          formData.description || '',
+          criteria.coordonneesGPS
+            ? { latitude: criteria.coordonneesGPS.latitude, longitude: criteria.coordonneesGPS.longitude }
+            : undefined
+        ).then(notified => {
+          console.log(`✅ ${notified.length} artisan(s) notifié(s) pour la demande`);
+        }).catch(err => {
+          console.error('⚠️ Erreur notification artisans (non bloquant):', err);
+        });
       }
 
       // Rediriger vers tableau de bord

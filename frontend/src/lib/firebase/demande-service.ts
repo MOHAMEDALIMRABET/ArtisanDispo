@@ -417,11 +417,6 @@ export async function notifyQualifiedArtisans(demandeId: string): Promise<string
     
     const demande = demandeSnap.data() as Demande;
     
-    if (demande.type !== 'publique') {
-      console.warn(`⚠️ Demande ${demandeId} n'est pas publique`);
-      return [];
-    }
-    
     // Récupérer tous les artisans qualifiés
     const { getArtisansByMetierAndLocation } = await import('./artisan-service');
     const artisansQualifies = await getArtisansByMetierAndLocation(
@@ -441,13 +436,13 @@ export async function notifyQualifiedArtisans(demandeId: string): Promise<string
     const { createNotification } = await import('./notification-service');
     
     for (const artisanId of artisansIds) {
-      await createNotification({
-        recipientId: artisanId,
+      await createNotification(artisanId, {
         type: 'nouvelle_demande_publique',
-        title: '📢 Nouvelle demande publique',
-        message: `Nouvelle demande de ${demande.categorie} à ${demande.localisation?.ville}`,
-        relatedId: demandeId,
-        isRead: false,
+        titre: `🔔 Nouvelle demande : ${demande.categorie} à ${demande.localisation?.ville}`,
+        message: demande.description
+          ? demande.description.slice(0, 100) + (demande.description.length > 100 ? '...' : '')
+          : `Un client recherche un ${demande.categorie} à ${demande.localisation?.ville}.`,
+        lien: `/artisan/demandes`,
       });
     }
     

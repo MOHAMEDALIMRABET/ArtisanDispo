@@ -364,19 +364,24 @@ export async function notifyArtisansDemandePublique(
 
       // Filtre : zone d'intervention couvre la demande
       const zones: any[] = artisan.zonesIntervention || [];
-      if (zones.length === 0) return;
-
-      const zoneMatch = zones.some((zone: any) => {
-        // Comparaison GPS si dispo sur les deux
-        if (demandeCoords && zone.latitude && zone.longitude) {
-          const dist = haversineKm(demandeCoords.latitude, demandeCoords.longitude, zone.latitude, zone.longitude);
-          return dist <= (zone.rayonKm || 50);
-        }
-        // Sinon : comparaison nom de ville
-        return zone.ville?.toLowerCase().trim() === villeNorm;
-      });
-
-      if (!zoneMatch) return;
+      
+      // Fallback : si l'artisan n'a pas configuré ses zones,
+      // on utilise sa ville principale (location.city / location.ville)
+      if (zones.length === 0) {
+        const artisanVille = (artisan.location?.city || artisan.location?.ville || '').toLowerCase().trim();
+        if (!artisanVille || artisanVille !== villeNorm) return;
+      } else {
+        const zoneMatch = zones.some((zone: any) => {
+          // Comparaison GPS si dispo sur les deux
+          if (demandeCoords && zone.latitude && zone.longitude) {
+            const dist = haversineKm(demandeCoords.latitude, demandeCoords.longitude, zone.latitude, zone.longitude);
+            return dist <= (zone.rayonKm || 50);
+          }
+          // Sinon : comparaison nom de ville
+          return zone.ville?.toLowerCase().trim() === villeNorm;
+        });
+        if (!zoneMatch) return;
+      }
 
       // 2a. Notification in-app
       await createNotification(artisanId, {
