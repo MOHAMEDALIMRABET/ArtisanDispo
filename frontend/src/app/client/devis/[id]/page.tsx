@@ -113,7 +113,7 @@ export default function ClientDevisDetailPage() {
   const [loading, setLoading] = useState(true);
   const [showRefusalModal, setShowRefusalModal] = useState(false);
   const [refusalReason, setRefusalReason] = useState('');
-  const [refusalType, setRefusalType] = useState<'variante' | 'artisan' | 'revision'>('variante');
+  const [refusalType, setRefusalType] = useState<'artisan' | 'revision'>('artisan');
   const [processing, setProcessing] = useState(false);
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -595,31 +595,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
         alert(`❌ Cet artisan a été refusé définitivement.\n\n${devisArtisanSnapshot.size} devis refusés au total.\nIl ne pourra plus vous contacter pour cette demande.`);
       }
       
-      // CAS 2 : REFUSER JUSTE CETTE VARIANTE
-      else if (refusalType === 'variante') {
-        console.log('📋 Refus de cette variante uniquement');
-        
-        await updateDoc(doc(db, 'devis', devisId), {
-          statut: 'refuse',
-          dateRefus: Timestamp.now(),
-          motifRefus: refusalReason || 'Aucun motif précisé',
-          typeRefus: 'variante',
-          dateDerniereNotification: Timestamp.now(),
-          vuParArtisan: false,
-        });
-        
-        await notifyArtisanDevisRefuse(
-          devis.artisanId,
-          devisId,
-          clientNom,
-          devis.numeroDevis,
-          refusalReason
-        );
-        
-        alert(t('alerts.refusal.variantRejected'));
-      }
-      
-      // CAS 3 : DEMANDER UNE RÉVISION
+      // CAS 2 : DEMANDER UNE RÉVISION
       else if (refusalType === 'revision' && devis.demandeId) {
         console.log('🔄 Demande de révision (nouveau statut dédié)');
         
@@ -1688,34 +1664,14 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
             </p>
 
             <div className="space-y-3 mb-6">
-              {/* Option 1 : Refuser juste cette variante */}
-              <label className="flex items-start gap-3 p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-[#FF6B00] transition">
-                <input
-                  type="radio"
-                  name="refusalType"
-                  value="variante"
-                  checked={refusalType === 'variante'}
-                  onChange={(e) => setRefusalType(e.target.value as 'variante' | 'artisan' | 'revision')}
-                  className="mt-1 w-4 h-4 text-[#FF6B00] focus:ring-[#FF6B00]"
-                />
-                <div className="flex-1">
-                  <p className="font-semibold text-gray-800">
-                    📝 Refuser cette variante uniquement
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    L'artisan pourra toujours vous proposer d'autres options pour cette demande
-                  </p>
-                </div>
-              </label>
-
-              {/* Option 2 : Bloquer cet artisan définitivement */}
+              {/* Option 1 : Bloquer cet artisan définitivement */}
               <label className="flex items-start gap-3 p-3 border-2 border-red-300 rounded-lg cursor-pointer hover:border-red-500 transition bg-red-50">
                 <input
                   type="radio"
                   name="refusalType"
                   value="artisan"
                   checked={refusalType === 'artisan'}
-                  onChange={(e) => setRefusalType(e.target.value as 'variante' | 'artisan' | 'revision')}
+                  onChange={(e) => setRefusalType(e.target.value as 'artisan' | 'revision')}
                   className="mt-1 w-4 h-4 text-red-600 focus:ring-red-600"
                 />
                 <div className="flex-1">
@@ -1735,7 +1691,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                   name="refusalType"
                   value="revision"
                   checked={refusalType === 'revision'}
-                  onChange={(e) => setRefusalType(e.target.value as 'variante' | 'artisan' | 'revision')}
+                  onChange={(e) => setRefusalType(e.target.value as 'artisan' | 'revision')}
                   className="mt-1 w-4 h-4 text-blue-600 focus:ring-blue-600"
                 />
                 <div className="flex-1">
@@ -1761,7 +1717,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
               <button
                 onClick={() => {
                   setShowRefusalModal(false);
-                  setRefusalType('variante');
+                  setRefusalType('artisan');
                 }}
                 disabled={processing}
                 className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
