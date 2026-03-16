@@ -63,12 +63,14 @@ function ConversationItem({
   otherUserId, 
   defaultName, 
   isSelected, 
+  isInactive,
   onClick 
 }: { 
   conversation: Conversation; 
   otherUserId: string; 
   defaultName: string; 
-  isSelected: boolean; 
+  isSelected: boolean;
+  isInactive?: boolean;
   onClick: () => void;
 }) {
   const [fullName, setFullName] = useState(defaultName);
@@ -96,18 +98,26 @@ function ConversationItem({
 
   return (
     <button
-      onClick={onClick}
-      className={`w-full p-4 border-b hover:bg-gray-50 transition text-left ${
-        isSelected ? 'bg-blue-50 border-l-4 border-[#FF6B00]' : ''
+      onClick={isInactive ? undefined : onClick}
+      disabled={isInactive}
+      title={isInactive ? 'Cette conversation est fermée (demande refusée ou annulée)' : undefined}
+      className={`w-full p-4 border-b transition text-left ${
+        isInactive
+          ? 'opacity-40 bg-gray-100 cursor-not-allowed'
+          : 'hover:bg-gray-50 cursor-pointer'
+      } ${
+        isSelected && !isInactive ? 'bg-blue-50 border-l-4 border-[#FF6B00]' : ''
       }`}
     >
       <div className="flex items-center justify-between mb-1">
-        <span className="font-semibold text-[#2C3E50]">{fullName}</span>
-        {conversation.unreadCount && conversation.unreadCount > 0 && (
+        <span className={`font-semibold ${isInactive ? 'text-gray-400' : 'text-[#2C3E50]'}`}>{fullName}</span>
+        {isInactive ? (
+          <span className="text-xs text-gray-400">🚫 Fermée</span>
+        ) : (conversation.unreadCount && conversation.unreadCount > 0 && (
           <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
             {conversation.unreadCount}
           </span>
-        )}
+        ))}
       </div>
       <p className="text-sm text-gray-600 truncate">{conversation.lastMessage || 'Aucun message'}</p>
       <p className="text-xs text-gray-400 mt-1">
@@ -139,6 +149,8 @@ export default function MessagesPage() {
   const [devisStatus, setDevisStatus] = useState<string | null>(null);
   const [devisInfo, setDevisInfo] = useState<{ numeroDevis?: string; montantTTC?: number; typeRefus?: 'definitif' | 'revision' } | null>(null);
   const [isConversationInactive, setIsConversationInactive] = useState(false);
+  // Map conversationId → inactive (pour griser la liste)
+  const [inactiveConvIds, setInactiveConvIds] = useState<Set<string>>(new Set());
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -165,6 +177,8 @@ export default function MessagesPage() {
           lastMessage: data.lastMessage || '',
           lastMessageDate: data.lastMessageDate || Timestamp.now(),
           unreadCount: data.unreadCount?.[user.uid] || 0,
+          devisId: data.devisId || undefined,
+          demandeId: data.demandeId || undefined,
         });
       }
 
@@ -176,6 +190,37 @@ export default function MessagesPage() {
       });
 
       setConversations(convs);
+
+      // Vérifier de façon asynchrone les conversations inactives (demande annulée)
+      const newInactive = new Set<string>();
+      await Promise.all(convs.map(async (conv) => {
+        try {
+          if (conv.demandeId) {
+            const demandeSnap = await getDoc(doc(db, 'demandes', conv.demandeId));
+            if (demandeSnap.exists()) {
+              const st = demandeSnap.data().statut;
+              if (st === 'annulee' || st === 'annule' || st === 'expire') {
+                newInactive.add(conv.id);
+              }
+            }
+          }
+          if (conv.devisId) {
+            const devisSnap = await getDoc(doc(db, 'devis', conv.devisId));
+            if (devisSnap.exists()) {
+              const st = devisSnap.data().statut;
+              const typeRefus = devisSnap.data().typeRefus;
+              if (
+                (st === 'refuse' && typeRefus === 'definitif') ||
+                st === 'annule' || st === 'expire' ||
+                st === 'termine_valide' || st === 'termine_auto_valide'
+              ) {
+                newInactive.add(conv.id);
+              }
+            }
+          }
+        } catch { /* silencieux */ }
+      }));
+      setInactiveConvIds(newInactive);
       setLoading(false);
     });
 
@@ -268,7 +313,21 @@ export default function MessagesPage() {
     const loadDevisStatus = async () => {
       const conv = conversations.find(c => c.id === selectedConversation);
       if (!conv || !conv.devisId) {
-        // Pas de devis associé → conversation normale, toujours active
+        // Pas de devisId → vérifier le demandeId
+        if (conv?.demandeId) {
+          try {
+            const demandeDoc = await getDoc(doc(db, 'demandes', conv.demandeId));
+            if (demandeDoc.exists()) {
+              const st = demandeDoc.data().statut;
+              const isInactive = (st === 'annulee' || st === 'annule' || st === 'expire');
+              setDevisStatus(st);
+              setDevisInfo(null);
+              setIsConversationInactive(isInactive);
+              return;
+            }
+          } catch { /* silencieux */ }
+        }
+        // Pas de devis ni demande → conversation normale, toujours active
         setDevisStatus(null);
         setDevisInfo(null);
         setIsConversationInactive(false);
@@ -590,7 +649,8 @@ export default function MessagesPage() {
                       otherUserId={otherUserId || ''}
                       defaultName={otherUserName}
                       isSelected={selectedConversation === conv.id}
-                      onClick={() => setSelectedConversation(conv.id)}
+                      isInactive={inactiveConvIds.has(conv.id)}
+                      onClick={() => !inactiveConvIds.has(conv.id) && setSelectedConversation(conv.id)}
                     />
                   );
                 })
