@@ -1482,7 +1482,7 @@ export default function NouveauDevisPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs text-[#6C757D] mb-1">Prix HT (€)</label>
+                    <label className="block text-xs text-[#6C757D] mb-1">Prix U. HT (€)</label>
                     <input
                       type="number"
                       value={mainOeuvrePrixHT || ''}
@@ -1565,7 +1565,7 @@ export default function NouveauDevisPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs text-[#6C757D] mb-1">Prix HT (€)</label>
+                      <label className="block text-xs text-[#6C757D] mb-1">Prix U. HT (€)</label>
                       <input
                         type="number"
                         value={matierePremierePrixHT || ''}
@@ -1686,7 +1686,7 @@ export default function NouveauDevisPage() {
                       </div>
 
                       <div>
-                        <label className="block text-xs text-[#6C757D] mb-1">Prix HT (€)</label>
+                        <label className="block text-xs text-[#6C757D] mb-1">Prix U. HT (€)</label>
                         <input
                           type="number"
                           value={ligne.prixUnitaireHT || ''}
