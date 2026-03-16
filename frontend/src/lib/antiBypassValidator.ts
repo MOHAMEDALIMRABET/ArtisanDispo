@@ -214,8 +214,12 @@ const HOMOGLYPH_MAP: Record<string, string> = {
 };
 
 function normalizeHomoglyphsInMixedSegments(text: string): string {
+  // ⚠️ Pas d'espace dans le character class intermédiaire : évite de traiter
+  // des mots séparés comme un seul segment mixte après concaténation cross-messages.
+  // Ex: "06 s ma" NE doit PAS déclencher s→5, a→4 → "0654" → faux positif.
+  // On cible uniquement les séquences CONTIGUES (sans espace) : "0si6xtre", "z3r0six", "06test52".
   return text.replace(
-    /[a-zA-ZοΟоОı|$]+\d[\d a-zA-ZοΟоОı|$]{4,}|\d[\d a-zA-ZοΟоОı|$]{4,}[a-zA-ZοΟоОı|$]+/g,
+    /[a-zA-ZοΟоОı|$]+\d[\da-zA-ZοΟоОı|$]{4,}|\d[\da-zA-ZοΟоОı|$]{4,}[a-zA-ZοΟоОı|$]+/g,
     (match) => match.split('').map(c => HOMOGLYPH_MAP[c] ?? c).join('')
   );
 }
