@@ -510,6 +510,17 @@ export default function ArtisanDemandesPage() {
     return 'bg-gradient-to-b from-[#FF6B00] to-[#E56100]';
   };
 
+  // Compteurs de nouvelles demandes pour les badges du hub
+  const nbNouvellesClassiques =
+    getDemandesNouvelles(demandes).length +
+    demandesPubliques.filter(
+      d => d.statut !== 'annulee' && !(d.dateExpiration && isDemandeExpired(d.dateExpiration))
+    ).length;
+
+  const nbNouvellesExpress = demandesExpress.filter(
+    d => d.statut === 'en_attente_proposition'
+  ).length;
+
   // Utiliser la bonne liste selon la section active
   const demandesSource = sectionActive === 'mes_demandes' ? demandes : demandesPubliques;
   
@@ -594,10 +605,15 @@ export default function ArtisanDemandesPage() {
               {/* Bandeau */}
               <div className="bg-[#2C3E50] px-6 py-4 flex items-center gap-3">
                 <span className="text-3xl">🏗️</span>
-                <div>
+                <div className="flex-1">
                   <div className="text-white font-bold text-xl">Demandes Classiques</div>
                   <div className="text-gray-300 text-sm">Devis personnalisés</div>
                 </div>
+                {nbNouvellesClassiques > 0 && (
+                  <span className="bg-[#FF6B00] text-white text-xs font-bold px-2.5 py-1 rounded-full animate-pulse">
+                    {nbNouvellesClassiques} nouvelle{nbNouvellesClassiques > 1 ? 's' : ''}
+                  </span>
+                )}
               </div>
               {/* Corps */}
               <div className="bg-white px-6 py-5 space-y-4 flex-1">
@@ -606,13 +622,29 @@ export default function ArtisanDemandesPage() {
                   <div className="flex-1">
                     <div className="font-semibold text-[#2C3E50] text-sm">{t('artisanRequests.tabs.myRequests')}</div>
                   </div>
+                  {getDemandesNouvelles(demandes).length > 0 && (
+                    <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                      {getDemandesNouvelles(demandes).length}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-4 p-3 rounded-xl bg-purple-50 border border-purple-200">
                   <span className="text-2xl">📢</span>
                   <div className="flex-1">
                     <div className="font-semibold text-[#2C3E50] text-sm">{t('artisanRequests.tabs.publicRequests')}</div>
                   </div>
+                  {demandesPubliques.filter(d => d.statut !== 'annulee' && !(d.dateExpiration && isDemandeExpired(d.dateExpiration))).length > 0 && (
+                    <span className="bg-purple-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                      {demandesPubliques.filter(d => d.statut !== 'annulee' && !(d.dateExpiration && isDemandeExpired(d.dateExpiration))).length}
+                    </span>
+                  )}
                 </div>
+                {nbNouvellesClassiques > 0 && (
+                  <div className="flex items-center gap-2 text-[#FF6B00] text-sm font-semibold">
+                    <span>🔔</span>
+                    <span>{nbNouvellesClassiques} demande{nbNouvellesClassiques > 1 ? 's' : ''} en attente</span>
+                  </div>
+                )}
                 <div className="flex items-center justify-end pt-1">
                   <span className="text-sm font-semibold text-[#FF6B00] group-hover:underline">Accéder →</span>
                 </div>
@@ -627,22 +659,38 @@ export default function ArtisanDemandesPage() {
               {/* Bandeau */}
               <div className="bg-[#FF6B00] px-6 py-4 flex items-center gap-3">
                 <span className="text-3xl">⚡</span>
-                <div>
+                <div className="flex-1">
                   <div className="text-white font-bold text-xl">Demandes Express</div>
                   <div className="text-orange-100 text-sm">Petits travaux rapides</div>
                 </div>
+                {nbNouvellesExpress > 0 && (
+                  <span className="bg-white text-[#FF6B00] text-xs font-bold px-2.5 py-1 rounded-full animate-pulse">
+                    {nbNouvellesExpress} nouvelle{nbNouvellesExpress > 1 ? 's' : ''}
+                  </span>
+                )}
               </div>
               {/* Corps */}
               <div className="bg-white px-6 py-5 space-y-4 flex-1">
                 <div className="flex items-center gap-4 p-3 rounded-xl bg-orange-50 border border-orange-200">
                   <span className="text-2xl">⚡</span>
                   <div className="flex-1">
-                    <div className="font-semibold text-[#2C3E50] text-sm">⚡ Demandes express</div>
+                    <div className="font-semibold text-[#2C3E50] text-sm">Demandes express</div>
                   </div>
+                  {nbNouvellesExpress > 0 && (
+                    <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                      {nbNouvellesExpress}
+                    </span>
+                  )}
                 </div>
                 <div className="p-3 rounded-xl bg-gray-50 border border-gray-200">
                   <div className="text-xs text-gray-500 leading-relaxed">Interventions rapides à prix fixe, directement proposées aux artisans disponibles.</div>
                 </div>
+                {nbNouvellesExpress > 0 && (
+                  <div className="flex items-center gap-2 text-[#FF6B00] text-sm font-semibold">
+                    <span>🔔</span>
+                    <span>{nbNouvellesExpress} demande{nbNouvellesExpress > 1 ? 's' : ''} en attente</span>
+                  </div>
+                )}
                 <div className="flex items-center justify-end pt-1">
                   <span className="text-sm font-semibold text-[#FF6B00] group-hover:underline">Accéder →</span>
                 </div>
