@@ -569,65 +569,92 @@ export default function ArtisanDemandesPage() {
         </div>
       </div>
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Sections principales - Mes demandes / Demandes publiées */}
+        {/* Sections principales - 2 grandes catégories */}
         {!highlightedDemandeId && (
-          <div className="flex gap-4 mb-6">
-            <button
-              onClick={() => setSectionActive('mes_demandes')}
-              className={`flex-1 py-4 px-6 rounded-lg font-bold text-lg transition-all ${
-                sectionActive === 'mes_demandes'
-                  ? 'bg-[#FF6B00] text-white shadow-lg ring-4 ring-[#FF6B00] ring-opacity-30'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 shadow-md'
-              }`}
-            >
-              <div className="flex items-center justify-center gap-3">
-                <span className="text-2xl">📋</span>
-                <div className="text-left">
-                  <div>{t('artisanRequests.tabs.myRequests')}</div>
-                  <div className={`text-sm font-normal ${
-                    sectionActive === 'mes_demandes' ? 'text-white opacity-90' : 'text-gray-500'
-                  }`}>{t('artisanRequests.tabs.myRequestsCount').replace('{count}', demandes.filter(d => d.statut !== 'expiree').length.toString()).replace('{s}', demandes.filter(d => d.statut !== 'expiree').length > 1 ? 's' : '')}</div>
-                </div>
+          <div className="flex gap-4 mb-6 items-stretch">
+
+            {/* ── CATÉGORIE 1 : Demandes Classiques ── */}
+            <div className={`flex-[2] rounded-xl shadow-md border-2 transition-all duration-200 overflow-hidden ${
+              sectionActive === 'mes_demandes' || sectionActive === 'demandes_publiques'
+                ? 'border-[#2C3E50]'
+                : 'border-gray-200 bg-white'
+            }`}>
+              {/* En-tête catégorie */}
+              <div className={`px-5 py-3 flex items-center gap-2 ${
+                sectionActive === 'mes_demandes' || sectionActive === 'demandes_publiques'
+                  ? 'bg-[#2C3E50] text-white'
+                  : 'bg-gray-100 text-gray-600'
+              }`}>
+                <span className="text-lg">🏗️</span>
+                <span className="font-bold text-base">Demandes Classiques</span>
               </div>
-            </button>
-            
+              {/* Sous-onglets */}
+              <div className="flex divide-x divide-gray-200 bg-white">
+                <button
+                  onClick={() => setSectionActive('mes_demandes')}
+                  className={`flex-1 py-4 px-4 font-semibold transition-all ${
+                    sectionActive === 'mes_demandes'
+                      ? 'bg-[#FF6B00] text-white'
+                      : 'text-gray-700 hover:bg-orange-50'
+                  }`}
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-xl">📋</span>
+                    <span className="text-sm">{t('artisanRequests.tabs.myRequests')}</span>
+                    <span className={`text-xs font-normal ${sectionActive === 'mes_demandes' ? 'text-white opacity-90' : 'text-gray-400'}`}>
+                      {demandes.filter(d => d.statut !== 'expiree').length} demande{demandes.filter(d => d.statut !== 'expiree').length > 1 ? 's' : ''}
+                    </span>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setSectionActive('demandes_publiques')}
+                  className={`flex-1 py-4 px-4 font-semibold transition-all ${
+                    sectionActive === 'demandes_publiques'
+                      ? 'bg-purple-600 text-white'
+                      : 'text-gray-700 hover:bg-purple-50'
+                  }`}
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-xl">📢</span>
+                    <span className="text-sm">{t('artisanRequests.tabs.publicRequests')}</span>
+                    <span className={`text-xs font-normal ${sectionActive === 'demandes_publiques' ? 'text-white opacity-90' : 'text-gray-400'}`}>
+                      {demandesPubliques.length} demande{demandesPubliques.length > 1 ? 's' : ''}
+                    </span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* ── CATÉGORIE 2 : Demandes Express ── */}
             <button
-              onClick={() => setSectionActive('demandes_publiques')}
-              className={`flex-1 py-4 px-6 rounded-lg font-bold text-lg transition-all ${
-                sectionActive === 'demandes_publiques'
-                  ? 'bg-purple-600 text-white shadow-lg ring-4 ring-purple-600 ring-opacity-30'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 shadow-md'
+              onClick={() => setSectionActive('demandes_express')}
+              className={`flex-1 rounded-xl shadow-md border-2 overflow-hidden transition-all duration-200 text-left ${
+                sectionActive === 'demandes_express'
+                  ? 'border-yellow-400'
+                  : 'border-gray-200 bg-white hover:border-yellow-300'
               }`}
             >
-              <div className="flex items-center justify-center gap-3">
-                <span className="text-2xl">📢</span>
-                <div className="text-left">
-                  <div>{t('artisanRequests.tabs.publicRequests')}</div>
-                  <div className={`text-sm font-normal ${
-                    sectionActive === 'demandes_publiques' ? 'text-white opacity-90' : 'text-gray-500'
-                  }`}>{t('artisanRequests.tabs.publicCountFull').replace('{count}', demandesPubliques.length.toString()).replace('{s}', demandesPubliques.length > 1 ? 's' : '').replace('{ies}', demandesPubliques.length > 1 ? 'ies' : 'y')}</div>
-                </div>
+              {/* En-tête catégorie */}
+              <div className={`px-5 py-3 flex items-center gap-2 ${
+                sectionActive === 'demandes_express'
+                  ? 'bg-yellow-400 text-[#2C3E50]'
+                  : 'bg-gray-100 text-gray-600'
+              }`}>
+                <span className="text-lg">⚡</span>
+                <span className="font-bold text-base">Demandes Express</span>
+              </div>
+              {/* Corps */}
+              <div className={`py-6 flex flex-col items-center gap-1 bg-white ${
+                sectionActive === 'demandes_express' ? 'bg-yellow-50' : ''
+              }`}>
+                <span className="text-3xl">⚡</span>
+                <span className={`text-sm font-semibold ${sectionActive === 'demandes_express' ? 'text-yellow-700' : 'text-gray-500'}`}>Express</span>
+                <span className={`text-xs ${sectionActive === 'demandes_express' ? 'text-yellow-600' : 'text-gray-400'}`}>
+                  {demandesExpress.length} demande{demandesExpress.length > 1 ? 's' : ''}
+                </span>
               </div>
             </button>
 
-            <button
-              onClick={() => setSectionActive('demandes_express')}
-              className={`flex-1 py-4 px-6 rounded-lg font-bold text-lg transition-all ${
-                sectionActive === 'demandes_express'
-                  ? 'bg-[#FF6B00] text-white shadow-lg ring-4 ring-[#FF6B00] ring-opacity-30'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 shadow-md'
-              }`}
-            >
-              <div className="flex items-center justify-center gap-3">
-                <span className="text-2xl">⚡</span>
-                <div className="text-left">
-                  <div>Express</div>
-                  <div className={`text-sm font-normal ${
-                    sectionActive === 'demandes_express' ? 'text-white opacity-90' : 'text-gray-500'
-                  }`}>{demandesExpress.length} demande{demandesExpress.length > 1 ? 's' : ''}</div>
-                </div>
-              </div>
-            </button>
           </div>
         )}
 
