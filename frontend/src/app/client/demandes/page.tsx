@@ -362,12 +362,22 @@ export default function MesDemandesPage() {
     }
     
     // ✅ PRIORITÉ 4 : DEMANDE DIRECTE (envoyée à un artisan spécifique)
-    // → Badge "Envoyé à artisan" sauf si tous les devis sont refusés
+    // → Badge "Envoyé à artisan" sauf si tous les devis sont refusés ou expirés
     if (demandeType === 'directe') {
       if (hasArtisan) {
-        // Si tous les devis sont refusés → afficher badge "Devis refusé"
-        const tousRefuses = devisForDemande.length > 0 && devisForDemande.every(d => d.statut === 'refuse');
-        if (tousRefuses) {
+        const STATUTS_TERMINAUX = ['refuse', 'expire'];
+        // Si tous les devis sont en état terminal (refusé ou expiré)
+        const tousTerminaux = devisForDemande.length > 0 && devisForDemande.every(d => STATUTS_TERMINAUX.includes(d.statut));
+        const tousExpires = tousTerminaux && devisForDemande.every(d => d.statut === 'expire');
+        const tousRefuses = tousTerminaux && !tousExpires;
+        if (tousExpires) {
+          return (
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-orange-50 text-orange-700 border border-orange-300">
+              ⏰ Devis expiré
+            </span>
+          );
+        }
+        if (tousRefuses || tousTerminaux) {
           return (
             <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 border-2 border-red-400">
               ❌ Devis refusé
@@ -501,13 +511,13 @@ export default function MesDemandesPage() {
       // → Non annulée / terminée
       // → Statut compatible : publiee, attribuee ou matchee
       const hasDevisVisible = devis.some(dv => dv.statut === 'envoye' || dv.statut === 'en_attente_paiement');
-      // Exclure si tous les devis sont refusés → bascule dans "Traitées"
-      const tousDevisRefuses = devis.length > 0 && devis.every(dv => dv.statut === 'refuse');
+      // Exclure si tous les devis sont en état terminal (refusé OU expiré) → bascule dans "Traitées"
+      const tousDevisTerminaux = devis.length > 0 && devis.every(dv => dv.statut === 'refuse' || dv.statut === 'expire');
 
       return !hasDevisPaye &&
              !isExpired &&
              !hasDevisVisible &&
-             !tousDevisRefuses &&
+             !tousDevisTerminaux &&
              !d.artisanRefuseId &&
              d.statut !== 'annulee' &&
              d.statut !== 'terminee' &&
@@ -534,9 +544,11 @@ export default function MesDemandesPage() {
       // Dès qu'un devis est envoyé ou en attente de paiement → passe dans EN TRAITEMENT
       const hasDevisVisible = devis.some(dv => dv.statut === 'envoye' || dv.statut === 'en_attente_paiement');
 
-      // Publiée = type publique + AUCUN devis visible + pas de devis payé
+      // Exclure si tous les devis sont expirés → bascule dans "Traitées"
+      const tousDevisExpires = devis.length > 0 && devis.every(dv => dv.statut === 'expire');
+      // Publiée = type publique + AUCUN devis visible + pas de devis payé + aucun devis expiré
       // Statuts inclus : publiee, matchee (artisan trouvé), quota_atteint (5 devis max atteint mais aucun envoyé)
-      return demandeType === 'publique' && !hasDevisVisible && !hasDevisPaye &&
+      return demandeType === 'publique' && !hasDevisVisible && !hasDevisPaye && !tousDevisExpires &&
              (d.statut === 'publiee' || d.statut === 'matchee' || d.statut === 'quota_atteint');
     });
   }
@@ -576,11 +588,12 @@ export default function MesDemandesPage() {
       const isTerminee = d.statut === 'terminee';
       const isExpiree = d.dateExpiration ? isDemandeExpired(d.dateExpiration) : false;
       const devis = devisMap.get(d.id) || [];
-      const tousDevisRefuses = devis.length > 0 && devis.every(dv => dv.statut === 'refuse');
+      // Terminaux = refusé OU expiré (devis expiré = état final, va dans Traitées → Expirées)
+      const tousDevisTerminaux = devis.length > 0 && devis.every(dv => dv.statut === 'refuse' || dv.statut === 'expire');
       const artisanARefuse = !!d.artisanRefuseId;
       
-      // Traitée = devis payé OU refusée OU terminée OU expirée OU tous les devis refusés OU artisan a refusé la demande
-      return hasDevisPaye || isRefusee || isTerminee || isExpiree || tousDevisRefuses || artisanARefuse;
+      // Traitée = devis payé OU refusée OU terminée OU expirée OU tous les devis terminaux OU artisan a refusé la demande
+      return hasDevisPaye || isRefusee || isTerminee || isExpiree || tousDevisTerminaux || artisanARefuse;
     });
   }
 
@@ -616,13 +629,18 @@ export default function MesDemandesPage() {
           case 'litiges':
             return devisPaye?.statut === 'litige';
           case 'refusees': {
-            // Demandes annulées OU toutes les variantes refusées OU artisan a refusé la demande, sans devis payé
+            // Demandes annulées OU toutes les variantes refusées (mais PAS seulement expirées) OU artisan a refusé
+            // Si tous les devis sont expirés → appartient à 'expirees', pas 'refusees'
             const tousRefuses = devisForDemande.length > 0 && devisForDemande.every(dv => dv.statut === 'refuse');
-            return (d.statut === 'annulee' || tousRefuses || !!d.artisanRefuseId) && !devisPaye;
+            const tousExpires = devisForDemande.length > 0 && devisForDemande.every(dv => dv.statut === 'expire');
+            return (d.statut === 'annulee' || tousRefuses || !!d.artisanRefuseId) && !devisPaye && !tousExpires;
           }
           case 'expirees':
-            // CORRECTION : Seulement les demandes expirées SANS devis payé (vérification dateExpiration réelle)
-            return d.dateExpiration && isDemandeExpired(d.dateExpiration) && !devisPaye;
+            // Expirées = dateExpiration dépassée OU tous les devis du dossier sont expirés, sans devis payé
+            {
+              const tousDevisExpires = devisForDemande.length > 0 && devisForDemande.every(dv => dv.statut === 'expire');
+              return ((d.dateExpiration && isDemandeExpired(d.dateExpiration)) || tousDevisExpires) && !devisPaye;
+            }
           default:
             return true;
         }
