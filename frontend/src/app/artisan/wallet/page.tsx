@@ -19,8 +19,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getUserById } from '@/lib/firebase/user-service';
 import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
-import { getWalletSummary } from '@/lib/firebase/wallet-service';
-import type { User, Artisan, WalletTransaction, StripeOnboardingStatus } from '@/types/firestore';
+import { getWalletSummary, requestManualVirement, cancelVirementRequest, getVirementRequests } from '@/lib/firebase/wallet-service';
+import type { User, Artisan, WalletTransaction, StripeOnboardingStatus, VirementRequest } from '@/types/firestore';
 
 export default function WalletPage() {
   const router = useRouter();
@@ -48,6 +48,15 @@ export default function WalletPage() {
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [showConfigProcess, setShowConfigProcess] = useState(false);
   const [showAlreadyConfiguredError, setShowAlreadyConfiguredError] = useState(false);
+
+  // Virement manuel
+  const [showVirementModal, setShowVirementModal] = useState(false);
+  const [virementAmount, setVirementAmount] = useState('');
+  const [virementNote, setVirementNote] = useState('');
+  const [virementLoading, setVirementLoading] = useState(false);
+  const [virementError, setVirementError] = useState('');
+  const [virementSuccess, setVirementSuccess] = useState('');
+  const [virementRequests, setVirementRequests] = useState<VirementRequest[]>([]);
 
   // Charger les infos artisan
   useEffect(() => {
@@ -131,6 +140,54 @@ export default function WalletPage() {
 
     loadWalletData();
   }, [artisan]);
+
+  // Charger les demandes de virement
+  useEffect(() => {
+    if (!artisan) return;
+    const loadVirements = async () => {
+      const requests = await getVirementRequests(artisan.userId, 10);
+      setVirementRequests(requests);
+    };
+    loadVirements();
+  }, [artisan]);
+
+  // Soumettre une demande de virement manuel
+  const handleRequestVirement = async () => {
+    const amount = parseFloat(virementAmount);
+    if (isNaN(amount) || amount <= 0) {
+      setVirementError('Veuillez saisir un montant valide');
+      return;
+    }
+    setVirementLoading(true);
+    setVirementError('');
+    setVirementSuccess('');
+
+    const result = await requestManualVirement(artisan!.userId, amount, virementNote || undefined);
+    if (result.success) {
+      setSoldeDisponible(prev => prev - amount);
+      const updatedRequests = await getVirementRequests(artisan!.userId, 10);
+      setVirementRequests(updatedRequests);
+      setVirementSuccess(`✅ Demande envoyée ! Virement de ${amount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} € en cours de traitement.`);
+      setTimeout(() => {
+        setShowVirementModal(false);
+        setVirementSuccess('');
+      }, 2500);
+    } else {
+      setVirementError(result.error || 'Une erreur est survenue');
+    }
+    setVirementLoading(false);
+  };
+
+  // Annuler une demande de virement
+  const handleCancelVirement = async (requestId: string) => {
+    const result = await cancelVirementRequest(artisan!.userId, requestId);
+    if (result.success) {
+      const updatedRequests = await getVirementRequests(artisan!.userId, 10);
+      setVirementRequests(updatedRequests);
+      const summary = await getWalletSummary(artisan!.userId);
+      if (summary.wallet) setSoldeDisponible(summary.wallet.soldeDisponible);
+    }
+  };
 
   if (authLoading || loading) {
     return (
@@ -258,6 +315,27 @@ export default function WalletPage() {
           </div>
         </div>
 
+        {/* Bouton virement manuel */}
+        {stripeOnboardingStatus === 'active' && soldeDisponible > 0 && (
+          <div className="flex justify-end -mt-4 mb-8">
+            <button
+              onClick={() => {
+                setVirementAmount('');
+                setVirementNote('');
+                setVirementError('');
+                setVirementSuccess('');
+                setShowVirementModal(true);
+              }}
+              className="bg-white text-[#FF6B00] border-2 border-[#FF6B00] px-6 py-3 rounded-lg font-semibold hover:bg-[#FF6B00] hover:text-white transition shadow-md flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              Demander un virement
+            </button>
+          </div>
+        )}
+
         {/* Statistiques */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {/* Total encaissé */}
@@ -314,6 +392,73 @@ export default function WalletPage() {
             <p className="text-sm text-[#6C757D] mt-1">{t('artisanWallet.stats.toYourBank')}</p>
           </div>
         </div>
+
+        {/* Demandes de virement */}
+        {virementRequests.length > 0 && (
+          <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+            <div className="bg-gradient-to-r from-[#2C3E50] to-[#34495E] text-white px-6 py-4">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                Virements demandés
+              </h2>
+            </div>
+            <div className="divide-y divide-gray-100">
+              {virementRequests.map((virement) => {
+                const statusConfig: Record<string, { label: string; color: string }> = {
+                  pending:    { label: '⏳ En attente',    color: 'text-yellow-700 bg-yellow-100' },
+                  processing: { label: '🔄 En traitement', color: 'text-blue-700 bg-blue-100' },
+                  completed:  { label: '✅ Effectué',      color: 'text-green-700 bg-green-100' },
+                  cancelled:  { label: '❌ Annulé',        color: 'text-gray-600 bg-gray-100' },
+                  rejected:   { label: '🚫 Rejeté',        color: 'text-red-700 bg-red-100' },
+                };
+                const status = statusConfig[virement.statut] || statusConfig.pending;
+                return (
+                  <div key={virement.id} className="p-4 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="bg-[#F8F9FA] rounded-full p-3 flex-shrink-0">
+                        <svg className="w-6 h-6 text-[#FF6B00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-[#2C3E50]">
+                          Virement vers IBAN …{virement.ibanLast4 || '****'}
+                        </p>
+                        {virement.note && (
+                          <p className="text-sm text-[#6C757D] italic">{virement.note}</p>
+                        )}
+                        <p className="text-xs text-[#95A5A6] mt-1">
+                          {new Date(virement.createdAt.toDate()).toLocaleDateString('fr-FR', {
+                            day: 'numeric', month: 'long', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit',
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 flex-shrink-0">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${status.color}`}>
+                        {status.label}
+                      </span>
+                      <p className="text-xl font-bold text-[#2C3E50] w-28 text-right">
+                        -{virement.montant.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
+                      </p>
+                      {virement.statut === 'pending' && (
+                        <button
+                          onClick={() => handleCancelVirement(virement.id)}
+                          className="text-sm text-red-500 hover:text-red-700 hover:underline transition whitespace-nowrap"
+                        >
+                          Annuler
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Historique des transactions */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -703,6 +848,146 @@ export default function WalletPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal Virement Manuel */}
+      {showVirementModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-[#2C3E50] to-[#34495E] text-white px-6 py-4 rounded-t-xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold flex items-center gap-2">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  Demander un virement
+                </h3>
+                <button
+                  onClick={() => setShowVirementModal(false)}
+                  className="text-white/70 hover:text-white transition"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="p-6">
+              {/* Solde disponible */}
+              <div className="bg-[#F8F9FA] rounded-lg p-4 mb-6">
+                <p className="text-sm text-[#6C757D] mb-1">Solde disponible</p>
+                <p className="text-3xl font-bold text-[#FF6B00]">
+                  {soldeDisponible.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                </p>
+              </div>
+
+              {/* IBAN cible */}
+              {ibanLast4 && (
+                <div className="flex items-center gap-2 mb-6 text-sm text-[#6C757D]">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                  <span>Vers IBAN se terminant par <strong className="text-[#2C3E50]">{ibanLast4}</strong></span>
+                </div>
+              )}
+
+              {/* Montant */}
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                  Montant à virer (€){' '}
+                  <span className="text-[#6C757D] font-normal">min. 10 €</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="10"
+                    max={soldeDisponible}
+                    step="0.01"
+                    value={virementAmount}
+                    onChange={(e) => { setVirementAmount(e.target.value); setVirementError(''); }}
+                    placeholder="Ex : 150.00"
+                    className="w-full border-2 border-[#E9ECEF] focus:border-[#FF6B00] rounded-lg px-4 py-3 text-[#2C3E50] text-lg font-semibold outline-none transition pr-12"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6C757D] font-semibold">€</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setVirementAmount(soldeDisponible.toFixed(2))}
+                  className="mt-2 text-sm text-[#FF6B00] hover:underline font-medium"
+                >
+                  Virer la totalité ({soldeDisponible.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €)
+                </button>
+              </div>
+
+              {/* Note optionnelle */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                  Note <span className="text-[#6C757D] font-normal">(optionnel)</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={100}
+                  value={virementNote}
+                  onChange={(e) => setVirementNote(e.target.value)}
+                  placeholder="Ex : Paiement travaux cuisine Dupont"
+                  className="w-full border-2 border-[#E9ECEF] focus:border-[#FF6B00] rounded-lg px-4 py-3 text-[#2C3E50] outline-none transition"
+                />
+              </div>
+
+              {/* Erreur */}
+              {virementError && (
+                <div className="bg-red-50 border border-red-200 text-red-800 rounded-lg px-4 py-3 mb-4 text-sm">
+                  {virementError}
+                </div>
+              )}
+
+              {/* Succès */}
+              {virementSuccess && (
+                <div className="bg-green-50 border border-green-200 text-green-800 rounded-lg px-4 py-3 mb-4 text-sm font-medium">
+                  {virementSuccess}
+                </div>
+              )}
+
+              {/* Info délai */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-6 text-sm text-blue-800">
+                ℹ️ La demande sera traitée dans les <strong>1 à 3 jours ouvrés</strong>. Les fonds sont réservés immédiatement.
+              </div>
+
+              {/* Boutons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowVirementModal(false)}
+                  disabled={virementLoading}
+                  className="flex-1 border-2 border-[#E9ECEF] text-[#6C757D] hover:border-[#2C3E50] hover:text-[#2C3E50] px-4 py-3 rounded-lg font-semibold transition"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleRequestVirement}
+                  disabled={virementLoading || !virementAmount || Number(virementAmount) <= 0}
+                  className="flex-1 bg-[#FF6B00] text-white hover:bg-[#E56100] disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2"
+                >
+                  {virementLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Traitement...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Confirmer le virement
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

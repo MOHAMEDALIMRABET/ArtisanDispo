@@ -1174,3 +1174,33 @@ export interface Wallet {
   stripeAccountVerifiedAt?: Timestamp; // Date vérification Stripe
 }
 
+/**
+ * Statut d'une demande de virement manuel artisan
+ */
+export type VirementRequestStatut =
+  | 'pending'     // En attente de traitement
+  | 'processing'  // En cours de traitement Stripe
+  | 'completed'   // Virement effectué
+  | 'cancelled'   // Annulé par l'artisan
+  | 'rejected';   // Rejeté (erreur Stripe, fonds insuffisants)
+
+/**
+ * Demande de virement manuel artisan → compte bancaire
+ */
+export interface VirementRequest {
+  id: string;
+  artisanId: string;
+  montant: number;               // Montant demandé (€)
+  statut: VirementRequestStatut;
+  ibanLast4?: string;            // 4 derniers chiffres IBAN (affichage)
+  note?: string;                 // Note optionnelle de l'artisan
+  walletTransactionId?: string;  // ID transaction wallet associée
+  createdAt: Timestamp;
+  processedAt?: Timestamp;
+  completedAt?: Timestamp;
+  cancelledAt?: Timestamp;
+  rejectedAt?: Timestamp;
+  rejectionReason?: string;
+  stripeTransferId?: string;     // ID transfert Stripe (une fois effectué)
+}
+

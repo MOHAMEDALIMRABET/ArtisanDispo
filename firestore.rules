@@ -493,7 +493,9 @@ service cloud.firestore {
       allow read: if isAdmin() ||
                      (isAuthenticated() && request.auth.uid == walletId);
       allow create: if isAdmin();
-      allow update: if isAdmin();
+      // Artisan peut mettre à jour son propre wallet (réservation solde pour virement manuel)
+      allow update: if isAdmin() ||
+                     (isAuthenticated() && request.auth.uid == walletId && isArtisan());
       allow delete: if isAdmin(); // Suppression cascade compte
     }
     
@@ -509,9 +511,35 @@ service cloud.firestore {
                      (isAuthenticated() && isOwner(resource.data.artisanId));
       allow list: if isAdmin() ||
                      (isAuthenticated() && request.auth.uid != null);
-      allow create: if isAdmin();
-      allow update: if isAdmin(); // Anonymisation RGPD
+      // Artisan peut créer ses propres transactions et annuler les siennes (pending)
+      allow create: if isAdmin() ||
+                     (isAuthenticated() && isArtisan() && request.auth.uid == request.resource.data.artisanId);
+      allow update: if isAdmin() ||
+                     (isAuthenticated() && isArtisan() && request.auth.uid == resource.data.artisanId
+                       && resource.data.statut == 'pending');
       allow delete: if false; // Données financières légales conservées
+    }
+
+    // ============================================
+    // 25. COLLECTION: virementRequests
+    // ============================================
+    // Demandes de virements manuels des artisans
+    // Création par l'artisan, annulation par l'artisan (si pending), traitement par admin
+
+    match /virementRequests/{requestId} {
+      allow read: if isAdmin() ||
+                     (isAuthenticated() && request.auth.uid == resource.data.artisanId);
+      allow create: if isAuthenticated() && isArtisan() &&
+                       request.auth.uid == request.resource.data.artisanId &&
+                       request.resource.data.statut == 'pending' &&
+                       request.resource.data.montant is number &&
+                       request.resource.data.montant >= 10;
+      // Artisan peut annuler uniquement ses demandes 'pending'
+      allow update: if isAdmin() ||
+                     (isAuthenticated() && request.auth.uid == resource.data.artisanId &&
+                      resource.data.statut == 'pending' &&
+                      request.resource.data.statut == 'cancelled');
+      allow delete: if false; // Historique financier conservé
     }
     
     // ============================================

@@ -34,7 +34,9 @@ import type {
   Wallet, 
   WalletTransaction, 
   WalletTransactionType,
-  WalletTransactionStatut
+  WalletTransactionStatut,
+  VirementRequest,
+  VirementRequestStatut
 } from '@/types/firestore';
 
 // ============================================
@@ -356,6 +358,161 @@ export async function getWalletTransactionById(transactionId: string): Promise<W
   } catch (error) {
     console.error('Erreur récupération transaction:', error);
     return null;
+  }
+}
+
+// ============================================
+// VIREMENT MANUEL
+// ============================================
+
+const VIREMENT_MIN = 10; // Montant minimum en euros
+
+/**
+ * Créer une demande de virement manuel
+ * L'artisan demande à transférer une partie de son solde disponible vers son compte bancaire.
+ * Le montant est réservé immédiatement (déduit du soldeDisponible).
+ */
+export async function requestManualVirement(
+  artisanId: string,
+  montant: number,
+  note?: string
+): Promise<{ success: boolean; requestId?: string; error?: string }> {
+  try {
+    const wallet = await getWalletByArtisanId(artisanId);
+
+    if (!wallet) {
+      return { success: false, error: 'Wallet introuvable' };
+    }
+    if (wallet.stripeOnboardingStatus !== 'active') {
+      return { success: false, error: 'Compte bancaire non configuré. Complétez votre onboarding Stripe.' };
+    }
+    if (montant < VIREMENT_MIN) {
+      return { success: false, error: `Le montant minimum est de ${VIREMENT_MIN} €` };
+    }
+    if (montant > wallet.soldeDisponible) {
+      return { success: false, error: 'Solde disponible insuffisant' };
+    }
+
+    // Réserver le montant : déduire du solde disponible
+    const walletRef = doc(db, 'wallets', artisanId);
+    await updateDoc(walletRef, {
+      soldeDisponible: wallet.soldeDisponible - montant,
+      soldeTotal: wallet.soldeTotal - montant,
+      updatedAt: Timestamp.now(),
+      lastTransaction: Timestamp.now(),
+    });
+
+    // Créer la transaction wallet (type: debit, statut: pending)
+    const transactionData: Omit<WalletTransaction, 'id'> = {
+      artisanId,
+      type: 'debit',
+      montant,
+      statut: 'pending',
+      description: `Virement manuel demandé${note ? ` — ${note}` : ''}`,
+      createdAt: Timestamp.now(),
+      metadata: { manualVirement: true, note: note || null },
+    };
+    const txRef = await addDoc(collection(db, 'walletTransactions'), transactionData);
+
+    // Créer la demande de virement
+    const requestData: Omit<VirementRequest, 'id'> = {
+      artisanId,
+      montant,
+      statut: 'pending',
+      ibanLast4: wallet.ibanLast4 || undefined,
+      note: note || undefined,
+      walletTransactionId: txRef.id,
+      createdAt: Timestamp.now(),
+    };
+    const requestRef = await addDoc(collection(db, 'virementRequests'), requestData);
+
+    return { success: true, requestId: requestRef.id };
+  } catch (error) {
+    console.error('Erreur demande virement:', error);
+    return { success: false, error: 'Une erreur est survenue. Veuillez réessayer.' };
+  }
+}
+
+/**
+ * Annuler une demande de virement en attente
+ * Recrédite le solde disponible.
+ */
+export async function cancelVirementRequest(
+  artisanId: string,
+  requestId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const requestRef = doc(db, 'virementRequests', requestId);
+    const requestSnap = await getDoc(requestRef);
+
+    if (!requestSnap.exists()) {
+      return { success: false, error: 'Demande introuvable' };
+    }
+
+    const requestData = requestSnap.data() as VirementRequest;
+
+    if (requestData.artisanId !== artisanId) {
+      return { success: false, error: 'Non autorisé' };
+    }
+    if (requestData.statut !== 'pending') {
+      return { success: false, error: 'Seules les demandes en attente peuvent être annulées' };
+    }
+
+    // Annuler la demande
+    await updateDoc(requestRef, {
+      statut: 'cancelled' as VirementRequestStatut,
+      cancelledAt: Timestamp.now(),
+    });
+
+    // Recréditer le solde disponible
+    const wallet = await getWalletByArtisanId(artisanId);
+    if (wallet) {
+      const walletRef = doc(db, 'wallets', artisanId);
+      await updateDoc(walletRef, {
+        soldeDisponible: wallet.soldeDisponible + requestData.montant,
+        soldeTotal: wallet.soldeTotal + requestData.montant,
+        updatedAt: Timestamp.now(),
+      });
+    }
+
+    // Mettre à jour la transaction wallet associée
+    if (requestData.walletTransactionId) {
+      const txRef = doc(db, 'walletTransactions', requestData.walletTransactionId);
+      await updateDoc(txRef, { statut: 'cancelled' as WalletTransactionStatut });
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur annulation virement:', error);
+    return { success: false, error: 'Une erreur est survenue. Veuillez réessayer.' };
+  }
+}
+
+/**
+ * Récupérer les demandes de virement d'un artisan (triées par date desc)
+ */
+export async function getVirementRequests(
+  artisanId: string,
+  limitCount: number = 10
+): Promise<VirementRequest[]> {
+  try {
+    const q = query(
+      collection(db, 'virementRequests'),
+      where('artisanId', '==', artisanId)
+    );
+    const snapshot = await getDocs(q);
+    const requests = snapshot.docs.map(d => ({
+      id: d.id,
+      ...d.data(),
+    } as VirementRequest));
+
+    // Tri côté client (évite index composite Firestore)
+    return requests
+      .sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0))
+      .slice(0, limitCount);
+  } catch (error) {
+    console.error('Erreur récupération virements:', error);
+    return [];
   }
 }
 
