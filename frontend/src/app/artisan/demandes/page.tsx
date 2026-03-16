@@ -589,7 +589,7 @@ export default function ArtisanDemandesPage() {
             {/* ── CARTE Demandes Classiques ── */}
             <button
               onClick={() => { setCategoryActive('classiques'); setSectionActive('mes_demandes'); }}
-              className="group text-left bg-[#2C3E50] rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden"
+              className="group text-left bg-[#2C3E50] rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col"
             >
               {/* Bandeau */}
               <div className="bg-[#2C3E50] px-6 py-4 flex items-center gap-3">
@@ -600,7 +600,7 @@ export default function ArtisanDemandesPage() {
                 </div>
               </div>
               {/* Corps */}
-              <div className="bg-white px-6 py-5 space-y-4">
+              <div className="bg-white px-6 py-5 space-y-4 flex-1">
                 <div className="flex items-center gap-4 p-3 rounded-xl bg-orange-50 border border-orange-200">
                   <span className="text-2xl">📋</span>
                   <div className="flex-1">
@@ -624,7 +624,7 @@ export default function ArtisanDemandesPage() {
             {/* ── CARTE Demandes Express ── */}
             <button
               onClick={() => { setCategoryActive('express'); setSectionActive('demandes_express'); }}
-              className="group text-left bg-yellow-400 rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden"
+              className="group text-left bg-yellow-400 rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col"
             >
               {/* Bandeau */}
               <div className="bg-yellow-400 px-6 py-4 flex items-center gap-3">
@@ -635,7 +635,7 @@ export default function ArtisanDemandesPage() {
                 </div>
               </div>
               {/* Corps */}
-              <div className="bg-white px-6 py-5 space-y-4">
+              <div className="bg-white px-6 py-5 space-y-4 flex-1">
                 <div className="flex items-center gap-4 p-3 rounded-xl bg-yellow-50 border border-yellow-200">
                   <span className="text-2xl">⚡</span>
                   <div className="flex-1">
