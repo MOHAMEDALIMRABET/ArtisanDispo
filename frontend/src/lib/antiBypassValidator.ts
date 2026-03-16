@@ -677,15 +677,21 @@ export function validateMessageWithHistory(
   const extractFn = effectiveSigWords >= 3 ? extractDigitRunsAlways : extractDigitRuns;
 
   // L7 — RESET : 4+ messages consécutifs sans aucun chiffre → accumulation repart à zéro
+  // EXCEPTION : si les digits cumulés de la fenêtre commencent par un préfixe téléphonique
+  // (ex: 0[1-9]...), on ne remet PAS à zéro — bloque l'attaque :
+  //   "06" → (4 msgs sans chiffres) → RESET → "85" "96" "80" "12" → numéro complet passe
+  const allWindowDigits = lastMsgs.map(extractFn).join('');
+  const windowStartsWithPhonePrefix = /^0[1-9]/.test(allWindowDigits);
   const noDigitStreak = lastMsgs
     .slice(-RESET_THRESHOLD)
     .filter(m => extractFn(m).length === 0).length;
-  if (noDigitStreak >= RESET_THRESHOLD) {
+  if (noDigitStreak >= RESET_THRESHOLD && !windowStartsWithPhonePrefix) {
     return { isValid: true, blockedPatterns: [] };
   }
 
   // L6a — CUMUL SÉQUENTIEL (technique "1 nombre par message")
-  const historyCumulatedDigits = lastMsgs.map(extractFn).join('');
+  // allWindowDigits déjà calculé au-dessus (réutilisation, évite double map)
+  const historyCumulatedDigits = allWindowDigits;
   const newContentDigits = extractFn(newContent);
 
   // L6b — Digits par concaténation (technique "mot coupé cross-messages")
@@ -750,6 +756,14 @@ export function validateMessage(content: string, isPaid: boolean = false): Valid
 
   const blockedPatterns: string[] = [];
   const addBlocked = (cat: string) => { if (!blockedPatterns.includes(cat)) blockedPatterns.push(cat); };
+
+  // L1-pre : Message purement "0X" (préfixe téléphonique isolé : "06", "07", "09"...)
+  // Personne n'envoie "06" seul dans une vraie conversation.
+  // removeWhitelistedContexts a déjà soustrait les horaires (06h30→HORAIRE)
+  // et les années, donc si after-clean = "0[1-9]" → fragment de numéro.
+  if (/^0[1-9]$/.test(clean.trim())) {
+    return { isValid: false, blockedPatterns: ['telephone'], message: BLOCKED_MSG };
+  }
 
   // L2 : Fragments par lettres
   if (detectFragmentedPhoneNumbers(normalized)) addBlocked('telephone');
