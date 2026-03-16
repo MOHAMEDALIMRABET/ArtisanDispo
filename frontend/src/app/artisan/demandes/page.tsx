@@ -1241,12 +1241,19 @@ export default function ArtisanDemandesPage() {
                         💬 {t('artisanRequests.actions.contactClient')}
                       </button>
                       {(() => {
-                        // Griser si un devis est en attente de validation client (statut 'envoye')
-                        // Dégrisé si le client a refusé (statut 'refuse') ou qu'il n'y a pas encore de devis
+                        // Griser si un devis est en attente de réponse client (envoye)
+                        // OU si le client a déjà accepté (en_attente_paiement, paye, en_cours...)
+                        // = toute situation où le devis est "verrouillé" et ne peut plus être annulé
                         const devisEnAttenteClient = (devisMap.get(demande.id) || [])
                           .filter(d => d.artisanId === user?.uid)
-                          .find(d => d.statut === 'envoye');
+                          .find(d => ['envoye', 'en_attente_paiement', 'paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide', 'litige'].includes(d.statut));
+                        const devisAccepte = devisEnAttenteClient && devisEnAttenteClient.statut !== 'envoye';
                         const btnDisabled = refusingDemandeId === demande.id || !!devisEnAttenteClient;
+                        const btnTitle = devisAccepte
+                          ? 'Le client a accepté votre devis — impossible de refuser la demande'
+                          : devisEnAttenteClient
+                          ? 'Votre devis est en attente de réponse du client — refus indisponible pour l\'instant'
+                          : undefined;
                         return (
                           <button
                             onClick={(e) => {
@@ -1254,7 +1261,7 @@ export default function ArtisanDemandesPage() {
                               handleRefuserDemande(demande.id);
                             }}
                             disabled={btnDisabled}
-                            title={devisEnAttenteClient ? 'Votre devis est en attente de réponse du client — refus indisponible pour l\'instant' : undefined}
+                            title={btnTitle}
                             className={`px-4 py-2.5 border-2 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                               devisEnAttenteClient
                                 ? 'border-gray-300 text-gray-400 bg-gray-50'
