@@ -528,9 +528,10 @@ export default function MessagesPage() {
     const statutsPostPaiement = ['paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide', 'litige'];
     const isPaid = devisStatus ? statutsPostPaiement.includes(devisStatus) : false;
     // Validation temps réel avec historique
+    // Fenêtre identique à l'envoi (10 messages) pour cohérence
     const recentSenderMessages = messages
       .filter(m => m.senderId === user?.uid)
-      .slice(-5)
+      .slice(-10)
       .map(m => m.content || '');
     const validation = validateMessageWithHistory(value, recentSenderMessages, isPaid);
     if (!validation.isValid) {
