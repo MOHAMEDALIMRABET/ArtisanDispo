@@ -38,10 +38,15 @@ const BLOCKED_PHONE: ValidationResult = {
 // ─────────────────────────────────────────────────────────────────────────────
 const BLOCKED_PATTERNS = {
   telephone: [
-    // Formats standards français
+    // Formats standards français (10 chiffres complets)
     /\b0[1-9][\s.\-\/\*#|]?\d{2}[\s.\-\/\*#|]?\d{2}[\s.\-\/\*#|]?\d{2}[\s.\-\/\*#|]?\d{2}\b/gi,
     /\b\+33[\s.\-]?[1-9][\s.\-]?\d{2}[\s.\-]?\d{2}[\s.\-]?\d{2}[\s.\-]?\d{2}\b/gi,
     /\b00[\s.\-]?33[\s.\-]?[1-9][\s.\-]?\d{2}[\s.\-]?\d{2}[\s.\-]?\d{2}[\s.\-]?\d{2}\b/gi,
+    // Numéros mobiles partiels 06/07 — 8 chiffres (fragment délibéré : "06 63 21 23")
+    // 0[67] + 3 paires = 8 digits. Bloqué même incomplet : l'intention est claire.
+    /\b0[67][\s.\-\/\*#|]?\d{2}[\s.\-\/\*#|]?\d{2}[\s.\-\/\*#|]?\d{2}\b/gi,
+    // Numéros fixes partiels 01-05/08/09 — 8 chiffres
+    /\b0[1-5]{1}[\s.\-\/\*#|]?\d{2}[\s.\-\/\*#|]?\d{2}[\s.\-\/\*#|]?\d{2}\b/gi,
     // Numéros consécutifs
     /\b\d{10,}\b/g,
     // Numéros collés aux lettres
@@ -700,12 +705,19 @@ export function validateMessageWithHistory(
 
   // Vérifier les deux sources : cumul séquentiel ET concat fenêtre
   function checkPhoneInDigits(digits: string): boolean {
+    // 10 chiffres format complet
     for (let i = 0; i <= digits.length - 10; i++) {
       if (/^0[1-9]\d{8}$/.test(digits.substring(i, i + 10))) return true;
     }
+    // 9 chiffres mobile 06/07 (sans le 0 initial format international)
     for (let i = 0; i <= digits.length - 9; i++) {
       if (/^0[67]\d{7}$/.test(digits.substring(i, i + 9))) return true;
     }
+    // 8 chiffres mobile 06/07 — fragment partiel bloqué dès 8 digits
+    for (let i = 0; i <= digits.length - 8; i++) {
+      if (/^0[67]\d{6}$/.test(digits.substring(i, i + 8))) return true;
+    }
+    // Format international +33
     for (let i = 0; i <= digits.length - 11; i++) {
       if (/^33[1-9]\d{8}$/.test(digits.substring(i, i + 11))) return true;
     }
