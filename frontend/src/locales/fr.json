@@ -1930,6 +1930,10 @@
       "newProject": "➕ Nouveau projet"
     },
     "searchAnotherArtisan": "🔍 Chercher un autre artisan",
+    "devis": {
+      "examine": "Examiner ce devis",
+      "unknownArtisan": "Artisan inconnu"
+    },
     "empty": {
       "noRequests": "Aucune demande pour le moment",
       "noRequestsDescription": "Commencez par rechercher un artisan pour recevoir des devis personnalisés",
