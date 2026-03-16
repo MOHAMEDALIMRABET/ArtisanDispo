@@ -19,7 +19,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getUserById } from '@/lib/firebase/user-service';
 import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
-import { getWalletSummary, requestManualVirement, cancelVirementRequest, getVirementRequests } from '@/lib/firebase/wallet-service';
+import { getWalletSummary, requestManualVirement, cancelVirementRequest, getVirementRequests, getSequestreTransactions } from '@/lib/firebase/wallet-service';
 import type { User, Artisan, WalletTransaction, StripeOnboardingStatus, VirementRequest } from '@/types/firestore';
 
 export default function WalletPage() {
@@ -57,6 +57,10 @@ export default function WalletPage() {
   const [virementError, setVirementError] = useState('');
   const [virementSuccess, setVirementSuccess] = useState('');
   const [virementRequests, setVirementRequests] = useState<VirementRequest[]>([]);
+
+  // Filtre séquestre
+  const [activeFilter, setActiveFilter] = useState<'all' | 'sequestre'>('all');
+  const [sequestreTransactions, setSequestreTransactions] = useState<WalletTransaction[]>([]);
 
   // Charger les infos artisan
   useEffect(() => {
@@ -147,6 +151,8 @@ export default function WalletPage() {
     const loadVirements = async () => {
       const requests = await getVirementRequests(artisan.userId, 10);
       setVirementRequests(requests);
+      const seq = await getSequestreTransactions(artisan.userId);
+      setSequestreTransactions(seq);
     };
     loadVirements();
   }, [artisan]);
@@ -315,36 +321,15 @@ export default function WalletPage() {
           </div>
         </div>
 
-        {/* Bouton virement manuel */}
-        {stripeOnboardingStatus === 'active' && soldeDisponible > 0 && (
-          <div className="flex justify-end -mt-4 mb-8">
-            <button
-              onClick={() => {
-                setVirementAmount('');
-                setVirementNote('');
-                setVirementError('');
-                setVirementSuccess('');
-                setShowVirementModal(true);
-              }}
-              className="bg-white text-[#FF6B00] border-2 border-[#FF6B00] px-6 py-3 rounded-lg font-semibold hover:bg-[#FF6B00] hover:text-white transition shadow-md flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              Demander un virement
-            </button>
-          </div>
-        )}
-
         {/* Statistiques */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Total encaissé */}
+          {/* Chiffre d'affaires */}
           <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#28A745]">
             <div className="flex items-center gap-3 mb-2">
               <svg className="w-6 h-6 text-[#28A745]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <h3 className="text-[#6C757D] font-medium">{t('artisanWallet.stats.totalEarned')}</h3>
+              <h3 className="text-[#6C757D] font-medium">Chiffre d&apos;affaires</h3>
             </div>
             {walletLoading ? (
               <div className="animate-pulse h-10 bg-gray-200 rounded w-32"></div>
@@ -353,16 +338,30 @@ export default function WalletPage() {
                 {totalEncaisse.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
               </p>
             )}
-            <p className="text-sm text-[#6C757D] mt-1">{t('artisanWallet.stats.sinceStart')}</p>
+            <p className="text-sm text-[#6C757D] mt-1">(après commission Artisan)</p>
           </div>
 
-          {/* En attente */}
-          <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#FFC107]">
-            <div className="flex items-center gap-3 mb-2">
-              <svg className="w-6 h-6 text-[#FFC107]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <h3 className="text-[#6C757D] font-medium">{t('artisanWallet.stats.inEscrow')}</h3>
+          {/* En séquestre — cliquable */}
+          <div
+            onClick={() => setActiveFilter(activeFilter === 'sequestre' ? 'all' : 'sequestre')}
+            className={`rounded-lg shadow-md p-6 border-l-4 cursor-pointer transition-all ${
+              activeFilter === 'sequestre'
+                ? 'bg-yellow-50 border-[#FFC107] ring-2 ring-[#FFC107]'
+                : 'bg-white border-[#FFC107] hover:bg-yellow-50'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <div className="flex items-center gap-3">
+                <svg className="w-6 h-6 text-[#FFC107]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 className="text-[#6C757D] font-medium">En séquestre</h3>
+              </div>
+              {sequestreTransactions.length > 0 && (
+                <span className="bg-[#FFC107] text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  {sequestreTransactions.length}
+                </span>
+              )}
             </div>
             {walletLoading ? (
               <div className="animate-pulse h-10 bg-gray-200 rounded w-32"></div>
@@ -371,16 +370,18 @@ export default function WalletPage() {
                 {soldeEnAttente.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
               </p>
             )}
-            <p className="text-sm text-[#6C757D] mt-1">{t('artisanWallet.stats.workInProgress')}</p>
+            <p className="text-sm text-[#6C757D] mt-1">
+              {activeFilter === 'sequestre' ? '👁 Affichage filtré ↓' : 'Cliquer pour voir les détails'}
+            </p>
           </div>
 
-          {/* Transféré */}
+          {/* Bénéfice transféré + boutons */}
           <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#17A2B8]">
             <div className="flex items-center gap-3 mb-2">
               <svg className="w-6 h-6 text-[#17A2B8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
               </svg>
-              <h3 className="text-[#6C757D] font-medium">{t('artisanWallet.stats.transferred')}</h3>
+              <h3 className="text-[#6C757D] font-medium">Bénéfice transféré</h3>
             </div>
             {walletLoading ? (
               <div className="animate-pulse h-10 bg-gray-200 rounded w-32"></div>
@@ -389,7 +390,41 @@ export default function WalletPage() {
                 {totalRetire.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
               </p>
             )}
-            <p className="text-sm text-[#6C757D] mt-1">{t('artisanWallet.stats.toYourBank')}</p>
+            <p className="text-sm text-[#6C757D] mt-1">Vers votre banque</p>
+            {stripeOnboardingStatus === 'active' && soldeDisponible > 0 && (
+              <div className="mt-4 flex flex-col gap-2">
+                <button
+                  onClick={() => {
+                    setVirementAmount(soldeDisponible.toFixed(2));
+                    setVirementNote('');
+                    setVirementError('');
+                    setVirementSuccess('');
+                    setShowVirementModal(true);
+                  }}
+                  className="w-full bg-[#17A2B8] text-white text-sm font-semibold py-2 px-3 rounded-lg hover:bg-[#138496] transition flex items-center justify-center gap-1"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  Transfert total
+                </button>
+                <button
+                  onClick={() => {
+                    setVirementAmount('');
+                    setVirementNote('');
+                    setVirementError('');
+                    setVirementSuccess('');
+                    setShowVirementModal(true);
+                  }}
+                  className="w-full border-2 border-[#17A2B8] text-[#17A2B8] text-sm font-semibold py-2 px-3 rounded-lg hover:bg-[#17A2B8] hover:text-white transition flex items-center justify-center gap-1"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Transfert partiel
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -464,12 +499,25 @@ export default function WalletPage() {
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="bg-gradient-to-r from-[#2C3E50] to-[#34495E] text-white px-6 py-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                {t('artisanWallet.transactions.title')}
-              </h2>
+              <div>
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  {t('artisanWallet.transactions.title')}
+                </h2>
+                {activeFilter === 'sequestre' && (
+                  <p className="text-yellow-300 text-sm mt-1 flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+                    </svg>
+                    Filtre actif : En séquestre —{' '}
+                    <button onClick={() => setActiveFilter('all')} className="underline hover:text-white">
+                      Tout afficher
+                    </button>
+                  </p>
+                )}
+              </div>
               
               <button
                 onClick={() => setShowHowItWorks(!showHowItWorks)}
@@ -494,12 +542,12 @@ export default function WalletPage() {
                   <h4 className="font-semibold text-blue-900 mb-2">💡 Comment ça marche ?</h4>
                   <ul className="text-sm text-blue-800 space-y-1.5">
                     <li>• Recevez des paiements sécurisés de vos clients via Stripe</li>
-                    <li>• Les fonds restent en séquestre jusqu'à validation des travaux</li>
+                    <li>• Les fonds restent en séquestre jusqu&apos;à validation des travaux</li>
                     <li>• Une fois validés, les fonds sont transférés automatiquement vers votre compte bancaire</li>
-                    <li>• Suivez l'historique complet de vos transactions ici</li>
+                    <li>• Suivez l&apos;historique complet de vos transactions ici</li>
                   </ul>
                   <p className="text-xs text-blue-700 mt-3 bg-blue-100 rounded px-3 py-2 inline-block">
-                    ⚠️ <strong>Fonctionnalité en développement</strong> - L'intégration Stripe sera disponible prochainement
+                    ⚠️ <strong>Fonctionnalité en développement</strong> - L&apos;intégration Stripe sera disponible prochainement
                   </p>
                 </div>
               </div>
@@ -512,107 +560,144 @@ export default function WalletPage() {
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
                 <p className="mt-4 text-[#6C757D]">Chargement des transactions...</p>
               </div>
-            ) : transactions.length === 0 ? (
-              <div className="text-center">
-                <div className="inline-block bg-[#F8F9FA] rounded-full p-6 mb-4">
-                  <svg className="w-16 h-16 text-[#95A5A6] mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-[#2C3E50] mb-2">{t('artisanWallet.transactions.empty')}</h3>
-                <p className="text-[#6C757D] max-w-md mx-auto">
-                  {t('artisanWallet.transactions.emptyMessage')}
-                </p>
-                <p className="text-sm text-[#95A5A6] mt-4">
-                  💡 Cliquez sur <span className="font-semibold text-[#FF6B00]">"Comment ça marche ?"</span> pour en savoir plus
-                </p>
-              </div>
-            ) : (
-              <div className="divide-y divide-gray-200">
-                {transactions.map((transaction) => {
-                  const isCredit = transaction.type === 'credit' || transaction.type === 'bonus';
-                  const isDebit = transaction.type === 'debit' || transaction.type === 'commission';
-                  const isRefund = transaction.type === 'remboursement';
+            ) : (() => {
+              const displayedTransactions = activeFilter === 'sequestre' ? sequestreTransactions : transactions;
+              if (displayedTransactions.length === 0) {
+                return (
+                  <div className="text-center">
+                    <div className="inline-block bg-[#F8F9FA] rounded-full p-6 mb-4">
+                      <svg className="w-16 h-16 text-[#95A5A6] mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-semibold text-[#2C3E50] mb-2">
+                      {activeFilter === 'sequestre' ? 'Aucun montant en séquestre' : t('artisanWallet.transactions.empty')}
+                    </h3>
+                    <p className="text-[#6C757D] max-w-md mx-auto">
+                      {activeFilter === 'sequestre'
+                        ? 'Aucun devis payé en attente de validation. Les montants apparaissent ici dès qu\'un client signe et paie un devis.'
+                        : t('artisanWallet.transactions.emptyMessage')}
+                    </p>
+                    {activeFilter === 'all' && (
+                      <p className="text-sm text-[#95A5A6] mt-4">
+                        💡 Cliquez sur <span className="font-semibold text-[#FF6B00]">&quot;Comment ça marche ?&quot;</span> pour en savoir plus
+                      </p>
+                    )}
+                  </div>
+                );
+              }
+              return (
+                <div className="divide-y divide-gray-200">
+                  {displayedTransactions.map((transaction) => {
+                    const isCredit = transaction.type === 'credit' || transaction.type === 'bonus';
+                    const isDebit = transaction.type === 'debit' || transaction.type === 'commission';
+                    const isRefund = transaction.type === 'remboursement';
+                    const isSequestre = transaction.metadata?.phase === 'sequestre' && transaction.statut === 'pending';
 
-                  let bgColor = 'bg-gray-50';
-                  let iconColor = 'text-gray-500';
-                  let amountColor = 'text-[#2C3E50]';
-                  let icon = '💰';
+                    let bgColor = 'bg-gray-50';
+                    let amountColor = 'text-[#2C3E50]';
+                    let icon = '💰';
 
-                  if (isCredit) {
-                    bgColor = 'bg-green-50';
-                    iconColor = 'text-green-600';
-                    amountColor = 'text-green-600';
-                    icon = '💰';
-                  } else if (isDebit) {
-                    bgColor = 'bg-orange-50';
-                    iconColor = 'text-orange-600';
-                    amountColor = 'text-orange-600';
-                    icon = '📤';
-                  } else if (isRefund) {
-                    bgColor = 'bg-red-50';
-                    iconColor = 'text-red-600';
-                    amountColor = 'text-red-600';
-                    icon = '↩️';
-                  }
+                    if (isSequestre) {
+                      bgColor = 'bg-yellow-50';
+                      amountColor = 'text-yellow-700';
+                      icon = '🔒';
+                    } else if (isCredit) {
+                      bgColor = 'bg-green-50';
+                      amountColor = 'text-green-600';
+                      icon = '💰';
+                    } else if (isDebit) {
+                      bgColor = 'bg-orange-50';
+                      amountColor = 'text-orange-600';
+                      icon = '📤';
+                    } else if (isRefund) {
+                      bgColor = 'bg-red-50';
+                      amountColor = 'text-red-600';
+                      icon = '↩️';
+                    }
 
-                  const statusLabel = {
-                    pending: t('artisanWallet.transactions.statuses.pending'),
-                    completed: t('artisanWallet.transactions.statuses.completed'),
-                    failed: t('artisanWallet.transactions.statuses.failed'),
-                    cancelled: t('artisanWallet.transactions.statuses.cancelled'),
-                  }[transaction.statut];
+                    const statusLabel = {
+                      pending: t('artisanWallet.transactions.statuses.pending'),
+                      completed: t('artisanWallet.transactions.statuses.completed'),
+                      failed: t('artisanWallet.transactions.statuses.failed'),
+                      cancelled: t('artisanWallet.transactions.statuses.cancelled'),
+                    }[transaction.statut];
 
-                  const statusColor = {
-                    pending: 'text-yellow-600 bg-yellow-100',
-                    completed: 'text-green-600 bg-green-100',
-                    failed: 'text-red-600 bg-red-100',
-                    cancelled: 'text-gray-600 bg-gray-100',
-                  }[transaction.statut];
+                    const statusColor = {
+                      pending: 'text-yellow-600 bg-yellow-100',
+                      completed: 'text-green-600 bg-green-100',
+                      failed: 'text-red-600 bg-red-100',
+                      cancelled: 'text-gray-600 bg-gray-100',
+                    }[transaction.statut];
 
-                  return (
-                    <div key={transaction.id} className={`p-4 hover:bg-gray-50 transition`}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4 flex-1">
-                          <div className={`${bgColor} rounded-full p-3`}>
-                            <span className="text-2xl">{icon}</span>
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-[#2C3E50] mb-1">
-                              {transaction.description}
-                            </h4>
-                            <div className="flex items-center gap-3 text-sm text-[#6C757D]">
-                              <span>
-                                {new Date(transaction.createdAt.toDate()).toLocaleDateString('fr-FR', {
-                                  day: 'numeric',
-                                  month: 'long',
-                                  year: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                })}
-                              </span>
-                              <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColor}`}>
-                                {statusLabel}
-                              </span>
+                    const clientNom = transaction.metadata?.clientNom as string | undefined;
+                    const devisNumero = transaction.metadata?.devisNumero as string | undefined;
+
+                    return (
+                      <div key={transaction.id} className={`p-4 hover:bg-gray-50 transition`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4 flex-1">
+                            <div className={`${bgColor} rounded-full p-3 flex-shrink-0`}>
+                              <span className="text-2xl">{icon}</span>
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-[#2C3E50] mb-1">
+                                {transaction.description}
+                              </h4>
+                              {/* Infos séquestre enrichies */}
+                              {isSequestre && (clientNom || devisNumero) && (
+                                <div className="flex flex-wrap gap-2 mb-1">
+                                  {clientNom && (
+                                    <span className="inline-flex items-center gap-1 bg-white border border-[#E9ECEF] px-2 py-0.5 rounded-full text-xs text-[#2C3E50]">
+                                      <svg className="w-3 h-3 text-[#6C757D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                      </svg>
+                                      {clientNom}
+                                    </span>
+                                  )}
+                                  {devisNumero && (
+                                    <span className="inline-flex items-center gap-1 bg-white border border-[#E9ECEF] px-2 py-0.5 rounded-full text-xs text-[#6C757D]">
+                                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                      </svg>
+                                      Devis {devisNumero}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                              <div className="flex items-center gap-3 text-sm text-[#6C757D]">
+                                <span>
+                                  {new Date(transaction.createdAt.toDate()).toLocaleDateString('fr-FR', {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })}
+                                </span>
+                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColor}`}>
+                                  {isSequestre ? '🔒 En séquestre' : statusLabel}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="text-right">
-                          <p className={`text-2xl font-bold ${amountColor}`}>
-                            {isDebit || isRefund ? '-' : '+'}
-                            {transaction.montant.toLocaleString('fr-FR', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}{' '}
-                            €
-                          </p>
+                          <div className="text-right">
+                            <p className={`text-2xl font-bold ${amountColor}`}>
+                              {isDebit || isRefund ? '-' : '+'}
+                              {transaction.montant.toLocaleString('fr-FR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}{' '}
+                              €
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
         </div>
 

@@ -388,6 +388,27 @@ export async function updateDevis(
       updateData.datePaiement = Timestamp.now();
       updateData.dateDerniereNotification = Timestamp.now();
       
+      // 🆕 WALLET : Enregistrer le montant en séquestre
+      try {
+        const { recordPaiementClient } = await import('./wallet-service');
+        const { getUserById } = await import('./user-service');
+        const client = await getUserById(devisActuel.clientId);
+        const clientNom = client ? `${client.prenom} ${client.nom}` : undefined;
+        await recordPaiementClient(
+          devisActuel.artisanId,
+          devisId,   // contratId = devisId en attendant Stripe
+          devisId,
+          devisActuel.montantTTC,
+          `devis_paye_${devisId}`,
+          clientNom,
+          devisActuel.numeroDevis
+        );
+        console.log('✅ Wallet séquestre mis à jour pour artisan:', devisActuel.artisanId);
+      } catch (walletError) {
+        console.error('⚠️ Erreur mise à jour wallet séquestre:', walletError);
+      }
+
+      
       // 🆕 ATTRIBUTION ARTISAN : Ajouter l'artisan à artisansMatches si pas déjà présent
       if (devisActuel.demandeId) {
         try {

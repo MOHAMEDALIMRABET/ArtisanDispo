@@ -118,7 +118,9 @@ export async function recordPaiementClient(
   contratId: string,
   devisId: string,
   montant: number,
-  stripePaymentIntentId: string
+  stripePaymentIntentId: string,
+  clientNom?: string,
+  devisNumero?: string
 ): Promise<WalletTransaction> {
   const walletRef = doc(db, 'wallets', artisanId);
   const wallet = await getWalletByArtisanId(artisanId);
@@ -141,13 +143,15 @@ export async function recordPaiementClient(
     type: 'credit',
     montant,
     statut: 'pending', // En attente de validation travaux
-    description: `Paiement client reçu (en séquestre)`,
+    description: `Paiement reçu${clientNom ? ` — ${clientNom}` : ''}${devisNumero ? ` (${devisNumero})` : ''}`,
     contratId,
     devisId,
     stripePaymentIntentId,
     createdAt: Timestamp.now(),
     metadata: {
-      phase: 'sequestre'
+      phase: 'sequestre',
+      clientNom: clientNom || null,
+      devisNumero: devisNumero || null,
     }
   };
   
@@ -311,6 +315,30 @@ export async function recordRemboursement(
     id: transactionRef.id,
     ...transactionData
   } as WalletTransaction;
+}
+
+/**
+ * Récupérer les transactions en séquestre (pending, phase=sequestre)
+ * Enrichies avec clientNom et devisNumero depuis les metadata
+ */
+export async function getSequestreTransactions(artisanId: string): Promise<WalletTransaction[]> {
+  try {
+    const q = query(
+      collection(db, 'walletTransactions'),
+      where('artisanId', '==', artisanId),
+      where('statut', '==', 'pending')
+    );
+    const snapshot = await getDocs(q);
+    const transactions = snapshot.docs
+      .map(d => ({ id: d.id, ...d.data() } as WalletTransaction))
+      .filter(t => t.metadata?.phase === 'sequestre');
+
+    // Tri côté client
+    return transactions.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+  } catch (error) {
+    console.error('Erreur récupération séquestre:', error);
+    return [];
+  }
 }
 
 /**
