@@ -219,7 +219,7 @@ export default function VoirDevisPage() {
       paye: '💰 Payé - Contrat signé',
       en_cours: '🔨 Travaux en cours',
       travaux_termines: '✅ Travaux terminés',
-      termine_valide: '🎉 Validé par le client',
+      termine_valide: '🎉 Travaux validés par le client',
       termine_auto_valide: '🎉 Validé automatiquement',
       litige: '⚠️ Litige en cours',
       accepte: '✅ Accepté',
