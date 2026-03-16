@@ -624,19 +624,19 @@ export default function ArtisanDemandesPage() {
             {/* ── CARTE Demandes Express ── */}
             <button
               onClick={() => { setCategoryActive('express'); setSectionActive('demandes_express'); }}
-              className="group text-left bg-yellow-400 rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col"
+              className="group text-left bg-[#FF6B00] rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col"
             >
               {/* Bandeau */}
-              <div className="bg-yellow-400 px-6 py-4 flex items-center gap-3">
+              <div className="bg-[#FF6B00] px-6 py-4 flex items-center gap-3">
                 <span className="text-3xl">⚡</span>
                 <div>
-                  <div className="text-[#2C3E50] font-bold text-xl">Demandes Express</div>
-                  <div className="text-yellow-800 text-sm">Petits travaux rapides</div>
+                  <div className="text-white font-bold text-xl">Demandes Express</div>
+                  <div className="text-orange-100 text-sm">Petits travaux rapides</div>
                 </div>
               </div>
               {/* Corps */}
               <div className="bg-white px-6 py-5 space-y-4 flex-1">
-                <div className="flex items-center gap-4 p-3 rounded-xl bg-yellow-50 border border-yellow-200">
+                <div className="flex items-center gap-4 p-3 rounded-xl bg-orange-50 border border-orange-200">
                   <span className="text-2xl">⚡</span>
                   <div className="flex-1">
                     <div className="font-semibold text-[#2C3E50] text-sm">Express</div>
@@ -647,7 +647,7 @@ export default function ArtisanDemandesPage() {
                   <div className="text-xs text-gray-500 leading-relaxed">Interventions rapides à prix fixe, directement proposées aux artisans disponibles.</div>
                 </div>
                 <div className="flex items-center justify-end pt-1">
-                  <span className="text-sm font-semibold text-yellow-600 group-hover:underline">Accéder →</span>
+                  <span className="text-sm font-semibold text-[#FF6B00] group-hover:underline">Accéder →</span>
                 </div>
               </div>
             </button>
