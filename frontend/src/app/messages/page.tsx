@@ -565,9 +565,10 @@ export default function MessagesPage() {
       const statutsPostPaiement = ['paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide', 'litige'];
       const isPaid = devisStatus ? statutsPostPaiement.includes(devisStatus) : false;
       // Récupérer les derniers messages envoyés par cet utilisateur dans cette conversation
+      // Fenêtre élargie à 10 messages : couvre les fragmentations sur de nombreux messages courts
       const recentSenderMessages = messages
         .filter(m => m.senderId === user.uid)
-        .slice(-5)
+        .slice(-10)
         .map(m => m.content || '');
 
       const validation = validateMessageWithHistory(messageContent.trim(), recentSenderMessages, isPaid);

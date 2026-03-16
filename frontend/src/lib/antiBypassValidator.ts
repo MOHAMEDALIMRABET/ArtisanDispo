@@ -308,7 +308,20 @@ function normalizeTruncatedNumberWords(text: string): string {
     .replace(/\btreiz\b/gi, 'treize')
     .replace(/\bquatorz\b/gi, 'quatorze')
     .replace(/\bquinz\b/gi, 'quinze')
-    .replace(/\bseiz\b/gi, 'seize');
+    .replace(/\bseiz\b/gi, 'seize')
+    // ─ Lettres répétées / attaque fragmentation cross-messages ─
+    // "unn" → "un", "siix" → "six", "neuff" → "neuf"... (lettre finale doublée)
+    .replace(/\bunn?e?\b/gi, 'un')
+    .replace(/\bsiix\b/gi, 'six')
+    .replace(/\bneuuf\b|\bneuff\b/gi, 'neuf')
+    .replace(/\bdeuux\b|\bdeeux\b/gi, 'deux')
+    .replace(/\bhuiit\b|\bhuitt\b/gi, 'huit')
+    .replace(/\bseept\b|\bseppt\b/gi, 'sept')
+    .replace(/\bcinqq\b/gi, 'cinq')
+    // "quat" seul (sans "re" suivant) → "quatre" (backup si syllabe-joiner n'a pas agi)
+    .replace(/\bquat\b/gi, 'quatre')
+    // "quatr" tronqué
+    .replace(/\bquatr\b/gi, 'quatre');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -641,12 +654,13 @@ export function validateMessageWithHistory(
   const totalSigWords = allMsgs.reduce((sum, m) => sum + sigWordsOf(m), 0);
 
   // L6b — CONCAT FENÊTRE (attaque "mot découpé cross-messages")
-  // "t r o" [msg N] + "is" [msg N+1] → concat "t r o is" → collapsed → "trois" → "3"
-  // Séparateur " . " (espace-point-espace) : le point n'est PAS un char [a-z],
-  // donc collapseSpacedLetters ne franchit jamais la frontière de message
-  // → "trois . un" garde \btrois\b intact (évite "troisun" qui perd le "3").
+  // Deux versions :
+  //   allConcat      (" . " sep) : collapseSpacedLetters ne franchit pas les frontières → évite "troisun"
+  //   allConcatPlain (" " sep)   : permet reconstructSpacedNumberSyllables cross-messages
+  //                                → "quat re" entre msg N et N+1 → "quatre"
   const allConcat = allMsgs.join(' . ');
-  const concatSigWords = sigWordsOf(allConcat);
+  const allConcatPlain = allMsgs.join(' ');
+  const concatSigWords = Math.max(sigWordsOf(allConcat), sigWordsOf(allConcatPlain));
   const effectiveSigWords = Math.max(totalSigWords, concatSigWords);
 
   // Si le cumul effectif ≥ 3 mots significatifs, on utilise extractDigitRunsAlways
@@ -671,6 +685,11 @@ export function validateMessageWithHistory(
   //    Sans ce check précoce, la garde ci-dessous court-circuiterait la détection.
   const concatDigits = extractDigitRunsAlways(allConcat);
   if (checkPhoneInDigits(concatDigits)) return BLOCKED_PHONE;
+  // L6b-plain : même vérification avec la jointure espace simple
+  // Capture : msg1="06 63 21 23" + msg2="quat" + msg3="re" + msg4="unn"
+  // → "06 63 21 23 quat re unn" → syllabe-joiner → "06 63 21 23 quatre un" → 0663212341 ✓
+  const concatDigitsPlain = extractDigitRunsAlways(allConcatPlain);
+  if (checkPhoneInDigits(concatDigitsPlain)) return BLOCKED_PHONE;
 
   // Guard : safe seulement si effectivement pas d'intention détectée
   if (!newContentDigits && effectiveSigWords < 3) {
@@ -695,6 +714,7 @@ export function validateMessageWithHistory(
 
   if (checkPhoneInDigits(combinedDigits)) return BLOCKED_PHONE;
   if (checkPhoneInDigits(concatDigits)) return BLOCKED_PHONE;
+  if (checkPhoneInDigits(concatDigitsPlain)) return BLOCKED_PHONE;
 
   return { isValid: true, blockedPatterns: [] };
 }
