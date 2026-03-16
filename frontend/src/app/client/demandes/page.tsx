@@ -1420,7 +1420,9 @@ export default function MesDemandesPage() {
                                     scrollY: window.scrollY,
                                     timestamp: Date.now()
                                   }));
-                                  router.push(`/messages?userId=${artisanId}`);
+                                  // ✅ Toujours inclure demandeId : garantit qu'une nouvelle
+                                  // conversation est créée pour chaque demande distincte
+                                  router.push(`/messages?userId=${artisanId}&demandeId=${demande.id}`);
                                 }
                               }}
                               className="px-4 py-2.5 border-2 border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-2"

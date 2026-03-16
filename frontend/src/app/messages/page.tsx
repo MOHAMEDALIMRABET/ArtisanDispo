@@ -200,8 +200,20 @@ export default function MessagesPage() {
           if (conv.demandeId) {
             const demandeSnap = await getDoc(doc(db, 'demandes', conv.demandeId));
             if (demandeSnap.exists()) {
-              const st = demandeSnap.data().statut;
-              if (st === 'annulee' || st === 'annule' || st === 'expire') {
+              const data = demandeSnap.data();
+              const st = data.statut;
+              // Fermée si : annulée, expirée, terminée
+              // OU si l'artisan a été explicitement refusé par le client (artisanRefuseId)
+              const otherIp = conv.participants.find(p => p !== user.uid);
+              const isRefused = data.artisanRefuseId && (
+                data.artisanRefuseId === user.uid || data.artisanRefuseId === otherIp
+              );
+              if (
+                st === 'annulee' || st === 'annule' ||
+                st === 'expiree' || st === 'expire' ||
+                st === 'terminee' ||
+                isRefused
+              ) {
                 newInactive.add(conv.id);
               }
             }
@@ -261,10 +273,24 @@ export default function MessagesPage() {
   useEffect(() => {
     if (!user || !targetUserId || loading) return;
 
-    // Chercher conversation existante
-    const existingConv = conversations.find(c => 
-      c.participants.includes(targetUserId)
-    );
+    // Priorité : trouver la conversation liée au contexte exact (demandeId ou devisId)
+    // → Evite de réutiliser une ancienne conversation close pour une nouvelle demande
+    let existingConv: Conversation | undefined;
+
+    if (demandeIdParam) {
+      // Chercher la conversation spécifique à cette demande
+      existingConv = conversations.find(c =>
+        c.participants.includes(targetUserId) && c.demandeId === demandeIdParam
+      );
+    } else if (devisIdParam) {
+      // Chercher la conversation spécifique à ce devis
+      existingConv = conversations.find(c =>
+        c.participants.includes(targetUserId) && c.devisId === devisIdParam
+      );
+    } else {
+      // Pas de contexte → ouvrir la conversation la plus récente avec cet utilisateur
+      existingConv = conversations.find(c => c.participants.includes(targetUserId));
+    }
 
     if (existingConv) {
       setSelectedConversation(existingConv.id);
@@ -348,8 +374,18 @@ export default function MessagesPage() {
           try {
             const demandeDoc = await getDoc(doc(db, 'demandes', conv.demandeId));
             if (demandeDoc.exists()) {
-              const st = demandeDoc.data().statut;
-              const isInactive = (st === 'annulee' || st === 'annule' || st === 'expire');
+              const data = demandeDoc.data();
+              const st = data.statut;
+              const otherIp = conv.participants.find(p => p !== user?.uid);
+              const isRefused = data.artisanRefuseId && (
+                data.artisanRefuseId === user?.uid || data.artisanRefuseId === otherIp
+              );
+              const isInactive = (
+                st === 'annulee' || st === 'annule' ||
+                st === 'expiree' || st === 'expire' ||
+                st === 'terminee' ||
+                !!isRefused
+              );
               setDevisStatus(st);
               setDevisInfo(null);
               setIsConversationInactive(isInactive);
