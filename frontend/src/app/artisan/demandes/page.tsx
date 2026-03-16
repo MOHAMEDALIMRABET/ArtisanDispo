@@ -605,14 +605,12 @@ export default function ArtisanDemandesPage() {
                   <span className="text-2xl">📋</span>
                   <div className="flex-1">
                     <div className="font-semibold text-[#2C3E50] text-sm">{t('artisanRequests.tabs.myRequests')}</div>
-                    <div className="text-xs text-gray-500">{demandes.filter(d => d.statut !== 'expiree').length} demande{demandes.filter(d => d.statut !== 'expiree').length > 1 ? 's' : ''} assignée{demandes.filter(d => d.statut !== 'expiree').length > 1 ? 's' : ''}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 p-3 rounded-xl bg-purple-50 border border-purple-200">
                   <span className="text-2xl">📢</span>
                   <div className="flex-1">
                     <div className="font-semibold text-[#2C3E50] text-sm">{t('artisanRequests.tabs.publicRequests')}</div>
-                    <div className="text-xs text-gray-500">{demandesPubliques.length} demande{demandesPubliques.length > 1 ? 's' : ''} disponible{demandesPubliques.length > 1 ? 's' : ''}</div>
                   </div>
                 </div>
                 <div className="flex items-center justify-end pt-1">
@@ -640,7 +638,6 @@ export default function ArtisanDemandesPage() {
                   <span className="text-2xl">⚡</span>
                   <div className="flex-1">
                     <div className="font-semibold text-[#2C3E50] text-sm">Express</div>
-                    <div className="text-xs text-gray-500">{demandesExpress.length} demande{demandesExpress.length > 1 ? 's' : ''} en attente</div>
                   </div>
                 </div>
                 <div className="p-3 rounded-xl bg-gray-50 border border-gray-200">
