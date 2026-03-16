@@ -195,6 +195,8 @@ export default function MessagesPage() {
       const newInactive = new Set<string>();
       await Promise.all(convs.map(async (conv) => {
         try {
+          const otherParticipant = conv.participants.find(p => p !== user.uid);
+
           if (conv.demandeId) {
             const demandeSnap = await getDoc(doc(db, 'demandes', conv.demandeId));
             if (demandeSnap.exists()) {
@@ -203,7 +205,33 @@ export default function MessagesPage() {
                 newInactive.add(conv.id);
               }
             }
+          } else if (!conv.devisId && otherParticipant) {
+            // Fallback pour conversations SANS demandeId (créées avant le fix)
+            // Chercher une demande annulée entre ces deux participants
+            const [qAsClient, qAsArtisan] = await Promise.all([
+              getDocs(query(
+                collection(db, 'demandes'),
+                where('clientId', '==', user.uid),
+                where('statut', '==', 'annulee')
+              )),
+              getDocs(query(
+                collection(db, 'demandes'),
+                where('clientId', '==', otherParticipant),
+                where('statut', '==', 'annulee')
+              )),
+            ]);
+            const allDocs = [...qAsClient.docs, ...qAsArtisan.docs];
+            const hasAnnulee = allDocs.some(d => {
+              const data = d.data();
+              const matches: string[] = data.artisansMatches || [];
+              return (
+                matches.includes(user.uid) || matches.includes(otherParticipant) ||
+                data.artisanRefuseId === user.uid || data.artisanRefuseId === otherParticipant
+              );
+            });
+            if (hasAnnulee) newInactive.add(conv.id);
           }
+
           if (conv.devisId) {
             const devisSnap = await getDoc(doc(db, 'devis', conv.devisId));
             if (devisSnap.exists()) {
@@ -327,10 +355,10 @@ export default function MessagesPage() {
             }
           } catch { /* silencieux */ }
         }
-        // Pas de devis ni demande → conversation normale, toujours active
+        // Pas de devis ni demande → utiliser le résultat du fallback inactiveConvIds
         setDevisStatus(null);
         setDevisInfo(null);
-        setIsConversationInactive(false);
+        setIsConversationInactive(inactiveConvIds.has(selectedConversation));
         return;
       }
 
@@ -390,7 +418,7 @@ export default function MessagesPage() {
     };
 
     loadDevisStatus();
-  }, [selectedConversation, conversations]);
+  }, [selectedConversation, conversations, inactiveConvIds]);
 
   // Auto-scroll vers le bas
   useEffect(() => {
