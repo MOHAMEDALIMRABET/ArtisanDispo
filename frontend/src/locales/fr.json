@@ -678,6 +678,8 @@
     "signedQuotes": "Devis signés",
     "worksInProgress": "Travaux en cours",
     "completedWorks": "Terminés",
+    "verified": "Vérifié",
+    "rejected": "Rejeté",
     "refused": "Refusées",
     "expired": "Expirées",
     "showAll": "Tout",
