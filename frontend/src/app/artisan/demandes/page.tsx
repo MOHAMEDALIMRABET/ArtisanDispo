@@ -637,7 +637,7 @@ export default function ArtisanDemandesPage() {
                 <div className="flex items-center gap-4 p-3 rounded-xl bg-orange-50 border border-orange-200">
                   <span className="text-2xl">⚡</span>
                   <div className="flex-1">
-                    <div className="font-semibold text-[#2C3E50] text-sm">Express</div>
+                    <div className="font-semibold text-[#2C3E50] text-sm">⚡ Demandes express</div>
                   </div>
                 </div>
                 <div className="p-3 rounded-xl bg-gray-50 border border-gray-200">
