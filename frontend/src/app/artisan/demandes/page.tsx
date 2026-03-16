@@ -1240,16 +1240,31 @@ export default function ArtisanDemandesPage() {
                       >
                         💬 {t('artisanRequests.actions.contactClient')}
                       </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRefuserDemande(demande.id);
-                        }}
-                        disabled={refusingDemandeId === demande.id}
-                        className="px-4 py-2.5 border-2 border-red-300 text-red-700 hover:bg-red-50 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {refusingDemandeId === demande.id ? `⏳ ${t('artisanRequests.actions.refusing')}` : `❌ ${t('artisanRequests.actions.refuse')}`}
-                      </button>
+                      {(() => {
+                        // Griser si un devis est en attente de validation client (statut 'envoye')
+                        // Dégrisé si le client a refusé (statut 'refuse') ou qu'il n'y a pas encore de devis
+                        const devisEnAttenteClient = (devisMap.get(demande.id) || [])
+                          .filter(d => d.artisanId === user?.uid)
+                          .find(d => d.statut === 'envoye');
+                        const btnDisabled = refusingDemandeId === demande.id || !!devisEnAttenteClient;
+                        return (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRefuserDemande(demande.id);
+                            }}
+                            disabled={btnDisabled}
+                            title={devisEnAttenteClient ? 'Votre devis est en attente de réponse du client — refus indisponible pour l\'instant' : undefined}
+                            className={`px-4 py-2.5 border-2 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                              devisEnAttenteClient
+                                ? 'border-gray-300 text-gray-400 bg-gray-50'
+                                : 'border-red-300 text-red-700 hover:bg-red-50'
+                            }`}
+                          >
+                            {refusingDemandeId === demande.id ? `⏳ ${t('artisanRequests.actions.refusing')}` : `❌ ${t('artisanRequests.actions.refuse')}`}
+                          </button>
+                        );
+                      })()}
                     </div>
                   );
                 })()}
