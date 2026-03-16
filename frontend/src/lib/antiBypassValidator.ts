@@ -665,14 +665,17 @@ export function validateMessageWithHistory(
   const historyCumulatedDigits = lastMsgs.map(extractFn).join('');
   const newContentDigits = extractFn(newContent);
 
+  // L6b — Digits par concaténation (technique "mot coupé cross-messages")
+  // ⚠️ Calculé AVANT le guard de sortie anticipée pour détecter le cas :
+  //    msg1 = "0667 52 52" (8 digits) + msg2 = "vingt" (mot = 20) → concat → "0667525220" = 10 digits valide
+  //    Sans ce check précoce, la garde ci-dessous court-circuiterait la détection.
+  const concatDigits = extractDigitRunsAlways(allConcat);
+  if (checkPhoneInDigits(concatDigits)) return BLOCKED_PHONE;
+
   // Guard : safe seulement si effectivement pas d'intention détectée
   if (!newContentDigits && effectiveSigWords < 3) {
     return { isValid: true, blockedPatterns: [] };
   }
-
-  // L6b — Digits par concaténation (technique "mot coupé cross-messages")
-  // ex: "t r o" + "is" → joinés → collapsed → "trois" → digit "3"
-  const concatDigits = extractDigitRunsAlways(allConcat);
 
   const combinedDigits = historyCumulatedDigits + newContentDigits;
 
