@@ -589,7 +589,7 @@ export default function ArtisanDemandesPage() {
             {/* ── CARTE Demandes Classiques ── */}
             <button
               onClick={() => { setCategoryActive('classiques'); setSectionActive('mes_demandes'); }}
-              className="group text-left bg-white rounded-2xl shadow-md hover:shadow-xl border-2 border-transparent hover:border-[#2C3E50] transition-all duration-200 overflow-hidden"
+              className="group text-left bg-white rounded-2xl shadow-md hover:shadow-xl ring-2 ring-transparent hover:ring-[#2C3E50] transition-all duration-200 overflow-hidden"
             >
               {/* Bandeau */}
               <div className="bg-[#2C3E50] px-6 py-4 flex items-center gap-3">
@@ -624,7 +624,7 @@ export default function ArtisanDemandesPage() {
             {/* ── CARTE Demandes Express ── */}
             <button
               onClick={() => { setCategoryActive('express'); setSectionActive('demandes_express'); }}
-              className="group text-left bg-yellow-400 rounded-2xl shadow-md hover:shadow-xl border-2 border-transparent hover:border-yellow-400 transition-all duration-200 overflow-hidden"
+              className="group text-left bg-white rounded-2xl shadow-md hover:shadow-xl ring-2 ring-transparent hover:ring-yellow-400 transition-all duration-200 overflow-hidden"
             >
               {/* Bandeau */}
               <div className="bg-yellow-400 px-6 py-4 flex items-center gap-3">
