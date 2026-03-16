@@ -338,12 +338,12 @@ service cloud.firestore {
     // Création par le système (via Functions)
     
     match /notifications/{notificationId} {
-      // ✅ FIX: le champ est 'recipientId' (pas 'userId')
-      allow read: if isAdmin() || isOwner(resource.data.recipientId);
-      allow list: if isAuthenticated() && request.auth.uid != null; // ✅ Permettre queries avec where('recipientId', '==', uid)
+      // ✅ Le champ est 'userId' (stocké par createNotification)
+      allow read: if isAdmin() || isOwner(resource.data.userId);
+      allow list: if isAuthenticated() && request.auth.uid != null; // ✅ Permettre queries avec where('userId', '==', uid)
       allow create: if isAuthenticated(); // Via services Firebase
-      allow update: if isOwner(resource.data.recipientId) || isAdmin(); // Marquer comme lu
-      allow delete: if isOwner(resource.data.recipientId) || isAdmin();
+      allow update: if isOwner(resource.data.userId) || isAdmin(); // Marquer comme lu
+      allow delete: if isOwner(resource.data.userId) || isAdmin();
     }
     
     // ============================================

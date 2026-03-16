@@ -366,9 +366,13 @@ export async function notifyArtisansDemandePublique(
       const zones: any[] = artisan.zonesIntervention || [];
       
       // Fallback : si l'artisan n'a pas configuré ses zones,
-      // on utilise sa ville principale (location.city / location.ville)
+      // on utilise sa ville principale (location.city OU location.ville — les deux noms coexistent)
       if (zones.length === 0) {
-        const artisanVille = (artisan.location?.city || artisan.location?.ville || '').toLowerCase().trim();
+        const artisanVille = (
+          artisan.location?.city ||
+          artisan.location?.ville ||
+          ''
+        ).toLowerCase().trim();
         if (!artisanVille || artisanVille !== villeNorm) return;
       } else {
         const zoneMatch = zones.some((zone: any) => {

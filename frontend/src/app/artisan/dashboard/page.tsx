@@ -122,7 +122,10 @@ export default function ArtisanDashboardPage() {
       // Charger les demandes pour compter les nouvelles
       try {
         const demandes = await getDemandesForArtisan(currentUser.uid);
-        const nouvellesDirectes = demandes.filter(d => d.statut === 'publiee').length;
+        // Compter directes : statut 'publiee' OU 'matchee' (demande directe assignée à cet artisan)
+        const nouvellesDirectes = demandes.filter(
+          d => d.statut === 'publiee' || d.statut === 'matchee'
+        ).length;
 
         // Compter aussi les demandes publiques visibles (non matchées directement)
         let nouvellesPubliques = 0;
