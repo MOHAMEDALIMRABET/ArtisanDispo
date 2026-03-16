@@ -237,6 +237,8 @@ export async function removeArtisanFromDemande(
   const demandeRef = doc(db, COLLECTION_NAME, demandeId);
   await updateDoc(demandeRef, {
     artisansMatches: updatedMatches,
+    artisanRefuseId: artisanId,
+    dateRefus: Timestamp.now(),
     dateModification: Timestamp.now(),
   });
 

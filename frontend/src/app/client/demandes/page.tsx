@@ -380,7 +380,14 @@ export default function MesDemandesPage() {
           </span>
         );
       }
-      // Demande directe sans artisan assigné (orpheline)
+      // Demande directe : artisan a refusé ou orpheline
+      if (demande.artisanRefuseId) {
+        return (
+          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
+            ❌ Artisan a refusé la demande
+          </span>
+        );
+      }
       return (
         <span className="px-3 py-1 rounded-full text-xs font-semibold bg-orange-50 text-orange-700">
           ⚠️ Demande directe (artisan non assigné)
