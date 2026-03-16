@@ -55,9 +55,9 @@ const BLOCKED_PATTERNS = {
     // Partiel 9+ chiffres commençant par 0
     /\b0\d{8,}\b/g,
     // Fragment mobile/fixe (3+ chiffres consécutifs commençant par préfixe téléphonique)
-    // Couvre : "063", "0663", "06123", "09876", etc.
+    // Couvre : "063", "0663", "06123", "07XX", "09876", etc.
     // Word boundary : "06h30" (h interrompt) et "06 mars" (06 seul = 2 digits) ne matchent pas.
-    /\b0[1-69]\d+\b/gi,
+    /\b0[1-9]\d+\b/gi,
     // Fragment mobile/fixe/VoIP (6+ chiffres commençant par 0x) — garde-fou supplémentaire
     /\b0[1-9]\d{4,}\b/g,
     // International
@@ -721,9 +721,9 @@ export function validateMessageWithHistory(
     for (let i = 0; i <= digits.length - 8; i++) {
       if (/^0[67]\d{6}$/.test(digits.substring(i, i + 8))) return true;
     }
-    // 4+ chiffres commençant par préfixe téléphonique — couvre "06 63" → "0663"
+    // 4+ chiffres commençant par préfixe téléphonique — couvre "06 63" → "0663", "07 12" → "0712"
     // (cross-messages : chaque message isolé passe, mais la concat les révèle)
-    if (/0[1-69]\d{2,}/.test(digits)) return true;
+    if (/0[1-9]\d{2,}/.test(digits)) return true;
     // Format international +33
     for (let i = 0; i <= digits.length - 11; i++) {
       if (/^33[1-9]\d{8}$/.test(digits.substring(i, i + 11))) return true;
