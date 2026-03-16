@@ -207,26 +207,28 @@ export default function MessagesPage() {
             }
           } else if (!conv.devisId && otherParticipant) {
             // Fallback pour conversations SANS demandeId (créées avant le fix)
-            // Chercher une demande annulée entre ces deux participants
-            const [qAsClient, qAsArtisan] = await Promise.all([
+            // ⚠️ Un seul where() par requête pour éviter les index composites
+            const [qAsClient, qAsOther] = await Promise.all([
               getDocs(query(
                 collection(db, 'demandes'),
-                where('clientId', '==', user.uid),
-                where('statut', '==', 'annulee')
+                where('clientId', '==', user.uid)
               )),
               getDocs(query(
                 collection(db, 'demandes'),
-                where('clientId', '==', otherParticipant),
-                where('statut', '==', 'annulee')
+                where('clientId', '==', otherParticipant)
               )),
             ]);
-            const allDocs = [...qAsClient.docs, ...qAsArtisan.docs];
+            const allDocs = [...qAsClient.docs, ...qAsOther.docs];
+            const STATUTS_FERMES = ['annulee', 'annule', 'expire'];
             const hasAnnulee = allDocs.some(d => {
               const data = d.data();
+              if (!STATUTS_FERMES.includes(data.statut)) return false;
               const matches: string[] = data.artisansMatches || [];
+              // Demande directe refusée : artisanRefuseId OU artisanId
               return (
                 matches.includes(user.uid) || matches.includes(otherParticipant) ||
-                data.artisanRefuseId === user.uid || data.artisanRefuseId === otherParticipant
+                data.artisanRefuseId === user.uid || data.artisanRefuseId === otherParticipant ||
+                data.artisanId === user.uid || data.artisanId === otherParticipant
               );
             });
             if (hasAnnulee) newInactive.add(conv.id);
