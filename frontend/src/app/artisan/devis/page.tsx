@@ -1017,16 +1017,17 @@ export default function MesDevisPage() {
                 )}
               </div>
             ) : (
-              <table className="min-w-full divide-y divide-gray-200 table-fixed">
+              <div className="overflow-x-auto">
+              <table className="w-full min-w-[960px] divide-y divide-gray-200 table-auto">
                 <colgroup>
                   <col className="w-[10%]" />
-                  <col className="w-[25%]" />
+                  <col className="w-[16%]" />
                   <col className="w-[12%]" />
+                  <col className="w-[16%]" />
+                  <col className="w-[9%]" />
+                  <col className="w-[14%]" />
+                  <col className="w-[8%]" />
                   <col className="w-[15%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[12%]" />
-                  <col className="w-[8%]" />
-                  <col className="w-[8%]" />
                 </colgroup>
                 <thead className="bg-gray-50">
                   <tr>
@@ -1274,6 +1275,7 @@ export default function MesDevisPage() {
                   })}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
         )}
