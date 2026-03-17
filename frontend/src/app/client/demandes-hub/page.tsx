@@ -66,7 +66,7 @@ export default function ClientDemandesHubPage() {
               <span className="text-3xl">🏗️</span>
               <div>
                 <div className="text-white font-bold text-xl">Demandes Classiques</div>
-                <div className="text-gray-300 text-sm">Devis personnalisés</div>
+                <div className="text-gray-300 text-sm">Demandes directes et publiées</div>
               </div>
             </div>
             {/* Corps */}
@@ -74,15 +74,15 @@ export default function ClientDemandesHubPage() {
               <div className="flex items-center gap-4 p-3 rounded-xl bg-orange-50 border border-orange-200">
                 <span className="text-2xl">📋</span>
                 <div className="flex-1">
-                  <div className="font-semibold text-[#2C3E50] text-sm">Mes demandes de devis</div>
+                  <div className="font-semibold text-[#2C3E50] text-sm">Mes demandes de devis directes</div>
                   <div className="text-xs text-gray-500 mt-0.5">Suivre vos demandes et devis reçus</div>
                 </div>
               </div>
               <div className="flex items-center gap-4 p-3 rounded-xl bg-purple-50 border border-purple-200">
-                <span className="text-2xl">🔔</span>
+                <span className="text-2xl">📢</span>
                 <div className="flex-1">
-                  <div className="font-semibold text-[#2C3E50] text-sm">Artisans qualifiés</div>
-                  <div className="text-xs text-gray-500 mt-0.5">Recevez des devis d'artisans certifiés</div>
+                  <div className="font-semibold text-[#2C3E50] text-sm">Mes demandes de devis publiées</div>
+                  <div className="text-xs text-gray-500 mt-0.5">Demandes visibles par tous les artisans qualifiés</div>
                 </div>
               </div>
               <div className="flex items-center justify-end pt-1">

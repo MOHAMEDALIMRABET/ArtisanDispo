@@ -300,32 +300,32 @@ export default function AdminVerificationsPage() {
         </div>
 
         {/* Tableau */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="bg-white rounded-lg shadow-md overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Artisan
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Entreprise
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   SIRET
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   KBIS
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Pièce ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   RC Pro
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Décennale
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   Actions
                 </th>
               </tr>
@@ -340,24 +340,24 @@ export default function AdminVerificationsPage() {
 
                 return (
                   <tr key={artisan.userId} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-3 whitespace-nowrap">
                       <div>
-                        <div className="font-medium text-gray-900">
+                        <div className="font-medium text-gray-900 text-sm">
                           {artisan.nom} {artisan.prenom}
                         </div>
-                        <div className="text-sm text-gray-500">{artisan.email}</div>
+                        <div className="text-xs text-gray-500">{artisan.email}</div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{artisan.raisonSociale || '-'}</div>
+                    <td className="px-3 py-3 whitespace-nowrap">
+                      <div className="text-sm text-gray-900 max-w-[140px] truncate" title={artisan.raisonSociale || '-'}>{artisan.raisonSociale || '-'}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{artisan.siret}</div>
+                    <td className="px-3 py-3 whitespace-nowrap">
+                      <div className="text-sm font-mono text-gray-900">{artisan.siret}</div>
                       {artisan.siretVerified && (
                         <span className="text-xs text-green-600">✓ SIRENE</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         {getStatusBadge(kbisStatus)}
                         {artisan.verificationDocuments?.kbis?.uploadHistory && 
@@ -368,7 +368,7 @@ export default function AdminVerificationsPage() {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         {getStatusBadge(idStatus)}
                         {artisan.verificationDocuments?.idCard?.uploadHistory && 
@@ -379,7 +379,7 @@ export default function AdminVerificationsPage() {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         {getStatusBadge(rcProStatus)}
                         {artisan.verificationDocuments?.rcPro?.uploadHistory && 
@@ -390,7 +390,7 @@ export default function AdminVerificationsPage() {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-3 whitespace-nowrap">
                       {needsDecennale ? (
                         <div className="flex items-center gap-2">
                           {decennaleStatus ? getStatusBadge(decennaleStatus) : (
@@ -407,13 +407,13 @@ export default function AdminVerificationsPage() {
                         <span className="text-xs text-gray-400">Non requise</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-3 py-3 whitespace-nowrap text-sm font-medium">
                       <button
                         onClick={() => {
                           setSelectedArtisan(artisan);
                           setShowModal(true);
                         }}
-                        className="text-[#FF6B00] hover:text-[#E56100]"
+                        className="text-[#FF6B00] hover:text-[#E56100] font-semibold whitespace-nowrap"
                       >
                         Voir détails
                       </button>
