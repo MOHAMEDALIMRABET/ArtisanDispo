@@ -27,6 +27,7 @@ import type {
 } from '@/types/devis';
 import { notifyClientDevisRecu, createNotification } from './notification-service';
 import { trackDevisEnvoye, trackDevisAccepte, trackDevisRefuse } from './artisan-stats-service';
+import { recordPaiementLibere } from './wallet-service';
 
 const COLLECTION_NAME = 'devis';
 
@@ -1005,9 +1006,19 @@ export async function validerTravaux(devisId: string, clientId: string): Promise
     ],
   });
   
-  // TODO: Appeler API backend pour capturer le paiement Stripe
-  // await fetch('/api/v1/payments/capture', { ... })
-  
+  // ✅ Mettre à jour le wallet artisan : séquestre → disponible (net après commission 8%)
+  try {
+    await recordPaiementLibere(
+      devis.artisanId,
+      devisId,
+      devis.totaux.totalTTC,
+      devis.paiement?.stripe?.transferId || ''
+    );
+    console.log(`✅ Wallet artisan ${devis.artisanId} libéré : ${devis.totaux.totalTTC}€ TTC → net après 8%`);
+  } catch (walletError) {
+    console.error('⚠️ Erreur mise à jour wallet libération (non-bloquant):', walletError);
+  }
+
   // Notification artisan
   await notifyClientDevisRecu(devis.artisanId, devisId, {
     type: 'travaux_valides',
@@ -1185,8 +1196,19 @@ export async function validerAutomatiquementTravaux(devisId: string): Promise<vo
     ],
   });
   
-  // TODO: Appeler API backend pour capturer le paiement Stripe
-  
+  // ✅ Mettre à jour le wallet artisan : séquestre → disponible (net après commission 8%)
+  try {
+    await recordPaiementLibere(
+      devis.artisanId,
+      devisId,
+      devis.totaux.totalTTC,
+      devis.paiement?.stripe?.transferId || ''
+    );
+    console.log(`✅ Wallet artisan ${devis.artisanId} libéré (auto) : ${devis.totaux.totalTTC}€ TTC → net après 8%`);
+  } catch (walletError) {
+    console.error('⚠️ Erreur mise à jour wallet libération auto (non-bloquant):', walletError);
+  }
+
   // Notifications
   await notifyClientDevisRecu(devis.artisanId, devisId, {
     type: 'travaux_valides',

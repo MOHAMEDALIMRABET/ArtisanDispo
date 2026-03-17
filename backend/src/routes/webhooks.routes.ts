@@ -327,28 +327,60 @@ async function handlePaymentCaptured(charge: Stripe.Charge) {
 async function handleTransferCreated(transfer: Stripe.Transfer) {
   const contratId = transfer.metadata.contratId;
   const artisanId = transfer.metadata.artisanId;
+  const montant = transfer.amount / 100;
 
   if (!contratId) {
     console.log('ℹ️ Transfer sans contratId dans metadata');
     return;
   }
 
-  console.log(`💸 Transfert artisan créé (webhook): ${transfer.id} - Contrat: ${contratId}`);
+  console.log(`💸 Transfert artisan créé (webhook): ${transfer.id} - Contrat: ${contratId} - ${montant}€`);
 
   try {
     // Mettre à jour contrat
     await db.collection('contrats').doc(contratId).update({
       'paiement.stripe.transferId': transfer.id,
       'paiement.dateVirement': Timestamp.now(),
-      'paiement.montantTransfere': transfer.amount / 100
+      'paiement.montantTransfere': montant
     });
+
+    // ✅ Wallet : déplacer soldeDisponible → totalRetire (Stripe a bien viré l'argent sur compte bancaire)
+    if (artisanId) {
+      const walletRef = db.collection('wallets').doc(artisanId);
+      const walletDoc = await walletRef.get();
+      if (walletDoc.exists) {
+        const wallet = walletDoc.data()!;
+        const soldeDisponible = wallet.soldeDisponible || 0;
+        const deduction = Math.min(soldeDisponible, montant); // Ne pas descendre sous 0
+        await walletRef.update({
+          soldeDisponible: Math.max(0, soldeDisponible - deduction),
+          soldeTotal: Math.max(0, (wallet.soldeTotal || 0) - deduction),
+          totalRetire: (wallet.totalRetire || 0) + deduction,
+          updatedAt: Timestamp.now(),
+          lastTransaction: Timestamp.now(),
+        });
+        // Créer transaction de type debit
+        await db.collection('walletTransactions').add({
+          artisanId,
+          type: 'debit',
+          montant: deduction,
+          statut: 'completed',
+          description: `Virement Stripe vers compte bancaire`,
+          stripeTransferId: transfer.id,
+          createdAt: Timestamp.now(),
+          completedAt: Timestamp.now(),
+          metadata: { automatic: true, transferStripe: true, contratId },
+        });
+        console.log(`✅ Wallet artisan ${artisanId} : soldeDisponible -${deduction}€ → totalRetire`);
+      }
+    }
 
     // Créer notification artisan
     await db.collection('notifications').add({
       recipientId: artisanId,
       type: 'paiement_recu',
       title: '💸 Paiement reçu',
-      message: `Votre paiement de ${(transfer.amount / 100).toFixed(2)}€ a été transféré. Il apparaîtra sous 1-2 jours ouvrés sur votre compte bancaire.`,
+      message: `Votre paiement de ${montant.toFixed(2)}€ a été transféré. Il apparaîtra sous 1-2 jours ouvrés sur votre compte bancaire.`,
       relatedId: contratId,
       isRead: false,
       createdAt: Timestamp.now()
