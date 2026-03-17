@@ -24,6 +24,7 @@ import {
   validerTravaux, 
   signalerLitige 
 } from '@/lib/firebase/devis-service';
+import { recordPaiementClient } from '@/lib/firebase/wallet-service';
 import { getAvisByContratId } from '@/lib/firebase/avis-service';
 import { Logo } from '@/components/ui';
 import type { Devis } from '@/types/devis';
@@ -424,6 +425,24 @@ export default function ClientDevisDetailPage() {
       });
 
       console.log('✅ Paiement enregistré + Signature persistée:', paymentData.referenceTransaction);
+
+      // 2b. Mettre à jour le wallet artisan (séquestre)
+      try {
+        const clientNom = `${devis.client.prenom} ${devis.client.nom}`.trim();
+        await recordPaiementClient(
+          devis.artisanId,
+          devisId,           // contratId = devisId dans cette architecture
+          devisId,
+          devis.totaux.totalTTC,
+          paymentData.referenceTransaction || '',
+          clientNom,
+          devis.numeroDevis
+        );
+        console.log(`✅ Wallet artisan mis à jour: +${devis.totaux.totalTTC}€ en séquestre`);
+      } catch (walletError) {
+        // Non-bloquant : le paiement est enregistré même si le wallet échoue
+        console.error('⚠️ Erreur mise à jour wallet (non-bloquant):', walletError);
+      }
 
       // Nettoyer la signature de la mémoire
       setSignatureDataURL(null);

@@ -122,41 +122,121 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
   const devisId = paymentIntent.metadata.devisId;
   const clientId = paymentIntent.metadata.clientId;
   const artisanId = paymentIntent.metadata.artisanId;
+  const montant = paymentIntent.amount / 100;
 
   if (!devisId) {
     console.error('❌ Webhook: devisId manquant dans metadata');
     return;
   }
 
-  console.log(`✅ Paiement autorisé (webhook): ${paymentIntent.id} - Devis: ${devisId}`);
+  console.log(`✅ Paiement autorisé (webhook): ${paymentIntent.id} - Devis: ${devisId} - ${montant}€`);
 
   try {
+    // Récupérer infos devis pour enrichir la transaction wallet
+    const devisDoc = await db.collection('devis').doc(devisId).get();
+    const devisData = devisDoc.data();
+    const numeroDevis = devisData?.numeroDevis || devisId;
+    const clientNom = devisData?.client
+      ? `${devisData.client.prenom || ''} ${devisData.client.nom || ''}`.trim()
+      : '';
+
     // Mettre à jour devis (SÉCURISÉ côté serveur)
     await db.collection('devis').doc(devisId).update({
       statut: 'paye',
       datePaiement: Timestamp.now(),
       'paiement.statut': 'bloque',
       'paiement.stripe.paymentIntentId': paymentIntent.id,
-      'paiement.montant': paymentIntent.amount / 100,
+      'paiement.montant': montant,
       'paiement.dateBlocage': Timestamp.now()
     });
+
+    // ✅ Mettre à jour le wallet artisan (solde en séquestre)
+    await updateWalletSequestre(artisanId, devisId, montant, paymentIntent.id, clientNom, numeroDevis);
 
     // Créer notification artisan
     await db.collection('notifications').add({
       recipientId: artisanId,
       type: 'devis_paye',
       title: '💰 Devis payé',
-      message: `Le client a payé le devis. L'argent est bloqué en sécurité.`,
+      message: `Le client a payé le devis ${numeroDevis}. ${montant.toFixed(2)}€ sont bloqués en séquestre.`,
       relatedId: devisId,
       isRead: false,
       createdAt: Timestamp.now()
     });
 
-    console.log(`✅ Devis ${devisId} mis à jour: statut=paye`);
+    console.log(`✅ Devis ${devisId} mis à jour: statut=paye | Wallet séquestre +${montant}€`);
 
   } catch (error) {
     console.error('❌ Erreur mise à jour devis:', error);
   }
+}
+
+/**
+ * Mise à jour wallet séquestre lors d'un paiement client
+ * Incrémente soldeEnAttente + crée une WalletTransaction pending
+ */
+async function updateWalletSequestre(
+  artisanId: string,
+  devisId: string,
+  montant: number,
+  paymentIntentId: string,
+  clientNom?: string,
+  numeroDevis?: string
+) {
+  const walletRef = db.collection('wallets').doc(artisanId);
+  const walletDoc = await walletRef.get();
+
+  if (!walletDoc.exists) {
+    // Créer wallet si inexistant (premier paiement de l'artisan)
+    await walletRef.set({
+      artisanId,
+      soldeDisponible: 0,
+      soldeEnAttente: montant,
+      soldeTotal: montant,
+      totalEncaisse: 0,
+      totalRetire: 0,
+      totalCommission: 0,
+      stripeOnboardingStatus: 'not_started',
+      ibanVerified: false,
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+      lastTransaction: Timestamp.now(),
+    });
+    console.log(`✅ Wallet créé pour artisan ${artisanId} avec séquestre de ${montant}€`);
+  } else {
+    const wallet = walletDoc.data()!;
+    await walletRef.update({
+      soldeEnAttente: (wallet.soldeEnAttente || 0) + montant,
+      soldeTotal: (wallet.soldeTotal || 0) + montant,
+      updatedAt: Timestamp.now(),
+      lastTransaction: Timestamp.now(),
+    });
+    console.log(`✅ Wallet artisan ${artisanId} mis à jour: séquestre +${montant}€`);
+  }
+
+  // Créer la transaction wallet (pending = en attente de libération)
+  const description = [
+    'Paiement reçu en séquestre',
+    clientNom ? `— ${clientNom}` : '',
+    numeroDevis ? `(${numeroDevis})` : '',
+  ].filter(Boolean).join(' ');
+
+  await db.collection('walletTransactions').add({
+    artisanId,
+    type: 'credit',
+    montant,
+    statut: 'pending',
+    description,
+    devisId,
+    stripePaymentIntentId: paymentIntentId,
+    createdAt: Timestamp.now(),
+    metadata: {
+      phase: 'sequestre',
+      clientNom: clientNom || null,
+      devisNumero: numeroDevis || null,
+    }
+  });
+  console.log(`✅ WalletTransaction créée: ${montant}€ en séquestre pour devis ${devisId}`);
 }
 
 /**
