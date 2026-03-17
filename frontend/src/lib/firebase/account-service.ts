@@ -3,7 +3,7 @@
  * ArtisanDispo - Gestion comptes artisans et clients
  */
 
-import { doc, updateDoc, deleteDoc, setDoc, Timestamp, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
+import { doc, updateDoc, deleteDoc, setDoc, Timestamp, getDoc, collection, getDocs, query, where, addDoc } from 'firebase/firestore';
 import { db, auth } from './config';
 import { deleteUser } from 'firebase/auth';
 import { sendDeletionConfirmationEmail, sendSuspensionEmail, sendReactivationEmail } from './email-notification-service';
@@ -53,6 +53,25 @@ async function deleteUserCompletely(
     const anonymizedCollections: string[] = [];
 
     console.log(`🗑️ Début suppression complète userId: ${userId} (${accountType})`);
+
+    // ========================================
+    // 0. PRÉ-VÉRIFICATION WALLET (artisan uniquement)
+    // Bloquer si argent en séquestre Stripe — impossible de virer avant validation client
+    // ========================================
+    if (accountType === 'artisan') {
+      const walletPreCheckRef = doc(db, 'wallets', userId);
+      const walletPreCheckSnap = await getDoc(walletPreCheckRef);
+      if (walletPreCheckSnap.exists()) {
+        const walletData = walletPreCheckSnap.data();
+        const soldeEnAttente = walletData.soldeEnAttente || 0;
+        if (soldeEnAttente > 0) {
+          return {
+            success: false,
+            error: `Suppression impossible : ${soldeEnAttente.toFixed(2)} € est actuellement en séquestre (paiement Stripe non libéré). Attendez que le client valide les travaux ou traitez le litige avant de supprimer ce compte.`
+          };
+        }
+      }
+    }
 
     // ========================================
     // 1. ANONYMISER (obligations légales 10 ans)
@@ -252,9 +271,102 @@ async function deleteUserCompletely(
 
     // Wallet (artisan uniquement) → Supprimer
     if (accountType === 'artisan') {
+
+      // ── virementRequests ───────────────────────────────────────────────
+      // Traitement AVANT la suppression du wallet car les pending ont un
+      // montant réservé (déjà déduit du soldeDisponible) qui doit être tracé.
+      const virementRequestsSnapshot = await getDocs(
+        query(collection(db, 'virementRequests'), where('artisanId', '==', userId))
+      );
+      let virementCancelled = 0;
+      let virementAnonymized = 0;
+      let virementDeleted = 0;
+      let totalPendingVirementsCancelled = 0; // Montant total des virements pending annulés
+      for (const vrDoc of virementRequestsSnapshot.docs) {
+        const vr = vrDoc.data();
+        if (vr.statut === 'pending') {
+          // Argent réservé mais pas encore envoyé → annuler + tracer
+          await updateDoc(vrDoc.ref, {
+            statut: 'cancelled',
+            cancelledAt: Timestamp.now(),
+            cancelReason: `Compte artisan supprimé par admin — ${reason}`,
+            accountDeleted: true,
+          });
+          // Marquer aussi la walletTransaction associée comme annulée
+          if (vr.walletTransactionId) {
+            const txRef = doc(db, 'walletTransactions', vr.walletTransactionId);
+            await updateDoc(txRef, {
+              statut: 'cancelled',
+              cancelledAt: Timestamp.now(),
+              cancelReason: 'Compte artisan supprimé',
+            });
+          }
+          totalPendingVirementsCancelled += (vr.montant || 0);
+          virementCancelled++;
+        } else if (vr.statut === 'processing') {
+          // Stripe peut avoir déjà initié le virement → anonymiser (obligation légale)
+          await updateDoc(vrDoc.ref, {
+            artisanNom: '[Compte supprimé]',
+            ibanLast4: null,
+            note: null,
+            anonymizedArtisan: true,
+            anonymizedAt: Timestamp.now(),
+            accountDeleted: true,
+          });
+          virementAnonymized++;
+        } else {
+          // completed / failed / cancelled → plus d'utilité légale → supprimer
+          await deleteDoc(vrDoc.ref);
+          virementDeleted++;
+        }
+      }
+      if (virementRequestsSnapshot.size > 0) {
+        const parts = [];
+        if (virementCancelled > 0) parts.push(`${virementCancelled} annulés`);
+        if (virementAnonymized > 0) parts.push(`${virementAnonymized} anonymisés`);
+        if (virementDeleted > 0) parts.push(`${virementDeleted} supprimés`);
+        deletedCollections.push(`virementRequests (${parts.join(', ')})`);
+      }
+      // ──────────────────────────────────────────────────────────────────
+
+      // ── Virement urgent avant suppression ────────────────────────────
+      // Si l'artisan a un solde disponible ou des virements pending ont été
+      // annulés, créer un virementRequest urgent qui survivra à la suppression
+      // du compte pour que l'admin puisse le traiter manuellement.
       const walletRef = doc(db, 'wallets', userId);
       const walletSnap = await getDoc(walletRef);
       if (walletSnap.exists()) {
+        const walletData = walletSnap.data();
+        const soldeDisponible = walletData.soldeDisponible || 0;
+        // Total dû = solde disponible actuel + montants des virements pending annulés
+        // (ces montants avaient été déduits de soldeDisponible)
+        const totalDu = soldeDisponible + totalPendingVirementsCancelled;
+        if (totalDu > 0) {
+          const urgentVirementData = {
+            artisanId: userId,
+            artisanNom: userName,
+            montant: Math.round(totalDu * 100) / 100,
+            statut: 'pending',
+            ibanLast4: walletData.ibanLast4 || null,
+            stripeAccountId: walletData.stripeConnectAccountId || null,
+            note: `Virement automatique suite à suppression de compte — ${new Date().toLocaleDateString('fr-FR')} — Raison : ${reason}`,
+            urgentDeletion: true,
+            priority: 'urgent',
+            accountDeletedAt: Timestamp.now(),
+            accountDeletedReason: reason,
+            createdAt: Timestamp.now(),
+          };
+          if (walletData.stripeConnectAccountId) {
+            // Stripe configuré → créer la demande, admin peut traiter
+            await addDoc(collection(db, 'virementRequests'), urgentVirementData);
+            deletedCollections.push(`virementUrgentCréé (${totalDu.toFixed(2)} €)`);
+            console.log(`💰 Virement urgent créé : ${totalDu.toFixed(2)} € pour artisan supprimé ${userId}`);
+          } else {
+            // Stripe non configuré → argent non récupérable, tracer dans l'archive
+            deletedCollections.push(`⚠️ SOLDE_NON_VIRÉ (${totalDu.toFixed(2)} €) — Stripe non configuré`);
+            console.warn(`⚠️ Artisan ${userId} avait ${totalDu.toFixed(2)} € mais aucun compte Stripe pour effectuer le virement.`);
+          }
+        }
         await deleteDoc(walletRef);
         deletedCollections.push('wallets (1)');
       }

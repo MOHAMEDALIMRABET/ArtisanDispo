@@ -22,6 +22,7 @@ import {
   addAdminNoteClient
 } from '@/lib/firebase/account-service';
 import type { Artisan } from '@/types/firestore';
+import { getWalletByArtisanId } from '@/lib/firebase/wallet-service';
 
 type FilterType = 'all' | 'active' | 'suspended';
 type AccountType = 'artisans' | 'clients';
@@ -61,6 +62,7 @@ export default function AdminComptesPage() {
   const [deleteStep, setDeleteStep] = useState<'confirm' | 'loading' | 'result'>('confirm');
   const [deleteReason, setDeleteReason] = useState('');
   const [deleteResult, setDeleteResult] = useState<{ success: boolean; details?: string; error?: string } | null>(null);
+  const [walletPreCheck, setWalletPreCheck] = useState<{ soldeDisponible: number; soldeEnAttente: number; loaded: boolean } | null>(null);
   
   // Form states
   const [suspensionReason, setSuspensionReason] = useState('');
@@ -269,13 +271,27 @@ export default function AdminComptesPage() {
     }
   };
 
-  // Suppression IMMÉDIATE — ouvre le modal de confirmation
-  const handleImmediateDeleteDirect = (account: Artisan | Client) => {
+  // Suppression IMMÉDIUATE — ouvre le modal de confirmation + pré-vérifie le wallet artisan
+  const handleImmediateDeleteDirect = async (account: Artisan | Client) => {
     setSelectedAccount(account);
     setDeleteStep('confirm');
     setDeleteReason('');
     setDeleteResult(null);
+    setWalletPreCheck(null);
     setShowDeleteModal(true);
+    // Pré-charger le solde wallet pour artisans (blocage si séquestre > 0)
+    if (accountType === 'artisans') {
+      try {
+        const wallet = await getWalletByArtisanId(account.userId);
+        setWalletPreCheck({
+          soldeDisponible: wallet?.soldeDisponible || 0,
+          soldeEnAttente: wallet?.soldeEnAttente || 0,
+          loaded: true,
+        });
+      } catch {
+        setWalletPreCheck({ soldeDisponible: 0, soldeEnAttente: 0, loaded: true });
+      }
+    }
   };
 
   // Exécution de la suppression après confirmation dans le modal
@@ -305,6 +321,7 @@ export default function AdminComptesPage() {
     setDeleteReason('');
     setDeleteStep('confirm');
     setDeleteResult(null);
+    setWalletPreCheck(null);
   };
 
   const handleAddNote = async () => {
@@ -954,6 +971,40 @@ export default function AdminComptesPage() {
                     )}
                   </div>
 
+                  {/* Alerte wallet artisan */}
+                  {accountType === 'artisans' && (
+                    <>
+                      {/* Chargement en cours */}
+                      {!walletPreCheck && (
+                        <div className="bg-gray-50 rounded-lg p-3 mb-4 border border-gray-200 flex items-center gap-2 text-sm text-gray-500">
+                          <span className="animate-spin">⏳</span> Vérification du solde wallet...
+                        </div>
+                      )}
+                      {/* BLOQUANT — argent en séquestre */}
+                      {walletPreCheck?.loaded && walletPreCheck.soldeEnAttente > 0 && (
+                        <div className="bg-red-100 rounded-lg p-4 mb-4 border border-red-400">
+                          <p className="text-sm font-bold text-red-800 flex items-center gap-2">
+                            🚫 Suppression impossible — Séquestre actif
+                          </p>
+                          <p className="text-sm text-red-700 mt-1">
+                            <strong>{walletPreCheck.soldeEnAttente.toFixed(2)} €</strong> sont actuellement en séquestre Stripe (paiement non encore libéré). Attendez que le client valide les travaux ou traitez le litige avant de supprimer ce compte.
+                          </p>
+                        </div>
+                      )}
+                      {/* AVERTISSEMENT — solde disponible → virement urgent auto */}
+                      {walletPreCheck?.loaded && walletPreCheck.soldeEnAttente === 0 && walletPreCheck.soldeDisponible > 0 && (
+                        <div className="bg-orange-50 rounded-lg p-4 mb-4 border border-orange-300">
+                          <p className="text-sm font-bold text-orange-800 flex items-center gap-2">
+                            💰 Solde à virer avant suppression
+                          </p>
+                          <p className="text-sm text-orange-700 mt-1">
+                            L'artisan a <strong>{walletPreCheck.soldeDisponible.toFixed(2)} €</strong> de solde disponible. Un virement urgent sera automatiquement créé lors de la suppression et apparaîtra dans la file d'attente admin pour traitement.
+                          </p>
+                        </div>
+                      )}
+                    </>
+                  )}
+
                   {/* Ce qui sera supprimé */}
                   <div className="bg-red-50 rounded-lg p-4 mb-5 border border-red-100">
                     <p className="text-xs font-semibold text-red-700 mb-2">Données supprimées en cascade :</p>
@@ -970,6 +1021,7 @@ export default function AdminComptesPage() {
                       <span>🗑️ Rappels &amp; Avis</span>
                       {accountType === 'artisans' && <span>🗑️ Wallet &amp; Transactions</span>}
                       {accountType === 'artisans' && <span>🗑️ Disponibilités</span>}
+                      {accountType === 'artisans' && <span>⚠️ Virements en attente annulés</span>}
                     </div>
                   </div>
 
@@ -996,10 +1048,12 @@ export default function AdminComptesPage() {
                     </button>
                     <button
                       onClick={executeImmediateDelete}
-                      disabled={!deleteReason.trim()}
+                      disabled={!deleteReason.trim() || (accountType === 'artisans' && (walletPreCheck?.soldeEnAttente || 0) > 0)}
                       className="flex-1 bg-red-600 text-white hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed px-4 py-2.5 rounded-lg font-bold transition-colors"
                     >
-                      Supprimer définitivement
+                      {accountType === 'artisans' && (walletPreCheck?.soldeEnAttente || 0) > 0
+                        ? '🚫 Séquestre actif — impossible'
+                        : 'Supprimer définitivement'}
                     </button>
                   </div>
                 </div>
