@@ -991,7 +991,7 @@ export default function MesDevisPage() {
 
         {/* Liste des devis */}
         {activeTab === 'devis' && (
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="bg-white rounded-lg shadow-md overflow-x-auto">
             {filteredDevis.length === 0 ? (
               <div className="text-center py-12">
                 <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1017,42 +1017,41 @@ export default function MesDevisPage() {
                 )}
               </div>
             ) : (
-              <div className="overflow-x-auto">
-              <table className="w-full min-w-[960px] divide-y divide-gray-200 table-auto">
+              <table className="w-full min-w-[900px] divide-y divide-gray-200 table-auto">
                 <colgroup>
-                  <col className="w-[10%]" />
-                  <col className="w-[16%]" />
-                  <col className="w-[12%]" />
-                  <col className="w-[16%]" />
-                  <col className="w-[9%]" />
-                  <col className="w-[14%]" />
-                  <col className="w-[8%]" />
-                  <col className="w-[15%]" />
+                  <col style={{width:'10%'}} />
+                  <col style={{width:'14%'}} />
+                  <col style={{width:'11%'}} />
+                  <col style={{width:'15%'}} />
+                  <col style={{width:'9%'}} />
+                  <col style={{width:'13%'}} />
+                  <col style={{width:'8%'}} />
+                  <col style={{width:'20%'}} />
                 </colgroup>
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {t('quotes.number')}
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {t('quotes.associatedRequest')}
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {t('quotes.client')}
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {t('quotes.title')}
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {t('quotes.amount')}
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {t('quotes.status')}
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {t('quotes.date')}
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {t('quotes.actions')}
                     </th>
                   </tr>
@@ -1074,10 +1073,10 @@ export default function MesDevisPage() {
                           ${!isHighlighted && !hasRecentNotif ? 'hover:bg-gray-50' : ''}
                         `}
                       >
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#2C3E50]">
+                        <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-[#2C3E50]">
                           <span className="numero-devis">{d.numeroDevis}</span>
                         </td>
-                        <td className="px-2 py-4 text-sm max-w-xs">
+                        <td className="px-2 py-4 text-sm">
                         {d.demandeId && demandesInfo[d.demandeId] ? (
                           <button
                             onClick={() => router.push(`/artisan/demandes?demandeId=${d.demandeId}`)}
@@ -1102,16 +1101,16 @@ export default function MesDevisPage() {
                           <span className="text-gray-400 text-xs italic">{t('quotes.manualQuote')}</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900">
                         {d.client.prenom} {d.client.nom}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-3 py-4 text-sm text-gray-900">
                         {d.titre}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                      <td className="px-3 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                         {d.totaux.totalTTC.toFixed(2)} €
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <td className="px-3 py-4 text-sm">
                         {d.statut === 'remplace' && d.devisRevisionId ? (
                           <div className="flex flex-col gap-1">
                             <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
@@ -1146,10 +1145,10 @@ export default function MesDevisPage() {
                           getStatutBadge(d.statut)
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
                         {d.dateCreation?.toDate().toLocaleDateString('fr-FR')}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-3 py-4 text-sm font-medium">
                         {d.statut === 'en_revision' && d.demandeId ? (
                           <button
                             onClick={() => router.push(`/artisan/devis/nouveau?demandeId=${d.demandeId}&revisionDevisId=${d.id}`)}
@@ -1275,7 +1274,6 @@ export default function MesDevisPage() {
                   })}
                 </tbody>
               </table>
-              </div>
             )}
           </div>
         )}
