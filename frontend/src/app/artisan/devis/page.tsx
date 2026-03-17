@@ -1110,7 +1110,7 @@ export default function MesDevisPage() {
                       <td className="px-3 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                         {d.totaux.totalTTC.toFixed(2)} €
                       </td>
-                      <td className="px-3 py-4 text-sm">
+                      <td className="px-3 py-4 whitespace-nowrap text-sm">
                         {d.statut === 'remplace' && d.devisRevisionId ? (
                           <div className="flex flex-col gap-1">
                             <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
