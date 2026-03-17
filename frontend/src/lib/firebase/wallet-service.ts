@@ -40,6 +40,13 @@ import type {
 } from '@/types/firestore';
 
 // ============================================
+// CONSTANTES
+// ============================================
+
+/** Taux de commission plateforme : 8% prélevés sur chaque paiement libéré */
+export const TAUX_COMMISSION = 0.08;
+
+// ============================================
 // GESTION WALLET
 // ============================================
 
@@ -53,10 +60,11 @@ export async function createWallet(artisanId: string): Promise<Wallet> {
     id: artisanId,
     artisanId,
     soldeDisponible: 0,
-    soldeEnAttente: 0, // Montant en séquestre Stripe
+    soldeEnAttente: 0,   // Montant en séquestre Stripe
     soldeTotal: 0,
-    totalEncaisse: 0,  // Total reçu depuis le début
-    totalRetire: 0,    // Total transféré par Stripe vers compte bancaire
+    totalEncaisse: 0,    // Total net artisan encaissé (après commission 8%)
+    totalRetire: 0,      // Total transféré par Stripe vers compte bancaire
+    totalCommission: 0,  // Total commissions plateforme prélevées (8%)
     stripeOnboardingStatus: 'not_started', // Onboarding pas encore commencé
     ibanVerified: false,
     createdAt: Timestamp.now(),
@@ -166,51 +174,85 @@ export async function recordPaiementClient(
 /**
  * Enregistrer la libération d'un paiement
  * Appelé quand les travaux sont validés (Stripe transfère automatiquement)
+ * 
+ * La commission plateforme (8%) est prélevée à ce stade :
+ *   commission    = montantBrut × 8%
+ *   montantArtisan = montantBrut - commission
  */
 export async function recordPaiementLibere(
   artisanId: string,
   contratId: string,
-  montant: number,
+  montantBrut: number, // Montant TTC brut (avant commission)
   stripeTransferId: string
 ): Promise<WalletTransaction> {
   const walletRef = doc(db, 'wallets', artisanId);
   const wallet = await getWalletByArtisanId(artisanId);
-  
+
   if (!wallet) {
     throw new Error('Wallet introuvable');
   }
-  
-  // Mettre à jour le wallet : retirer de l'attente, ajouter au disponible et au total encaissé
+
+  // Calcul de la commission plateforme (8%)
+  const commission = Math.round(montantBrut * TAUX_COMMISSION * 100) / 100;
+  const montantArtisan = Math.round((montantBrut - commission) * 100) / 100;
+
+  // Mettre à jour le wallet :
+  //   - Retirer le montant brut du séquestre
+  //   - Ajouter le montant NET (après commission) au disponible et au total encaissé
+  //   - soldeTotal diminue de la commission (quitte le système vers la plateforme)
+  //   - Incrémenter le cumul de commissions
   await updateDoc(walletRef, {
-    soldeEnAttente: Math.max(0, wallet.soldeEnAttente - montant),
-    soldeDisponible: wallet.soldeDisponible + montant,
-    totalEncaisse: wallet.totalEncaisse + montant,
+    soldeEnAttente: Math.max(0, wallet.soldeEnAttente - montantBrut),
+    soldeDisponible: wallet.soldeDisponible + montantArtisan,
+    soldeTotal: Math.max(0, wallet.soldeTotal - commission),
+    totalEncaisse: wallet.totalEncaisse + montantArtisan,
+    totalCommission: (wallet.totalCommission || 0) + commission,
     updatedAt: Timestamp.now(),
-    lastTransaction: Timestamp.now()
+    lastTransaction: Timestamp.now(),
   });
-  
-  // Créer la transaction
+
+  // Transaction commission (débit invisible pour la plateforme)
+  await addDoc(collection(db, 'walletTransactions'), {
+    artisanId,
+    type: 'commission' as WalletTransactionType,
+    montant: commission,
+    statut: 'completed' as WalletTransactionStatut,
+    description: `Commission plateforme 8% — ${montantBrut.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} € TTC`,
+    contratId,
+    createdAt: Timestamp.now(),
+    completedAt: Timestamp.now(),
+    metadata: {
+      taux: TAUX_COMMISSION,
+      montantBrut,
+      montantArtisan,
+    },
+  });
+
+  // Transaction principale : crédit NET artisan
   const transactionData: Omit<WalletTransaction, 'id'> = {
     artisanId,
     type: 'credit',
-    montant,
+    montant: montantArtisan,
     statut: 'completed',
-    description: `Paiement libéré et en cours de transfert`,
+    description: `Paiement libéré — net après commission 8% (${montantBrut.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} € TTC)`,
     contratId,
     stripeTransferId,
     createdAt: Timestamp.now(),
     completedAt: Timestamp.now(),
     metadata: {
       phase: 'libere',
-      transferAutoStripe: true
-    }
+      transferAutoStripe: true,
+      montantBrut,
+      commission,
+      taux: TAUX_COMMISSION,
+    },
   };
-  
+
   const transactionRef = await addDoc(collection(db, 'walletTransactions'), transactionData);
-  
+
   return {
     id: transactionRef.id,
-    ...transactionData
+    ...transactionData,
   } as WalletTransaction;
 }
 
@@ -556,6 +598,7 @@ export async function getWalletStats(artisanId: string): Promise<{
   soldeEnAttente: number;
   totalEncaisse: number;
   totalRetire: number;
+  totalCommission: number;
   nombreTransactions: number;
 }> {
   const wallet = await getWalletByArtisanId(artisanId);
@@ -566,7 +609,8 @@ export async function getWalletStats(artisanId: string): Promise<{
       soldeEnAttente: 0,
       totalEncaisse: 0,
       totalRetire: 0,
-      nombreTransactions: 0
+      totalCommission: 0,
+      nombreTransactions: 0,
     };
   }
   
@@ -582,7 +626,8 @@ export async function getWalletStats(artisanId: string): Promise<{
     soldeEnAttente: wallet.soldeEnAttente,
     totalEncaisse: wallet.totalEncaisse,
     totalRetire: wallet.totalRetire,
-    nombreTransactions: snapshot.size
+    totalCommission: wallet.totalCommission || 0,
+    nombreTransactions: snapshot.size,
   };
 }
 
@@ -596,6 +641,7 @@ export async function getWalletSummary(artisanId: string): Promise<{
     soldeEnAttente: number;
     totalEncaisse: number;
     totalRetire: number;
+    totalCommission: number;
     nombreTransactions: number;
   };
   recentTransactions: WalletTransaction[];

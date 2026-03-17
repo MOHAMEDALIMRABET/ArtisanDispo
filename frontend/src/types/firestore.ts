@@ -1156,8 +1156,9 @@ export interface Wallet {
   soldeTotal: number;      // Total = disponible + attente
   
   // Statistiques
-  totalEncaisse: number;   // Total encaissé depuis le début
-  totalRetire: number;     // Total transféré par Stripe vers compte bancaire
+  totalEncaisse: number;     // Total net artisan encaissé (après commission 8%)
+  totalRetire: number;       // Total transféré par Stripe vers compte bancaire
+  totalCommission?: number;  // Total commissions plateforme prélevées (8%)
   
   // Stripe Connect
   stripeAccountId?: string; // Stripe Connect Account ID (compte artisan)

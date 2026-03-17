@@ -37,6 +37,7 @@ export default function WalletPage() {
   const [soldeEnAttente, setSoldeEnAttente] = useState(0);
   const [totalEncaisse, setTotalEncaisse] = useState(0);
   const [totalRetire, setTotalRetire] = useState(0);
+  const [totalCommission, setTotalCommission] = useState(0);
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   
   // Stripe Connect
@@ -134,6 +135,7 @@ export default function WalletPage() {
         }
         setTotalEncaisse(summary.stats.totalEncaisse);
         setTotalRetire(summary.stats.totalRetire);
+        setTotalCommission(summary.stats.totalCommission);
         setTransactions(summary.recentTransactions);
       } catch (error) {
         console.error('Erreur chargement wallet:', error);
@@ -338,7 +340,13 @@ export default function WalletPage() {
                 {totalEncaisse.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
               </p>
             )}
-            <p className="text-sm text-[#6C757D] mt-1">(après commission Artisan)</p>
+            <p className="text-sm text-[#6C757D] mt-1">
+              Net après commission{totalCommission > 0 && (
+                <span className="ml-1 text-xs text-[#95A5A6]">
+                  (prélevé : {totalCommission.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €)
+                </span>
+              )}
+            </p>
           </div>
 
           {/* En séquestre — cliquable */}
@@ -543,7 +551,8 @@ export default function WalletPage() {
                   <ul className="text-sm text-blue-800 space-y-1.5">
                     <li>• Recevez des paiements sécurisés de vos clients via Stripe</li>
                     <li>• Les fonds restent en séquestre jusqu&apos;à validation des travaux</li>
-                    <li>• Une fois validés, les fonds sont transférés automatiquement vers votre compte bancaire</li>
+                    <li>• À la libération, une <strong>commission plateforme de 8%</strong> est prélevée sur le montant TTC</li>
+                    <li>• Le montant net (92%) est transféré automatiquement vers votre compte bancaire</li>
                     <li>• Suivez l&apos;historique complet de vos transactions ici</li>
                   </ul>
                   <p className="text-xs text-blue-700 mt-3 bg-blue-100 rounded px-3 py-2 inline-block">
@@ -602,6 +611,10 @@ export default function WalletPage() {
                       bgColor = 'bg-yellow-50';
                       amountColor = 'text-yellow-700';
                       icon = '🔒';
+                    } else if (transaction.type === 'commission') {
+                      bgColor = 'bg-gray-50';
+                      amountColor = 'text-[#6C757D]';
+                      icon = '🏦';
                     } else if (isCredit) {
                       bgColor = 'bg-green-50';
                       amountColor = 'text-green-600';
