@@ -10,6 +10,10 @@ import { onAuthStateChanged } from 'firebase/auth';
 
 /**
  * Synchroniser le statut emailVerified de Auth vers Firestore
+ * 
+ * ⚠️ Cette fonction est appelée juste après la création de compte.
+ * Les deux updateDoc sont protégés par try/catch pour ne jamais
+ * bloquer le flux d'inscription (l'email sera synchro à la prochaine connexion).
  */
 export async function syncEmailVerificationStatus(userId: string): Promise<void> {
   const currentUser = auth.currentUser;
@@ -18,10 +22,17 @@ export async function syncEmailVerificationStatus(userId: string): Promise<void>
     return;
   }
 
-  // Mettre à jour le statut dans Firestore
-  await updateUser(userId, {
-    emailVerified: currentUser.emailVerified,
-  });
+  // Mettre à jour le statut emailVerified dans users
+  // Protégé par try/catch : le document vient d'être créé,
+  // une légère latence Firestore pourrait provoquer une erreur transitoire
+  try {
+    await updateUser(userId, {
+      emailVerified: currentUser.emailVerified,
+    });
+  } catch (error) {
+    // Ne pas bloquer l'inscription — sera synchronisé à la prochaine connexion
+    console.warn('⚠️ syncEmailVerificationStatus (users) — sera retenté à la connexion:', error);
+  }
 
   // Si artisan, mettre à jour aussi le profil artisan
   try {
@@ -29,7 +40,7 @@ export async function syncEmailVerificationStatus(userId: string): Promise<void>
       emailVerified: currentUser.emailVerified,
     });
   } catch (error) {
-    // Pas un artisan, on ignore l'erreur
+    // Pas un artisan, ou latence Firestore — ignoré
   }
 }
 

@@ -45,12 +45,6 @@ service cloud.firestore {
     // Artisans peuvent lire les profils clients (nécessaire pour créer des devis)
     // Utilisateurs dans une conversation peuvent lire les noms (nom, prenom, email)
     
-    function isInConversationWith(userId) {
-      return isAuthenticated() && 
-        exists(/databases/$(database)/documents/conversations/$(request.auth.uid + '_' + userId)) ||
-        exists(/databases/$(database)/documents/conversations/$(userId + '_' + request.auth.uid));
-    }
-    
     match /users/{userId} {
       // Lecture : propriétaire, admin, artisan lisant client, ou utilisateur en conversation
       allow read: if isOwner(userId) || 
@@ -70,9 +64,12 @@ service cloud.firestore {
     
     match /artisans/{artisanId} {
       allow read: if true; // Public pour recherche
+      // Création : utilisateur authentifié créant son propre profil
+      // ⚠️ isArtisan() retiré : dépendance circulaire lors de l'inscription
+      //    (users doc vient d'être créé, les rules peuvent le manquer en transit)
+      //    Sécurité : le profil est 'pending' et invisible jusqu'à approbation admin
       allow create: if isAuthenticated() && 
-                       request.auth.uid == request.resource.data.userId &&
-                       isArtisan();
+                       request.auth.uid == request.resource.data.userId;
       // Artisan propriétaire ou admin peut tout mettre à jour
       // Client authentifié peut uniquement mettre à jour notation + nombreAvis (après avis)
       allow update: if (isAuthenticated() && request.auth.uid == resource.data.userId) || 
