@@ -28,6 +28,7 @@ export default function MesDemandesExpressPage() {
   const [loading, setLoading] = useState(true);
   const [filtreStatut, setFiltreStatut] = useState<'toutes' | DemandeExpressStatut>('toutes');
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
 
   // Propositions chargées à la volée à l'ouverture d'une carte
   const [propositionsMap, setPropositionsMap] = useState<Map<string, PropositionExpress | null>>(new Map());
@@ -201,8 +202,8 @@ export default function MesDemandesExpressPage() {
         {/* Header */}
         <div className="mb-8">
           <nav className="text-sm mb-4">
-            <Link href="/client/dashboard" className="text-[#2C3E50] hover:text-[#FF6B00]">
-              {t('clientExpressRequests.breadcrumb.dashboard')}
+            <Link href="/client/demandes-hub" className="text-[#2C3E50] hover:text-[#FF6B00]">
+              Mes demandes
             </Link>
             <span className="mx-2 text-[#6C757D]">/</span>
             <span className="text-[#6C757D]">{t('clientExpressRequests.breadcrumb.current')}</span>
@@ -218,13 +219,34 @@ export default function MesDemandesExpressPage() {
               </p>
             </div>
 
-            <Button
-              onClick={() => router.push('/petits-travaux-express/recherche')}
-              className="whitespace-nowrap"
-            >
-              {t('clientExpressRequests.newRequest')}
-            </Button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowHowItWorks(v => !v)}
+                className="flex items-center gap-2 px-4 py-2 bg-[#2C3E50] text-white rounded-lg hover:bg-[#1A3A5C] transition-colors text-sm font-semibold whitespace-nowrap"
+              >
+                <span>ℹ️</span> Comment ça marche ?
+              </button>
+              <Button
+                onClick={() => router.push('/petits-travaux-express/recherche')}
+                className="whitespace-nowrap"
+              >
+                {t('clientExpressRequests.newRequest')}
+              </Button>
+            </div>
           </div>
+
+          {/* Panneau comment ça marche */}
+          {showHowItWorks && (
+            <div className="mt-4 bg-blue-50 border-2 border-blue-200 rounded-xl p-5 text-sm text-[#6C757D]">
+              <ul className="space-y-2">
+                <li><strong>1.</strong> {t('clientExpressRequests.howItWorks.step1')}</li>
+                <li><strong>2.</strong> {t('clientExpressRequests.howItWorks.step2')}</li>
+                <li><strong>3.</strong> {t('clientExpressRequests.howItWorks.step3')}</li>
+                <li><strong>4.</strong> {t('clientExpressRequests.howItWorks.step4')}</li>
+                <li><strong>5.</strong> {t('clientExpressRequests.howItWorks.step5')}</li>
+              </ul>
+            </div>
+          )}
         </div>
 
         {/* Filtres */}
@@ -524,33 +546,6 @@ export default function MesDemandesExpressPage() {
           </div>
         )}
 
-        {/* Aide */}
-        <div className="mt-8 bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
-          <h3 className="font-bold text-[#2C3E50] mb-3">{t('clientExpressRequests.howItWorks.title')}</h3>
-          <ul className="space-y-2 text-sm text-[#6C757D]">
-            <li><strong>1.</strong> {t('clientExpressRequests.howItWorks.step1')}</li>
-            <li><strong>2.</strong> {t('clientExpressRequests.howItWorks.step2')}</li>
-            <li><strong>3.</strong> {t('clientExpressRequests.howItWorks.step3')}</li>
-            <li><strong>4.</strong> {t('clientExpressRequests.howItWorks.step4')}</li>
-            <li><strong>5.</strong> {t('clientExpressRequests.howItWorks.step5')}</li>
-          </ul>
-        </div>
-
-        {/* Liens utiles */}
-        <div className="mt-6 flex justify-center gap-4">
-          <Link
-            href="/client/dashboard"
-            className="text-[#2C3E50] hover:text-[#FF6B00] font-semibold"
-          >
-            {t('clientExpressRequests.links.backToDashboard')}
-          </Link>
-          <Link
-            href="/client/demandes"
-            className="text-[#2C3E50] hover:text-[#FF6B00] font-semibold"
-          >
-            {t('clientExpressRequests.links.standardRequests')}
-          </Link>
-        </div>
       </div>
     </div>
 

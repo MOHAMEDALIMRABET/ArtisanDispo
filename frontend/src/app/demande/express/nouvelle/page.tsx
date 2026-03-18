@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { createDemandeExpress } from '@/lib/firebase/demande-express-service';
+import { uploadMultiplePhotos } from '@/lib/firebase/storage-service';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getUserById } from '@/lib/firebase/user-service';
@@ -74,6 +75,7 @@ export default function NouvelleDemandeExpressPage() {
   const [urgence, setUrgence] = useState<'immediat' | 'urgent'>('urgent');
   const [ville, setVille] = useState(villeParam);
   const [codePostal, setCodePostal] = useState(codePostalParam);
+  const [photos, setPhotos] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -100,6 +102,29 @@ export default function NouvelleDemandeExpressPage() {
       }
     }
   }
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (photos.length + files.length > 5) {
+      alert('Maximum 5 photos autorisées');
+      return;
+    }
+    for (const file of files) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`La photo ${file.name} dépasse 5MB`);
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        alert(`Le fichier ${file.name} n'est pas une image`);
+        return;
+      }
+    }
+    setPhotos(prev => [...prev, ...files]);
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos(prev => prev.filter((_, i) => i !== index));
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -139,6 +164,15 @@ export default function NouvelleDemandeExpressPage() {
         console.error('Erreur géocodage:', error);
       }
 
+      let photoUrls: string[] = [];
+      if (photos.length > 0) {
+        try {
+          photoUrls = await uploadMultiplePhotos(photos, 'demandes_express', firebaseUser.uid);
+        } catch {
+          photoUrls = [];
+        }
+      }
+
       const demandeId = await createDemandeExpress({
         clientId: firebaseUser.uid,
         artisanId: artisanId ? artisanId : undefined,
@@ -152,6 +186,7 @@ export default function NouvelleDemandeExpressPage() {
         date,
         urgence,
         typeProjet: 'express',
+        photos: photoUrls.length > 0 ? photoUrls : undefined,
       });
 
       alert(t('alerts.express.createSuccess'));
@@ -266,6 +301,48 @@ export default function NouvelleDemandeExpressPage() {
               <p className="text-xs text-[#6C757D] mt-1">
                 Soyez précis pour que l'artisan puisse vous faire une proposition adaptée
               </p>
+            </div>
+
+            {/* Photos */}
+            <div>
+              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                Photos du chantier (optionnel)
+              </label>
+              <div className="border-2 border-dashed border-[#E9ECEF] rounded-lg p-6 text-center hover:border-[#FF6B00] transition-colors">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                  id="photo-upload-express"
+                />
+                <label htmlFor="photo-upload-express" className="cursor-pointer">
+                  <div className="text-5xl mb-3">📷</div>
+                  <p className="text-[#2C3E50] font-semibold mb-1">Cliquez pour ajouter des photos</p>
+                  <p className="text-sm text-[#6C757D]">Maximum 5 photos • 5MB par photo • JPG, PNG</p>
+                </label>
+              </div>
+              {photos.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-3">
+                  {photos.map((photo, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={URL.createObjectURL(photo)}
+                        alt={`Photo ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg border border-[#E9ECEF]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(index)}
+                        className="absolute top-1 right-1 bg-[#DC3545] text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Budget proposé */}
