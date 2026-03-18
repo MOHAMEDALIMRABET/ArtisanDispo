@@ -370,15 +370,16 @@ export async function recordRemboursement(
  */
 export async function getSequestreTransactions(artisanId: string): Promise<WalletTransaction[]> {
   try {
+    // Un seul where() pour éviter l'index composite Firestore
+    // Filtrage statut + phase côté client
     const q = query(
       collection(db, 'walletTransactions'),
-      where('artisanId', '==', artisanId),
-      where('statut', '==', 'pending')
+      where('artisanId', '==', artisanId)
     );
     const snapshot = await getDocs(q);
     const transactions = snapshot.docs
       .map(d => ({ id: d.id, ...d.data() } as WalletTransaction))
-      .filter(t => t.metadata?.phase === 'sequestre');
+      .filter(t => t.statut === 'pending' && t.metadata?.phase === 'sequestre');
 
     // Tri côté client
     return transactions.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
@@ -398,16 +399,14 @@ export async function getWalletTransactions(
   try {
     const q = query(
       collection(db, 'walletTransactions'),
-      where('artisanId', '==', artisanId),
-      orderBy('createdAt', 'desc'),
-      limit(limitCount)
+      where('artisanId', '==', artisanId)
     );
     
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as WalletTransaction));
+    return snapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() } as WalletTransaction))
+      .sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0))
+      .slice(0, limitCount);
   } catch (error) {
     console.error('Erreur récupération transactions:', error);
     return [];

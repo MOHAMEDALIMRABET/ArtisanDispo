@@ -17,6 +17,7 @@ import {
   Timestamp,
   increment,
   arrayUnion,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from './config';
 import type { 

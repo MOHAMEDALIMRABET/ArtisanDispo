@@ -14,6 +14,7 @@ import { db } from '@/lib/firebase/config';
 import type { Devis } from '@/types/devis';
 import type { Demande } from '@/types/firestore';
 import { declarerDebutTravaux, declarerFinTravaux, supprimerDevisAnulesExpires } from '@/lib/firebase/devis-service';
+import { markNotificationsByTypeAsRead } from '@/lib/firebase/notification-service';
 
 type TabType = 'devis' | 'factures';
 type DevisFilter = 'tous' | 'genere' | 'envoye' | 'en_attente_paiement' | 'paye' | 'revision' | 'refuse';
@@ -47,8 +48,9 @@ export default function MesDevisPage() {
   // SYSTÈME LU/NON LU inspiré de Gmail, Slack, LinkedIn
   // Le badge apparaît UNIQUEMENT si le CLIENT a répondu ET l'artisan n'a PAS encore consulté
   const aReponseClienteRecente = (devis: Devis): boolean => {
-    // Règle simple : Devis accepté OU refusé OU annulé + Non vu par l'artisan
-    if ((devis.statut === 'en_attente_paiement' || devis.statut === 'refuse' || devis.statut === 'annule') && devis.vuParArtisan === false) {
+    // Badge si le client a interagi ET l'artisan n'a pas encore consulté
+    const statutsAvecBadge = ['en_attente_paiement', 'refuse', 'annule', 'en_revision', 'paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide'];
+    if (statutsAvecBadge.includes(devis.statut) && devis.vuParArtisan === false) {
       return true;
     }
     return false;
@@ -87,6 +89,10 @@ export default function MesDevisPage() {
     }
     
     loadDevis();
+
+    // Marquer les notifications devis comme lues dès l'arrivée sur la page
+    // → efface le badge sur le dashboard et le menu utilisateur
+    markNotificationsByTypeAsRead(user.uid, ['devis_accepte', 'devis_refuse', 'devis_revision']);
   }, [user, authLoading, router]);
 
   // Scroller vers le devis mis en évidence
@@ -190,7 +196,7 @@ export default function MesDevisPage() {
 
       // 🔍 DEBUG : Vérifier les devis NON VUS (système lu/non lu)
       const devisNonVus = devisData.filter(d => 
-        (d.statut === 'en_attente_paiement' || d.statut === 'refuse') && d.vuParArtisan === false
+        (d.statut === 'en_attente_paiement' || d.statut === 'refuse' || d.statut === 'en_revision') && d.vuParArtisan === false
       );
       
       console.log('📊 Total devis:', devisData.length);
@@ -1141,7 +1147,7 @@ export default function MesDevisPage() {
                       <td className="px-3 py-4 text-sm font-medium">
                         {d.statut === 'en_revision' && d.demandeId ? (
                           <button
-                            onClick={() => router.push(`/artisan/devis/nouveau?demandeId=${d.demandeId}&revisionDevisId=${d.id}`)}
+                            onClick={async () => { await marquerCommeVu(d.id); router.push(`/artisan/devis/nouveau?demandeId=${d.demandeId}&revisionDevisId=${d.id}`); }}
                             className="px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 text-xs font-semibold"
                           >
                             📝 {t('quotes.createRevision')}

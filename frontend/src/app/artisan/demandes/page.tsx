@@ -46,6 +46,8 @@ export default function ArtisanDemandesPage() {
   const [expandedExpressIds, setExpandedExpressIds] = useState<Set<string>>(new Set());
   const [expressPropositionsMap, setExpressPropositionsMap] = useState<Map<string, PropositionExpress[]>>(new Map());
   const demandeRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
+  // IDs des nouvelles demandes capturées UNE FOIS au chargement (pour le badge 🔔 stable)
+  const [demandesNouvellesInitialIds, setDemandesNouvellesInitialIds] = useState<Set<string>>(new Set());
   // IDs des demandes déjà consultées (persiste dans localStorage)
   const [demandesVuesSet, setDemandesVuesSet] = useState<Set<string>>(() => {
     if (typeof window === 'undefined') return new Set<string>();
@@ -288,6 +290,25 @@ export default function ArtisanDemandesPage() {
         }
       }
       setClientsInfo(clientsMap);
+
+      // Capturer au chargement les IDs des nouvelles demandes non encore vues
+      // (lecture directe localStorage pour éviter la stale closure)
+      const vuesFromStorage = new Set<string>();
+      try {
+        const stored = localStorage.getItem('artisan_demandes_vues');
+        if (stored) JSON.parse(stored).forEach((id: string) => vuesFromStorage.add(id));
+      } catch {}
+      const initialNouvellesIds = new Set(
+        demandesData
+          .filter(d =>
+            (!d.devisRecus || d.devisRecus === 0) &&
+            d.statut !== 'annulee' &&
+            !demandesTermineesSet.has(d.id) &&
+            !vuesFromStorage.has(d.id)
+          )
+          .map(d => d.id)
+      );
+      setDemandesNouvellesInitialIds(initialNouvellesIds);
       
       setIsLoading(false);
     } catch (error) {
@@ -948,10 +969,8 @@ export default function ArtisanDemandesPage() {
           <div className="space-y-4">
             {demandesFiltrees.map((demande) => {
               const isExpanded = expandedDemandeIds.has(demande.id);
-              const isNouveau = (!demande.devisRecus || demande.devisRecus === 0) &&
-                demande.statut !== 'annulee' &&
-                !demandesTermineesIds.has(demande.id) &&
-                !demandesVuesSet.has(demande.id);
+              // Badge 🔔 basé sur l'état au chargement (stable, ne disparaît pas avec le timer localStorage)
+              const isNouveau = demandesNouvellesInitialIds.has(demande.id);
               return (
               <div 
                 key={demande.id} 
@@ -1023,7 +1042,7 @@ export default function ArtisanDemandesPage() {
                           className="inline-flex items-center gap-1 bg-[#FF6B00] text-white text-xs font-bold px-2.5 py-1 rounded-full shrink-0"
                           style={{ animation: 'pulse 0.7s ease-in-out 4' }}
                         >
-                          🔔 Nouveau
+                          🔔
                         </span>
                       )}
                     </div>

@@ -9,6 +9,8 @@ import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
 import { getDemandesForArtisan, getDemandesPubliquesForArtisan } from '@/lib/firebase/demande-service';
 import { getAvisByArtisanId, calculateAverageRating } from '@/lib/firebase/avis-service';
 import { useNotifications } from '@/hooks/useNotifications';
+import { markNotificationsByTypeAsRead } from '@/lib/firebase/notification-service';
+import { getWalletByArtisanId, getSequestreTransactions } from '@/lib/firebase/wallet-service';
 import { artisanDoitDecennale } from '@/lib/decennale-helper';
 import { db } from '@/lib/firebase/config';
 import { collection, query, where, or, onSnapshot } from 'firebase/firestore';
@@ -27,6 +29,9 @@ export default function ArtisanDashboardPage() {
   const [canResend, setCanResend] = useState(true);
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [nouvellesDemandes, setNouvellesDemandes] = useState(0);
+  const [walletSolde, setWalletSolde] = useState(0);
+  const [walletEnAttente, setWalletEnAttente] = useState(0);
+  const [walletNbTransactions, setWalletNbTransactions] = useState(0);
   const [avisRecents, setAvisRecents] = useState<Avis[]>([]);
   const [statsAvis, setStatsAvis] = useState({ moyenne: 0, total: 0 });
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
@@ -34,9 +39,9 @@ export default function ArtisanDashboardPage() {
   // Hook pour les notifications
   const { notifications, unreadCount } = useNotifications(user?.uid);
 
-  // Compter les notifications de devis acceptés/refusés NON LUES
+  // Compter les notifications de devis acceptés/refusés/révision NON LUES
   const devisNotifications = notifications.filter(
-    n => (n.type === 'devis_accepte' || n.type === 'devis_refuse') && !n.lue
+    n => (n.type === 'devis_accepte' || n.type === 'devis_refuse' || n.type === 'devis_revision') && !n.lue
   ).length;
 
   // Calculer si le profil est complètement vérifié (SANS la décennale)
@@ -158,6 +163,19 @@ export default function ArtisanDashboardPage() {
         setNouvellesDemandes(totalDirectes + totalPubliques);
       } catch (error) {
         console.error('Erreur chargement demandes:', error);
+      }
+
+      // Charger les données wallet
+      try {
+        const wallet = await getWalletByArtisanId(currentUser.uid);
+        if (wallet) {
+          setWalletSolde(wallet.soldeDisponible || 0);
+          setWalletEnAttente(wallet.soldeEnAttente || 0);
+        }
+        const sequestreTransactions = await getSequestreTransactions(currentUser.uid);
+        setWalletNbTransactions(sequestreTransactions.length);
+      } catch (error) {
+        console.error('Erreur chargement wallet:', error);
       }
 
       setIsLoading(false);
@@ -575,7 +593,7 @@ export default function ArtisanDashboardPage() {
               </div>
               <div className="text-white">
                 <div className="flex items-baseline gap-2 mb-2">
-                  <span className="text-3xl font-bold">0,00 €</span>
+                  <span className="text-3xl font-bold">{walletSolde.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
                   <span className="text-sm opacity-80">{t('dashboard.artisan.available')}</span>
                 </div>
                 <div className="flex items-center gap-4 text-xs opacity-90">
@@ -583,13 +601,13 @@ export default function ArtisanDashboardPage() {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span>0 {t('dashboard.artisan.transaction')}</span>
+                    <span>{walletNbTransactions} {t('dashboard.artisan.transaction')}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span>0,00 € {t('dashboard.artisan.pending')}</span>
+                    <span>{walletEnAttente.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} € {t('dashboard.artisan.pending')}</span>
                   </div>
                 </div>
               </div>
@@ -748,7 +766,7 @@ export default function ArtisanDashboardPage() {
           </Link>
 
           {/* Devis - Position 7 */}
-          <Link href="/artisan/devis" className="h-full">
+          <Link href="/artisan/devis" className="h-full" onClick={() => markNotificationsByTypeAsRead(user?.uid || '', ['devis_accepte', 'devis_refuse', 'devis_revision'])}>
             <div className="h-full flex flex-col bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-[#FF6B00]">
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center relative">

@@ -132,24 +132,6 @@ export default function ConnexionPage() {
         {error && (
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-red-700 text-sm font-medium">{error}</p>
-            
-            {/* Afficher les liens UNIQUEMENT pour les erreurs liées au mot de passe */}
-            {(error.toLowerCase().includes('mot de passe') || error.toLowerCase().includes('email') || error.toLowerCase().includes('identifiants')) && (
-              <div className="mt-3 space-y-2">
-                <Link 
-                  href="/mot-de-passe-oublie" 
-                  className="block text-sm text-[#FF6B00] hover:underline"
-                >
-                  {t('auth.resetPassword')}
-                </Link>
-                <Link 
-                  href="/inscription" 
-                  className="block text-sm text-[#FF6B00] hover:underline"
-                >
-                  {t('auth.createNewAccount')}
-                </Link>
-              </div>
-            )}
           </div>
         )}
 

@@ -1343,7 +1343,7 @@
       "processStep1": "✅ Fill out the form in ArtisanDispo (2 minutes)",
       "processStep2": "✅ Your data is securely transmitted to Stripe",
       "processStep3": "✅ Automatic verification by Stripe (24-48h)",
-      "processStep4": "✅ Receive your payments automatically",
+      "processStep4": "✅ Receive your payments in your wallet and request a bank transfer whenever you wish",
       "securityNote": "🔒 Maximum security: Your banking details are never stored in our database",
       "notConfigured": {
         "title": "🏦 Configure Your Bank Account",

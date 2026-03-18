@@ -62,6 +62,12 @@ export default function WalletPage() {
   // Filtre séquestre
   const [activeFilter, setActiveFilter] = useState<'all' | 'sequestre'>('all');
   const [sequestreTransactions, setSequestreTransactions] = useState<WalletTransaction[]>([]);
+  const [sequestreSeenCount, setSequestreSeenCount] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      return parseInt(localStorage.getItem('wallet_sequestre_seen') || '0', 10);
+    }
+    return 0;
+  });
 
   // Charger les infos artisan
   useEffect(() => {
@@ -351,7 +357,15 @@ export default function WalletPage() {
 
           {/* En séquestre — cliquable */}
           <div
-            onClick={() => setActiveFilter(activeFilter === 'sequestre' ? 'all' : 'sequestre')}
+            onClick={() => {
+              const next = activeFilter === 'sequestre' ? 'all' : 'sequestre';
+              setActiveFilter(next);
+              if (next === 'sequestre') {
+                const count = sequestreTransactions.length;
+                setSequestreSeenCount(count);
+                localStorage.setItem('wallet_sequestre_seen', String(count));
+              }
+            }}
             className={`rounded-lg shadow-md p-6 border-l-4 cursor-pointer transition-all ${
               activeFilter === 'sequestre'
                 ? 'bg-yellow-50 border-[#FFC107] ring-2 ring-[#FFC107]'
@@ -365,9 +379,9 @@ export default function WalletPage() {
                 </svg>
                 <h3 className="text-[#6C757D] font-medium">En séquestre</h3>
               </div>
-              {sequestreTransactions.length > 0 && (
+              {sequestreTransactions.length > sequestreSeenCount && (
                 <span className="bg-[#FFC107] text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                  {sequestreTransactions.length}
+                  {sequestreTransactions.length - sequestreSeenCount}
                 </span>
               )}
             </div>
@@ -552,7 +566,7 @@ export default function WalletPage() {
                     <li>• Recevez des paiements sécurisés de vos clients via Stripe</li>
                     <li>• Les fonds restent en séquestre jusqu&apos;à validation des travaux</li>
                     <li>• À la libération, une <strong>commission plateforme de 8%</strong> est prélevée sur le montant TTC</li>
-                    <li>• Le montant net (92%) est transféré automatiquement vers votre compte bancaire</li>
+                    <li>• Le montant net (92%) reste disponible sur votre portefeuille ArtisanDispo — vous pouvez demander un virement vers votre compte bancaire quand vous le souhaitez</li>
                     <li>• Suivez l&apos;historique complet de vos transactions ici</li>
                   </ul>
                   <p className="text-xs text-blue-700 mt-3 bg-blue-100 rounded px-3 py-2 inline-block">
@@ -570,7 +584,12 @@ export default function WalletPage() {
                 <p className="mt-4 text-[#6C757D]">Chargement des transactions...</p>
               </div>
             ) : (() => {
-              const displayedTransactions = activeFilter === 'sequestre' ? sequestreTransactions : transactions;
+              // Vue "Tous" : fusionner transactions + séquestre (dédupliqués par id)
+              const allTransactions = activeFilter === 'sequestre'
+                ? sequestreTransactions
+                : [...transactions, ...sequestreTransactions.filter(s => !transactions.find(t => t.id === s.id))]
+                    .sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+              const displayedTransactions = allTransactions;
               if (displayedTransactions.length === 0) {
                 return (
                   <div className="text-center">
@@ -655,7 +674,9 @@ export default function WalletPage() {
                             </div>
                             <div className="flex-1">
                               <h4 className="font-semibold text-[#2C3E50] mb-1">
-                                {transaction.description}
+                                {isSequestre && (clientNom || devisNumero)
+                                  ? `${transaction.description.split(' — ')[0]}${clientNom ? ` - ${clientNom}` : ''}`
+                                  : transaction.description}
                               </h4>
                               {/* Infos séquestre enrichies */}
                               {isSequestre && (clientNom || devisNumero) && (

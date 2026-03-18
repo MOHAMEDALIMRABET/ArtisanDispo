@@ -35,10 +35,12 @@ export default function ClientDevisPage() {
   const [demandes, setDemandes] = useState<Map<string, Demande>>(new Map());
   const [loading, setLoading] = useState(true);
   const [emailResent, setEmailResent] = useState(false);
-  const [filter, setFilter] = useState<'tous' | 'en_attente' | 'acceptes' | 'payes' | 'refuses'>('en_attente');
+  const [filter, setFilter] = useState<'tous' | 'en_attente' | 'en_revision' | 'acceptes' | 'payes' | 'refuses'>('en_attente');
   const [avisParDevisId, setAvisParDevisId] = useState<Record<string, boolean>>({});
   const [sousFiltrePayes, setSousFiltrePayes] = useState<'tout' | 'paye' | 'en_cours' | 'travaux_termines' | 'valides' | 'litige'>('tout');
   const [devisAvecNotifNonLues, setDevisAvecNotifNonLues] = useState<Set<string>>(new Set());
+  // Snapshot capturé au chargement — pour badge 🔔 persistant sur les cartes individuelles
+  const [devisNotifsInitialIds, setDevisNotifsInitialIds] = useState<Set<string>>(new Set());
 
   // Réinitialiser le sous-filtre quand on quitte la section "Payés"
   useEffect(() => {
@@ -50,7 +52,7 @@ export default function ClientDevisPage() {
   // Restaurer le filtre depuis l'URL au retour
   useEffect(() => {
     const returnFilter = searchParams.get('returnFilter');
-    if (returnFilter && ['tous', 'en_attente', 'acceptes', 'payes', 'refuses'].includes(returnFilter)) {
+    if (returnFilter && ['tous', 'en_attente', 'en_revision', 'acceptes', 'payes', 'refuses'].includes(returnFilter)) {
       setFilter(returnFilter as typeof filter);
     }
   }, [searchParams]);
@@ -84,11 +86,10 @@ export default function ClientDevisPage() {
         ...doc.data(),
       } as Devis));
 
-      // Filtrer pour exclure les brouillons ET les devis remplacés/en révision (le client ne doit voir que les devis actifs)
+      // Filtrer pour exclure les brouillons et les devis remplacés (le client voit les en_revision dans leur section dédiée)
       const devisData = allDevis.filter(d => 
         d.statut !== 'genere' && 
-        d.statut !== 'remplace' && 
-        d.statut !== 'en_revision'
+        d.statut !== 'remplace'
       );
 
       // Trier par date de création décroissante
@@ -170,6 +171,20 @@ export default function ClientDevisPage() {
         }
       });
       setDevisAvecNotifNonLues(nonLuesIds);
+      // Capturer un snapshot pour les badges persistants
+      setDevisNotifsInitialIds(new Set(nonLuesIds));
+      // Auto-effacer dans Firestore après 1.5s → vide la cloche ET le badge "Tous"
+      if (nonLuesIds.size > 0) {
+        const userId = user.uid;
+        setTimeout(async () => {
+          await Promise.all(
+            [...nonLuesIds].map(id =>
+              markNotificationsByLienAsRead(userId, `/client/devis/${id}`)
+            )
+          ).catch(() => {});
+          setDevisAvecNotifNonLues(new Set());
+        }, 1500);
+      }
     } catch (error) {
       console.error('Erreur chargement devis:', error);
     } finally {
@@ -279,8 +294,9 @@ export default function ClientDevisPage() {
   }
 
   const filteredDevis = devis.filter(d => {
-    if (filter === 'tous') return true;
+    if (filter === 'tous') return d.statut !== 'en_revision'; // en_revision a sa propre section
     if (filter === 'en_attente') return d.statut === 'envoye';
+    if (filter === 'en_revision') return d.statut === 'en_revision';
     if (filter === 'acceptes') return isDevisAccepte(d.statut);
     if (filter === 'payes') {
       if (!isDevisPaye(d.statut)) return false;
@@ -297,10 +313,11 @@ export default function ClientDevisPage() {
   });
 
   const devisEnAttente = devis.filter(d => d.statut === 'envoye');
+  const devisEnRevision = devis.filter(d => d.statut === 'en_revision');
   const devisAcceptes = devis.filter(d => isDevisAccepte(d.statut));
   const devisPayes = devis.filter(d => isDevisPaye(d.statut));
   const devisRefuses = devis.filter(d => ['refuse', 'expire', 'annule'].includes(d.statut));
-  const totalDevis = devis.length;
+  const totalDevis = devis.filter(d => d.statut !== 'en_revision').length;
 
   // Compteurs sous-filtres Payés
   const countPayeSigne = devisPayes.filter(d => d.statut === 'paye').length;
@@ -330,7 +347,7 @@ export default function ClientDevisPage() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Filtres */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
           <button
             onClick={() => setFilter('tous')}
             className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
@@ -349,7 +366,7 @@ export default function ClientDevisPage() {
               <span className={`mt-1 text-xs font-bold px-2 py-0.5 rounded-full ${
                 filter === 'tous' ? 'bg-white text-[#FF6B00]' : 'bg-[#FF6B00] text-white'
               }`}>
-                🔔 {devisAvecNotifNonLues.size} nouveau{devisAvecNotifNonLues.size > 1 ? 'x' : ''}
+                🔔 {devisAvecNotifNonLues.size}
               </span>
             )}
           </button>
@@ -367,6 +384,23 @@ export default function ClientDevisPage() {
             </div>
             <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'en_attente' ? 'text-white' : 'text-gray-600'}`}>
               🆕 {t('quotes.newPlural')}
+            </div>
+          </button>
+
+          {/* En révision */}
+          <button
+            onClick={() => setFilter('en_revision')}
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
+              filter === 'en_revision'
+                ? 'bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-xl scale-105'
+                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+            }`}
+          >
+            <div className={`text-3xl font-black mb-1 ${filter === 'en_revision' ? 'text-white' : 'text-purple-600'}`}>
+              {devisEnRevision.length}
+            </div>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'en_revision' ? 'text-white' : 'text-gray-600'}`}>
+              🔄 En révision
             </div>
           </button>
 
@@ -536,9 +570,9 @@ export default function ClientDevisPage() {
                             ⭐ Avis publié
                           </span>
                         )}
-                        {devisAvecNotifNonLues.has(d.id) && (
+                        {devisNotifsInitialIds.has(d.id) && (
                           <span className="inline-flex items-center gap-1 bg-[#FF6B00] text-white text-xs font-bold px-2.5 py-1 rounded-full animate-pulse">
-                            🔔 Nouveau
+                            🔔
                           </span>
                         )}
                       </div>
@@ -629,14 +663,7 @@ export default function ClientDevisPage() {
                           >
                             ❌ {t('quotes.refuse')}
                           </div>
-                          {devisAvecNotifNonLues.has(d.id) && (
-                            <div
-                              onClick={(e) => { e.stopPropagation(); naviguerVersDevis(d.id, `returnFilter=${filter}`); }}
-                              className="w-full mt-2 text-center text-xs text-[#FF6B00] font-semibold cursor-pointer hover:underline"
-                            >
-                              🔔 Vous avez une notification — cliquez pour consulter
-                            </div>
-                          )}
+
                         </div>
                         {!user?.emailVerified && (
                           <div className="mt-2 flex items-center gap-2 text-xs text-red-600 font-medium">
@@ -784,6 +811,24 @@ export default function ClientDevisPage() {
                           📄 {t('quotes.viewDetails')}
                         </div>
                       </>
+                    )}
+
+                    {/* Devis en révision : info + Voir le détail */}
+                    {d.statut === 'en_revision' && (
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 bg-purple-50 border border-purple-200 text-purple-700 px-4 py-2 rounded-lg text-sm text-center font-medium">
+                          🔄 Révision demandée — en attente de la variante
+                        </div>
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            naviguerVersDevis(d.id, `returnFilter=${filter}`);
+                          }}
+                          className="bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer whitespace-nowrap"
+                        >
+                          📄 Voir le détail
+                        </div>
+                      </div>
                     )}
 
                     {/* Autres statuts payés (litige) : Voir le détail uniquement */}

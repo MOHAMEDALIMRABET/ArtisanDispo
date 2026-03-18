@@ -201,6 +201,17 @@ export function PaymentForm({
             </div>
           </div>
 
+          {/* BANDEAU SIMULATION */}
+          <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4 flex items-start gap-3">
+            <span className="text-2xl flex-shrink-0">🧪</span>
+            <div>
+              <p className="font-bold text-yellow-800 text-sm">Mode simulation — Paiement non réel</p>
+              <p className="text-yellow-700 text-xs mt-1">
+                L'intégration Stripe réelle est en cours de déploiement (Phase 2). Toute carte valide est acceptée pour les tests — <strong>aucun débit ne sera effectué</strong>.
+              </p>
+            </div>
+          </div>
+
           {/* Montant */}
           <div className="bg-[#FF6B00] bg-opacity-10 border-2 border-[#FF6B00] rounded-lg p-4">
             <div className="flex justify-between items-center">

@@ -365,7 +365,6 @@ export const authService = {
       
       return userCredential.user;
     } catch (error: any) {
-      console.error('Error signing in:', error);
       const errorMessage = translateAuthError(error);
       throw new Error(errorMessage);
     }
@@ -608,7 +607,6 @@ export const authService = {
       );
       return { success: true, message: 'Email de réinitialisation envoyé' };
     } catch (error: any) {
-      console.error('Erreur réinitialisation mot de passe:', error);
       return { 
         success: false, 
         error: translateAuthError(error) 

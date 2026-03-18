@@ -24,7 +24,14 @@ export default function DashboardPage() {
   const [avisClient, setAvisClient] = useState<Avis[]>([]);
   const [contratsANoter, setContratsANoter] = useState<any[]>([]);
   const { notifications } = useNotifications(user?.uid);
-  const devisNouveaux = notifications.filter(n => n.type === 'devis_recu' && !n.lue).length;
+  const devisNouveaux = notifications.filter(n => !n.lue && (
+    n.type === 'devis_recu' ||
+    n.type === 'devis_accepte' ||
+    n.type === 'devis_refuse' ||
+    n.type === 'devis_revision' ||
+    n.type === 'travaux_demarres' ||
+    n.type === 'travaux_termines'
+  )).length;
 
   useEffect(() => {
     loadUserData();
