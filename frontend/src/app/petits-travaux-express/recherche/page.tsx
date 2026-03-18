@@ -370,7 +370,7 @@ export default function RechercheExpressPage() {
             )}
 
             {/* Localisation */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div className="relative">
                 <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
                   Ville <span className="text-red-500">*</span>
@@ -448,7 +448,7 @@ export default function RechercheExpressPage() {
             </div>
 
             {/* Date et urgence */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
                   Date souhaitée <span className="text-red-500">*</span>
