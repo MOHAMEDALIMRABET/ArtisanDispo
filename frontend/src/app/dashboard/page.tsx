@@ -23,7 +23,7 @@ export default function DashboardPage() {
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [avisClient, setAvisClient] = useState<Avis[]>([]);
   const [contratsANoter, setContratsANoter] = useState<any[]>([]);
-  const { notifications } = useNotifications(user?.uid);
+  const { notifications, markTypeAsRead } = useNotifications(user?.uid);
   const devisNouveaux = notifications.filter(n => !n.lue && (
     n.type === 'devis_recu' ||
     n.type === 'devis_accepte' ||
@@ -32,6 +32,7 @@ export default function DashboardPage() {
     n.type === 'travaux_demarres' ||
     n.type === 'travaux_termines'
   )).length;
+  const reponseAvisNouveaux = notifications.filter(n => !n.lue && n.type === 'reponse_avis').length;
 
   useEffect(() => {
     loadUserData();
@@ -311,13 +312,18 @@ export default function DashboardPage() {
               </div>
             </Link>
 
-            <Link href="/client/avis">
+            <Link href="/client/avis" onClick={() => markTypeAsRead && markTypeAsRead(['reponse_avis'])}>
               <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-[#FF6B00]">
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center relative">
                     <svg className="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                     </svg>
+                    {reponseAvisNouveaux > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-[#FF6B00] text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none">
+                        {reponseAvisNouveaux}
+                      </span>
+                    )}
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-gray-800">{t('common.reviews')}</h2>

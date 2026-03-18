@@ -253,11 +253,9 @@ export default function ClientDevisDetailPage() {
       }
 
       // Vérifier si un avis a déjà été donné pour ce contrat (si travaux terminés)
+      // On lit directement le champ avisPublie sur le devis (plus fiable qu'une query séparée)
       if (['termine_valide', 'termine_auto_valide'].includes(devisData.statut)) {
-        setCheckingAvis(true);
-        const avisExistant = await getAvisByContratId(devisId);
-        setAvisExiste(!!avisExistant);
-        setCheckingAvis(false);
+        setAvisExiste(!!(devisData as any).avisPublie);
       }
 
       // Charger les autres variantes si ce devis fait partie d'un groupe
@@ -720,6 +718,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
       });
       setShowAvisPopup(false);
       setAvisExiste(true);
+      setDevis(prev => prev ? { ...prev, avisPublie: true } : prev);
       alert('⭐ Merci pour votre avis ! Il a été publié avec succès.');
     } catch (error: any) {
       alert(error.message || 'Erreur lors de la publication de l\'avis.');
@@ -1082,7 +1081,9 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                 {devis.artisan.adresse && (
                   <p className="text-sm text-gray-600 mt-1">
                     📍 {masquerAdresse(
-                      `${devis.artisan.adresse.rue}, ${devis.artisan.adresse.codePostal} ${devis.artisan.adresse.ville}`,
+                      typeof devis.artisan.adresse === 'string'
+                        ? devis.artisan.adresse
+                        : [(devis.artisan.adresse as any).rue, (devis.artisan.adresse as any).codePostal, (devis.artisan.adresse as any).ville].filter(Boolean).join(', '),
                       !coordonneesVisibles
                     )}
                   </p>

@@ -7,6 +7,7 @@ import { getUserById } from '@/lib/firebase/user-service';
 import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
 import { getAvisByClientId } from '@/lib/firebase/avis-service';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useNotifications } from '@/hooks/useNotifications';
 import type { User, Avis } from '@/types/firestore';
 import Link from 'next/link';
 
@@ -23,6 +24,15 @@ export default function AvisClientPage() {
   const [filtreNote, setFiltreNote] = useState<number | null>(null);
   const [tri, setTri] = useState<'recent' | 'ancien' | 'note-haute' | 'note-basse'>('recent');
   const [recherche, setRecherche] = useState('');
+
+  const { markTypeAsRead } = useNotifications(user?.uid);
+
+  // Marquer les notifications reponse_avis comme lues dès l'arrivée sur la page
+  useEffect(() => {
+    if (user?.uid) {
+      markTypeAsRead(['reponse_avis']);
+    }
+  }, [user?.uid]);
 
   useEffect(() => {
     loadData();

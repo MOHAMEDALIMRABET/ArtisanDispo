@@ -44,6 +44,11 @@ export default function ArtisanDashboardPage() {
     n => (n.type === 'devis_accepte' || n.type === 'devis_refuse' || n.type === 'devis_revision') && !n.lue
   ).length;
 
+  // Compter les notifications de nouvel avis NON LUES
+  const avisNotifications = notifications.filter(
+    n => n.type === 'nouvel_avis' && !n.lue
+  ).length;
+
   // Calculer si le profil est complètement vérifié (SANS la décennale)
   // La décennale est un document additionnel qui ne bloque pas l'accès au profil
   const isFullyVerified = 
@@ -842,13 +847,18 @@ export default function ArtisanDashboardPage() {
           </Link>
 
           {/* Avis - Position 9 */}
-          <Link href="/artisan/avis" className="h-full">
+          <Link href="/artisan/avis" className="h-full" onClick={() => markNotificationsByTypeAsRead(user?.uid || '', ['nouvel_avis'])}>
             <div className="h-full flex flex-col bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-[#FF6B00]">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center relative">
                   <svg className="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
+                  {avisNotifications > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-[#FF6B00] text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none">
+                      {avisNotifications}
+                    </span>
+                  )}
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-gray-800">{t('common.reviews')}</h2>

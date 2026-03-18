@@ -87,6 +87,13 @@ export async function createAvis(data: {
 
     console.log('✅ Avis créé avec succès:', avisRef.id);
 
+    // Marquer le devis/contrat comme "avis publié" pour éviter d'afficher le bouton "Donner mon avis"
+    try {
+      await updateDoc(doc(db, 'devis', data.contratId), { avisPublie: true });
+    } catch (devisUpdateError) {
+      console.warn('⚠️ Mise à jour avisPublie sur devis échouée (non bloquant):', devisUpdateError);
+    }
+
     // Notifier l'artisan qu'il a reçu un nouvel avis
     try {
       await createNotification(data.artisanId, {

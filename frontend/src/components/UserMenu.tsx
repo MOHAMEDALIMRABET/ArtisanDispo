@@ -140,8 +140,13 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
     n => !n.lue && (n.type === 'nouvelle_demande' || n.type === 'demande_refusee')
   ).length;
 
+  // Notifications avis : nouvel avis reçu (artisan) ou réponse artisan (client)
+  const notifAvis = notifications.filter(
+    n => !n.lue && (n.type === 'nouvel_avis' || n.type === 'reponse_avis')
+  ).length;
+
   // Nombre total de notifications non lues (incluant messages et nouvelles demandes)
-  const totalNotifications = notifDevis + notifDemandes + unreadMessagesCount + nouvellesDemandesCount;
+  const totalNotifications = notifDevis + notifDemandes + unreadMessagesCount + nouvellesDemandesCount + notifAvis;
 
   // Fermer le dropdown au clic extérieur
   useEffect(() => {
@@ -368,7 +373,7 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
 
                 {/* Avis Artisans */}
                 <button
-                  onClick={() => handleNavigation('/client/avis')}
+                  onClick={() => handleNavigationWithMarkRead('/client/avis', ['reponse_avis'])}
                   className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
                 >
                   <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -380,6 +385,11 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
                     />
                   </svg>
                   <span className="font-medium flex-1">Avis</span>
+                  {notifAvis > 0 && (
+                    <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
+                      {notifAvis}
+                    </span>
+                  )}
                   {avisEnAttente > 0 && (
                     <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
                       {avisEnAttente}
@@ -489,7 +499,7 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
 
                 {/* Avis Clients */}
                 <button
-                  onClick={() => handleNavigation('/artisan/avis')}
+                  onClick={() => handleNavigationWithMarkRead('/artisan/avis', ['nouvel_avis'])}
                   className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
                 >
                   <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -501,6 +511,11 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
                     />
                   </svg>
                   <span className="font-medium flex-1">Avis</span>
+                  {notifAvis > 0 && (
+                    <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
+                      {notifAvis}
+                    </span>
+                  )}
                 </button>
               </>
             )}

@@ -163,6 +163,9 @@ export interface Devis {
   // Peut valoir : 'paye' | 'en_cours' | 'travaux_termines'
   statutAvantLitige?: DevisStatut;
 
+  // Avis client publié (true une fois que le client a laissé son avis)
+  avisPublie?: boolean;
+
   // Devis alternatifs (pour proposer plusieurs options au client)
   varianteGroupe?: string;       // ID du groupe de variantes (même pour tous les devis alternatifs)
   varianteLettreReference?: string; // Ex: "A", "B", "C" - Lettre attribuée automatiquement

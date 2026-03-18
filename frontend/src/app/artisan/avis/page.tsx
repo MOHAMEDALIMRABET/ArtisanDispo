@@ -7,6 +7,7 @@ import { authService } from '@/lib/auth-service';
 import { getUserById } from '@/lib/firebase/user-service';
 import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
 import { getAvisByArtisanId, calculateAverageRating, addReponseArtisan } from '@/lib/firebase/avis-service';
+import { useNotifications } from '@/hooks/useNotifications';
 import type { User, Artisan, Avis } from '@/types/firestore';
 import Link from 'next/link';
 
@@ -28,6 +29,15 @@ export default function AvisArtisanPage() {
   const [filtreNote, setFiltreNote] = useState<number | null>(null);
   const [tri, setTri] = useState<'recent' | 'ancien' | 'note-haute' | 'note-basse'>('recent');
   const [recherche, setRecherche] = useState('');
+
+  const { markTypeAsRead } = useNotifications(user?.uid);
+
+  // Marquer les notifications nouvel_avis comme lues dès l'arrivée sur la page
+  useEffect(() => {
+    if (user?.uid) {
+      markTypeAsRead(['nouvel_avis']);
+    }
+  }, [user?.uid]);
 
   useEffect(() => {
     loadData();

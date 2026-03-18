@@ -420,7 +420,9 @@ export default function VoirDevisPage() {
               {devis.artisan.siret && <p className="text-sm text-gray-600">SIRET: {devis.artisan.siret}</p>}
               {devis.artisan.adresse && (
                 <p className="text-sm text-gray-600 mt-1">
-                  📍 {devis.artisan.adresse.rue}, {devis.artisan.adresse.codePostal} {devis.artisan.adresse.ville}
+                  📍 {typeof devis.artisan.adresse === 'string'
+                    ? devis.artisan.adresse
+                    : [(devis.artisan.adresse as any).rue, (devis.artisan.adresse as any).codePostal, (devis.artisan.adresse as any).ville].filter(Boolean).join(', ')}
                 </p>
               )}
               {devis.artisan.telephone && (
