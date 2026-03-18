@@ -29,10 +29,8 @@ export default function Header() {
 
   // Helper : Déterminer l'URL des travaux express selon le rôle
   const getExpressWorksUrl = () => {
-    if (!user) return '/petits-travaux-express'; // Visiteur → page d'explication
-    if (user.role === 'client') return '/petits-travaux-express/recherche'; // Client → recherche directe
-    if (user.role === 'artisan') return '/artisan/demandes-express'; // Artisan → voir demandes
-    return '/petits-travaux-express'; // Défaut
+    if (user?.role === 'artisan') return '/artisan/demandes-express'; // Artisan → voir demandes
+    return '/petits-travaux-express'; // Visiteur et clients → page travaux express
   };
 
   // Helper : Navigation logo - Toujours vers page d'accueil
