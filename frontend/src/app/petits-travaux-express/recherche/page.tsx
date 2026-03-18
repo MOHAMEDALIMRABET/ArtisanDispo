@@ -81,7 +81,7 @@ export default function RechercheExpressPage() {
 
   // Recherche de villes
   const [villeSuggestions, setVilleSuggestions] = useState<VilleSuggestion[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeField, setActiveField] = useState<'ville' | 'codePostal' | null>(null);
 
   // Résultats
   const [results, setResults] = useState<MatchingResult[]>([]);
@@ -116,7 +116,7 @@ export default function RechercheExpressPage() {
   async function searchVilles(query: string) {
     if (query.length < 2) {
       setVilleSuggestions([]);
-      setShowSuggestions(false);
+      setActiveField(null);
       return;
     }
 
@@ -147,7 +147,6 @@ export default function RechercheExpressPage() {
       );
       
       setVilleSuggestions(suggestions);
-      setShowSuggestions(suggestions.length > 0);
     } catch (error) {
       console.error('Erreur recherche villes:', error);
     }
@@ -156,7 +155,7 @@ export default function RechercheExpressPage() {
   function selectVille(suggestion: VilleSuggestion) {
     setVille(suggestion.nom);
     setCodePostal(suggestion.codePostal);
-    setShowSuggestions(false);
+    setActiveField(null);
     setVilleSuggestions([]);
   }
 
@@ -381,16 +380,17 @@ export default function RechercheExpressPage() {
                   autoComplete="off"
                   onChange={(e) => {
                     setVille(e.target.value);
+                    setActiveField('ville');
                     searchVilles(e.target.value);
                   }}
-                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                  onBlur={() => setTimeout(() => setActiveField(null), 200)}
                   required
                   placeholder="Ex: Paris"
                   className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
                 />
                 
                 {/* Suggestions de villes */}
-                {showSuggestions && villeSuggestions.length > 0 && (
+                {activeField === 'ville' && villeSuggestions.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border-2 border-[#E9ECEF] rounded-lg shadow-lg max-h-60 overflow-y-auto">
                     {villeSuggestions.map((suggestion, index) => (
                       <button
@@ -417,12 +417,36 @@ export default function RechercheExpressPage() {
                   type="text"
                   value={codePostal}
                   autoComplete="off"
-                  onChange={(e) => setCodePostal(e.target.value)}
+                  onChange={(e) => {
+                    setCodePostal(e.target.value);
+                    setActiveField('codePostal');
+                    searchVilles(e.target.value);
+                  }}
+                  onBlur={() => setTimeout(() => setActiveField(null), 200)}
                   required
                   placeholder="Ex: 75001"
                   pattern="[0-9]{5}"
                   className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
                 />
+
+                {/* Suggestions depuis le champ code postal */}
+                {activeField === 'codePostal' && villeSuggestions.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border-2 border-[#E9ECEF] rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    {villeSuggestions.map((suggestion, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => selectVille(suggestion)}
+                        className="w-full text-left px-4 py-2 hover:bg-[#F5F7FA] transition-colors"
+                      >
+                        <div className="font-semibold text-[#2C3E50]">{suggestion.nom}</div>
+                        <div className="text-sm text-[#6C757D]">
+                          {suggestion.codePostal} • Dép. {suggestion.departement}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
