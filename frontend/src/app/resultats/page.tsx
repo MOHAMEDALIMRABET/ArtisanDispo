@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/Card';
 import { Logo } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { getUserById } from '@/lib/firebase/user-service';
+import { METIERS_AVEC_ICONES } from '@/lib/constants/metiers';
 
 function ResultatsContent() {
 
@@ -277,19 +278,9 @@ function ResultatsContent() {
                     value={categorieInput}
                     onChange={e => setCategorieInput(e.target.value)}
                   >
-                    <option value="plomberie">{t('home.plumbing')}</option>
-                    <option value="electricite">{t('home.electricity')}</option>
-                    <option value="peinture">{t('home.painting')}</option>
-                    <option value="menuiserie">{t('home.carpentry')}</option>
-                    <option value="maconnerie">{t('home.masonry')}</option>
-                    <option value="carrelage">{t('home.tiling')}</option>
-                    <option value="chauffage">{t('home.heating')}</option>
-                    <option value="climatisation">{t('home.airConditioning')}</option>
-                    <option value="toiture">{t('home.roofing')}</option>
-                    <option value="isolation">{t('home.insulation')}</option>
-                    <option value="serrurerie">{t('home.locksmith')}</option>
-                    <option value="exterieur-jardin">{t('home.exteriorGarden')}</option>
-                    <option value="renovation">{t('home.renovation')}</option>
+                    {METIERS_AVEC_ICONES.map((m) => (
+                      <option key={m.value} value={m.value}>{m.icon} {m.label}</option>
+                    ))}
                   </select>
                 </div>
               </div>

@@ -43,9 +43,9 @@ export const METIERS_MAP: Record<Categorie, string> = {
  */
 export const METIERS_AVEC_ICONES: { value: Categorie; label: string; icon: string }[] = [
   { value: 'plomberie', label: 'Plomberie', icon: '🔧' },
-  { value: 'electricite', label: 'Électricité', icon: '⚡' },
+  { value: 'electricite', label: 'Électricité', icon: '💡' },
   { value: 'peinture', label: 'Peinture', icon: '🎨' },
-  { value: 'menuiserie', label: 'Menuiserie', icon: '🪵' },
+  { value: 'menuiserie', label: 'Menuiserie', icon: '�' },
   { value: 'maconnerie', label: 'Maçonnerie', icon: '🧱' },
   { value: 'carrelage', label: 'Carrelage', icon: '⬜' },
   { value: 'chauffage', label: 'Chauffage', icon: '🔥' },

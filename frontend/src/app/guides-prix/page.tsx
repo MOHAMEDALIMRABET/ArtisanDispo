@@ -67,7 +67,7 @@ const guidesParCategorie = {
   },
   electricite: {
     titre: 'Électricité',
-    icone: '⚡',
+    icone: '💡',
     couleur: '#f39c12',
     guides: [
       {

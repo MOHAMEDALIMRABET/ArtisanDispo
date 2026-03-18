@@ -220,7 +220,7 @@ export default function NouvelleDemandeExpressPage() {
                 className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
               >
                 <option value="">Sélectionnez un type</option>
-                <option value="electricite">⚡ Électricité</option>
+                <option value="electricite">💡 Électricité</option>
                 <option value="plomberie">🔧 Plomberie</option>
                 <option value="menuiserie">🪵 Menuiserie</option>
                 <option value="peinture">🎨 Peinture</option>

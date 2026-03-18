@@ -16,7 +16,7 @@ export default function PetitsTravauxPage() {
     },
     {
       id: 'electricite',
-      icon: '⚡',
+      icon: '💡',
       title: 'Électricité',
       color: 'bg-yellow-50 hover:bg-yellow-100 border-yellow-200',
       exemples: ['Installer prise/interrupteur', 'Changer ampoule difficile', 'Réparer disjoncteur', 'Remplacer va-et-vient']

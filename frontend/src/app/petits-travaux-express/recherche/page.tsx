@@ -76,7 +76,7 @@ export default function RechercheExpressPage() {
   const [ville, setVille] = useState('');
   const [codePostal, setCodePostal] = useState('');
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [urgence, setUrgence] = useState<'normal' | 'rapide' | 'urgent'>('urgent');
+  const [urgence, setUrgence] = useState<'immediat' | 'urgent'>('urgent');
   const [rayonMax, setRayonMax] = useState(20);
 
   // Recherche de villes
@@ -188,8 +188,7 @@ export default function RechercheExpressPage() {
 
       // Mapping urgence vers le format attendu par MatchingCriteria
       const urgenceMapping: Record<string, 'faible' | 'normale' | 'urgent'> = {
-        normal: 'normale',
-        rapide: 'normale',
+        immediat: 'urgent',
         urgent: 'urgent',
       };
 
@@ -332,7 +331,7 @@ export default function RechercheExpressPage() {
                 className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
               >
                 <option value="">Sélectionnez un type de travaux</option>
-                <option value="electricite">⚡ Électricité</option>
+                <option value="electricite">💡 Électricité</option>
                 <option value="plomberie">🔧 Plomberie</option>
                 <option value="menuiserie">🪵 Menuiserie</option>
                 <option value="peinture">🎨 Peinture &amp; Décoration</option>
@@ -465,9 +464,8 @@ export default function RechercheExpressPage() {
                   onChange={(e) => setUrgence(e.target.value as any)}
                   className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
                 >
-                  <option value="normal">Normal (sous 5-7 jours)</option>
-                  <option value="rapide">Rapide (sous 3 jours)</option>
-                  <option value="urgent">🚨 Urgent (sous 48h)</option>
+                  <option value="immediat">⚡ Immédiat (2 heures)</option>
+                  <option value="urgent">🚨 Urgent (sous 24h)</option>
                 </select>
               </div>
             </div>
