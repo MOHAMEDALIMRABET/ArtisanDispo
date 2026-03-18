@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
@@ -88,6 +88,7 @@ export default function RechercheExpressPage() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [showPublishModal, setShowPublishModal] = useState(false);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -208,6 +209,12 @@ export default function RechercheExpressPage() {
       });
 
       setResults(matchResults);
+      // Auto-scroll vers les résultats sur mobile
+      setTimeout(() => {
+        if (window.innerWidth < 768) {
+          resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
     } catch (error) {
       console.error('Erreur matching:', error);
       alert(t('alerts.validation.searchError'));
@@ -314,7 +321,8 @@ export default function RechercheExpressPage() {
 
       {/* Formulaire de recherche */}
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
+        <div className={searched ? 'md:flex md:gap-6 md:items-start' : 'max-w-4xl mx-auto'}>
+          <div className={searched ? 'md:w-96 md:flex-shrink-0 md:sticky md:top-6' : ''}>
           <form onSubmit={handleSearch} className="bg-white rounded-xl shadow-lg p-6 md:p-8 space-y-6">
             {/* Type de travaux */}
             <div>
@@ -333,7 +341,7 @@ export default function RechercheExpressPage() {
                 <option value="">Sélectionnez un type de travaux</option>
                 <option value="electricite">💡 Électricité</option>
                 <option value="plomberie">🔧 Plomberie</option>
-                <option value="menuiserie">🪵 Menuiserie</option>
+                <option value="menuiserie">🔨 Menuiserie</option>
                 <option value="peinture">🎨 Peinture &amp; Décoration</option>
                 <option value="serrurerie">🔐 Serrurerie</option>
                 <option value="exterieur-jardin">🌳 Extérieur &amp; Jardin</option>
@@ -498,11 +506,19 @@ export default function RechercheExpressPage() {
               {loading ? '🔍 Recherche en cours...' : '🔍 Rechercher des artisans'}
             </Button>
           </form>
+          </div>
 
           {/* Résultats */}
-          {searched && !loading && (
-            <div className="mt-8">
-              {results.length > 0 ? (
+          {searched && (
+            <div ref={resultsRef} className={searched ? 'flex-1 mt-8 md:mt-0' : 'mt-8'}>
+              {loading ? (
+                <div className="bg-white rounded-xl shadow-lg p-10 flex flex-col items-center justify-center gap-4">
+                  <div className="w-12 h-12 border-4 border-[#FF6B00] border-t-transparent rounded-full animate-spin" />
+                  <p className="text-[#2C3E50] font-semibold text-lg">Recherche en cours...</p>
+                  <p className="text-[#6C757D] text-sm">Nous cherchons les artisans disponibles près de vous</p>
+                </div>
+              ) : (
+              results.length > 0 ? (
                 <>
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold text-[#2C3E50]">
@@ -662,6 +678,7 @@ export default function RechercheExpressPage() {
                     Publier ma demande
                   </Button>
                 </div>
+              )
               )}
             </div>
           )}
