@@ -544,8 +544,6 @@ export default function RechercheExpressPage() {
                           <div className="flex-1">
                             <a
                               href={`/artisan/${result.artisanId}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
                               className="text-xl font-bold text-[#2C3E50] hover:text-[#FF6B00] transition-colors mb-2 inline-block"
                             >
                               {result.artisan.raisonSociale}
@@ -573,8 +571,6 @@ export default function RechercheExpressPage() {
                               {result.artisan.notation > 0 ? (
                                 <a
                                   href={`/artisan/${result.artisanId}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
                                   className="flex items-center gap-2 hover:text-[#FF6B00] transition-colors group"
                                 >
                                   <svg className="w-5 h-5 flex-shrink-0" fill="#FFC107" stroke="#2C3E50" strokeWidth="1" viewBox="0 0 20 20">
@@ -590,8 +586,6 @@ export default function RechercheExpressPage() {
                               ) : (
                                 <a
                                   href={`/artisan/${result.artisanId}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
                                   className="flex items-center gap-1 text-[#6C757D] hover:text-[#FF6B00] transition-colors"
                                 >
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
