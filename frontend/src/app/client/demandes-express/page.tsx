@@ -383,7 +383,11 @@ export default function MesDemandesExpressPage() {
                         {demande.statut === 'en_attente_proposition' && (
                           <div className="flex items-center gap-3 bg-yellow-50 border border-yellow-200 rounded-xl p-4">
                             <span className="text-2xl">⏳</span>
-                            <p className="text-sm text-yellow-800 font-medium">Votre demande est en ligne. Un artisan va bientôt vous faire une proposition.</p>
+                            {demande.artisanId ? (
+                              <p className="text-sm text-yellow-800 font-medium">Votre demande a été envoyée directement à l&apos;artisan. En attente de sa proposition de prix.</p>
+                            ) : (
+                              <p className="text-sm text-yellow-800 font-medium">Votre demande est en ligne. Un artisan va bientôt vous faire une proposition.</p>
+                            )}
                           </div>
                         )}
 

@@ -336,9 +336,11 @@ export default function DemandeExpressDetailClientPage() {
               <div className="flex items-start gap-4">
                 <div className="text-3xl">⏳</div>
                 <div>
-                  <h3 className="text-lg font-bold text-[#2C3E50] mb-1">En attente d'une proposition</h3>
+                  <h3 className="text-lg font-bold text-[#2C3E50] mb-1">En attente d&apos;une proposition</h3>
                   <p className="text-[#6C757D] text-sm">
-                    Votre demande est visible par les artisans qualifiés de votre zone. Un artisan va bientôt vous soumettre son offre.
+                    {demande.artisanId
+                      ? "Votre demande a été envoyée directement à l'artisan. En attente de sa proposition de prix."
+                      : "Votre demande est visible par les artisans qualifiés de votre zone. Un artisan va bientôt vous soumettre son offre."}
                   </p>
                   {demande.expiresAt && (
                     <p className="mt-2 text-sm text-orange-600 font-medium">
