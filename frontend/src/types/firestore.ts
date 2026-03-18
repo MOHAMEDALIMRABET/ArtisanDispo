@@ -961,7 +961,7 @@ export interface DemandeExpress {
   
   // Planning
   date: string; // ISO date
-  urgence: 'normal' | 'rapide' | 'urgent';
+  urgence: 'immediat' | 'urgent';
   
   // Statut
   statut: DemandeExpressStatut;

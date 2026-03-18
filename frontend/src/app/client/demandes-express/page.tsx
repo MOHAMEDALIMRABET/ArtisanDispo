@@ -173,13 +173,12 @@ export default function MesDemandesExpressPage() {
     );
   };
 
-  const getUrgenceBadge = (urgence: 'normal' | 'rapide' | 'urgent') => {
+  const getUrgenceBadge = (urgence: 'immediat' | 'urgent') => {
     const config: Record<string, { cls: string; label: string }> = {
-      normal: { cls: 'bg-gray-100 text-gray-700',    label: '🕐 Normal (5-7 jours)' },
-      rapide: { cls: 'bg-orange-100 text-orange-700', label: '⚡ Rapide (3 jours)' },
-      urgent: { cls: 'bg-red-100 text-red-700',      label: '🚨 Urgent (48h)' },
+      immediat: { cls: 'bg-orange-100 text-orange-700', label: '⚡ Immédiat (2h)' },
+      urgent:   { cls: 'bg-red-100 text-red-700',       label: '🚨 Urgent (24h)' },
     };
-    const { cls, label } = config[urgence] ?? config.normal;
+    const { cls, label } = config[urgence] ?? config.urgent;
     return (
       <span className={`px-2 py-1 rounded text-xs font-semibold ${cls}`}>{label}</span>
     );
@@ -358,7 +357,7 @@ export default function MesDemandesExpressPage() {
                         {t('clientExpressRequests.card.expires')} {format(demande.expiresAt.toDate(), 'dd MMMM à HH:mm', { locale: fr })}
                       </span>
                       <span className="text-orange-400 text-xs">
-                        ({demande.urgence === 'normal' ? '7 jours' : demande.urgence === 'rapide' ? '3 jours' : '48h'} après la création)
+                        ({demande.urgence === 'immediat' ? '2h' : '24h'} après la création)
                       </span>
                     </div>
                   )}

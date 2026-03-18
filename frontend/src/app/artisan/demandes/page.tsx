@@ -1607,12 +1607,10 @@ export default function ArtisanDemandesPage() {
                           <span className="text-sm text-gray-500">• {demande.sousCategorie}</span>
                         )}
                         <span className={`ml-2 px-2 py-1 rounded-full text-xs font-bold ${
-                          demande.urgence === 'urgent' ? 'bg-red-100 text-red-700' :
-                          demande.urgence === 'rapide' ? 'bg-orange-100 text-orange-700' :
-                          'bg-gray-100 text-gray-600'
+                          demande.urgence === 'immediat' ? 'bg-orange-100 text-orange-700' :
+                          'bg-red-100 text-red-700'
                         }`}>
-                          {demande.urgence === 'urgent' ? '🔴 Urgent' :
-                           demande.urgence === 'rapide' ? '🟠 Rapide' : '🟢 Normal'}
+                          {demande.urgence === 'immediat' ? '⚡ Immédiat (2h)' : '🚨 Urgent (24h)'}
                         </span>
                         <span className={`ml-auto mr-2 px-3 py-1 rounded-full text-xs font-bold ${
                           demande.statut === 'en_attente_proposition' ? 'bg-yellow-100 text-yellow-700' :

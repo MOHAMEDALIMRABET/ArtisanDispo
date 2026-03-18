@@ -71,7 +71,7 @@ export default function NouvelleDemandeExpressPage() {
   const [description, setDescription] = useState('');
   const [budgetPropose, setBudgetPropose] = useState('');
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [urgence, setUrgence] = useState<'normal' | 'rapide' | 'urgent'>('urgent');
+  const [urgence, setUrgence] = useState<'immediat' | 'urgent'>('urgent');
   const [ville, setVille] = useState(villeParam);
   const [codePostal, setCodePostal] = useState(codePostalParam);
   const [loading, setLoading] = useState(false);
@@ -141,14 +141,14 @@ export default function NouvelleDemandeExpressPage() {
 
       const demandeId = await createDemandeExpress({
         clientId: firebaseUser.uid,
-        artisanId: artisanId || null,
+        artisanId: artisanId ? artisanId : undefined,
         categorie,
         sousCategorie: sousCategorie,  // '' est valide pour Firestore
         description,
         budgetPropose: budget,
         ville,
         codePostal,
-        coordonneesGPS: coordinates,
+        coordonneesGPS: coordinates !== null ? coordinates : undefined,
         date,
         urgence,
         typeProjet: 'express',
@@ -350,9 +350,8 @@ export default function NouvelleDemandeExpressPage() {
                   onChange={(e) => setUrgence(e.target.value as any)}
                   className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
                 >
-                  <option value="normal">Normal (5-7 jours)</option>
-                  <option value="rapide">Rapide (3 jours)</option>
-                  <option value="urgent">🚨 Urgent (48h)</option>
+                  <option value="immediat">⚡ Immédiat (2h)</option>
+                  <option value="urgent">🚨 Urgent (24h)</option>
                 </select>
               </div>
             </div>
