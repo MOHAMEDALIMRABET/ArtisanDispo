@@ -378,6 +378,7 @@ export default function RechercheExpressPage() {
                 <input
                   type="text"
                   value={ville}
+                  autoComplete="off"
                   onChange={(e) => {
                     setVille(e.target.value);
                     searchVilles(e.target.value);
