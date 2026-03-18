@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getArtisanById } from '@/lib/firebase/artisan-service';
 import { getAvisByArtisanId, calculateAverageRating } from '@/lib/firebase/avis-service';
@@ -11,6 +11,7 @@ import type { Artisan, Avis } from '@/types/firestore';
 
 export default function ArtisanPublicProfilePage() {
   const params = useParams();
+  const router = useRouter();
   const artisanId = params.id as string;
 
   const [artisan, setArtisan] = useState<Artisan | null>(null);
@@ -121,15 +122,15 @@ export default function ArtisanPublicProfilePage() {
       {/* Header */}
       <div className="bg-[#2C3E50] text-white py-8">
         <div className="container mx-auto px-4 max-w-4xl">
-          <Link
-            href="/petits-travaux-express/recherche"
+          <button
+            onClick={() => router.back()}
             className="inline-flex items-center gap-2 text-gray-300 hover:text-[#FF6B00] mb-4 transition-colors text-sm"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Retour aux résultats
-          </Link>
+          </button>
 
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
@@ -146,7 +147,7 @@ export default function ArtisanPublicProfilePage() {
               {artisan.metiers && artisan.metiers.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-3">
                   {artisan.metiers.map((m) => (
-                    <span key={m} className="bg-[#FF6B00] bg-opacity-20 text-[#FF6B00] border border-[#FF6B00] border-opacity-40 px-3 py-1 rounded-full text-sm font-medium">
+                    <span key={m} className="bg-[#FF6B00] text-white px-3 py-1 rounded-full text-sm font-medium">
                       {(METIERS_MAP as Record<string, string>)[m] || m}
                     </span>
                   ))}
