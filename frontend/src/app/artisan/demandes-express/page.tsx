@@ -145,7 +145,7 @@ export default function DemandesExpressArtisanPage() {
                           </span>
                           {demande.urgence === 'urgent' && (
                             <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">
-                              🚨 Urgent (6h)
+                              🚨 Urgent (24h)
                             </span>
                           )}
                           {demande.urgence === 'immediat' && (

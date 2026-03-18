@@ -10,6 +10,7 @@ import {
   getDoc,
   getDocs,
   updateDoc,
+  deleteDoc,
   doc,
   query,
   where,
@@ -18,6 +19,7 @@ import {
 } from 'firebase/firestore';
 import type {
   DemandeExpress,
+  DemandeExpressStatut,
   PropositionExpress,
   Categorie,
 } from '@/types/firestore';
@@ -52,6 +54,7 @@ export async function createDemandeExpress(
     if (obj === undefined) return null;
     if (obj === null || typeof obj !== 'object' || obj instanceof Date) return obj;
     if ('toDate' in obj) return obj; // Timestamp Firestore
+    if (Array.isArray(obj)) return obj.map(sanitizeForFirestore); // Préserver les tableaux
     return Object.fromEntries(
       Object.entries(obj).map(([k, v]) => [k, sanitizeForFirestore(v)])
     );
@@ -407,4 +410,46 @@ export async function cancelDemandeExpress(demandeId: string, userId: string): P
       lien: demande.clientId === userId ? `/artisan/demandes-express/${demandeId}` : `/client/demandes-express/${demandeId}`,
     });
   }
+}
+
+/**
+ * Mettre à jour le statut d'une demande express
+ */
+export async function updateDemandeExpressStatut(
+  demandeId: string,
+  statut: DemandeExpressStatut
+): Promise<void> {
+  await updateDoc(doc(db, 'demandes_express', demandeId), {
+    statut,
+    updatedAt: Timestamp.now(),
+  });
+}
+
+/**
+ * Supprimer définitivement une demande express (après expiration prolongée)
+ */
+export async function deleteDemandeExpress(demandeId: string): Promise<void> {
+  await deleteDoc(doc(db, 'demandes_express', demandeId));
+}
+
+/**
+ * Refuser une demande express côté artisan
+ */
+export async function refuserDemandeExpressParArtisan(demandeId: string, artisanId: string): Promise<void> {
+  const demande = await getDemandeExpressById(demandeId);
+  if (!demande) throw new Error('Demande introuvable');
+  if (demande.artisanId && demande.artisanId !== artisanId) throw new Error('Non autorisé');
+  if (demande.statut !== 'en_attente_proposition') throw new Error('Cette demande ne peut plus être refusée');
+
+  await updateDoc(doc(db, 'demandes_express', demandeId), {
+    statut: 'refusee_artisan',
+    updatedAt: Timestamp.now(),
+  });
+
+  await createNotification(demande.clientId, {
+    type: 'demande_refusee',
+    titre: 'Demande refusée',
+    message: 'Un artisan n\'est pas disponible pour votre demande express. Vous pouvez en contacter un autre.',
+    lien: `/client/demandes-express`,
+  });
 }

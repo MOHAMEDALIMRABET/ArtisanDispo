@@ -7,7 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { getUserById } from '@/lib/firebase/user-service';
 import { getArtisanById } from '@/lib/firebase/artisan-service';
 import { getDemandesForArtisan, getDemandesPubliquesForArtisan, removeArtisanFromDemande } from '@/lib/firebase/demande-service';
-import { getDemandesExpressByArtisan, getPropositionsByDemande } from '@/lib/firebase/demande-express-service';
+import { getDemandesExpressByArtisan, getPropositionsByDemande, refuserDemandeExpressParArtisan } from '@/lib/firebase/demande-express-service';
 import { getDevisByDemande, declarerDebutTravaux, declarerFinTravaux } from '@/lib/firebase/devis-service';
 import { createNotification } from '@/lib/firebase/notification-service';
 import { getFileMetadata } from '@/lib/firebase/storage-service';
@@ -16,6 +16,18 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { User, Demande, DemandeExpress, PropositionExpress } from '@/types/firestore';
 import type { Devis } from '@/types/devis';
+
+/** Normalise un champ photo : tableau natif OU objet-map legacy {0:url,1:url,...} */
+function normalizePhotoField(field: unknown): string[] {
+  if (!field) return [];
+  if (Array.isArray(field)) return field as string[];
+  if (typeof field === 'object') {
+    return Object.keys(field as Record<string, string>)
+      .sort((a, b) => Number(a) - Number(b))
+      .map(k => (field as Record<string, string>)[k]);
+  }
+  return [];
+}
 
 export default function ArtisanDemandesPage() {
   const router = useRouter();
@@ -27,6 +39,7 @@ export default function ArtisanDemandesPage() {
   const [demandes, setDemandes] = useState<Demande[]>([]);
   const [demandesPubliques, setDemandesPubliques] = useState<Demande[]>([]);
   const [demandesExpress, setDemandesExpress] = useState<DemandeExpress[]>([]);
+  const [refusingExpressId, setRefusingExpressId] = useState<string | null>(null);
   const [sectionActive, setSectionActive] = useState<'mes_demandes' | 'demandes_publiques' | 'demandes_express'>('mes_demandes');
   const [categoryActive, setCategoryActive] = useState<'classiques' | 'express' | null>(
     highlightedDemandeId ? 'classiques' : null
@@ -56,6 +69,13 @@ export default function ArtisanDemandesPage() {
       return stored ? new Set<string>(JSON.parse(stored)) : new Set<string>();
     } catch { return new Set<string>(); }
   });
+
+  // Horloge en temps réel — se met à jour chaque seconde
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     if (authLoading) return; // Attendre que l'auth soit chargée
@@ -261,7 +281,9 @@ export default function ArtisanDemandesPage() {
       // Charger les métadonnées des photos (noms originaux)
       const metadata = new Map<string, string>();
       for (const demande of demandesData) {
-        const photos = demande.photosUrls || demande.photos || [];
+        const photos = normalizePhotoField(demande.photosUrls).length > 0
+          ? normalizePhotoField(demande.photosUrls)
+          : normalizePhotoField(demande.photos);
         for (const url of photos) {
           if (url && url.startsWith('http')) {
             const meta = await getFileMetadata(url);
@@ -1124,6 +1146,35 @@ export default function ArtisanDemandesPage() {
                         </span>
                       );
                     })()}
+                    {/* Compte à rebours expiration en temps réel */}
+                    {demande.dateExpiration && !demandesAvecDevisPayeIds.has(demande.id) && (() => {
+                      const diffMs = demande.dateExpiration.toDate().getTime() - now;
+                      if (diffMs <= 0) return null;
+                      const totalSec = Math.floor(diffMs / 1000);
+                      const h = Math.floor(totalSec / 3600);
+                      const m = Math.floor((totalSec % 3600) / 60);
+                      const s = totalSec % 60;
+                      const isUrgent = diffMs < 60 * 60 * 1000;
+                      const minuteLabel = h > 0
+                        ? `${h}h ${String(m).padStart(2, '0')}min`
+                        : `${m}min`;
+                      const secLabel = h > 0
+                        ? `${h}h ${String(m).padStart(2, '0')}min ${String(s).padStart(2, '0')}s`
+                        : m > 0
+                        ? `${m}min ${String(s).padStart(2, '0')}s`
+                        : `${s}s`;
+                      const expiresDateStr = demande.dateExpiration.toDate().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                        + ' ' + demande.dateExpiration.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                      return (
+                        <div className={`flex flex-col items-end gap-0.5 px-3 py-1.5 rounded-lg border-2 ${
+                          isUrgent ? 'bg-red-50 border-red-400 text-red-700' : 'bg-orange-50 border-[#FF6B00] text-[#FF6B00]'
+                        }`}>
+                          <span className={`text-xs font-black ${isUrgent ? 'animate-pulse' : ''}`}>⏱️ Expire dans {minuteLabel}</span>
+                          <span className="text-[10px] font-bold opacity-80 tabular-nums">{secLabel}</span>
+                          <span className="text-[10px] font-normal opacity-60">Expire le {expiresDateStr}</span>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
 
@@ -1140,7 +1191,9 @@ export default function ArtisanDemandesPage() {
                 <>
                   {/* Photos jointes */}
                   {(() => {
-                  const photosList = demande.photosUrls || demande.photos || [];
+                  const photosList = normalizePhotoField(demande.photosUrls).length > 0
+                    ? normalizePhotoField(demande.photosUrls)
+                    : normalizePhotoField(demande.photos);
                   const validPhotos = photosList.filter((url: string) => url && url.startsWith('http'));
                   
                   if (validPhotos.length === 0) return null;
@@ -1273,23 +1326,46 @@ export default function ArtisanDemandesPage() {
                       </div>
                     </div>
 
-                    {/* Date d'expiration avec heure */}
+                    {/* Date d'expiration avec heure + compte à rebours en temps réel */}
                     {demande.dateExpiration ? (
                       <div className="flex items-start gap-2">
-                        <span className={`mt-0.5 ${isDemandeExpired(demande) ? 'text-red-500' : 'text-orange-500'}`}>⏳</span>
+                        <span className={`mt-0.5 ${isDemandeExpired(demande.dateExpiration) ? 'text-red-500' : 'text-orange-500'}`}>⏳</span>
                         <div>
                           <p className="font-semibold text-blue-900">Date / heure d'expiration</p>
-                          <p className={`${isDemandeExpired(demande) ? 'text-red-700 font-bold' : 'text-orange-700'}`}>
+                          <p className={`${isDemandeExpired(demande.dateExpiration) ? 'text-red-700 font-bold' : 'text-orange-700'}`}>
                             {demande.dateExpiration.toDate().toLocaleDateString(language === 'en' ? 'en-US' : 'fr-FR', {
                               weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
                             })}{' '}
                             à {demande.dateExpiration.toDate().toLocaleTimeString(language === 'en' ? 'en-US' : 'fr-FR', {
                               hour: '2-digit', minute: '2-digit'
                             })}
-                            {isDemandeExpired(demande) && (
+                            {isDemandeExpired(demande.dateExpiration) && (
                               <span className="ml-2 bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">Expirée</span>
                             )}
                           </p>
+                          {/* Compte à rebours en secondes */}
+                          {!isDemandeExpired(demande.dateExpiration) && (() => {
+                            const diffMs = demande.dateExpiration!.toDate().getTime() - now;
+                            if (diffMs <= 0) return null;
+                            const totalSec = Math.floor(diffMs / 1000);
+                            const d = Math.floor(totalSec / 86400);
+                            const h = Math.floor((totalSec % 86400) / 3600);
+                            const m = Math.floor((totalSec % 3600) / 60);
+                            const s = totalSec % 60;
+                            const parts: string[] = [];
+                            if (d > 0) parts.push(`${d}j`);
+                            if (h > 0) parts.push(`${h}h`);
+                            parts.push(`${String(m).padStart(2, '0')}min`);
+                            parts.push(`${String(s).padStart(2, '0')}s`);
+                            const isUrgent = diffMs < 60 * 60 * 1000;
+                            return (
+                              <p className={`mt-1 text-sm font-black tabular-nums ${
+                                isUrgent ? 'text-red-600 animate-pulse' : 'text-[#FF6B00]'
+                              }`}>
+                                ⏱️ {parts.join(' ')}
+                              </p>
+                            );
+                          })()}
                         </div>
                       </div>
                     ) : (
@@ -1643,6 +1719,12 @@ export default function ArtisanDemandesPage() {
                 const isExpanded = expandedExpressIds.has(demande.id);
                 const propositions = expressPropositionsMap.get(demande.id) || [];
                 const maProposition = propositions.find(p => p.artisanId === authUser?.uid);
+                // Normalise photos : tableau ou objet-map {0:url,...} (bug historique sanitizeForFirestore)
+                const rawPhotos = (demande as any).photos;
+                const expressPhotos: string[] = !rawPhotos ? []
+                  : Array.isArray(rawPhotos) ? rawPhotos
+                  : typeof rawPhotos === 'object' ? Object.keys(rawPhotos).sort((a,b)=>Number(a)-Number(b)).map((k:string)=>rawPhotos[k])
+                  : [];
 
                 const toggleExpressCard = async (id: string) => {
                   const next = new Set(expandedExpressIds);
@@ -1700,7 +1782,7 @@ export default function ArtisanDemandesPage() {
                           demande.urgence === 'immediat' ? 'bg-orange-100 text-orange-700' :
                           'bg-red-100 text-red-700'
                         }`}>
-                          {demande.urgence === 'immediat' ? '⚡ Immédiat (2h)' : '🚨 Urgent (6h)'}
+                          {demande.urgence === 'immediat' ? '⚡ Immédiat (2h)' : '🚨 Urgent (24h)'}
                         </span>
                         <span className={`ml-auto mr-2 px-3 py-1 rounded-full text-xs font-bold ${
                           demande.statut === 'en_attente_proposition' ? 'bg-yellow-100 text-yellow-700' :
@@ -1728,9 +1810,86 @@ export default function ArtisanDemandesPage() {
                       </div>
                     </div>
 
-                    {/* Zone dépliée - proposition */}
+                    {/* Zone dépliée - détails complets + proposition */}
                     {isExpanded && (
-                      <div className="px-8 pb-6 border-t border-gray-100 pt-4">
+                      <div className="px-8 pb-6 border-t border-gray-100 pt-4 space-y-4">
+
+                        {/* Bandeau expiration */}
+                        {demande.expiresAt && (() => {
+                          const diff = demande.expiresAt.toDate().getTime() - Date.now();
+                          const isExpired = diff <= 0;
+                          const isUrgent = !isExpired && diff < 30 * 60 * 1000;
+                          const totalSec = Math.max(0, Math.floor(diff / 1000));
+                          const h = Math.floor(totalSec / 3600);
+                          const m = Math.floor((totalSec % 3600) / 60);
+                          const timeLabel = isExpired ? 'Expirée' : h > 0 ? `${h}h ${String(m).padStart(2,'0')}min` : `${m}min`;
+                          const expiresDateStr = demande.expiresAt.toDate().toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+                          return (
+                            <div className={`rounded-xl px-4 py-3 flex items-center justify-between border-2 ${
+                              isExpired ? 'bg-gray-100 border-gray-300 text-gray-500' :
+                              isUrgent ? 'bg-red-50 border-red-400 text-red-700' :
+                              'bg-orange-50 border-[#FF6B00] text-[#2C3E50]'
+                            }`}>
+                              <div className="flex items-center gap-2">
+                                <span>{isExpired ? '⏹️' : isUrgent ? '🔴' : '⏱️'}</span>
+                                <div>
+                                  <p className="text-xs opacity-70 uppercase tracking-wide font-semibold">
+                                    {isExpired ? 'Expirée' : 'Expire dans'}
+                                  </p>
+                                  <p className={`text-lg font-black ${isUrgent && !isExpired ? 'animate-pulse' : ''}`}>{timeLabel}</p>
+                                </div>
+                              </div>
+                              <div className="text-right text-xs">
+                                <p className="opacity-60">Expire le</p>
+                                <p className="font-semibold text-sm">{expiresDateStr}</p>
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {/* Grille de métadonnées */}
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                          <div className="bg-gray-50 rounded-lg p-3">
+                            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">🕐 Créée le</p>
+                            <p className="font-semibold text-[#2C3E50]">
+                              {demande.createdAt?.toDate().toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) ?? '—'}
+                            </p>
+                          </div>
+                          <div className="bg-gray-50 rounded-lg p-3">
+                            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">📅 Date souhaitée</p>
+                            <p className="font-semibold text-[#2C3E50]">{new Date(demande.date).toLocaleDateString('fr-FR')}</p>
+                          </div>
+                          <div className="bg-gray-50 rounded-lg p-3">
+                            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">📍 Localisation</p>
+                            <p className="font-semibold text-[#2C3E50]">{demande.ville} ({demande.codePostal})</p>
+                          </div>
+                          {demande.budgetPropose && (
+                            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                              <p className="text-xs text-orange-400 font-semibold uppercase tracking-wide mb-1">💰 Budget client</p>
+                              <p className="text-xl font-black text-[#FF6B00]">{demande.budgetPropose}€</p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Photos du chantier */}
+                        {expressPhotos.length > 0 && (
+                          <div>
+                            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-2">📷 Photos du chantier ({expressPhotos.length})</p>
+                            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                              {expressPhotos.map((url, idx) => (
+                                <a key={idx} href={url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
+                                  <img
+                                    src={url}
+                                    alt={`Photo ${idx + 1}`}
+                                    className="w-full h-24 object-cover rounded-lg border-2 border-[#E9ECEF] hover:border-[#FF6B00] transition-colors cursor-pointer"
+                                  />
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Proposition */}
                         {maProposition ? (
                           <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 space-y-3">
                             <h4 className="font-bold text-[#2C3E50]">✅ Votre proposition</h4>
@@ -1763,12 +1922,34 @@ export default function ArtisanDemandesPage() {
                         ) : demande.statut === 'en_attente_proposition' ? (
                           <div className="text-center py-4">
                             <p className="text-gray-500 text-sm mb-3">Vous n&apos;avez pas encore fait de proposition sur cette demande.</p>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); router.push(`/artisan/demandes-express/${demande.id}`); }}
-                              className="px-5 py-2.5 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] text-sm font-medium transition-all"
-                            >
-                              💬 Faire une proposition
-                            </button>
+                            <div className="flex gap-3 justify-center flex-wrap">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); router.push(`/artisan/demandes-express/${demande.id}`); }}
+                                className="px-5 py-2.5 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] text-sm font-medium transition-all"
+                              >
+                                💬 Faire une proposition
+                              </button>
+                              <button
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  if (!confirm('Confirmer le refus de cette demande ?')) return;
+                                  setRefusingExpressId(demande.id);
+                                  try {
+                                    await refuserDemandeExpressParArtisan(demande.id, authUser!.uid);
+                                    setDemandesExpress(prev => prev.filter(d => d.id !== demande.id));
+                                  } catch (err: unknown) {
+                                    const message = err instanceof Error ? err.message : 'Erreur lors du refus';
+                                    alert(message);
+                                  } finally {
+                                    setRefusingExpressId(null);
+                                  }
+                                }}
+                                disabled={refusingExpressId === demande.id}
+                                className="px-5 py-2.5 bg-white border-2 border-red-500 text-red-600 rounded-lg hover:bg-red-50 text-sm font-medium transition-all disabled:opacity-50"
+                              >
+                                {refusingExpressId === demande.id ? '⏳ Refus...' : '✕ Refuser'}
+                              </button>
+                            </div>
                           </div>
                         ) : (
                           <div className="text-center py-3">

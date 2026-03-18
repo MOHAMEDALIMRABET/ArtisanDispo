@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { 
@@ -14,6 +14,45 @@ import { getUserById } from '@/lib/firebase/user-service';
 import { useAuth } from '@/hooks/useAuth';
 import type { DemandeExpress, PropositionExpress, User } from '@/types/firestore';
 import { Button } from '@/components/ui/Button';
+import type { Timestamp } from 'firebase/firestore';
+
+/**
+ * Normalise le champ photos : accepte tableau OU objet-map {0:url,...} (bug historique sanitizeForFirestore).
+ * Retourne toujours un tableau de strings, ou undefined si absent.
+ */
+function normalizePhotos(photos: any): string[] | undefined {
+  if (!photos) return undefined;
+  if (Array.isArray(photos)) return photos.length > 0 ? photos : undefined;
+  // Objet {0: url, 1: url, ...} → tableau
+  const keys = Object.keys(photos);
+  if (keys.length === 0) return undefined;
+  return keys.sort((a, b) => Number(a) - Number(b)).map(k => photos[k]);
+}
+
+/** Formate un Timestamp Firestore en date + heure lisibles */
+function formatTimestamp(ts: Timestamp | undefined): string {
+  if (!ts) return '—';
+  const d = ts.toDate();
+  return d.toLocaleDateString('fr-FR', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  });
+}
+
+/** Calcule le temps restant avant expiration et retourne un objet { label, isExpired, isUrgent } */
+function getCountdown(expiresAt: Timestamp | undefined): { label: string; isExpired: boolean; isUrgent: boolean } {
+  if (!expiresAt) return { label: '—', isExpired: false, isUrgent: false };
+  const diff = expiresAt.toDate().getTime() - Date.now();
+  if (diff <= 0) return { label: 'Expirée', isExpired: true, isUrgent: false };
+  const totalSec = Math.floor(diff / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  const label = h > 0
+    ? `${h}h ${String(m).padStart(2, '0')}min`
+    : `${m}min ${String(s).padStart(2, '0')}s`;
+  return { label, isExpired: false, isUrgent: diff < 30 * 60 * 1000 };
+}
 
 export default function DemandeExpressDetailArtisanPage() {
   const router = useRouter();
@@ -26,11 +65,20 @@ export default function DemandeExpressDetailArtisanPage() {
   const [clientData, setClientData] = useState<User | null>(null);
   const [propositions, setPropositions] = useState<PropositionExpress[]>([]);
   const [loading, setLoading] = useState(true);
+  const [countdown, setCountdown] = useState<{ label: string; isExpired: boolean; isUrgent: boolean }>({ label: '—', isExpired: false, isUrgent: false });
+
+  // Mise à jour du chrono chaque seconde
+  useEffect(() => {
+    if (!demande?.expiresAt) return;
+    const tick = () => setCountdown(getCountdown(demande.expiresAt));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [demande?.expiresAt]);
 
   // Form state
   const [montantPropose, setMontantPropose] = useState('');
   const [description, setDescription] = useState('');
-  const [delaiIntervention, setDelaiIntervention] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -109,7 +157,6 @@ export default function DemandeExpressDetailArtisanPage() {
         clientId: demande.clientId,
         montantPropose: montant,
         description: description.trim(),
-        delaiIntervention: delaiIntervention || undefined,
       });
 
       alert('✅ Proposition envoyée avec succès !');
@@ -199,6 +246,34 @@ export default function DemandeExpressDetailArtisanPage() {
       {/* Contenu */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-6">
+
+          {/* Bandeau expiration */}
+          {demande.expiresAt && (
+            <div className={`rounded-xl px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-2 ${
+              countdown.isExpired
+                ? 'bg-gray-100 border-gray-300 text-gray-600'
+                : countdown.isUrgent
+                ? 'bg-red-50 border-red-400 text-red-800'
+                : 'bg-orange-50 border-[#FF6B00] text-[#2C3E50]'
+            }`}>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{countdown.isExpired ? '⏹️' : countdown.isUrgent ? '🔴' : '⏱️'}</span>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide opacity-70">
+                    {countdown.isExpired ? 'Demande expirée' : 'Temps restant avant expiration'}
+                  </p>
+                  <p className={`text-2xl font-black ${countdown.isUrgent && !countdown.isExpired ? 'animate-pulse' : ''}`}>
+                    {countdown.label}
+                  </p>
+                </div>
+              </div>
+              <div className="text-sm">
+                <p className="opacity-70">Expire le</p>
+                <p className="font-semibold">{formatTimestamp(demande.expiresAt)}</p>
+              </div>
+            </div>
+          )}
+
           {/* Infos demande */}
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="flex items-center justify-between mb-4">
@@ -208,7 +283,7 @@ export default function DemandeExpressDetailArtisanPage() {
               </h2>
               {demande.urgence === 'urgent' && (
                 <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-semibold">
-                  🚨 Urgent (6h)
+                  🚨 Urgent (24h)
                 </span>
               )}
               {demande.urgence === 'immediat' && (
@@ -227,13 +302,13 @@ export default function DemandeExpressDetailArtisanPage() {
               </div>
 
               {/* Photos du chantier */}
-              {demande.photos && demande.photos.length > 0 && (
+              {(() => { const photosList = normalizePhotos(demande.photos); return photosList && (
                 <div>
                   <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                    📷 Photos du chantier
+                    📷 Photos du chantier ({photosList.length})
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {demande.photos.map((url, index) => (
+                    {photosList.map((url, index) => (
                       <a key={index} href={url} target="_blank" rel="noopener noreferrer">
                         <img
                           src={url}
@@ -244,7 +319,7 @@ export default function DemandeExpressDetailArtisanPage() {
                     ))}
                   </div>
                 </div>
-              )}
+              ); })()}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -256,10 +331,26 @@ export default function DemandeExpressDetailArtisanPage() {
 
                 <div>
                   <label className="block text-sm font-semibold text-[#2C3E50] mb-1">
-                    📅 Date souhaitée
+                    📅 Date souhaitée d'intervention
                   </label>
                   <p className="text-[#6C757D]">
                     {new Date(demande.date).toLocaleDateString('fr-FR')}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C3E50] mb-1">
+                    🕐 Date de création
+                  </label>
+                  <p className="text-[#6C757D]">{formatTimestamp(demande.createdAt)}</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C3E50] mb-1">
+                    ⏳ Date/heure d'expiration
+                  </label>
+                  <p className={`font-semibold ${countdown.isExpired ? 'text-gray-400' : countdown.isUrgent ? 'text-red-600' : 'text-[#FF6B00]'}`}>
+                    {formatTimestamp(demande.expiresAt)}
                   </p>
                 </div>
 
@@ -280,6 +371,15 @@ export default function DemandeExpressDetailArtisanPage() {
                     {clientData ? `${clientData.prenom} ${clientData.nom}` : 'Chargement...'}
                   </p>
                 </div>
+
+                {demande.adresse && (
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-[#2C3E50] mb-1">
+                      🏠 Adresse exacte (révélée après acceptation)
+                    </label>
+                    <p className="text-[#6C757D]">{demande.adresse}</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -374,20 +474,6 @@ export default function DemandeExpressDetailArtisanPage() {
                   <p className="text-sm text-[#6C757D] mt-1">
                     Soyez précis sur ce qui est inclus dans votre tarif
                   </p>
-                </div>
-
-                <div>
-                  <label htmlFor="delai" className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                    Délai d'intervention <span className="text-[#6C757D] font-normal">(optionnel)</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="delai"
-                    value={delaiIntervention}
-                    onChange={(e) => setDelaiIntervention(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:outline-none focus:border-[#FF6B00]"
-                    placeholder="Ex: Intervention sous 48h"
-                  />
                 </div>
 
                 <div className="bg-gray-50 border-2 border-gray-200 rounded-lg p-4">

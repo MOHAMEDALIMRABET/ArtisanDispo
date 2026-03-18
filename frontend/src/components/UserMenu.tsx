@@ -459,9 +459,9 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
                   )}
                 </button>
 
-                {/* Mes Demandes Clients */}
+                {/* Mes Demandes Clients (classiques + express fusionnées) */}
                 <button
-                  onClick={() => handleNavigationWithMarkRead('/artisan/demandes', ['nouvelle_demande', 'demande_refusee'])}
+                  onClick={() => handleNavigationWithMarkRead('/artisan/demandes', ['nouvelle_demande', 'demande_refusee', 'nouvelle_demande_express'])}
                   className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
                 >
                   <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -473,30 +473,9 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
                     />
                   </svg>
                   <span className="font-medium flex-1">{t('common.clientRequests')}</span>
-                  {notifDemandes > 0 && (
+                  {(notifDemandes + notifExpressDemandes + nouvellesDemandesCount) > 0 && (
                     <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
-                      {notifDemandes}
-                    </span>
-                  )}
-                </button>
-
-                {/* Demandes Express */}
-                <button
-                  onClick={() => handleNavigationWithMarkRead('/artisan/demandes-express', ['nouvelle_demande_express'])}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
-                >
-                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    />
-                  </svg>
-                  <span className="font-medium flex-1">Demandes Express</span>
-                  {notifExpressDemandes > 0 && (
-                    <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
-                      {notifExpressDemandes}
+                      {notifDemandes + notifExpressDemandes + nouvellesDemandesCount}
                     </span>
                   )}
                 </button>

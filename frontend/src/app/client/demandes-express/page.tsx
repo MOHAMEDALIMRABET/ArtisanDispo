@@ -11,6 +11,8 @@ import {
   acceptPropositionExpress,
   refusePropositionExpress,
   sendContrePropositionExpress,
+  updateDemandeExpressStatut,
+  deleteDemandeExpress,
 } from '@/lib/firebase/demande-express-service';
 import { getUserById } from '@/lib/firebase/user-service';
 import { Card } from '@/components/ui/Card';
@@ -142,7 +144,36 @@ export default function MesDemandesExpressPage() {
       }
 
       const demandesList = await getDemandesExpressByClient(firebaseUser.uid);
-      setDemandes(demandesList);
+
+      const nowMs = Date.now();
+      const oneDayMs = 24 * 60 * 60 * 1000;
+
+      // Demandes expirées ou refusées depuis > 24h → suppression définitive
+      const toDelete = demandesList.filter((d) => {
+        if (d.statut === 'expiree' && d.expiresAt && d.expiresAt.toDate().getTime() < nowMs - oneDayMs) return true;
+        if (d.statut === 'refusee_artisan' && d.updatedAt && d.updatedAt.toDate().getTime() < nowMs - oneDayMs) return true;
+        return false;
+      });
+      await Promise.all(toDelete.map((d) => deleteDemandeExpress(d.id)));
+
+      // Demandes en attente dont la date d'expiration est passée → marquer 'expiree'
+      const toExpire = demandesList.filter(
+        (d) =>
+          d.statut === 'en_attente_proposition' &&
+          d.expiresAt &&
+          d.expiresAt.toDate().getTime() < nowMs
+      );
+      await Promise.all(toExpire.map((d) => updateDemandeExpressStatut(d.id, 'expiree')));
+
+      const updatedList = demandesList
+        .filter((d) => !toDelete.some((td) => td.id === d.id))
+        .map((d) =>
+          toExpire.some((te) => te.id === d.id)
+            ? { ...d, statut: 'expiree' as DemandeExpressStatut }
+            : d
+        );
+
+      setDemandes(updatedList);
     } catch (error) {
       console.error('Erreur chargement demandes:', error);
     } finally {
@@ -150,8 +181,13 @@ export default function MesDemandesExpressPage() {
     }
   }
 
+  const isExpireeOuRefusee = (statut: DemandeExpressStatut) => statut === 'expiree' || statut === 'refusee_artisan';
+  const demandesExpirees = demandes.filter((d) => isExpireeOuRefusee(d.statut));
+  const demandesActives = demandes.filter((d) => !isExpireeOuRefusee(d.statut));
+
   const demandesFiltrees = demandes.filter((d) => {
-    if (filtreStatut === 'toutes') return true;
+    if (filtreStatut === 'toutes') return !isExpireeOuRefusee(d.statut);
+    if (filtreStatut === 'expiree') return isExpireeOuRefusee(d.statut);
     return d.statut === filtreStatut;
   });
 
@@ -165,6 +201,7 @@ export default function MesDemandesExpressPage() {
       terminee: 'bg-green-200 text-green-900',
       annulee: 'bg-red-100 text-red-800',
       expiree: 'bg-gray-200 text-gray-700',
+      refusee_artisan: 'bg-orange-100 text-orange-800',
     };
     const className = classes[statut] || 'bg-gray-100 text-gray-800';
     return (
@@ -177,7 +214,7 @@ export default function MesDemandesExpressPage() {
   const getUrgenceBadge = (urgence: 'immediat' | 'urgent') => {
     const config: Record<string, { cls: string; label: string }> = {
       immediat: { cls: 'bg-orange-100 text-orange-700', label: '⚡ Immédiat (2h)' },
-      urgent:   { cls: 'bg-red-100 text-red-700',       label: '🚨 Urgent (6h)' },
+      urgent:   { cls: 'bg-red-100 text-red-700',       label: '🚨 Urgent (24h)' },
     };
     const { cls, label } = config[urgence] ?? config.urgent;
     return (
@@ -259,7 +296,7 @@ export default function MesDemandesExpressPage() {
                 : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
             }`}
           >
-            {t('clientExpressRequests.filters.all')} ({demandes.length})
+            {t('clientExpressRequests.filters.all')} ({demandesActives.length})
           </button>
           <button
             onClick={() => setFiltreStatut('en_attente_proposition')}
@@ -301,6 +338,18 @@ export default function MesDemandesExpressPage() {
           >
             {t('clientExpressRequests.filters.completed')} ({demandes.filter(d => d.statut === 'terminee').length})
           </button>
+          {demandesExpirees.length > 0 && (
+            <button
+              onClick={() => setFiltreStatut('expiree')}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                filtreStatut === 'expiree'
+                  ? 'bg-gray-600 text-white'
+                  : 'bg-white text-gray-500 hover:bg-[#F5F7FA]'
+              }`}
+            >
+              🚫 Refusées/Expirées ({demandesExpirees.length})
+            </button>
+          )}
         </div>
 
         {/* Liste des demandes */}

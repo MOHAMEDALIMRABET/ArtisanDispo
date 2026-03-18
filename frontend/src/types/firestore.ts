@@ -930,7 +930,8 @@ export type DemandeExpressStatut =
   | 'en_cours'                // Artisan sur place
   | 'terminee'                // Intervention terminée
   | 'annulee'                 // Annulée par client/artisan
-  | 'expiree';                // Pas de réponse sous 48h
+  | 'expiree'                 // Pas de réponse sous 48h
+  | 'refusee_artisan';        // Refusée par l'artisan
 
 /**
  * Demande de travaux express (< 150€)
