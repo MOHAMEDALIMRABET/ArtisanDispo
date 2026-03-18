@@ -362,11 +362,11 @@ export default function ClientDevisPage() {
             <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'tous' ? 'text-white' : 'text-gray-600'}`}>
               📋 {t('quotes.all')}
             </div>
-            {devisAvecNotifNonLues.size > 0 && (
+            {devisNotifsInitialIds.size > 0 && (
               <span className={`mt-1 text-xs font-bold px-2 py-0.5 rounded-full ${
                 filter === 'tous' ? 'bg-white text-[#FF6B00]' : 'bg-[#FF6B00] text-white'
               }`}>
-                🔔 {devisAvecNotifNonLues.size}
+                🔔 {devisNotifsInitialIds.size}
               </span>
             )}
           </button>
@@ -402,6 +402,11 @@ export default function ClientDevisPage() {
             <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'en_revision' ? 'text-white' : 'text-gray-600'}`}>
               🔄 En révision
             </div>
+            {devis.some(d => devisNotifsInitialIds.has(d.id) && d.statut === 'en_revision') && (
+              <span className={`mt-1 text-xs font-bold px-2 py-0.5 rounded-full ${
+                filter === 'en_revision' ? 'bg-white text-purple-600' : 'bg-purple-500 text-white'
+              }`}>🔔</span>
+            )}
           </button>
 
           <button
@@ -434,6 +439,11 @@ export default function ClientDevisPage() {
             <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'payes' ? 'text-white' : 'text-gray-600'}`}>
               💰 {t('quotes.paidPlural')}
             </div>
+            {devis.some(d => devisNotifsInitialIds.has(d.id) && isDevisPaye(d.statut)) && (
+              <span className={`mt-1 text-xs font-bold px-2 py-0.5 rounded-full ${
+                filter === 'payes' ? 'bg-white text-green-600' : 'bg-green-500 text-white'
+              }`}>🔔</span>
+            )}
           </button>
 
           <button
