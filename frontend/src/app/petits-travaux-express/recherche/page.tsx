@@ -88,10 +88,14 @@ export default function RechercheExpressPage() {
   const [villeSuggestions, setVilleSuggestions] = useState<VilleSuggestion[]>([]);
   const [activeField, setActiveField] = useState<'ville' | 'codePostal' | null>(null);
 
+  // Si des paramètres de recherche sont déjà dans l'URL (retour depuis profil artisan),
+  // on démarre directement en mode "recherche en cours" pour éviter le flash du formulaire vide.
+  const hasSearchParams = !!(categorieParam && villeParam && codePostalParam);
+
   // Résultats
   const [results, setResults] = useState<MatchingResult[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(false);
+  const [loading, setLoading] = useState(hasSearchParams);
+  const [searched, setSearched] = useState(hasSearchParams);
   const [showPublishModal, setShowPublishModal] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
   const hasAutoSearched = useRef(false);
