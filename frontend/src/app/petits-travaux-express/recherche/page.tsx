@@ -416,35 +416,13 @@ export default function RechercheExpressPage() {
                 <input
                   type="text"
                   value={codePostal}
-                  onChange={(e) => {
-                    setCodePostal(e.target.value);
-                    searchVilles(e.target.value);
-                  }}
-                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                  autoComplete="off"
+                  onChange={(e) => setCodePostal(e.target.value)}
                   required
                   placeholder="Ex: 75001"
                   pattern="[0-9]{5}"
                   className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
                 />
-
-                {/* Suggestions depuis le champ code postal */}
-                {showSuggestions && villeSuggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border-2 border-[#E9ECEF] rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                    {villeSuggestions.map((suggestion, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        onClick={() => selectVille(suggestion)}
-                        className="w-full text-left px-4 py-2 hover:bg-[#F5F7FA] transition-colors"
-                      >
-                        <div className="font-semibold text-[#2C3E50]">{suggestion.nom}</div>
-                        <div className="text-sm text-[#6C757D]">
-                          {suggestion.codePostal} • Dép. {suggestion.departement}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
             </div>
 
