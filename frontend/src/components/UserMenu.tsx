@@ -226,61 +226,6 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
             </div>
           </div>
 
-          {/* Notifications récentes */}
-          {totalNotifications > 0 && (
-            <div className="max-h-64 overflow-y-auto border-b border-gray-200">
-              <div className="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                📬 Notifications ({totalNotifications})
-              </div>
-              {notifications
-                .filter(n => !n.lue)
-                .slice(0, 5)
-                .map((notif) => {
-                  const isDevisNotif = notif.type === 'devis_accepte' || notif.type === 'devis_refuse' || notif.type === 'devis_revision';
-                  return (
-                    <button
-                      key={notif.id}
-                      onClick={() => {
-                        if (notif.lien) {
-                          handleNavigation(notif.lien);
-                        }
-                      }}
-                      className={`w-full px-4 py-3 text-left hover:bg-orange-50 transition border-l-4 ${
-                        isDevisNotif ? 'border-l-[#FF6B00] bg-orange-25' : 'border-l-blue-500 bg-blue-25'
-                      }`}
-                    >
-                      <div className="flex items-start gap-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 truncate">
-                            {notif.titre}
-                          </p>
-                          <p className="text-xs text-gray-600 mt-1 line-clamp-2">
-                            {notif.message}
-                          </p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            {notif.dateCreation?.toDate().toLocaleDateString('fr-FR', {
-                              day: '2-digit',
-                              month: 'short',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </p>
-                        </div>
-                        <svg className="w-4 h-4 text-[#FF6B00] flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </div>
-                    </button>
-                  );
-                })}
-              {totalNotifications > 5 && (
-                <div className="px-4 py-2 text-center text-xs text-gray-500">
-                  +{totalNotifications - 5} notification(s) de plus
-                </div>
-              )}
-            </div>
-          )}
-
           {/* Menu items */}
           <div className="py-2">
             {/* Tableau de bord */}
