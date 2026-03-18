@@ -1250,6 +1250,96 @@ export default function ArtisanDemandesPage() {
                     )}
                   </div>
 
+                {/* Informations complémentaires : dates, budget, sous-catégorie */}
+                <div className="mb-6 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <p className="text-sm font-bold text-blue-900 mb-3 flex items-center gap-2">
+                    <span>ℹ️</span>
+                    Informations de la demande
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    {/* Date de création avec heure */}
+                    <div className="flex items-start gap-2">
+                      <span className="text-blue-600 mt-0.5">🕐</span>
+                      <div>
+                        <p className="font-semibold text-blue-900">Date / heure de création</p>
+                        <p className="text-blue-800">
+                          {demande.dateCreation?.toDate().toLocaleDateString(language === 'en' ? 'en-US' : 'fr-FR', {
+                            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                          })}{' '}
+                          à {demande.dateCreation?.toDate().toLocaleTimeString(language === 'en' ? 'en-US' : 'fr-FR', {
+                            hour: '2-digit', minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Date d'expiration avec heure */}
+                    {demande.dateExpiration ? (
+                      <div className="flex items-start gap-2">
+                        <span className={`mt-0.5 ${isDemandeExpired(demande) ? 'text-red-500' : 'text-orange-500'}`}>⏳</span>
+                        <div>
+                          <p className="font-semibold text-blue-900">Date / heure d'expiration</p>
+                          <p className={`${isDemandeExpired(demande) ? 'text-red-700 font-bold' : 'text-orange-700'}`}>
+                            {demande.dateExpiration.toDate().toLocaleDateString(language === 'en' ? 'en-US' : 'fr-FR', {
+                              weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                            })}{' '}
+                            à {demande.dateExpiration.toDate().toLocaleTimeString(language === 'en' ? 'en-US' : 'fr-FR', {
+                              hour: '2-digit', minute: '2-digit'
+                            })}
+                            {isDemandeExpired(demande) && (
+                              <span className="ml-2 bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">Expirée</span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-start gap-2">
+                        <span className="text-gray-400 mt-0.5">⏳</span>
+                        <div>
+                          <p className="font-semibold text-blue-900">Date / heure d'expiration</p>
+                          <p className="text-gray-500 italic">Non définie</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Budget indicatif */}
+                    {demande.budgetIndicatif && demande.budgetIndicatif > 0 ? (
+                      <div className="flex items-start gap-2">
+                        <span className="text-green-600 mt-0.5">💶</span>
+                        <div>
+                          <p className="font-semibold text-blue-900">Budget indicatif</p>
+                          <p className="text-green-700 font-bold">{demande.budgetIndicatif.toLocaleString('fr-FR')} €</p>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {/* Sous-catégorie */}
+                    {demande.sousCategorie && (
+                      <div className="flex items-start gap-2">
+                        <span className="text-purple-600 mt-0.5">🔖</span>
+                        <div>
+                          <p className="font-semibold text-blue-900">Sous-catégorie</p>
+                          <p className="text-purple-700 capitalize">{demande.sousCategorie.replace(/-/g, ' ')}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Type de demande */}
+                    <div className="flex items-start gap-2">
+                      <span className="text-gray-500 mt-0.5">📂</span>
+                      <div>
+                        <p className="font-semibold text-blue-900">Type</p>
+                        <p className="text-gray-700">
+                          {demande.type === 'publique' ? '📢 Publique' : '🎯 Directe'}
+                          {demande.typeProjet === 'express' && (
+                            <span className="ml-2 bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-full">⚡ Express</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Badge Demande urgente */}
                 {demande.urgence && (
                   <div className="mb-6 bg-red-50 p-4 rounded-lg border-2 border-red-300">
