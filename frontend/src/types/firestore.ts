@@ -101,6 +101,10 @@ export type NotificationType =
   | 'proposition_refusee'        // ✅ Proposition refusée
   | 'contre_proposition_recue'   // ✅ Contre-proposition reçue du client
   | 'contrat_signe'
+  | 'travaux_demarres'            // ✅ Artisan a démarré les travaux
+  | 'travaux_termines'            // ✅ Artisan a déclaré la fin des travaux
+  | 'travaux_valides'             // ✅ Client a validé les travaux
+  | 'validation_auto'             // ✅ Validation automatique après 7 jours
   | 'paiement' 
   | 'paiement_libere'
   | 'paiement_recu_express'      // ✅ Paiement reçu pour travaux express
@@ -108,6 +112,7 @@ export type NotificationType =
   | 'message'                    // Gardé pour compatibilité
   | 'avis'
   | 'nouvel_avis'
+  | 'reponse_avis'
   | 'litige'
   | 'litige_ouvert'              // ✅ Nouveau litige déclaré
   | 'litige_commentaire'         // ✅ Nouveau commentaire sur litige

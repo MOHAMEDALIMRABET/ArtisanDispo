@@ -20,12 +20,13 @@ import {
   notifyArtisanDevisRefuse, 
   notifyArtisanDevisRevision 
 } from '@/lib/firebase/notification-service';
+import { resendVerificationEmail } from '@/lib/auth-service';
 import { 
   validerTravaux, 
   signalerLitige 
 } from '@/lib/firebase/devis-service';
 import { recordPaiementClient } from '@/lib/firebase/wallet-service';
-import { getAvisByContratId } from '@/lib/firebase/avis-service';
+import { getAvisByContratId, createAvis } from '@/lib/firebase/avis-service';
 import { Logo } from '@/components/ui';
 import type { Devis } from '@/types/devis';
 import type { Demande } from '@/types/firestore';
@@ -102,6 +103,15 @@ function masquerAdresse(adresse: string, shouldMask: boolean = true): string {
   return '*'.repeat(adresse.length);
 }
 
+const AVIS_POINTS_FORTS = [
+  'Ponctuel', 'Soigneux', 'Professionnel', 'Rapide',
+  'Bon rapport qualité/prix', 'À l\'écoute', 'Travail de qualité',
+];
+const AVIS_POINTS_AMELIORATION = [
+  'Délais trop longs', 'Communication insuffisante', 'Propreté du chantier',
+  'Prix élevé', 'Manque de professionnalisme',
+];
+
 export default function ClientDevisDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -125,6 +135,16 @@ export default function ClientDevisDetailPage() {
   const [litigeEnCours, setLitigeEnCours] = useState(false);
   const [avisExiste, setAvisExiste] = useState(false);
   const [checkingAvis, setCheckingAvis] = useState(false);
+  const [emailResent, setEmailResent] = useState(false);
+
+  // Popup avis post-validation
+  const [showAvisPopup, setShowAvisPopup] = useState(false);
+  const [avisNote, setAvisNote] = useState(0);
+  const [avisNoteHover, setAvisNoteHover] = useState(0);
+  const [avisCommentaire, setAvisCommentaire] = useState('');
+  const [avisPointsForts, setAvisPointsForts] = useState<string[]>([]);
+  const [avisPointsAmelioration, setAvisPointsAmelioration] = useState<string[]>([]);
+  const [avisSubmitting, setAvisSubmitting] = useState(false);
 
   const devisId = params.id as string;
   const action = searchParams.get('action');
@@ -148,7 +168,13 @@ export default function ClientDevisDetailPage() {
       const url = new URL(window.location.href);
       url.searchParams.delete('action');
       window.history.replaceState({}, '', url.toString());
-      
+
+      // Bloquer si email non vérifié
+      if (!user?.emailVerified) {
+        alert('⚠️ Vous devez valider votre adresse email avant de pouvoir signer un devis.\n\nVeuillez cliquer sur le lien de validation envoyé dans votre boîte mail, puis rafraîchir cette page.');
+        return;
+      }
+
       handleAccepter();
     } else if (action === 'refuser' && devis.statut === 'envoye') {
       // Retirer le paramètre action de l'URL pour éviter la boucle
@@ -275,6 +301,12 @@ export default function ClientDevisDetailPage() {
   const handleAccepter = async () => {
     if (!devis || processing) return;
 
+    // Bloquer si l'email n'est pas vérifié
+    if (!user?.emailVerified) {
+      alert('⚠️ Vous devez valider votre adresse email avant de pouvoir signer un devis.\n\nVeuillez cliquer sur le lien de validation envoyé dans votre boîte mail, puis rafraîchir cette page.');
+      return;
+    }
+
     // Ouvrir la modale de signature électronique
     setShowSignatureModal(true);
   };
@@ -368,14 +400,7 @@ export default function ClientDevisDetailPage() {
         }
       }
 
-      // 5. Notifier l'artisan (une seule fois, à la première signature)
-      try {
-        const clientNom = `${devis.client.prenom} ${devis.client.nom}`;
-        await notifyArtisanDevisAccepte(devis.artisanId, devisId, clientNom, devis.numeroDevis);
-        console.log('✅ Artisan notifié de l\'acceptation');
-      } catch (error) {
-        console.error('Erreur notification artisan:', error);
-      }
+      // 5. Notification artisan envoyée uniquement après confirmation du paiement (voir handlePaymentSuccess)
 
       // 6. Recharger le devis (pour avoir dateLimitePaiement dans l'état) puis ouvrir le paiement
       await loadDevis();
@@ -665,14 +690,41 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
       //   headers: { 'Content-Type': 'application/json' },
       //   body: JSON.stringify({ contratId: devis.id, validePar: 'client' })
       // });
-      
-      alert(t('alerts.work.validatedSuccess'));
-      await loadDevis(); // Recharger le devis
+
+      await loadDevis();
+      // Ouvrir le popup d'avis directement
+      setShowAvisPopup(true);
     } catch (error: any) {
       console.error('Erreur validation:', error);
       alert(`❌ Erreur : ${error.message || 'Impossible de valider les travaux'}`);
     } finally {
       setValidationEnCours(false);
+    }
+  };
+
+  const handleSubmitAvis = async () => {
+    if (!devis || !user) return;
+    if (avisNote === 0) { alert('Veuillez sélectionner une note.'); return; }
+    if (avisCommentaire.trim().length < 10) { alert('Le commentaire doit contenir au moins 10 caractères.'); return; }
+
+    try {
+      setAvisSubmitting(true);
+      await createAvis({
+        contratId: devis.id!,
+        artisanId: devis.artisanId,
+        clientId: user.uid,
+        note: avisNote,
+        commentaire: avisCommentaire.trim(),
+        points_forts: avisPointsForts,
+        points_amelioration: avisPointsAmelioration,
+      });
+      setShowAvisPopup(false);
+      setAvisExiste(true);
+      alert('⭐ Merci pour votre avis ! Il a été publié avec succès.');
+    } catch (error: any) {
+      alert(error.message || 'Erreur lors de la publication de l\'avis.');
+    } finally {
+      setAvisSubmitting(false);
     }
   };
 
@@ -947,21 +999,54 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                   <p className="text-gray-700 text-sm mb-4">
                     Vous devez accepter ou refuser ce devis avant le {devis.dateValidite?.toDate().toLocaleDateString('fr-FR')}.
                   </p>
-                  <div className="flex gap-3">
+                  <div className="flex flex-wrap gap-3">
                     <button
                       onClick={handleAccepter}
-                      disabled={processing}
-                      className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition disabled:bg-gray-400"
+                      disabled={processing || !user?.emailVerified}
+                      title={!user?.emailVerified ? 'Validez votre email pour accepter ce devis' : undefined}
+                      className={`px-6 py-2 rounded-lg transition ${
+                        user?.emailVerified
+                          ? 'bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-400'
+                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      }`}
                     >
                       {processing ? 'Traitement...' : '✅ Accepter ce devis'}
                     </button>
                     <button
                       onClick={() => setShowRefusalModal(true)}
-                      disabled={processing}
-                      className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition disabled:bg-gray-400"
+                      disabled={processing || !user?.emailVerified}
+                      title={!user?.emailVerified ? 'Validez votre email pour refuser ce devis' : undefined}
+                      className={`px-6 py-2 rounded-lg transition ${
+                        user?.emailVerified
+                          ? 'bg-red-600 text-white hover:bg-red-700 disabled:bg-gray-400'
+                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      }`}
                     >
                       ❌ Refuser ce devis
                     </button>
+                    {!user?.emailVerified && (
+                      <span className="flex items-center gap-2 text-sm text-red-600 font-medium bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                        🔒 Email non validé —{' '}
+                        {emailResent ? (
+                          <span className="text-green-600 font-semibold">✅ Email envoyé ! Vérifiez votre boîte mail.</span>
+                        ) : (
+                          <button
+                            onClick={async () => {
+                              try {
+                                await resendVerificationEmail();
+                                setEmailResent(true);
+                                setTimeout(() => setEmailResent(false), 30000);
+                              } catch {
+                                alert('Erreur lors de l\'envoi. Réessayez dans quelques secondes.');
+                              }
+                            }}
+                            className="underline hover:text-red-800 cursor-pointer font-semibold"
+                          >
+                            Renvoyer l\'email de validation
+                          </button>
+                        )}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1466,7 +1551,14 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-3xl">🎉</span>
                 <div>
-                  <h3 className="text-lg font-bold text-green-800">Travaux validés</h3>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-lg font-bold text-green-800">Travaux validés</h3>
+                    {!checkingAvis && avisExiste && (
+                      <span className="inline-flex items-center gap-1 bg-yellow-50 border border-yellow-300 text-yellow-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+                        ⭐ Avis publié
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-green-700">
                     {devis.statut === 'termine_valide' 
                       ? `Validé par vous le ${devis.travaux?.dateValidationClient?.toDate().toLocaleDateString('fr-FR', {
@@ -1501,19 +1593,21 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
 
                 {/* Bouton donner un avis */}
                 {!checkingAvis && !avisExiste && (
-                  <Link href={`/client/avis/nouveau/${devis.id}`}>
-                    <button className="w-full bg-[#FF6B00] hover:bg-[#E56100] text-white px-6 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2">
-                      <span className="text-xl">⭐</span>
-                      Donner mon avis maintenant
-                    </button>
-                  </Link>
+                  <button
+                    onClick={() => setShowAvisPopup(true)}
+                    className="w-full bg-[#FF6B00] hover:bg-[#E56100] text-white px-6 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2"
+                  >
+                    <span className="text-xl">⭐</span>
+                    Donner mon avis maintenant
+                  </button>
                 )}
 
                 {/* Message si avis déjà donné */}
                 {!checkingAvis && avisExiste && (
-                  <div className="p-3 bg-green-100 rounded border border-green-300">
-                    <p className="text-sm text-green-800 text-center">
-                      ✅ Vous avez déjà donné votre avis pour cette intervention
+                  <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-300 flex items-center justify-center gap-2">
+                    <span className="text-lg">⭐</span>
+                    <p className="text-sm font-semibold text-yellow-700">
+                      Votre avis a été publié — merci pour votre retour !
                     </p>
                   </div>
                 )}
@@ -1816,6 +1910,156 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 {litigeEnCours ? 'Envoi...' : 'Envoyer le signalement'}
+              </button>
+            </div>
+          </div>
+        </div>
+)}
+
+      {/* ===== POPUP AVIS POST-VALIDATION ===== */}
+      {showAvisPopup && devis && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg my-4">
+            {/* Header */}
+            <div className="bg-[#2C3E50] text-white rounded-t-2xl px-6 py-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold">⭐ Donner un avis</h2>
+                  <p className="text-sm text-gray-300 mt-0.5">
+                    Partagez votre expérience avec{' '}
+                    <span className="text-[#FF6B00] font-semibold">
+                      {devis.artisan?.raisonSociale}
+                    </span>
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowAvisPopup(false)}
+                  className="text-gray-300 hover:text-white text-2xl leading-none"
+                  title="Plus tard"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            <div className="px-6 py-5 space-y-5 max-h-[75vh] overflow-y-auto">
+              {/* Note étoiles */}
+              <div>
+                <label className="block text-sm font-semibold text-[#2C3E50] mb-3">
+                  Note globale <span className="text-red-500">*</span>
+                </label>
+                <div className="flex gap-2 justify-center">
+                  {[1,2,3,4,5].map(star => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setAvisNote(star)}
+                      onMouseEnter={() => setAvisNoteHover(star)}
+                      onMouseLeave={() => setAvisNoteHover(0)}
+                      className="transition-transform hover:scale-110"
+                    >
+                      <svg
+                        className={`w-10 h-10 ${
+                          star <= (avisNoteHover || avisNote)
+                            ? 'text-yellow-400 fill-current'
+                            : 'text-gray-300'
+                        }`}
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                    </button>
+                  ))}
+                  {avisNote > 0 && (
+                    <span className="ml-2 text-2xl font-bold text-[#FF6B00] self-center">
+                      {avisNote}/5
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Commentaire */}
+              <div>
+                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                  Votre commentaire <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={avisCommentaire}
+                  onChange={e => setAvisCommentaire(e.target.value)}
+                  placeholder="Décrivez votre expérience (minimum 10 caractères)..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00] resize-none text-sm"
+                  rows={4}
+                />
+                <p className="text-xs text-gray-400 mt-1 text-right">{avisCommentaire.length}/500</p>
+              </div>
+
+              {/* Points forts */}
+              <div>
+                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                  Points forts <span className="text-gray-400 font-normal">(optionnel)</span>
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {AVIS_POINTS_FORTS.map(point => (
+                    <button
+                      key={point}
+                      type="button"
+                      onClick={() => setAvisPointsForts(prev =>
+                        prev.includes(point) ? prev.filter(p => p !== point) : [...prev, point]
+                      )}
+                      className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
+                        avisPointsForts.includes(point)
+                          ? 'bg-green-50 border-green-500 text-green-700'
+                          : 'border-gray-300 text-gray-600 hover:border-green-400'
+                      }`}
+                    >
+                      {avisPointsForts.includes(point) && '✓ '}{point}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Points à améliorer */}
+              <div>
+                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                  Points à améliorer <span className="text-gray-400 font-normal">(optionnel)</span>
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {AVIS_POINTS_AMELIORATION.map(point => (
+                    <button
+                      key={point}
+                      type="button"
+                      onClick={() => setAvisPointsAmelioration(prev =>
+                        prev.includes(point) ? prev.filter(p => p !== point) : [...prev, point]
+                      )}
+                      className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
+                        avisPointsAmelioration.includes(point)
+                          ? 'bg-orange-50 border-orange-500 text-orange-700'
+                          : 'border-gray-300 text-gray-600 hover:border-orange-400'
+                      }`}
+                    >
+                      {avisPointsAmelioration.includes(point) && '⚠ '}{point}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer boutons */}
+            <div className="px-6 py-4 border-t border-gray-200 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowAvisPopup(false)}
+                className="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-600 rounded-lg font-medium hover:bg-gray-50 transition text-sm"
+              >
+                Plus tard
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmitAvis}
+                disabled={avisSubmitting || avisNote === 0 || avisCommentaire.trim().length < 10}
+                className="flex-1 px-4 py-2.5 bg-[#FF6B00] text-white rounded-lg font-semibold hover:bg-[#E56100] disabled:bg-gray-300 disabled:cursor-not-allowed transition text-sm"
+              >
+                {avisSubmitting ? 'Publication...' : '⭐ Publier mon avis'}
               </button>
             </div>
           </div>

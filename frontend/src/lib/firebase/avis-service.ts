@@ -21,6 +21,7 @@ import type { Avis } from '@/types/firestore';
 import type { Devis } from '@/types/devis';
 import { updateNotation } from './artisan-service';
 import { updateNoteGlobale } from './artisan-stats-service';
+import { createNotification } from './notification-service';
 
 /**
  * Créer un nouvel avis après fin d'intervention
@@ -85,6 +86,19 @@ export async function createAvis(data: {
     }
 
     console.log('✅ Avis créé avec succès:', avisRef.id);
+
+    // Notifier l'artisan qu'il a reçu un nouvel avis
+    try {
+      await createNotification(data.artisanId, {
+        type: 'nouvel_avis',
+        titre: '⭐ Nouvel avis reçu',
+        message: `Un client vous a laissé un avis ${data.note}/5 étoiles.`,
+        lien: `/artisan/avis`,
+      });
+    } catch (notifError) {
+      console.warn('⚠️ Notification avis artisan échouée (non bloquant):', notifError);
+    }
+
     return avisRef.id;
   } catch (error) {
     console.error('❌ Erreur création avis:', error);
@@ -229,10 +243,22 @@ export async function addReponseArtisan(
     // Ajouter la réponse
     await updateDoc(doc(db, 'avis', avisId), {
       reponseArtisan: {
-        texte: reponse.trim(),
+        contenu: reponse.trim(),
         date: serverTimestamp(),
       },
     });
+
+    // Notifier le client de la réponse de l'artisan
+    try {
+      await createNotification(avis.clientId, {
+        type: 'reponse_avis',
+        titre: '💬 L\'artisan a répondu à votre avis',
+        message: `L'artisan a publié une réponse à votre commentaire.`,
+        lien: `/client/avis`,
+      });
+    } catch (notifError) {
+      console.warn('⚠️ Notification réponse avis client échouée (non bloquant):', notifError);
+    }
 
     console.log('✅ Réponse artisan ajoutée avec succès');
   } catch (error) {

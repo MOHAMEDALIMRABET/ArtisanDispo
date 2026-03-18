@@ -27,6 +27,7 @@ import {
   where,
   orderBy,
   limit,
+  increment,
   Timestamp
 } from 'firebase/firestore';
 import { db } from './config';
@@ -131,20 +132,24 @@ export async function recordPaiementClient(
   devisNumero?: string
 ): Promise<WalletTransaction> {
   const walletRef = doc(db, 'wallets', artisanId);
-  const wallet = await getWalletByArtisanId(artisanId);
-  
-  if (!wallet) {
-    throw new Error('Wallet introuvable');
-  }
-  
-  // Mettre à jour le wallet : montant en attente (séquestre)
-  await updateDoc(walletRef, {
-    soldeEnAttente: wallet.soldeEnAttente + montant,
-    soldeTotal: wallet.soldeTotal + montant,
+
+  // setDoc avec merge=true : crée le wallet si inexistant, sinon incrémente
+  // Evite toute lecture préalable (pas de permission read pour le client)
+  await setDoc(walletRef, {
+    artisanId,
+    soldeEnAttente: increment(montant),
+    soldeTotal: increment(montant),
+    // Champs initiaux si document créé pour la première fois
+    soldeDisponible: increment(0),
+    totalEncaisse: increment(0),
+    totalRetire: increment(0),
+    totalCommission: increment(0),
+    stripeOnboardingStatus: 'not_started',
+    ibanVerified: false,
     updatedAt: Timestamp.now(),
-    lastTransaction: Timestamp.now()
-  });
-  
+    lastTransaction: Timestamp.now(),
+  }, { merge: true });
+
   // Créer la transaction
   const transactionData: Omit<WalletTransaction, 'id'> = {
     artisanId,

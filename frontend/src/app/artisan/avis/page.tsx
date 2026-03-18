@@ -18,6 +18,7 @@ export default function AvisArtisanPage() {
   const [avis, setAvis] = useState<Avis[]>([]);
   const [avisFiltres, setAvisFiltres] = useState<Avis[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [clientsNoms, setClientsNoms] = useState<Record<string, string>>({});
   const [stats, setStats] = useState({ moyenne: 0, total: 0 });
   const [reponseEnCours, setReponseEnCours] = useState<string | null>(null);
   const [reponseTexte, setReponseTexte] = useState('');
@@ -67,6 +68,21 @@ export default function AvisArtisanPage() {
       // Calculer statistiques
       const statsData = await calculateAverageRating(artisanData.userId);
       setStats(statsData);
+
+      // Charger les noms des clients
+      const clientIdsUniques = [...new Set(avisData.map(a => a.clientId))];
+      const nomsMap: Record<string, string> = {};
+      await Promise.all(
+        clientIdsUniques.map(async (clientId) => {
+          try {
+            const clientUser = await getUserById(clientId);
+            if (clientUser) {
+              nomsMap[clientId] = `${clientUser.prenom} ${clientUser.nom}`.trim();
+            }
+          } catch {}
+        })
+      );
+      setClientsNoms(nomsMap);
 
       setIsLoading(false);
     } catch (error) {
@@ -339,12 +355,16 @@ export default function AvisArtisanPage() {
                 <div className="flex items-start gap-4 mb-4">
                   {/* Avatar */}
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF6B00] to-[#E56100] flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-semibold text-lg">CL</span>
+                    <span className="text-white font-semibold text-lg">
+                      {(clientsNoms[avisItem.clientId] || 'CL').substring(0, 2).toUpperCase()}
+                    </span>
                   </div>
 
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-[#2C3E50]">{t('artisanReviews.review.client')}</span>
+                      <span className="font-semibold text-[#2C3E50]">
+                        {clientsNoms[avisItem.clientId] || t('artisanReviews.review.client')}
+                      </span>
                       <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-medium">
                         <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />

@@ -484,15 +484,18 @@ service cloud.firestore {
     // ============================================
     // Portefeuilles artisans (revenus, paiements Stripe)
     // Lecture par propriétaire ou admin
-    // Écriture uniquement par backend/admin (Stripe webhooks)
+    // Mise à jour soldeEnAttente : client autorisé lors d'un paiement (simulation)
     
     match /wallets/{walletId} {
       allow read: if isAdmin() ||
                      (isAuthenticated() && request.auth.uid == walletId);
-      allow create: if isAdmin();
+      allow create: if isAdmin() ||
+                     isAuthenticated(); // Client peut créer wallet artisan lors du paiement
       // Artisan peut mettre à jour son propre wallet (réservation solde pour virement manuel)
+      // Client peut mettre à jour soldeEnAttente lors du paiement
       allow update: if isAdmin() ||
-                     (isAuthenticated() && request.auth.uid == walletId && isArtisan());
+                     (isAuthenticated() && request.auth.uid == walletId && isArtisan()) ||
+                     isAuthenticated(); // Client autorisé lors du paiement
       allow delete: if isAdmin(); // Suppression cascade compte
     }
     
@@ -508,9 +511,11 @@ service cloud.firestore {
                      (isAuthenticated() && isOwner(resource.data.artisanId));
       allow list: if isAdmin() ||
                      (isAuthenticated() && request.auth.uid != null);
-      // Artisan peut créer ses propres transactions et annuler les siennes (pending)
+      // Artisan peut créer ses propres transactions
+      // Client peut créer une transaction de séquestre lors du paiement
       allow create: if isAdmin() ||
-                     (isAuthenticated() && isArtisan() && request.auth.uid == request.resource.data.artisanId);
+                     (isAuthenticated() && isArtisan() && request.auth.uid == request.resource.data.artisanId) ||
+                     isAuthenticated(); // Client autorisé lors du paiement
       allow update: if isAdmin() ||
                      (isAuthenticated() && isArtisan() && request.auth.uid == resource.data.artisanId
                        && resource.data.statut == 'pending');

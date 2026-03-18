@@ -16,6 +16,8 @@ import type { Demande } from '@/types/firestore';
 import Link from 'next/link';
 import { annulerDevisParClient } from '@/lib/firebase/devis-service';
 import { getAvisByContratId } from '@/lib/firebase/avis-service';
+import { markNotificationsByLienAsRead } from '@/lib/firebase/notification-service';
+import { resendVerificationEmail } from '@/lib/auth-service';
 
 // Helper: Devis considérés comme "acceptés" (en attente de paiement)
 const isDevisAccepte = (statut: string) => statut === 'en_attente_paiement';
@@ -32,9 +34,11 @@ export default function ClientDevisPage() {
   const [devis, setDevis] = useState<Devis[]>([]);
   const [demandes, setDemandes] = useState<Map<string, Demande>>(new Map());
   const [loading, setLoading] = useState(true);
+  const [emailResent, setEmailResent] = useState(false);
   const [filter, setFilter] = useState<'tous' | 'en_attente' | 'acceptes' | 'payes' | 'refuses'>('en_attente');
   const [avisParDevisId, setAvisParDevisId] = useState<Record<string, boolean>>({});
   const [sousFiltrePayes, setSousFiltrePayes] = useState<'tout' | 'paye' | 'en_cours' | 'travaux_termines' | 'valides' | 'litige'>('tout');
+  const [devisAvecNotifNonLues, setDevisAvecNotifNonLues] = useState<Set<string>>(new Set());
 
   // Réinitialiser le sous-filtre quand on quitte la section "Payés"
   useEffect(() => {
@@ -149,11 +153,43 @@ export default function ClientDevisPage() {
         })
       );
       setAvisParDevisId(avisMap);
+
+      // Charger les notifications non lues liées à un devis spécifique
+      const notifsQ = query(
+        collection(db, 'notifications'),
+        where('userId', '==', user.uid),
+        where('lue', '==', false)
+      );
+      const notifsSnap = await getDocs(notifsQ);
+      const nonLuesIds = new Set<string>();
+      notifsSnap.docs.forEach(notifDoc => {
+        const data = notifDoc.data();
+        if (data.lien && typeof data.lien === 'string') {
+          const match = data.lien.match(/^\/client\/devis\/([^?/]+)/);
+          if (match) nonLuesIds.add(match[1]);
+        }
+      });
+      setDevisAvecNotifNonLues(nonLuesIds);
     } catch (error) {
       console.error('Erreur chargement devis:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Navigation vers le détail d'un devis + marquage notifications comme lues
+  const naviguerVersDevis = async (devisId: string, queryString?: string) => {
+    if (devisAvecNotifNonLues.has(devisId) && user) {
+      try {
+        await markNotificationsByLienAsRead(user.uid, `/client/devis/${devisId}`);
+        setDevisAvecNotifNonLues(prev => {
+          const next = new Set(prev);
+          next.delete(devisId);
+          return next;
+        });
+      } catch (e) { /* non bloquant */ }
+    }
+    router.push(`/client/devis/${devisId}${queryString ? `?${queryString}` : ''}`);
   };
 
   const handleAnnulerDevis = async (devisId: string, numeroDevis: string, montantTTC: number, nomArtisan: string) => {
@@ -309,6 +345,13 @@ export default function ClientDevisPage() {
             <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'tous' ? 'text-white' : 'text-gray-600'}`}>
               📋 {t('quotes.all')}
             </div>
+            {devisAvecNotifNonLues.size > 0 && (
+              <span className={`mt-1 text-xs font-bold px-2 py-0.5 rounded-full ${
+                filter === 'tous' ? 'bg-white text-[#FF6B00]' : 'bg-[#FF6B00] text-white'
+              }`}>
+                🔔 {devisAvecNotifNonLues.size} nouveau{devisAvecNotifNonLues.size > 1 ? 'x' : ''}
+              </span>
+            )}
           </button>
 
           <button
@@ -483,11 +526,21 @@ export default function ClientDevisPage() {
                 <div key={d.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
+                      <div className="flex items-center gap-3 mb-2 flex-wrap">
                         <h3 className="text-xl font-bold text-[#2C3E50]">
                           {d.titre}
                         </h3>
                         {getStatutBadge(d.statut)}
+                        {['termine_valide', 'termine_auto_valide'].includes(d.statut) && avisParDevisId[d.id] && (
+                          <span className="inline-flex items-center gap-1 bg-yellow-50 border border-yellow-300 text-yellow-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+                            ⭐ Avis publié
+                          </span>
+                        )}
+                        {devisAvecNotifNonLues.has(d.id) && (
+                          <span className="inline-flex items-center gap-1 bg-[#FF6B00] text-white text-xs font-bold px-2.5 py-1 rounded-full animate-pulse">
+                            🔔 Nouveau
+                          </span>
+                        )}
                       </div>
                       {demande && (
                         <p className="text-sm text-gray-600 mb-2">
@@ -531,40 +584,84 @@ export default function ClientDevisPage() {
                   </div>
 
                   {/* Boutons d'action */}
-                  <div className="flex gap-3 pt-4 border-t">
+                  <div className="pt-4 border-t">
                     {/* Devis envoyé : Voir détail + Accepter + Refuser */}
                     {d.statut === 'envoye' && (
                       <>
-                        <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            const targetUrl = `/client/devis/${d.id}?returnFilter=${filter}`;
-                            console.log('🔗 Navigation vers:', targetUrl);
-                            router.push(targetUrl);
-                          }}
-                          className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
-                        >
-                          📄 {t('quotes.viewDetails')}
+                        <div className="flex gap-3">
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              naviguerVersDevis(d.id, `returnFilter=${filter}`);
+                            }}
+                            className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
+                          >
+                            📄 {t('quotes.viewDetails')}
+                          </div>
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (!user?.emailVerified) return;
+                              naviguerVersDevis(d.id, `action=accepter&returnFilter=${filter}`);
+                            }}
+                            title={!user?.emailVerified ? 'Validez votre email pour accepter ce devis' : undefined}
+                            className={`flex-1 px-4 py-2 rounded-lg transition text-center font-medium ${
+                              user?.emailVerified
+                                ? 'bg-green-600 text-white hover:bg-green-700 cursor-pointer'
+                                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            }`}
+                          >
+                            ✅ {t('quotes.accept')}
+                          </div>
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (!user?.emailVerified) return;
+                              router.push(`/client/devis/${d.id}?action=refuser&returnFilter=${filter}`);
+                            }}
+                            title={!user?.emailVerified ? 'Validez votre email pour refuser ce devis' : undefined}
+                            className={`flex-1 px-4 py-2 rounded-lg transition text-center font-medium ${
+                              user?.emailVerified
+                                ? 'bg-red-600 text-white hover:bg-red-700 cursor-pointer'
+                                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            }`}
+                          >
+                            ❌ {t('quotes.refuse')}
+                          </div>
+                          {devisAvecNotifNonLues.has(d.id) && (
+                            <div
+                              onClick={(e) => { e.stopPropagation(); naviguerVersDevis(d.id, `returnFilter=${filter}`); }}
+                              className="w-full mt-2 text-center text-xs text-[#FF6B00] font-semibold cursor-pointer hover:underline"
+                            >
+                              🔔 Vous avez une notification — cliquez pour consulter
+                            </div>
+                          )}
                         </div>
-                        <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/client/devis/${d.id}?action=accepter&returnFilter=${filter}`);
-                          }}
-                          className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition text-center font-medium cursor-pointer"
-                        >
-                          ✅ {t('quotes.accept')}
-                        </div>
-                        <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/client/devis/${d.id}?action=refuser&returnFilter=${filter}`);
-                          }}
-                          className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-center font-medium cursor-pointer"
-                        >
-                          ❌ {t('quotes.refuse')}
-                        </div>
+                        {!user?.emailVerified && (
+                          <div className="mt-2 flex items-center gap-2 text-xs text-red-600 font-medium">
+                            🔒 Email non validé —{' '}
+                            {emailResent ? (
+                              <span className="text-green-600 font-semibold">✅ Email envoyé ! Vérifiez votre boîte mail.</span>
+                            ) : (
+                              <button
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  try {
+                                    await resendVerificationEmail();
+                                    setEmailResent(true);
+                                    setTimeout(() => setEmailResent(false), 30000);
+                                  } catch {
+                                    alert('Erreur lors de l\'envoi. Réessayez dans quelques secondes.');
+                                  }
+                                }}
+                                className="underline hover:text-red-800 cursor-pointer font-semibold"
+                              >
+                                Renvoyer l\'email de validation
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </>
                     )}
 
@@ -574,7 +671,7 @@ export default function ClientDevisPage() {
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.push(`/client/devis/${d.id}?action=payer&returnFilter=${filter}`);
+                            naviguerVersDevis(d.id, `action=payer&returnFilter=${filter}`);
                           }}
                           className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition font-medium"
                         >
@@ -593,7 +690,7 @@ export default function ClientDevisPage() {
                         <div
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.push(`/client/devis/${d.id}?returnFilter=${filter}`);
+                            naviguerVersDevis(d.id, `returnFilter=${filter}`);
                           }}
                           className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
                         >
@@ -608,7 +705,7 @@ export default function ClientDevisPage() {
                         <div
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.push(`/client/devis/${d.id}?action=contester&returnFilter=${filter}`);
+                            naviguerVersDevis(d.id, `action=contester&returnFilter=${filter}`);
                           }}
                           className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-center font-medium cursor-pointer"
                         >
@@ -617,7 +714,7 @@ export default function ClientDevisPage() {
                         <div
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.push(`/client/devis/${d.id}?returnFilter=${filter}`);
+                            naviguerVersDevis(d.id, `returnFilter=${filter}`);
                           }}
                           className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
                         >
@@ -632,7 +729,7 @@ export default function ClientDevisPage() {
                         <div
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.push(`/client/devis/${d.id}?action=valider&returnFilter=${filter}`);
+                            naviguerVersDevis(d.id, `action=valider&returnFilter=${filter}`);
                           }}
                           className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition text-center font-medium cursor-pointer"
                         >
@@ -641,7 +738,7 @@ export default function ClientDevisPage() {
                         <div
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.push(`/client/devis/${d.id}?action=contester&returnFilter=${filter}`);
+                            naviguerVersDevis(d.id, `action=contester&returnFilter=${filter}`);
                           }}
                           className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-center font-medium cursor-pointer"
                         >
@@ -650,7 +747,7 @@ export default function ClientDevisPage() {
                         <div
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.push(`/client/devis/${d.id}?returnFilter=${filter}`);
+                            naviguerVersDevis(d.id, `returnFilter=${filter}`);
                           }}
                           className="px-4 py-2 border-2 border-[#2C3E50] text-[#2C3E50] rounded-lg hover:bg-[#2C3E50] hover:text-white transition text-center font-medium cursor-pointer"
                         >
@@ -663,8 +760,8 @@ export default function ClientDevisPage() {
                     {['termine_valide', 'termine_auto_valide'].includes(d.statut) && (
                       <>
                         {avisParDevisId[d.id] ? (
-                          <div className="flex-1 bg-green-100 text-green-700 px-4 py-2 rounded-lg text-center font-medium border border-green-300 cursor-default">
-                            ✅ Avis donné
+                          <div className="flex items-center gap-1.5 bg-yellow-50 border border-yellow-300 text-yellow-700 px-3 py-1.5 rounded-full text-xs font-semibold cursor-default">
+                            ⭐ Avis publié
                           </div>
                         ) : (
                           <div
@@ -680,7 +777,7 @@ export default function ClientDevisPage() {
                         <div
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.push(`/client/devis/${d.id}?returnFilter=${filter}`);
+                            naviguerVersDevis(d.id, `returnFilter=${filter}`);
                           }}
                           className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
                         >
@@ -695,8 +792,7 @@ export default function ClientDevisPage() {
                         onClick={(e) => {
                           e.stopPropagation();
                           e.preventDefault();
-                          const targetUrl = `/client/devis/${d.id}?returnFilter=${filter}`;
-                          router.push(targetUrl);
+                          naviguerVersDevis(d.id, `returnFilter=${filter}`);
                         }}
                         className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
                       >

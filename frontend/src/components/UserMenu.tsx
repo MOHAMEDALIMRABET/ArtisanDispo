@@ -69,7 +69,30 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
           ).length;
         }
 
-        setNouvellesDemandesCount(nouvellesDirectes + nouvellesPubliques);
+        // Exclure les demandes déjà consultées (localStorage)
+        let vuesIds = new Set<string>();
+        try {
+          const stored = localStorage.getItem('artisan_demandes_vues');
+          if (stored) vuesIds = new Set<string>(JSON.parse(stored));
+        } catch {}
+
+        const totalDirectes = demandes
+          .filter(d => d.statut === 'publiee' && !vuesIds.has(d.id)).length;
+        const idsDirectes = new Set(demandes.map((d: { id: string }) => d.id));
+        const totalPubliques = nouvellesPubliques > 0
+          ? (await (async () => {
+              const artisanData2 = await getArtisanByUserId(user.uid);
+              if (!artisanData2?.zonesIntervention?.length) return 0;
+              const zone2 = artisanData2.zonesIntervention[0];
+              const dp = await getDemandesPubliquesForArtisan({
+                metiers: artisanData2.metiers,
+                location: { city: zone2.ville, coordinates: zone2.latitude && zone2.longitude ? { latitude: zone2.latitude, longitude: zone2.longitude } : undefined },
+              });
+              return dp.filter((d: { id: string; statut: string }) => d.statut === 'publiee' && !idsDirectes.has(d.id) && !vuesIds.has(d.id)).length;
+            })())
+          : 0;
+
+        setNouvellesDemandesCount(totalDirectes + totalPubliques);
       } catch (error) {
         console.error('Erreur chargement demandes:', error);
       }

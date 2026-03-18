@@ -122,6 +122,26 @@ export async function markNotificationsByTypeAsRead(
 }
 
 /**
+ * Marque toutes les notifications non lues d'un utilisateur pour un lien donné comme lues
+ * Utile pour marquer les notifications obsolètes (ex: travaux_demarres quand travaux_termines arrive)
+ */
+export async function markNotificationsByLienAsRead(userId: string, lien: string): Promise<void> {
+  const notificationsRef = collection(db, 'notifications');
+  const q = query(
+    notificationsRef,
+    where('userId', '==', userId),
+    where('lue', '==', false)
+  );
+
+  const snapshot = await getDocs(q);
+  const updates = snapshot.docs
+    .filter(doc => doc.data().lien === lien)
+    .map(doc => updateDoc(doc.ref, { lue: true }));
+
+  await Promise.all(updates);
+}
+
+/**
  * Compte le nombre de notifications non lues
  * @param userId ID de l'utilisateur
  * @returns Nombre de notifications non lues

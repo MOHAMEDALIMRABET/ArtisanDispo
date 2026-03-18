@@ -81,6 +81,9 @@ const BLOCKED_PATTERNS = {
     /\bmon[\s\-]?portable\b/gi,         // "mon portable" = téléphone
     /\bt[eéè]l[eéè]?[\s\-]?port[a]?ble\b/gi, // "téléphone portable"
     /\bnum[eéè]ro[\s\-]?mobile\b/gi,    // "numéro mobile"
+    // Attaque "dernier chiffre sept" / "premier chiffre six" etc.
+    /\b(dernier|premier|prochain|suivant|manquant)[\s\-]chiffre\b/gi,
+    /\bchiffre[\s\-]?(suivant|manquant|restant|final|de[\s\-]mon[\s\-]num[eé]ro)\b/gi,
     // NOTE: "portable" seul et "mobile" seul sont INTENTIONNELLEMENT absents
     // car trop présents dans les conversations artisans (PC portable, appli mobile)
   ],
@@ -334,7 +337,14 @@ function normalizeTruncatedNumberWords(text: string): string {
     // "quat" seul (sans "re" suivant) → "quatre" (backup si syllabe-joiner n'a pas agi)
     .replace(/\bquat\b/gi, 'quatre')
     // "quatr" tronqué
-    .replace(/\bquatr\b/gi, 'quatre');
+    .replace(/\bquatr\b/gi, 'quatre')
+    // ─ Fautes de transposition / mauvaise orthographe ─
+    .replace(/\bhuif\b/gi, 'huit')          // "huif" → "huit" (transposition i/f)
+    .replace(/\bnuef\b/gi, 'neuf')          // "nuef" variante
+    .replace(/\bsetp\b|\bsetp\b/gi, 'sept') // "setp" transposition
+    // ─ Variantes "qurante", "qurant" (quarante sans le 'a' initial) ─
+    .replace(/\bqur[ae]?nt[e]?\b/gi, 'quarante')
+    .replace(/\bqurant[e]?\b/gi, 'quarante');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -387,7 +397,27 @@ function reconstructSpacedNumberSyllables(text: string): string {
     .replace(/\btren\s+te\b/gi, 'trente')
     .replace(/\bquar\s+ante\b|\bquaran\s+te\b|\bqua\s+rante\b/gi, 'quarante')
     .replace(/\bcin\s+quante\b|\bcinquan\s+te\b/gi, 'cinquante')
-    .replace(/\bsoix\s+ante\b|\bsoixan\s+te\b/gi, 'soixante');
+    .replace(/\bsoix\s+ante\b|\bsoixan\s+te\b/gi, 'soixante')
+    // ─ Découpage après la 1ère consonne : "s ix", "s ept", "h uit", "n euf", "d eux"... ─
+    // Attaque non couverte par les patterns ci-dessus qui gèrent "si x" et "se pt" mais pas "s ix"
+    .replace(/\bs\s+ix\b/gi, 'six')
+    .replace(/\bs\s+ept\b/gi, 'sept')
+    .replace(/\bs\s+eize\b/gi, 'seize')
+    .replace(/\bs\s+oixante\b/gi, 'soixante')
+    .replace(/\bh\s+uit\b/gi, 'huit')
+    .replace(/\bn\s+euf\b/gi, 'neuf')
+    .replace(/\bc\s+inq\b/gi, 'cinq')
+    .replace(/\bc\s+inquante\b/gi, 'cinquante')
+    .replace(/\bd\s+eux\b/gi, 'deux')
+    .replace(/\bz\s+[e\u00e9]ro\b/gi, 'zéro')
+    .replace(/\bt\s+rois\b/gi, 'trois')
+    .replace(/\bt\s+rente\b/gi, 'trente')
+    .replace(/\bv\s+ingt\b/gi, 'vingt')
+    // ─ Découpage syllabique non standard : "tre nte", "qua tr", "qua ran te"... ─
+    .replace(/\btre\s+nte?\b/gi, 'trente')          // "tre nte" non géré jusqu'ici
+    .replace(/\bqua\s+tr(?:e|is)?\b/gi, 'quatre')   // "qua tr" sans 'e' final
+    .replace(/\bqua\s+ran?te?\b/gi, 'quarante')      // "qua ran te", "qua rante"
+    .replace(/\bcin\s+quante\b|\bcinq\s+uante\b/gi, 'cinquante');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

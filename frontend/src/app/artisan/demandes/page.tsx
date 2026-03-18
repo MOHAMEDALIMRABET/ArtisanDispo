@@ -46,6 +46,14 @@ export default function ArtisanDemandesPage() {
   const [expandedExpressIds, setExpandedExpressIds] = useState<Set<string>>(new Set());
   const [expressPropositionsMap, setExpressPropositionsMap] = useState<Map<string, PropositionExpress[]>>(new Map());
   const demandeRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
+  // IDs des demandes déjà consultées (persiste dans localStorage)
+  const [demandesVuesSet, setDemandesVuesSet] = useState<Set<string>>(() => {
+    if (typeof window === 'undefined') return new Set<string>();
+    try {
+      const stored = localStorage.getItem('artisan_demandes_vues');
+      return stored ? new Set<string>(JSON.parse(stored)) : new Set<string>();
+    } catch { return new Set<string>(); }
+  });
 
   useEffect(() => {
     if (authLoading) return; // Attendre que l'auth soit chargée
@@ -83,6 +91,41 @@ export default function ArtisanDemandesPage() {
       setSousFiltreTraitees('tout');
     }
   }, [filter]);
+
+  /**
+   * Marquer les demandes comme "vues" UNIQUEMENT quand l'artisan
+   * est réellement sur la section affichant ces demandes.
+   * Un délai de 800ms assure que la liste est bien rendue avant de marquer.
+   */
+  useEffect(() => {
+    if (isLoading) return;
+
+    // Section "Mes Demandes" (directes) affichée
+    if (categoryActive === 'classiques' && sectionActive === 'mes_demandes' && demandes.length > 0) {
+      const ids = getDemandesNouvelles(demandes).map(d => d.id);
+      const timer = setTimeout(() => saveVuesIds(ids), 800);
+      return () => clearTimeout(timer);
+    }
+
+    // Section "Demandes Publiques" affichée
+    if (categoryActive === 'classiques' && sectionActive === 'demandes_publiques' && demandesPubliques.length > 0) {
+      const ids = demandesPubliques
+        .filter(d => d.statut !== 'annulee' && !(d.dateExpiration && isDemandeExpired(d.dateExpiration)))
+        .map(d => d.id);
+      const timer = setTimeout(() => saveVuesIds(ids), 800);
+      return () => clearTimeout(timer);
+    }
+
+    // Section "Demandes Express" affichée
+    if (categoryActive === 'express' && sectionActive === 'demandes_express' && demandesExpress.length > 0) {
+      const ids = demandesExpress
+        .filter(d => d.statut === 'en_attente_proposition')
+        .map(d => d.id);
+      const timer = setTimeout(() => saveVuesIds(ids), 800);
+      return () => clearTimeout(timer);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryActive, sectionActive, isLoading, demandes.length, demandesPubliques.length, demandesExpress.length]);
 
   async function loadData() {
     if (!authUser) return;
@@ -510,15 +553,26 @@ export default function ArtisanDemandesPage() {
     return 'bg-gradient-to-b from-[#FF6B00] to-[#E56100]';
   };
 
-  // Compteurs de nouvelles demandes pour les badges du hub
+  // Helper : sauvegarder des IDs comme vus dans localStorage
+  function saveVuesIds(ids: string[]) {
+    if (ids.length === 0) return;
+    const updated = new Set<string>([...demandesVuesSet, ...ids]);
+    setDemandesVuesSet(updated);
+    try { localStorage.setItem('artisan_demandes_vues', JSON.stringify([...updated])); } catch {}
+  }
+
+  // (Les fonctions mark* ne sont plus utilisées pour marquer au clic — voir useEffect ci-dessus)
+  // On conserve markDemandesPubliquesAsVues et markDemandesExpressAsVues pour compatibilité.
+
+  // Compteurs de nouvelles demandes pour les badges du hub (exclut les demandes déjà vues)
   const nbNouvellesClassiques =
-    getDemandesNouvelles(demandes).length +
+    getDemandesNouvelles(demandes).filter(d => !demandesVuesSet.has(d.id)).length +
     demandesPubliques.filter(
-      d => d.statut !== 'annulee' && !(d.dateExpiration && isDemandeExpired(d.dateExpiration))
+      d => d.statut !== 'annulee' && !(d.dateExpiration && isDemandeExpired(d.dateExpiration)) && !demandesVuesSet.has(d.id)
     ).length;
 
   const nbNouvellesExpress = demandesExpress.filter(
-    d => d.statut === 'en_attente_proposition'
+    d => d.statut === 'en_attente_proposition' && !demandesVuesSet.has(d.id)
   ).length;
 
   // Utiliser la bonne liste selon la section active
@@ -599,7 +653,13 @@ export default function ArtisanDemandesPage() {
 
             {/* ── CARTE Demandes Classiques ── */}
             <button
-              onClick={() => { setCategoryActive('classiques'); setSectionActive('mes_demandes'); }}
+              onClick={() => {
+                setCategoryActive('classiques');
+                setSectionActive('mes_demandes');
+                // Auto-activer le filtre "Nouvelles" si des nouvelles demandes non vues existent
+                const nbNonVues = getDemandesNouvelles(demandes).filter(d => !demandesVuesSet.has(d.id)).length;
+                if (nbNonVues > 0) setFilter('nouvelles');
+              }}
               className="group text-left bg-[#2C3E50] rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col"
             >
               {/* Bandeau */}
@@ -622,9 +682,9 @@ export default function ArtisanDemandesPage() {
                   <div className="flex-1">
                     <div className="font-semibold text-[#2C3E50] text-sm">{t('artisanRequests.tabs.myRequests')}</div>
                   </div>
-                  {getDemandesNouvelles(demandes).length > 0 && (
+                  {getDemandesNouvelles(demandes).filter(d => !demandesVuesSet.has(d.id)).length > 0 && (
                     <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                      {getDemandesNouvelles(demandes).length}
+                      {getDemandesNouvelles(demandes).filter(d => !demandesVuesSet.has(d.id)).length}
                     </span>
                   )}
                 </div>
@@ -633,9 +693,9 @@ export default function ArtisanDemandesPage() {
                   <div className="flex-1">
                     <div className="font-semibold text-[#2C3E50] text-sm">{t('artisanRequests.tabs.publicRequests')}</div>
                   </div>
-                  {demandesPubliques.filter(d => d.statut !== 'annulee' && !(d.dateExpiration && isDemandeExpired(d.dateExpiration))).length > 0 && (
+                  {demandesPubliques.filter(d => d.statut !== 'annulee' && !(d.dateExpiration && isDemandeExpired(d.dateExpiration)) && !demandesVuesSet.has(d.id)).length > 0 && (
                     <span className="bg-purple-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                      {demandesPubliques.filter(d => d.statut !== 'annulee' && !(d.dateExpiration && isDemandeExpired(d.dateExpiration))).length}
+                      {demandesPubliques.filter(d => d.statut !== 'annulee' && !(d.dateExpiration && isDemandeExpired(d.dateExpiration)) && !demandesVuesSet.has(d.id)).length}
                     </span>
                   )}
                 </div>
@@ -734,7 +794,7 @@ export default function ArtisanDemandesPage() {
                 </div>
               </button>
               <button
-                onClick={() => setSectionActive('demandes_publiques')}
+                onClick={() => { setSectionActive('demandes_publiques'); }}
                 className={`flex-1 py-4 px-6 rounded-xl font-bold text-lg transition-all shadow-md ${
                   sectionActive === 'demandes_publiques'
                     ? 'bg-purple-600 text-white ring-4 ring-purple-600 ring-opacity-30'
@@ -888,13 +948,21 @@ export default function ArtisanDemandesPage() {
           <div className="space-y-4">
             {demandesFiltrees.map((demande) => {
               const isExpanded = expandedDemandeIds.has(demande.id);
+              const isNouveau = (!demande.devisRecus || demande.devisRecus === 0) &&
+                demande.statut !== 'annulee' &&
+                !demandesTermineesIds.has(demande.id) &&
+                !demandesVuesSet.has(demande.id);
               return (
               <div 
                 key={demande.id} 
                 ref={(el) => { demandeRefs.current[demande.id] = el; }}
                 onClick={() => toggleExpandDemande(demande.id)}
                 className={`bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer relative border-2 overflow-hidden group ${
-                  isExpanded ? 'border-[#FF6B00] ring-1 ring-[#FF6B00] ring-opacity-30' : 'border-transparent hover:border-gray-200'
+                  isExpanded
+                    ? 'border-[#FF6B00] ring-1 ring-[#FF6B00] ring-opacity-30'
+                    : isNouveau && filter !== 'nouvelles'
+                    ? 'border-orange-200 hover:border-[#FF6B00]'
+                    : 'border-transparent hover:border-gray-200'
                 }`}
               >
                 {/* Barre latérale colorée selon section et statut */}
@@ -946,9 +1014,19 @@ export default function ArtisanDemandesPage() {
                 {/* Titre principal + Dates + Badge statut */}
                 <div className="flex items-start justify-between mb-4 pb-4 border-b border-gray-200 pr-12">
                   <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-[#2C3E50] mb-2">
-                      {demande.titre}
-                    </h2>
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
+                      <h2 className="text-2xl font-bold text-[#2C3E50]">
+                        {demande.titre}
+                      </h2>
+                      {isNouveau && (
+                        <span
+                          className="inline-flex items-center gap-1 bg-[#FF6B00] text-white text-xs font-bold px-2.5 py-1 rounded-full shrink-0"
+                          style={{ animation: 'pulse 0.7s ease-in-out 4' }}
+                        >
+                          🔔 Nouveau
+                        </span>
+                      )}
+                    </div>
                     <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
                       <div className="flex items-center gap-1">
                         <span className="text-[#FF6B00]">🏷️</span>
@@ -985,11 +1063,32 @@ export default function ArtisanDemandesPage() {
                   
                   {/* Badge statut principal */}
                   <div className="flex flex-col items-end gap-2">
-                    {demandesAvecDevisPayeIds.has(demande.id) && (
-                      <span className="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm font-bold border-2 border-green-300">
-                        ✅ {t('artisanRequests.status.quoteSigned')}
-                      </span>
-                    )}
+                    {demandesAvecDevisPayeIds.has(demande.id) && (() => {
+                      const devisForDemande = devisMap.get(demande.id) || [];
+                      const devisPaye = devisForDemande.find(dv =>
+                        ['paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(dv.statut)
+                      );
+                      if (devisPaye?.statut === 'en_cours') {
+                        return (
+                          <span className="bg-amber-100 text-amber-700 px-4 py-2 rounded-lg text-sm font-bold border-2 border-amber-400">
+                            🚧 Travaux en cours
+                          </span>
+                        );
+                      }
+                      if (devisPaye && ['travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(devisPaye.statut)) {
+                        return (
+                          <span className="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold border-2 border-gray-400">
+                            ✅ Travaux terminés
+                          </span>
+                        );
+                      }
+                      // Statut par défaut : paye (devis signé, travaux pas encore commencés)
+                      return (
+                        <span className="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm font-bold border-2 border-green-300">
+                          ✅ {t('artisanRequests.status.quoteSigned')}
+                        </span>
+                      );
+                    })()}
                     {/* Compteur devis reçus — uniquement pour les demandes publiques */}
                     {demande.type === 'publique' && (() => {
                       const nb = demande.devisRecus || 0;

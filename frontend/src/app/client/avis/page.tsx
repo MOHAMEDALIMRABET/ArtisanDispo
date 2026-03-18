@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/lib/auth-service';
 import { getUserById } from '@/lib/firebase/user-service';
+import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
 import { getAvisByClientId } from '@/lib/firebase/avis-service';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { User, Avis } from '@/types/firestore';
@@ -16,6 +17,7 @@ export default function AvisClientPage() {
   const [avis, setAvis] = useState<Avis[]>([]);
   const [avisFiltres, setAvisFiltres] = useState<Avis[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [artisansNoms, setArtisansNoms] = useState<Record<string, string>>({});
   
   // Filtres et tri
   const [filtreNote, setFiltreNote] = useState<number | null>(null);
@@ -49,6 +51,19 @@ export default function AvisClientPage() {
       // Charger les avis déjà donnés
       const avisData = await getAvisByClientId(currentUser.uid);
       setAvis(avisData);
+
+      // Charger les raisons sociales des artisans
+      const artisanIdsUniques = [...new Set(avisData.map(a => a.artisanId))];
+      const nomsMap: Record<string, string> = {};
+      await Promise.all(
+        artisanIdsUniques.map(async (artisanId) => {
+          try {
+            const artisan = await getArtisanByUserId(artisanId);
+            if (artisan) nomsMap[artisanId] = artisan.raisonSociale;
+          } catch {}
+        })
+      );
+      setArtisansNoms(nomsMap);
 
       setIsLoading(false);
     } catch (error) {
@@ -272,12 +287,16 @@ export default function AvisClientPage() {
                 <div className="flex items-start gap-4 mb-4">
                   {/* Avatar Artisan */}
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#2C3E50] to-[#1A3A5C] flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-semibold text-lg">AR</span>
+                    <span className="text-white font-semibold text-lg">
+                      {(artisansNoms[avisItem.artisanId] || 'AR').substring(0, 2).toUpperCase()}
+                    </span>
                   </div>
 
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-[#2C3E50]">{t('clientReviews.card.artisan')}</span>
+                      <span className="font-semibold text-[#2C3E50]">
+                        {artisansNoms[avisItem.artisanId] || t('clientReviews.card.artisan')}
+                      </span>
                       <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-medium">
                         <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />

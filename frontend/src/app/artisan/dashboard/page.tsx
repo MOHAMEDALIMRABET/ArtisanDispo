@@ -122,17 +122,14 @@ export default function ArtisanDashboardPage() {
       // Charger les demandes pour compter les nouvelles
       try {
         const demandes = await getDemandesForArtisan(currentUser.uid);
-        // Compter directes : statut 'publiee' OU 'matchee' (demande directe assignée à cet artisan)
-        const nouvellesDirectes = demandes.filter(
-          d => d.statut === 'publiee' || d.statut === 'matchee'
-        ).length;
+        const idsDirectes = new Set(demandes.map(d => d.id));
 
-        // Compter aussi les demandes publiques visibles (non matchées directement)
-        let nouvellesPubliques = 0;
+        // Récupérer les demandes publiques visibles (non matchées directement)
+        let demandesPubliques: typeof demandes = [];
         const artisanDataForDemandes = await getArtisanByUserId(currentUser.uid);
         if (artisanDataForDemandes?.zonesIntervention && artisanDataForDemandes.zonesIntervention.length > 0) {
           const zone = artisanDataForDemandes.zonesIntervention[0];
-          const demandesPubliques = await getDemandesPubliquesForArtisan({
+          demandesPubliques = await getDemandesPubliquesForArtisan({
             metiers: artisanDataForDemandes.metiers,
             location: {
               city: zone.ville,
@@ -141,14 +138,24 @@ export default function ArtisanDashboardPage() {
                 : undefined,
             },
           });
-          // Exclure les demandes déjà comptées dans directes
-          const idsDirectes = new Set(demandes.map(d => d.id));
-          nouvellesPubliques = demandesPubliques.filter(
-            d => d.statut === 'publiee' && !idsDirectes.has(d.id)
-          ).length;
         }
 
-        setNouvellesDemandes(nouvellesDirectes + nouvellesPubliques);
+        // Lire les demandes déjà consultées depuis localStorage
+        let vuesIds = new Set<string>();
+        try {
+          const stored = localStorage.getItem('artisan_demandes_vues');
+          if (stored) vuesIds = new Set<string>(JSON.parse(stored));
+        } catch {}
+
+        const totalDirectes = demandes
+          .filter(d => (d.statut === 'publiee' || d.statut === 'matchee') && !vuesIds.has(d.id))
+          .length;
+
+        const totalPubliques = demandesPubliques
+          .filter(d => d.statut === 'publiee' && !idsDirectes.has(d.id) && !vuesIds.has(d.id))
+          .length;
+
+        setNouvellesDemandes(totalDirectes + totalPubliques);
       } catch (error) {
         console.error('Erreur chargement demandes:', error);
       }

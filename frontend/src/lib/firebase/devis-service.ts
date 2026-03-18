@@ -25,7 +25,7 @@ import type {
   UpdateDevis,
   DevisStatut,
 } from '@/types/devis';
-import { notifyClientDevisRecu, createNotification } from './notification-service';
+import { notifyClientDevisRecu, createNotification, markNotificationsByLienAsRead } from './notification-service';
 import { trackDevisEnvoye, trackDevisAccepte, trackDevisRefuse } from './artisan-stats-service';
 import { recordPaiementLibere } from './wallet-service';
 
@@ -884,10 +884,11 @@ export async function declarerDebutTravaux(devisId: string, artisanId: string): 
   });
   
   // Notification client
-  await notifyClientDevisRecu(devis.clientId, devisId, {
+  await createNotification(devis.clientId, {
     type: 'travaux_demarres',
-    title: 'Travaux démarrés',
-    message: `${devis.artisan.raisonSociale} a démarré les travaux`,
+    titre: '🚧 Travaux démarrés',
+    message: `${devis.artisan.raisonSociale} a démarré les travaux.`,
+    lien: `/client/devis/${devisId}`,
   });
 }
 
@@ -935,11 +936,17 @@ export async function declarerFinTravaux(devisId: string, artisanId: string): Pr
     ],
   });
   
+  // Marquer la notification "travaux_demarres" comme lue (supersedée par travaux_termines)
+  try {
+    await markNotificationsByLienAsRead(devis.clientId, `/client/devis/${devisId}`);
+  } catch (e) { /* non bloquant */ }
+
   // Notification client
-  await notifyClientDevisRecu(devis.clientId, devisId, {
+  await createNotification(devis.clientId, {
     type: 'travaux_termines',
-    title: 'Travaux terminés',
+    titre: '🏁 Travaux terminés — validation requise',
     message: `${devis.artisan.raisonSociale} a terminé les travaux. Vous avez 7 jours pour valider ou signaler un problème.`,
+    lien: `/client/devis/${devisId}`,
   });
   
   // Envoyer email au client
@@ -1020,17 +1027,19 @@ export async function validerTravaux(devisId: string, clientId: string): Promise
   }
 
   // Notification artisan
-  await notifyClientDevisRecu(devis.artisanId, devisId, {
+  await createNotification(devis.artisanId, {
     type: 'travaux_valides',
-    title: 'Travaux validés !',
+    titre: '✅ Travaux validés !',
     message: `${devis.client.prenom} ${devis.client.nom} a validé les travaux. Le paiement sera transféré sous 24-48h.`,
+    lien: `/artisan/devis/${devisId}`,
   });
 
   // Notification client pour l'inviter à donner un avis
-  await notifyClientDevisRecu(devis.clientId, devisId, {
+  await createNotification(devis.clientId, {
     type: 'demande_avis_express',
-    title: '⭐ Donnez votre avis !',
-    message: `Aidez la communauté en partageant votre expérience avec ${devis.artisan?.businessName || 'cet artisan'}.`,
+    titre: '⭐ Donnez votre avis !',
+    message: `Aidez la communauté en partageant votre expérience avec ${devis.artisan?.raisonSociale || 'cet artisan'}.`,
+    lien: `/client/avis/nouveau/${devisId}`,
   });
   
   // Envoyer emails
@@ -1118,10 +1127,11 @@ export async function signalerLitige(
   });
   
   // Notification artisan + admin
-  await notifyClientDevisRecu(devis.artisanId, devisId, {
+  await createNotification(devis.artisanId, {
     type: 'litige_ouvert',
-    title: '⚠️ Litige signalé',
+    titre: '⚠️ Litige signalé',
     message: `${devis.client.prenom} ${devis.client.nom} a signalé un problème. Un médiateur va être contacté.`,
+    lien: `/artisan/devis/${devisId}`,
   });
   
   // Envoyer emails client et artisan
@@ -1210,16 +1220,18 @@ export async function validerAutomatiquementTravaux(devisId: string): Promise<vo
   }
 
   // Notifications
-  await notifyClientDevisRecu(devis.artisanId, devisId, {
+  await createNotification(devis.artisanId, {
     type: 'travaux_valides',
-    title: 'Travaux validés automatiquement',
+    titre: '✅ Travaux validés automatiquement',
     message: `Le client n'a pas signalé de problème. Le paiement sera transféré sous 24-48h.`,
+    lien: `/artisan/devis/${devisId}`,
   });
   
-  await notifyClientDevisRecu(devis.clientId, devisId, {
+  await createNotification(devis.clientId, {
     type: 'validation_auto',
-    title: 'Validation automatique',
+    titre: '⏰ Validation automatique',
     message: `Les travaux ont été validés automatiquement (délai de 7 jours écoulé).`,
+    lien: `/client/devis/${devisId}`,
   });
   
   // Envoyer emails client et artisan
