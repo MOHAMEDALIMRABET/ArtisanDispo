@@ -208,7 +208,12 @@ export default function DemandeExpressDetailArtisanPage() {
               </h2>
               {demande.urgence === 'urgent' && (
                 <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-semibold">
-                  🚨 Urgent
+                  🚨 Urgent (6h)
+                </span>
+              )}
+              {demande.urgence === 'immediat' && (
+                <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-semibold">
+                  ⚡ Immédiat (2h)
                 </span>
               )}
             </div>
@@ -220,6 +225,26 @@ export default function DemandeExpressDetailArtisanPage() {
                 </label>
                 <p className="text-[#6C757D] whitespace-pre-wrap break-words">{demande.description}</p>
               </div>
+
+              {/* Photos du chantier */}
+              {demande.photos && demande.photos.length > 0 && (
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                    📷 Photos du chantier
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {demande.photos.map((url, index) => (
+                      <a key={index} href={url} target="_blank" rel="noopener noreferrer">
+                        <img
+                          src={url}
+                          alt={`Photo chantier ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg border-2 border-[#E9ECEF] hover:border-[#FF6B00] transition-colors cursor-pointer"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>

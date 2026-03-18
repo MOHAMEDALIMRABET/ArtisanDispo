@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getDemandesExpressByArtisan } from '@/lib/firebase/demande-express-service';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotifications } from '@/hooks/useNotifications';
 import { getUserById } from '@/lib/firebase/user-service';
 import type { DemandeExpress, User } from '@/types/firestore';
 
@@ -13,6 +14,7 @@ export default function DemandesExpressArtisanPage() {
   const router = useRouter();
   const { t } = useLanguage();
   const { user: firebaseUser, loading: authLoading } = useAuth();
+  const { markTypeAsRead } = useNotifications(firebaseUser?.uid);
   const [userData, setUserData] = useState<User | null>(null);
   const [demandes, setDemandes] = useState<DemandeExpress[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +26,7 @@ export default function DemandesExpressArtisanPage() {
       return;
     }
     loadData();
+    markTypeAsRead(['nouvelle_demande_express']);
   }, [firebaseUser, authLoading]);
 
   async function loadData() {
@@ -142,7 +145,12 @@ export default function DemandesExpressArtisanPage() {
                           </span>
                           {demande.urgence === 'urgent' && (
                             <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">
-                              {t('artisanExpressRequests.urgentBadge')}
+                              🚨 Urgent (6h)
+                            </span>
+                          )}
+                          {demande.urgence === 'immediat' && (
+                            <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs font-semibold">
+                              ⚡ Immédiat (2h)
                             </span>
                           )}
                         </div>

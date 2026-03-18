@@ -140,13 +140,17 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
     n => !n.lue && (n.type === 'nouvelle_demande' || n.type === 'demande_refusee')
   ).length;
 
+  const notifExpressDemandes = notifications.filter(
+    n => !n.lue && n.type === 'nouvelle_demande_express'
+  ).length;
+
   // Notifications avis : nouvel avis reçu (artisan) ou réponse artisan (client)
   const notifAvis = notifications.filter(
     n => !n.lue && (n.type === 'nouvel_avis' || n.type === 'reponse_avis')
   ).length;
 
   // Nombre total de notifications non lues (incluant messages et nouvelles demandes)
-  const totalNotifications = notifDevis + notifDemandes + unreadMessagesCount + nouvellesDemandesCount + notifAvis;
+  const totalNotifications = notifDevis + notifDemandes + notifExpressDemandes + unreadMessagesCount + nouvellesDemandesCount + notifAvis;
 
   // Fermer le dropdown au clic extérieur
   useEffect(() => {
@@ -472,6 +476,27 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
                   {notifDemandes > 0 && (
                     <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
                       {notifDemandes}
+                    </span>
+                  )}
+                </button>
+
+                {/* Demandes Express */}
+                <button
+                  onClick={() => handleNavigationWithMarkRead('/artisan/demandes-express', ['nouvelle_demande_express'])}
+                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
+                >
+                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                  </svg>
+                  <span className="font-medium flex-1">Demandes Express</span>
+                  {notifExpressDemandes > 0 && (
+                    <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
+                      {notifExpressDemandes}
                     </span>
                   )}
                 </button>
