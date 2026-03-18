@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
@@ -68,16 +68,21 @@ export default function RechercheExpressPage() {
   // Paramètres URL
   const categorieParam = searchParams.get('categorie') as Categorie || '';
   const sousCategorieParam = searchParams.get('sousCategorie') || '';
+  const villeParam = searchParams.get('ville') || '';
+  const codePostalParam = searchParams.get('codePostal') || '';
+  const dateParam = searchParams.get('date') || new Date().toISOString().slice(0, 10);
+  const urgenceParam = (searchParams.get('urgence') as 'immediat' | 'urgent') || 'urgent';
+  const rayonMaxParam = Number(searchParams.get('rayonMax')) || 20;
 
   // États du formulaire
   const typeProjet = 'express'; // Toujours express sur cette page
   const [categorie, setCategorie] = useState<Categorie | ''>(categorieParam);
   const [sousCategorie, setSousCategorie] = useState(sousCategorieParam);
-  const [ville, setVille] = useState('');
-  const [codePostal, setCodePostal] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [urgence, setUrgence] = useState<'immediat' | 'urgent'>('urgent');
-  const [rayonMax, setRayonMax] = useState(20);
+  const [ville, setVille] = useState(villeParam);
+  const [codePostal, setCodePostal] = useState(codePostalParam);
+  const [date, setDate] = useState(dateParam);
+  const [urgence, setUrgence] = useState<'immediat' | 'urgent'>(urgenceParam);
+  const [rayonMax, setRayonMax] = useState(rayonMaxParam);
 
   // Recherche de villes
   const [villeSuggestions, setVilleSuggestions] = useState<VilleSuggestion[]>([]);
@@ -89,6 +94,7 @@ export default function RechercheExpressPage() {
   const [searched, setSearched] = useState(false);
   const [showPublishModal, setShowPublishModal] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const hasAutoSearched = useRef(false);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -101,6 +107,23 @@ export default function RechercheExpressPage() {
   useEffect(() => {
     loadUserData();
   }, [firebaseUser]);
+
+  // Auto-relance la recherche si les paramètres URL sont présents (retour depuis profil artisan)
+  useEffect(() => {
+    if (!hasAutoSearched.current && categorieParam && villeParam && codePostalParam) {
+      hasAutoSearched.current = true;
+      performSearch({
+        categorie: categorieParam,
+        sousCategorie: sousCategorieParam,
+        ville: villeParam,
+        codePostal: codePostalParam,
+        date: dateParam,
+        urgence: urgenceParam,
+        rayonMax: rayonMaxParam,
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function loadUserData() {
     if (firebaseUser) {
@@ -172,25 +195,38 @@ export default function RechercheExpressPage() {
     setVilleSuggestions([]);
   }
 
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    
-    if (!categorie || !ville || !codePostal) {
-      alert(t('alerts.validation.fillRequired'));
-      return;
-    }
-
+  async function performSearch(params: {
+    categorie: Categorie | '';
+    sousCategorie: string;
+    ville: string;
+    codePostal: string;
+    date: string;
+    urgence: 'immediat' | 'urgent';
+    rayonMax: number;
+  }) {
     setLoading(true);
     setSearched(true);
-    setCurrentPage(1); // ✅ Réinitialiser pagination à la page 1
+    setCurrentPage(1);
+
+    // Mettre à jour l'URL avec les paramètres de recherche (permet le retour en arrière)
+    const urlParams = new URLSearchParams({
+      categorie: params.categorie,
+      ville: params.ville,
+      codePostal: params.codePostal,
+      date: params.date,
+      urgence: params.urgence,
+      rayonMax: String(params.rayonMax),
+    });
+    if (params.sousCategorie) urlParams.set('sousCategorie', params.sousCategorie);
+    router.replace(`/petits-travaux-express/recherche?${urlParams.toString()}`);
 
     try {
       // Géocodage de la ville
       const geoResponse = await fetch(
-        `https://geo.api.gouv.fr/communes?codePostal=${codePostal}&fields=centre&limit=1`
+        `https://geo.api.gouv.fr/communes?codePostal=${params.codePostal}&fields=centre&limit=1`
       );
       const geoData = await geoResponse.json();
-      
+
       if (geoData.length === 0) {
         alert(t('alerts.validation.cityNotFound'));
         setLoading(false);
@@ -207,17 +243,17 @@ export default function RechercheExpressPage() {
 
       // Matching artisans
       const matchResults = await matchArtisans({
-        categorie,
-        ville,
-        codePostal,
+        categorie: params.categorie as Categorie,
+        ville: params.ville,
+        codePostal: params.codePostal,
         coordonneesGPS: {
           latitude: lon,
           longitude: lat,
         },
-        dates: [date],
+        dates: [params.date],
         flexible: false,
-        urgence: urgenceMapping[urgence] || 'normale',
-        rayonMax: rayonMax,
+        urgence: urgenceMapping[params.urgence] || 'normale',
+        rayonMax: params.rayonMax,
       });
 
       setResults(matchResults);
@@ -233,6 +269,17 @@ export default function RechercheExpressPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (!categorie || !ville || !codePostal) {
+      alert(t('alerts.validation.fillRequired'));
+      return;
+    }
+
+    await performSearch({ categorie, sousCategorie, ville, codePostal, date, urgence, rayonMax });
   }
 
   async function handleDemanderDevis(artisanId: string) {
