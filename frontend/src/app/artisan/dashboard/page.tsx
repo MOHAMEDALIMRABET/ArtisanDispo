@@ -49,6 +49,14 @@ export default function ArtisanDashboardPage() {
     n => n.type === 'nouvel_avis' && !n.lue
   ).length;
 
+  // Compter les notifications de demandes express NON LUES
+  const expressDemandeNotifications = notifications.filter(
+    n => n.type === 'nouvelle_demande_express' && !n.lue
+  ).length;
+
+  // Total demandes (régulières + express non lues)
+  const totalNouvellesDemandes = nouvellesDemandes + expressDemandeNotifications;
+
   // Calculer si le profil est complètement vérifié (SANS la décennale)
   // La décennale est un document additionnel qui ne bloque pas l'accès au profil
   const isFullyVerified = 
@@ -737,9 +745,9 @@ export default function ArtisanDashboardPage() {
           <Link href="/artisan/demandes" className="h-full">
             <div className="h-full flex flex-col bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-[#FF6B00] relative">
               {/* Badge notification */}
-              {nouvellesDemandes > 0 && (
+              {totalNouvellesDemandes > 0 && (
                 <div className="absolute -top-2 -right-2 bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shadow-lg animate-pulse">
-                  {nouvellesDemandes}
+                  {totalNouvellesDemandes}
                 </div>
               )}
               <div className="flex items-center gap-4 mb-4">
@@ -751,9 +759,9 @@ export default function ArtisanDashboardPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className="text-xl font-bold text-gray-800">{t('common.clientRequests')}</h2>
-                    {nouvellesDemandes > 0 && (
+                    {totalNouvellesDemandes > 0 && (
                       <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-bold">
-                        {nouvellesDemandes} {nouvellesDemandes > 1 ? t('requests.newPlural') : t('requests.newSingular')}
+                        {totalNouvellesDemandes} {totalNouvellesDemandes > 1 ? t('requests.newPlural') : t('requests.newSingular')}
                       </span>
                     )}
                   </div>
@@ -761,8 +769,8 @@ export default function ArtisanDashboardPage() {
                 </div>
               </div>
               <div className="text-sm text-gray-500">
-                {nouvellesDemandes > 0 ? (
-                  <p className="text-green-600 font-medium">🔔 {nouvellesDemandes} {nouvellesDemandes > 1 ? t('requests.requestsPending') : t('requests.requestPending')}</p>
+                {totalNouvellesDemandes > 0 ? (
+                  <p className="text-green-600 font-medium">🔔 {totalNouvellesDemandes} {totalNouvellesDemandes > 1 ? t('requests.requestsPending') : t('requests.requestPending')}</p>
                 ) : (
                   <p className="text-gray-500">📬 {t('requests.noNewRequests')}</p>
                 )}

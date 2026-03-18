@@ -1610,7 +1610,7 @@ export default function ArtisanDemandesPage() {
                           demande.urgence === 'immediat' ? 'bg-orange-100 text-orange-700' :
                           'bg-red-100 text-red-700'
                         }`}>
-                          {demande.urgence === 'immediat' ? '⚡ Immédiat (2h)' : '🚨 Urgent (24h)'}
+                          {demande.urgence === 'immediat' ? '⚡ Immédiat (2h)' : '🚨 Urgent (6h)'}
                         </span>
                         <span className={`ml-auto mr-2 px-3 py-1 rounded-full text-xs font-bold ${
                           demande.statut === 'en_attente_proposition' ? 'bg-yellow-100 text-yellow-700' :

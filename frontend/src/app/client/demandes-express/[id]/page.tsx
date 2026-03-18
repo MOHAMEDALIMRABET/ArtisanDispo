@@ -319,7 +319,7 @@ export default function DemandeExpressDetailClientPage() {
                 <div>
                   <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">🔥 Urgence</p>
                   <p className="text-[#2C3E50] font-medium text-sm">
-                    {demande.urgence === 'immediat' ? '⚡ Immédiat (2h)' : '🚨 Urgent (24h)'}
+                    {demande.urgence === 'immediat' ? '⚡ Immédiat (2h)' : '🚨 Urgent (6h)'}
                   </p>
                 </div>
                 <div>

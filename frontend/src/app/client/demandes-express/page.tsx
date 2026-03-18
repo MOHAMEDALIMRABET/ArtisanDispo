@@ -176,7 +176,7 @@ export default function MesDemandesExpressPage() {
   const getUrgenceBadge = (urgence: 'immediat' | 'urgent') => {
     const config: Record<string, { cls: string; label: string }> = {
       immediat: { cls: 'bg-orange-100 text-orange-700', label: '⚡ Immédiat (2h)' },
-      urgent:   { cls: 'bg-red-100 text-red-700',       label: '🚨 Urgent (24h)' },
+      urgent:   { cls: 'bg-red-100 text-red-700',       label: '🚨 Urgent (6h)' },
     };
     const { cls, label } = config[urgence] ?? config.urgent;
     return (
@@ -297,17 +297,19 @@ export default function MesDemandesExpressPage() {
           <div className="grid gap-6">
             {demandesFiltrees.map((demande) => {
               const isExpanded = expandedIds.has(demande.id);
+              const canExpand = demande.statut !== 'en_attente_proposition';
               return (
               <div
                 key={demande.id}
                 className={`bg-white rounded-2xl shadow-md transition-all duration-300 relative border-2 overflow-hidden ${
-                  isExpanded ? 'border-[#FF6B00] ring-1 ring-[#FF6B00] ring-opacity-30' : 'border-transparent hover:border-gray-200 hover:shadow-xl'
+                  canExpand && isExpanded ? 'border-[#FF6B00] ring-1 ring-[#FF6B00] ring-opacity-30' : 'border-transparent hover:border-gray-200 hover:shadow-xl'
                 }`}
               >
                 {/* Barre latérale orange */}
                 <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-[#FF6B00] to-[#E56100]" />
 
                 {/* Bouton expand/collapse */}
+                {canExpand && (
                 <button
                   onClick={() => toggleExpand(demande.id, demande.statut)}
                   className="absolute top-5 right-5 p-2.5 rounded-xl hover:bg-gray-100 transition-all duration-200 group"
@@ -320,11 +322,12 @@ export default function MesDemandesExpressPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
+                )}
 
                 {/* Contenu principal - toujours visible */}
                 <div
-                  className="p-6 pl-8 pr-14 cursor-pointer"
-                  onClick={() => toggleExpand(demande.id, demande.statut)}
+                  className={`p-6 pl-8 ${canExpand ? 'pr-14 cursor-pointer' : 'pr-6'}`}
+                  onClick={canExpand ? () => toggleExpand(demande.id, demande.statut) : undefined}
                 >
                   <div className="flex items-center gap-3 mb-3 flex-wrap">
                     {getStatutBadge(demande.statut)}
@@ -357,8 +360,22 @@ export default function MesDemandesExpressPage() {
                         {t('clientExpressRequests.card.expires')} {format(demande.expiresAt.toDate(), 'dd MMMM à HH:mm', { locale: fr })}
                       </span>
                       <span className="text-orange-400 text-xs">
-                        ({demande.urgence === 'immediat' ? '2h' : '24h'} après la création)
+                        ({demande.urgence === 'immediat' ? '2h' : '6h'} après la création)
                       </span>
+                    </div>
+                  )}
+
+                  {demande.statut === 'en_attente_proposition' && demande.artisanId && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className="text-lg">⏳</span>
+                      <p className="text-sm text-yellow-800 font-medium">Votre demande a été envoyée à l&apos;artisan. En attente de son retour.</p>
+                    </div>
+                  )}
+
+                  {demande.statut === 'en_attente_proposition' && !demande.artisanId && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className="text-lg">⏳</span>
+                      <p className="text-sm text-yellow-800 font-medium">Votre demande est en ligne. Un artisan va bientôt vous faire une proposition.</p>
                     </div>
                   )}
                 </div>
@@ -379,44 +396,7 @@ export default function MesDemandesExpressPage() {
 
                       <div className="px-8 py-5 space-y-4">
 
-                        {/* Récapitulatif complet du formulaire */}
-                        <div className="bg-[#F8F9FA] rounded-xl p-4 space-y-3 border border-[#E9ECEF]">
-                          <p className="text-xs text-[#6C757D] font-bold uppercase tracking-wide">📋 Détails de ma demande</p>
-                          <div>
-                            <p className="text-xs text-[#6C757D] font-semibold mb-1">Description</p>
-                            <p className="text-sm text-[#2C3E50] whitespace-pre-wrap break-words leading-relaxed">{demande.description}</p>
-                          </div>
-                          {demande.budgetPropose && (
-                            <div>
-                              <p className="text-xs text-[#6C757D] font-semibold mb-1">💰 Mon budget max</p>
-                              <span className="text-[#FF6B00] font-bold text-base">{demande.budgetPropose}€</span>
-                            </div>
-                          )}
-                          {demande.photos && demande.photos.length > 0 && (
-                            <div>
-                              <p className="text-xs text-[#6C757D] font-semibold mb-2">📷 Photos ({demande.photos.length})</p>
-                              <div className="flex gap-2 flex-wrap">
-                                {demande.photos.map((url: string, i: number) => (
-                                  <a key={i} href={url} target="_blank" rel="noopener noreferrer">
-                                    <img src={url} alt={`Photo ${i + 1}`} className="w-20 h-20 object-cover rounded-lg border border-[#E9ECEF] hover:opacity-80 transition-opacity" />
-                                  </a>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* En attente */}
-                        {demande.statut === 'en_attente_proposition' && (
-                          <div className="flex items-center gap-3 bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                            <span className="text-2xl">⏳</span>
-                            {demande.artisanId ? (
-                              <p className="text-sm text-yellow-800 font-medium">Votre demande a été envoyée à l&apos;artisan. En attente de sa proposition de prix.</p>
-                            ) : (
-                              <p className="text-sm text-yellow-800 font-medium">Votre demande est en ligne. Un artisan va bientôt vous faire une proposition.</p>
-                            )}
-                          </div>
-                        )}
+                        {/* En attente sans artisan assigné - désormais affiché dans la zone principale */}
 
                         {/* Proposition reçue — chargement */}
                         {demande.statut === 'proposition_recue' && loadingProp && (
@@ -533,16 +513,6 @@ export default function MesDemandesExpressPage() {
                             <p className="text-sm text-gray-700 font-medium">Intervention terminée. Merci d&apos;avoir utilisé ArtisanSafe !</p>
                           </div>
                         )}
-
-                        {/* Bouton Voir détails (toujours présent) */}
-                        <div className="flex justify-end pt-1">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); router.push(`/client/demandes-express/${demande.id}`); }}
-                            className="px-5 py-2 text-[#FF6B00] border border-[#FF6B00] rounded-lg hover:bg-[#FFF5EB] text-sm font-medium transition-all"
-                          >
-                            {t('clientExpressRequests.card.viewDetails')} →
-                          </button>
-                        </div>
 
                       </div>
                     </div>

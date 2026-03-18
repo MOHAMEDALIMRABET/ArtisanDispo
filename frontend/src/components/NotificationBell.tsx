@@ -64,6 +64,8 @@ export default function NotificationBell() {
     switch (type) {
       case 'nouvelle_demande':
         return '📋';
+      case 'nouvelle_demande_express':
+        return '⚡';
       case 'demande_refusee':
         return '🚫';
       case 'devis_recu':
@@ -156,9 +158,21 @@ export default function NotificationBell() {
           {(() => {
             const devisRecuCount = notifications.filter(n => !n.lue && (n.type === 'devis_recu' || n.type === 'nouveau_devis')).length;
             const devisReponseCount = notifications.filter(n => !n.lue && (n.type === 'devis_accepte' || n.type === 'devis_refuse' || n.type === 'devis_revision')).length;
-            if (devisRecuCount === 0 && devisReponseCount === 0) return null;
+            const expressDemandeCount = notifications.filter(n => !n.lue && n.type === 'nouvelle_demande_express').length;
+            if (devisRecuCount === 0 && devisReponseCount === 0 && expressDemandeCount === 0) return null;
             return (
               <div className="border-b border-gray-200 bg-orange-50 px-4 py-2 flex flex-wrap gap-2">
+                {expressDemandeCount > 0 && (
+                  <button
+                    onClick={() => { router.push('/artisan/demandes'); setIsOpen(false); }}
+                    className="flex items-center gap-1.5 bg-[#FF6B00] text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-[#E56100] transition"
+                  >
+                    ⚡ Demandes Express
+                    <span className="bg-white text-[#FF6B00] font-black rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                      {expressDemandeCount}
+                    </span>
+                  </button>
+                )}
                 {devisRecuCount > 0 && (
                   <button
                     onClick={() => { router.push('/client/devis'); setIsOpen(false); }}

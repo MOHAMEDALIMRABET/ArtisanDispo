@@ -40,10 +40,10 @@ export async function createDemandeExpress(
     statut: 'en_attente_proposition' as const,
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
-    // Auto-expiration selon l'urgence : immediat=2h, urgent=24h
+    // Auto-expiration selon l'urgence : immediat=2h, urgent=6h (intervention dans 24h → l'artisan doit avoir le temps d'intervenir)
     expiresAt: Timestamp.fromDate(new Date(Date.now() + (
       data.urgence === 'immediat' ? 2 * 60 * 60 * 1000 :
-      24 * 60 * 60 * 1000
+      6 * 60 * 60 * 1000
     ))),  
   };
 
