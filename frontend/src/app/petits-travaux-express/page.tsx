@@ -5,7 +5,7 @@ import Link from 'next/link';
 const CATEGORIES_TRAVAUX = [
   {
     titre: 'Menuiserie',
-    icon: '�',
+    icon: '🔨',
     couleur: '#8B4513',
     href: '/petits-travaux-express/menuiserie',
     description: 'Fenêtres, portes, volets, portails'

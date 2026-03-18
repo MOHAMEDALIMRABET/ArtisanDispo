@@ -264,7 +264,7 @@ function ResultatsContent() {
       {/* Bannière de recherche rapide */}
       <div className="bg-white border-b border-[#E9ECEF] py-4 sticky top-0 z-40 shadow-sm">
         <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-screen-xl mx-auto">
             <div className="grid md:grid-cols-24 gap-2">
               {/* Type de travaux */}
               <div className="relative min-w-0 md:col-span-4">
