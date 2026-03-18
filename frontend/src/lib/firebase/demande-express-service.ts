@@ -40,8 +40,12 @@ export async function createDemandeExpress(
     statut: 'en_attente_proposition' as const,
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
-    // Auto-expiration après 48h si pas de proposition
-    expiresAt: Timestamp.fromDate(new Date(Date.now() + 48 * 60 * 60 * 1000)),
+    // Auto-expiration selon l'urgence : normal=7j, rapide=3j, urgent=48h
+    expiresAt: Timestamp.fromDate(new Date(Date.now() + (
+      data.urgence === 'normal' ? 7 * 24 * 60 * 60 * 1000 :
+      data.urgence === 'rapide' ? 3 * 24 * 60 * 60 * 1000 :
+      48 * 60 * 60 * 1000
+    ))),
   };
 
   // Firestore refuse les valeurs undefined → les remplacer par null (récursif)

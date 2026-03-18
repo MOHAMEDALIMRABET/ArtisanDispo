@@ -318,7 +318,11 @@ export default function DemandeExpressDetailClientPage() {
                 )}
                 <div>
                   <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">🔥 Urgence</p>
-                  <p className="text-[#2C3E50] font-medium text-sm capitalize">{demande.urgence}</p>
+                  <p className="text-[#2C3E50] font-medium text-sm">
+                    {demande.urgence === 'normal' ? '🕐 Normal (5-7 jours)'
+                      : demande.urgence === 'rapide' ? '⚡ Rapide (3 jours)'
+                      : '🚨 Urgent (48h)'}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">📅 Déposée le</p>
@@ -339,7 +343,7 @@ export default function DemandeExpressDetailClientPage() {
                   <h3 className="text-lg font-bold text-[#2C3E50] mb-1">En attente d&apos;une proposition</h3>
                   <p className="text-[#6C757D] text-sm">
                     {demande.artisanId
-                      ? "Votre demande a été envoyée directement à l'artisan. En attente de sa proposition de prix."
+                      ? "Votre demande a été envoyée à l'artisan. En attente de sa proposition de prix."
                       : "Votre demande est visible par les artisans qualifiés de votre zone. Un artisan va bientôt vous soumettre son offre."}
                   </p>
                   {demande.expiresAt && (

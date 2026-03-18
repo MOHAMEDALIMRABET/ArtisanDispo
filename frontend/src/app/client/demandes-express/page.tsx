@@ -174,16 +174,14 @@ export default function MesDemandesExpressPage() {
   };
 
   const getUrgenceBadge = (urgence: 'normal' | 'rapide' | 'urgent') => {
-    const classes = {
-      normal: 'bg-gray-100 text-gray-700',
-      rapide: 'bg-orange-100 text-orange-700',
-      urgent: 'bg-red-100 text-red-700',
+    const config: Record<string, { cls: string; label: string }> = {
+      normal: { cls: 'bg-gray-100 text-gray-700',    label: '🕐 Normal (5-7 jours)' },
+      rapide: { cls: 'bg-orange-100 text-orange-700', label: '⚡ Rapide (3 jours)' },
+      urgent: { cls: 'bg-red-100 text-red-700',      label: '🚨 Urgent (48h)' },
     };
-    const className = classes[urgence];
+    const { cls, label } = config[urgence] ?? config.normal;
     return (
-      <span className={`px-2 py-1 rounded text-xs font-semibold ${className}`}>
-        {t(`clientExpressRequests.urgency.${urgence}`)}
-      </span>
+      <span className={`px-2 py-1 rounded text-xs font-semibold ${cls}`}>{label}</span>
     );
   };
 
@@ -351,13 +349,16 @@ export default function MesDemandesExpressPage() {
                   <div className="flex flex-wrap gap-4 text-sm text-[#6C757D]">
                     <span>📍 {demande.ville} ({demande.codePostal})</span>
                     <span>📅 {demande.date}</span>
-                    <span>{t('clientExpressRequests.card.createdOn')} {format(demande.createdAt.toDate(), 'dd MMMM yyyy', { locale: fr })}</span>
+                    <span>{t('clientExpressRequests.card.createdOn')} {format(demande.createdAt.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr })}</span>
                   </div>
 
                   {demande.expiresAt && demande.statut === 'en_attente_proposition' && (
-                    <div className="mt-3 text-sm">
+                    <div className="mt-3 text-sm flex flex-wrap items-center gap-1">
                       <span className="text-orange-600 font-semibold">
                         {t('clientExpressRequests.card.expires')} {format(demande.expiresAt.toDate(), 'dd MMMM à HH:mm', { locale: fr })}
+                      </span>
+                      <span className="text-orange-400 text-xs">
+                        ({demande.urgence === 'normal' ? '7 jours' : demande.urgence === 'rapide' ? '3 jours' : '48h'} après la création)
                       </span>
                     </div>
                   )}
@@ -379,12 +380,39 @@ export default function MesDemandesExpressPage() {
 
                       <div className="px-8 py-5 space-y-4">
 
+                        {/* Récapitulatif complet du formulaire */}
+                        <div className="bg-[#F8F9FA] rounded-xl p-4 space-y-3 border border-[#E9ECEF]">
+                          <p className="text-xs text-[#6C757D] font-bold uppercase tracking-wide">📋 Détails de ma demande</p>
+                          <div>
+                            <p className="text-xs text-[#6C757D] font-semibold mb-1">Description</p>
+                            <p className="text-sm text-[#2C3E50] whitespace-pre-wrap break-words leading-relaxed">{demande.description}</p>
+                          </div>
+                          {demande.budgetPropose && (
+                            <div>
+                              <p className="text-xs text-[#6C757D] font-semibold mb-1">💰 Mon budget max</p>
+                              <span className="text-[#FF6B00] font-bold text-base">{demande.budgetPropose}€</span>
+                            </div>
+                          )}
+                          {demande.photos && demande.photos.length > 0 && (
+                            <div>
+                              <p className="text-xs text-[#6C757D] font-semibold mb-2">📷 Photos ({demande.photos.length})</p>
+                              <div className="flex gap-2 flex-wrap">
+                                {demande.photos.map((url: string, i: number) => (
+                                  <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                                    <img src={url} alt={`Photo ${i + 1}`} className="w-20 h-20 object-cover rounded-lg border border-[#E9ECEF] hover:opacity-80 transition-opacity" />
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
                         {/* En attente */}
                         {demande.statut === 'en_attente_proposition' && (
                           <div className="flex items-center gap-3 bg-yellow-50 border border-yellow-200 rounded-xl p-4">
                             <span className="text-2xl">⏳</span>
                             {demande.artisanId ? (
-                              <p className="text-sm text-yellow-800 font-medium">Votre demande a été envoyée directement à l&apos;artisan. En attente de sa proposition de prix.</p>
+                              <p className="text-sm text-yellow-800 font-medium">Votre demande a été envoyée à l&apos;artisan. En attente de sa proposition de prix.</p>
                             ) : (
                               <p className="text-sm text-yellow-800 font-medium">Votre demande est en ligne. Un artisan va bientôt vous faire une proposition.</p>
                             )}
