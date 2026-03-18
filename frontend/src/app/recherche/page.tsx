@@ -474,7 +474,7 @@ export default function RecherchePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Champ Ville avec autocomplétion */}
               <div className="relative">
-                <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Ville *
                 </label>
                 <input
@@ -492,7 +492,7 @@ export default function RecherchePage() {
                   }}
                   placeholder="Paris, Lyon, Marseille..."
                   required
-                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg text-[#2C3E50] bg-white focus:border-[#FF6B00] focus:ring-2 focus:ring-[#FF6B00] focus:ring-opacity-20 transition-all"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[#2C3E50] bg-white focus:outline-none focus:ring-2 focus:ring-[#FF6B00] transition-all"
                 />
                 
                 {/* Liste des suggestions */}
@@ -516,32 +516,43 @@ export default function RecherchePage() {
                 )}
               </div>
 
-              <Input
-                label="Code postal"
-                value={criteria.localisation.codePostal}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Code postal *
+                </label>
+                <input
+                  type="text"
+                  value={criteria.localisation.codePostal}
+                  onChange={(e) =>
+                    setCriteria({
+                      ...criteria,
+                      localisation: { ...criteria.localisation, codePostal: e.target.value },
+                    })
+                  }
+                  placeholder="75001"
+                  pattern="[0-9]{5}"
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[#2C3E50] bg-white focus:outline-none focus:ring-2 focus:ring-[#FF6B00] transition-all"
+                />
+              </div>
+            </div>
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Adresse complète (optionnel)
+              </label>
+              <input
+                type="text"
+                value={criteria.localisation.adresse}
                 onChange={(e) =>
                   setCriteria({
                     ...criteria,
-                    localisation: { ...criteria.localisation, codePostal: e.target.value },
+                    localisation: { ...criteria.localisation, adresse: e.target.value },
                   })
                 }
-                placeholder="75001"
-                pattern="[0-9]{5}"
-                required
+                placeholder="123 Rue de la République"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[#2C3E50] bg-white focus:outline-none focus:ring-2 focus:ring-[#FF6B00] transition-all"
               />
             </div>
-            <Input
-              label="Adresse complète (optionnel)"
-              value={criteria.localisation.adresse}
-              onChange={(e) =>
-                setCriteria({
-                  ...criteria,
-                  localisation: { ...criteria.localisation, adresse: e.target.value },
-                })
-              }
-              placeholder="123 Rue de la République"
-              className="mt-4"
-            />
             
             {/* Rayon de recherche */}
             <div className="mt-6 bg-gradient-to-br from-white to-[#FAFBFC] border border-[#E9ECEF] rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
