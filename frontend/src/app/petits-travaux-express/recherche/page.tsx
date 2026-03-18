@@ -121,32 +121,45 @@ export default function RechercheExpressPage() {
     }
 
     try {
-      // Détecter si la saisie est un code postal (que des chiffres)
-      const isCodePostal = /^\d+$/.test(query);
-      
+      const isNumeric = /^\d+$/.test(query);
+
       let url: string;
-      if (isCodePostal) {
-        // Recherche par code postal
-        url = `https://geo.api.gouv.fr/communes?codePostal=${encodeURIComponent(query)}&fields=nom,codesPostaux,codeDepartement&boost=population&limit=10`;
+      if (isNumeric) {
+        if (query.length <= 3) {
+          // Code département partiel : recherche par codeDepartement (ex: "38", "75", "130" → tronqué à 2)
+          const dep = query.slice(0, 2);
+          url = `https://geo.api.gouv.fr/communes?codeDepartement=${encodeURIComponent(dep)}&fields=nom,codesPostaux,codeDepartement&boost=population&limit=15`;
+        } else if (query.length === 5) {
+          // Code postal complet
+          url = `https://geo.api.gouv.fr/communes?codePostal=${encodeURIComponent(query)}&fields=nom,codesPostaux,codeDepartement&boost=population&limit=10`;
+        } else {
+          // Code postal partiel (4 chiffres) : on filtre côté client après
+          const dep = query.slice(0, 2);
+          url = `https://geo.api.gouv.fr/communes?codeDepartement=${encodeURIComponent(dep)}&fields=nom,codesPostaux,codeDepartement&boost=population&limit=50`;
+        }
       } else {
         // Recherche par nom de commune
         url = `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(query)}&fields=nom,codesPostaux,codeDepartement&boost=population&limit=10`;
       }
 
       const response = await fetch(url);
-      
       if (!response.ok) return;
-      
+
       const data = await response.json();
-      const suggestions = data.flatMap((commune: any) => 
+      let suggestions: VilleSuggestion[] = data.flatMap((commune: any) =>
         commune.codesPostaux.map((cp: string) => ({
           nom: commune.nom,
           codePostal: cp,
-          departement: commune.codeDepartement
+          departement: commune.codeDepartement,
         }))
       );
-      
-      setVilleSuggestions(suggestions);
+
+      // Filtrer par préfixe si code postal partiel (3-4 chiffres)
+      if (isNumeric && query.length >= 3 && query.length < 5) {
+        suggestions = suggestions.filter(s => s.codePostal.startsWith(query));
+      }
+
+      setVilleSuggestions(suggestions.slice(0, 10));
     } catch (error) {
       console.error('Erreur recherche villes:', error);
     }
