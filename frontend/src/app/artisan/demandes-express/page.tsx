@@ -10,6 +10,15 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { getUserById } from '@/lib/firebase/user-service';
 import type { DemandeExpress, User } from '@/types/firestore';
 
+function getInterventionDeadline(demande: DemandeExpress): string {
+  if (!demande.createdAt) return demande.urgence === 'immediat' ? 'Dans les 2h' : 'Dans les 24h';
+  const deadline = new Date(
+    demande.createdAt.toDate().getTime() +
+    (demande.urgence === 'immediat' ? 2 : 24) * 60 * 60 * 1000
+  );
+  return deadline.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+
 export default function DemandesExpressArtisanPage() {
   const router = useRouter();
   const { t } = useLanguage();
@@ -17,6 +26,7 @@ export default function DemandesExpressArtisanPage() {
   const { markTypeAsRead } = useNotifications(firebaseUser?.uid);
   const [userData, setUserData] = useState<User | null>(null);
   const [demandes, setDemandes] = useState<DemandeExpress[]>([]);
+  const [clientNoms, setClientNoms] = useState<Map<string, string>>(new Map());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,6 +54,18 @@ export default function DemandesExpressArtisanPage() {
 
       const demandesList = await getDemandesExpressByArtisan(firebaseUser.uid);
       setDemandes(demandesList);
+
+      // Charger les noms clients
+      const nomMap = new Map<string, string>();
+      await Promise.all(
+        [...new Set(demandesList.map(d => d.clientId).filter(Boolean))].map(async (cid) => {
+          try {
+            const cd = await getUserById(cid);
+            if (cd) nomMap.set(cid, `${cd.prenom || ''} ${cd.nom || ''}`.trim());
+          } catch {}
+        })
+      );
+      setClientNoms(nomMap);
     } catch (error) {
       console.error(t('artisanExpressRequests.loadError'), error);
     } finally {
@@ -52,31 +74,35 @@ export default function DemandesExpressArtisanPage() {
   }
 
   const getStatutColor = (statut: DemandeExpress['statut']) => {
-    const colors = {
+    const colors: Record<string, string> = {
       en_attente_proposition: 'bg-yellow-100 text-yellow-800 border-yellow-300',
       proposition_recue: 'bg-purple-100 text-purple-800 border-purple-300',
       acceptee: 'bg-green-100 text-green-800 border-green-300',
       payee: 'bg-green-100 text-green-800 border-green-300',
       en_cours: 'bg-purple-100 text-purple-800 border-purple-300',
+      travaux_termines: 'bg-amber-100 text-amber-800 border-amber-300',
       terminee: 'bg-gray-100 text-gray-800 border-gray-300',
       annulee: 'bg-red-100 text-red-800 border-red-300',
       expiree: 'bg-gray-100 text-gray-800 border-gray-300',
+      refusee_artisan: 'bg-orange-100 text-orange-800 border-orange-300',
     };
-    return colors[statut] || 'bg-gray-100 text-gray-800 border-gray-300';
+    return (colors as Record<string, string>)[statut] || 'bg-gray-100 text-gray-800 border-gray-300';
   };
 
   const getStatutLabel = (statut: DemandeExpress['statut']) => {
-    const labels = {
+    const labels: Record<string, string> = {
       en_attente_proposition: t('artisanExpressRequests.statuses.en_attente_proposition'),
       proposition_recue: t('artisanExpressRequests.statuses.proposition_recue'),
       acceptee: t('artisanExpressRequests.statuses.acceptee'),
       payee: t('artisanExpressRequests.statuses.payee'),
       en_cours: t('artisanExpressRequests.statuses.en_cours'),
+      travaux_termines: '⏳ Travaux terminés',
       terminee: t('artisanExpressRequests.statuses.terminee'),
       annulee: t('artisanExpressRequests.statuses.annulee'),
       expiree: t('artisanExpressRequests.statuses.expiree'),
+      refusee_artisan: '❌ Refusée',
     };
-    return labels[statut];
+    return labels[statut] ?? statut;
   };
 
   if (loading) {
@@ -160,6 +186,15 @@ export default function DemandesExpressArtisanPage() {
                           {demande.sousCategorie && ` • ${demande.sousCategorie}`}
                         </h3>
 
+                        {clientNoms.has(demande.clientId) && (
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-6 h-6 bg-[#2C3E50] text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0">
+                              {clientNoms.get(demande.clientId)!.charAt(0).toUpperCase()}
+                            </div>
+                            <span className="text-sm font-semibold text-[#2C3E50]">{clientNoms.get(demande.clientId)}</span>
+                          </div>
+                        )}
+
                         <p className="text-[#6C757D] mb-3 line-clamp-2">
                           {demande.description}
                         </p>
@@ -173,10 +208,10 @@ export default function DemandesExpressArtisanPage() {
                           </div>
 
                           <div className="flex items-center gap-2">
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                            </svg>
-                            <span>{new Date(demande.date).toLocaleDateString('fr-FR')}</span>
+                            <span>{demande.urgence === 'immediat' ? '⚡' : '🚨'}</span>
+                            <span>
+                              Intervention avant le {getInterventionDeadline(demande)}
+                            </span>
                           </div>
 
                           {demande.budgetPropose && (

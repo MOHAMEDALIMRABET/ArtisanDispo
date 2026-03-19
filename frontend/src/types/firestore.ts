@@ -928,7 +928,8 @@ export type DemandeExpressStatut =
   | 'acceptee'                // Client a accepté
   | 'payee'                   // Paiement effectué
   | 'en_cours'                // Artisan sur place
-  | 'terminee'                // Intervention terminée
+  | 'travaux_termines'        // Artisan a déclaré la fin, validation client en attente
+  | 'terminee'                // Intervention terminée et validée
   | 'annulee'                 // Annulée par client/artisan
   | 'expiree'                 // Pas de réponse sous 48h
   | 'refusee_artisan';        // Refusée par l'artisan
@@ -970,17 +971,30 @@ export interface DemandeExpress {
   // Métadonnées
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  expiresAt?: Timestamp; // Auto-expire si pas de réponse
+  expiresAt?: Timestamp;          // Auto-expire si pas de réponse
+  travauxTerminesAt?: Timestamp;  // Quand l'artisan déclare la fin (24h auto-libération)
 }
 
 /**
  * Statut d'une proposition express
  */
 export type PropositionExpressStatut =
-  | 'en_attente_acceptation'  // Envoyée, attend réponse client
-  | 'acceptee'                 // Client a accepté
-  | 'refusee'                  // Client a refusé
-  | 'expiree';                 // Pas de réponse sous 24h
+  | 'en_attente_acceptation'    // Round 1 : Artisan a proposé → client répond
+  | 'en_negociation'            // Round 2 : Client a contre-proposé → artisan répond
+  | 'proposition_finale_artisan'// Round 3 : Proposition finale artisan → client répond (LAST)
+  | 'acceptee'                  // Acceptée
+  | 'refusee'                   // Refusée définitivement
+  | 'expiree';                  // Pas de réponse sous 24h
+
+/**
+ * Un round de négociation (artisan ou client)
+ */
+export interface NegociationRound {
+  auteur: 'artisan' | 'client';
+  montant: number;
+  message: string;
+  createdAt: Timestamp;
+}
 
 /**
  * Proposition de prix pour travaux express
@@ -993,11 +1007,19 @@ export interface PropositionExpress {
   artisanId: string;
   clientId: string;
   
-  // Proposition
+  // Proposition initiale
   montantPropose: number; // Max 150€
-  description: string; // Ce qui est inclus
+  description: string; // Ce qui est inclus dans la prestation
   delaiIntervention?: string; // "Demain 14h", "Sous 24h"
   dateInterventionProposee?: Timestamp;
+  
+  // Négociation (rounds)
+  rounds?: NegociationRound[];         // Historique des échanges
+  montantCourant?: number;             // Dernier montant en jeu
+  contrePropositionMontant?: number;   // Montant contre-proposé par le client (round 2)
+  contrePropositionMessage?: string;   // Message du client (round 2)
+  propositionFinaleMontant?: number;   // Montant proposition finale artisan (round 3)
+  propositionFinaleMessage?: string;   // Message proposition finale artisan (round 3)
   
   // Statut
   statut: PropositionExpressStatut;

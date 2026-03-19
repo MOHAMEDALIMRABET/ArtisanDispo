@@ -7,6 +7,7 @@ import {
   getDemandeExpressById,
   getPropositionsByDemande,
   createPropositionExpress,
+  repondreArtisanNegociation,
   markInterventionEnCours,
   markInterventionTerminee
 } from '@/lib/firebase/demande-express-service';
@@ -67,19 +68,27 @@ export default function DemandeExpressDetailArtisanPage() {
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState<{ label: string; isExpired: boolean; isUrgent: boolean }>({ label: '—', isExpired: false, isUrgent: false });
 
-  // Mise à jour du chrono chaque seconde
+  // Mise à jour du chrono chaque seconde — actif uniquement quand en_attente_proposition
   useEffect(() => {
-    if (!demande?.expiresAt) return;
+    if (!demande?.expiresAt || demande?.statut !== 'en_attente_proposition') {
+      setCountdown({ label: '—', isExpired: false, isUrgent: false });
+      return;
+    }
     const tick = () => setCountdown(getCountdown(demande.expiresAt));
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [demande?.expiresAt]);
+  }, [demande?.expiresAt, demande?.statut]);
 
   // Form state
   const [montantPropose, setMontantPropose] = useState('');
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Réponse à la contre-proposition client
+  const [negoAction, setNegoAction] = useState<'accepter_prix_client' | 'refuser' | 'proposition_finale' | null>(null);
+  const [negoMontantFinal, setNegoMontantFinal] = useState('');
+  const [negoMessageFinal, setNegoMessageFinal] = useState('');
 
   useEffect(() => {
     if (authLoading) return;
@@ -220,6 +229,40 @@ export default function DemandeExpressDetailArtisanPage() {
   const maProposition = propositions.find(p => p.artisanId === firebaseUser?.uid);
   const peutFaireProposition = demande.statut === 'en_attente_proposition' && !maProposition;
 
+  async function handleRepondreNegociation() {
+    if (!maProposition || !negoAction) return;
+    if (negoAction === 'proposition_finale') {
+      const montant = parseFloat(negoMontantFinal);
+      if (isNaN(montant) || montant <= 0) { alert('Montant invalide'); return; }
+      if (montant > 150) { alert('Maximum 150€'); return; }
+      if (!negoMessageFinal.trim()) { alert('Veuillez décrire ce qui est inclus'); return; }
+    }
+    setSubmitting(true);
+    try {
+      await repondreArtisanNegociation(
+        maProposition.id,
+        negoAction,
+        negoAction === 'proposition_finale' ? parseFloat(negoMontantFinal) : undefined,
+        negoAction === 'proposition_finale' ? negoMessageFinal.trim() : undefined,
+      );
+      const msgs: Record<string, string> = {
+        accepter_prix_client: '✅ Vous avez accepté le budget du client. Il va recevoir une notification.',
+        refuser: '❌ Vous avez refusé la contre-proposition. La demande est de nouveau visible.',
+        proposition_finale: '✅ Proposition finale envoyée ! Le client doit maintenant accepter ou refuser.',
+      };
+      alert(msgs[negoAction]);
+      setNegoAction(null);
+      setNegoMontantFinal('');
+      setNegoMessageFinal('');
+      await loadData();
+    } catch (error: any) {
+      console.error('Erreur réponse négociation:', error);
+      alert(error.message || 'Erreur');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#F5F7FA]">
       {/* Header */}
@@ -247,8 +290,8 @@ export default function DemandeExpressDetailArtisanPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-6">
 
-          {/* Bandeau expiration */}
-          {demande.expiresAt && (
+          {/* Bandeau expiration — uniquement pendant la recherche d'artisan */}
+          {demande.expiresAt && demande.statut === 'en_attente_proposition' && (
             <div className={`rounded-xl px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-2 ${
               countdown.isExpired
                 ? 'bg-gray-100 border-gray-300 text-gray-600'
@@ -260,7 +303,7 @@ export default function DemandeExpressDetailArtisanPage() {
                 <span className="text-2xl">{countdown.isExpired ? '⏹️' : countdown.isUrgent ? '🔴' : '⏱️'}</span>
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide opacity-70">
-                    {countdown.isExpired ? 'Demande expirée' : 'Temps restant avant expiration'}
+                    {countdown.isExpired ? 'Demande expirée' : 'Soumettez votre proposition avant'}
                   </p>
                   <p className={`text-2xl font-black ${countdown.isUrgent && !countdown.isExpired ? 'animate-pulse' : ''}`}>
                     {countdown.label}
@@ -268,9 +311,29 @@ export default function DemandeExpressDetailArtisanPage() {
                 </div>
               </div>
               <div className="text-sm">
-                <p className="opacity-70">Expire le</p>
+                <p className="opacity-70">Limite le</p>
                 <p className="font-semibold">{formatTimestamp(demande.expiresAt)}</p>
               </div>
+            </div>
+          )}
+          {/* Bandeau « en attente de décision client » — proposition déjà envoyée */}
+          {demande.expiresAt && ['proposition_recue', 'en_negociation', 'proposition_finale_artisan'].includes(demande.statut) && (
+            <div className="bg-blue-50 border-2 border-blue-300 rounded-xl px-5 py-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">📨</span>
+                <div>
+                  <p className="text-sm font-semibold text-blue-800">
+                    {demande.statut === 'proposition_finale_artisan'
+                      ? '🔔 Proposition finale envoyée — en attente de la décision du client'
+                      : '✅ Proposition envoyée — en attente du client'}
+                  </p>
+                  <p className="text-xs text-blue-600 mt-0.5">
+                    Le client doit répondre avant le{' '}
+                    <strong>{formatTimestamp(demande.expiresAt)}</strong>
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap">⏳ En attente</span>
             </div>
           )}
 
@@ -331,11 +394,19 @@ export default function DemandeExpressDetailArtisanPage() {
 
                 <div>
                   <label className="block text-sm font-semibold text-[#2C3E50] mb-1">
-                    📅 Date souhaitée d'intervention
+                    {demande.urgence === 'immediat' ? '⚡' : '🚨'} Intervention attendue
                   </label>
-                  <p className="text-[#6C757D]">
-                    {new Date(demande.date).toLocaleDateString('fr-FR')}
+                  <p className="font-semibold text-[#FF6B00]">
+                    {demande.urgence === 'immediat' ? 'Dans les 2h' : 'Dans les 24h'} après création
                   </p>
+                  {demande.createdAt && (
+                    <p className="text-sm text-[#6C757D] mt-0.5">
+                      Avant le {new Date(
+                        demande.createdAt.toDate().getTime() +
+                        (demande.urgence === 'immediat' ? 2 : 24) * 60 * 60 * 1000
+                      ).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -418,14 +489,134 @@ export default function DemandeExpressDetailArtisanPage() {
                   <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
                     maProposition.statut === 'acceptee' ? 'bg-green-100 text-green-800' :
                     maProposition.statut === 'refusee' ? 'bg-red-100 text-red-800' :
+                    maProposition.statut === 'en_negociation' ? 'bg-blue-100 text-blue-800' :
+                    maProposition.statut === 'proposition_finale_artisan' ? 'bg-purple-100 text-purple-800' :
                     'bg-yellow-100 text-yellow-800'
                   }`}>
-                    {maProposition.statut === 'acceptee' ? 'Acceptée' :
-                     maProposition.statut === 'refusee' ? 'Refusée' :
-                     'En attente d\'acceptation'}
+                    {maProposition.statut === 'acceptee' ? '✅ Acceptée' :
+                     maProposition.statut === 'refusee' ? '❌ Refusée' :
+                     maProposition.statut === 'en_negociation' ? '💬 Contre-proposition client' :
+                     maProposition.statut === 'proposition_finale_artisan' ? '🔔 Proposition finale envoyée' :
+                     "⏳ En attente d'acceptation"}
                   </span>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* ── Contre-proposition client : artisan doit répondre ── */}
+          {maProposition?.statut === 'en_negociation' && (
+            <div className="bg-blue-50 border-2 border-blue-400 rounded-xl p-6 space-y-4">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">💬</span>
+                <div>
+                  <h3 className="text-lg font-bold text-[#2C3E50]">Contre-proposition du client</h3>
+                  <p className="text-sm text-[#6C757D]">Le client ne souhaite pas payer votre tarif initial. À vous de décider.</p>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl p-4 space-y-2 border border-blue-200">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-[#6C757D]">Votre proposition initiale</span>
+                  <span className="font-bold text-[#2C3E50] line-through">{maProposition.montantPropose}€</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[#6C757D]">Budget souhaité par le client</span>
+                  <span className="text-2xl font-extrabold text-blue-700">{maProposition.contrePropositionMontant}€</span>
+                </div>
+                {maProposition.contrePropositionMessage && (
+                  <div className="pt-2 border-t border-blue-100">
+                    <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">Message client</p>
+                    <p className="text-sm text-[#2C3E50] italic">"{maProposition.contrePropositionMessage}"</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Choix d'action */}
+              {!negoAction && (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <button
+                    onClick={() => setNegoAction('accepter_prix_client')}
+                    className="px-4 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 font-semibold text-sm transition-all"
+                  >
+                    ✅ Accepter {maProposition.contrePropositionMontant}€
+                  </button>
+                  <button
+                    onClick={() => setNegoAction('proposition_finale')}
+                    className="px-4 py-3 bg-[#FF6B00] text-white rounded-xl hover:bg-[#E56100] font-semibold text-sm transition-all"
+                  >
+                    💬 Proposer un autre tarif
+                  </button>
+                  <button
+                    onClick={() => setNegoAction('refuser')}
+                    className="px-4 py-3 bg-white border-2 border-red-400 text-red-600 rounded-xl hover:bg-red-50 font-semibold text-sm transition-all"
+                  >
+                    ✕ Refuser et passer
+                  </button>
+                </div>
+              )}
+
+              {/* Confirmation accepter */}
+              {negoAction === 'accepter_prix_client' && (
+                <div className="bg-white rounded-xl p-4 border border-green-300 space-y-3">
+                  <p className="text-sm text-[#2C3E50]">Vous allez accepter le budget de <strong className="text-green-700">{maProposition.contrePropositionMontant}€</strong> proposé par le client.</p>
+                  <div className="flex gap-3">
+                    <button onClick={() => setNegoAction(null)} className="flex-1 px-4 py-2.5 border-2 border-gray-200 text-[#6C757D] rounded-xl text-sm hover:border-[#2C3E50]">Retour</button>
+                    <button onClick={handleRepondreNegociation} disabled={submitting} className="flex-1 px-4 py-2.5 bg-green-600 text-white rounded-xl text-sm font-semibold hover:bg-green-700 disabled:opacity-50">
+                      {submitting ? '⏳…' : '✅ Confirmer'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Confirmation refus */}
+              {negoAction === 'refuser' && (
+                <div className="bg-white rounded-xl p-4 border border-red-300 space-y-3">
+                  <p className="text-sm text-[#2C3E50]">La négociation sera rompue. La demande redeviendra visible pour d'autres artisans.</p>
+                  <div className="flex gap-3">
+                    <button onClick={() => setNegoAction(null)} className="flex-1 px-4 py-2.5 border-2 border-gray-200 text-[#6C757D] rounded-xl text-sm hover:border-[#2C3E50]">Retour</button>
+                    <button onClick={handleRepondreNegociation} disabled={submitting} className="flex-1 px-4 py-2.5 bg-red-500 text-white rounded-xl text-sm font-semibold hover:bg-red-600 disabled:opacity-50">
+                      {submitting ? '⏳…' : 'Confirmer le refus'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Formulaire proposition finale */}
+              {negoAction === 'proposition_finale' && (
+                <div className="bg-white rounded-xl p-4 border border-[#FF6B00] space-y-4">
+                  <p className="text-sm font-semibold text-[#2C3E50]">Proposition finale (le client ne pourra plus contre-proposer)</p>
+                  <div>
+                    <label className="text-sm font-semibold text-[#2C3E50] mb-1 block">Votre tarif final (max 150€)</label>
+                    <div className="relative">
+                      <input
+                        type="number" min="1" max="150"
+                        value={negoMontantFinal}
+                        onChange={e => setNegoMontantFinal(e.target.value)}
+                        className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-xl focus:outline-none focus:border-[#FF6B00] pr-10"
+                        placeholder="Ex : 110"
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6C757D] font-bold">€</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-[#2C3E50] mb-1 block">Justification / détail inclus</label>
+                    <textarea
+                      value={negoMessageFinal}
+                      onChange={e => setNegoMessageFinal(e.target.value)}
+                      rows={3}
+                      className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-xl focus:outline-none focus:border-[#FF6B00] text-sm"
+                      placeholder="Ex : Je ne peux pas descendre plus bas à cause des pièces à fournir. Ce tarif comprend tout."
+                    />
+                  </div>
+                  <div className="flex gap-3">
+                    <button onClick={() => setNegoAction(null)} className="flex-1 px-4 py-2.5 border-2 border-gray-200 text-[#6C757D] rounded-xl text-sm hover:border-[#2C3E50]">Retour</button>
+                    <button onClick={handleRepondreNegociation} disabled={submitting || !negoMontantFinal || !negoMessageFinal.trim()} className="flex-1 px-4 py-2.5 bg-[#FF6B00] text-white rounded-xl text-sm font-semibold hover:bg-[#E56100] disabled:opacity-50">
+                      {submitting ? '⏳…' : '🔔 Envoyer proposition finale'}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -524,21 +715,33 @@ export default function DemandeExpressDetailArtisanPage() {
                 🔧 Intervention en cours
               </h3>
               <p className="text-[#6C757D] mb-4">
-                Une fois l'intervention terminée, marquez-la comme terminée pour libérer le paiement.
+                Une fois les travaux terminés, déclarez-le. Le client aura 24h pour valider et libérer votre paiement (libération automatique après 24h).
               </p>
               <Button onClick={handleMarquerTerminee} disabled={submitting}>
-                ✅ Marquer l'intervention comme terminée
+                ✅ Déclarer la fin des travaux
               </Button>
             </div>
           )}
 
-          {demande.statut === 'terminee' && (
-            <div className="bg-gray-50 border-2 border-gray-300 rounded-xl p-6">
-              <h3 className="text-lg font-bold text-[#2C3E50] mb-2">
-                🎉 Intervention terminée
+          {demande.statut === 'travaux_termines' && (
+            <div className="bg-amber-50 border-2 border-amber-400 rounded-xl p-6">
+              <h3 className="text-lg font-bold text-[#2C3E50] mb-4">
+                ⏳ En attente de validation du client
               </h3>
               <p className="text-[#6C757D]">
-                Le paiement a été libéré. Le client peut maintenant laisser un avis.
+                Le client a été notifié. Il doit valider les travaux pour libérer votre paiement.
+                Le paiement sera automatiquement libéré dans 24h si le client ne répond pas.
+              </p>
+            </div>
+          )}
+
+          {demande.statut === 'terminee' && (
+            <div className="bg-green-50 border-2 border-green-300 rounded-xl p-6">
+              <h3 className="text-lg font-bold text-[#2C3E50] mb-2">
+                🎉 Travaux validés — Paiement libéré !
+              </h3>
+              <p className="text-[#6C757D]">
+                Le client a validé les travaux. Votre paiement a été versé.
               </p>
             </div>
           )}

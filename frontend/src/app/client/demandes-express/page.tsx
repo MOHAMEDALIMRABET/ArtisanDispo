@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useNotifications } from '@/hooks/useNotifications';
 import {
   getDemandesExpressByClient,
   getPropositionsByDemande,
@@ -13,8 +14,10 @@ import {
   sendContrePropositionExpress,
   updateDemandeExpressStatut,
   deleteDemandeExpress,
+  markTravauxValides,
 } from '@/lib/firebase/demande-express-service';
 import { getUserById } from '@/lib/firebase/user-service';
+import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import type { DemandeExpress, PropositionExpress, User, DemandeExpressStatut } from '@/types/firestore';
@@ -43,6 +46,35 @@ export default function MesDemandesExpressPage() {
   const [contreMontant, setContreMontant] = useState('');
   const [contreMessage, setContreMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [validatingId, setValidatingId] = useState<string | null>(null);
+  const [artisanNomMap, setArtisanNomMap] = useState<Map<string, string>>(new Map());
+
+  // Cloches temporaires (nouvelles propositions non lues)
+  const { notifications, markAsRead } = useNotifications(firebaseUser?.uid);
+  const [bellDemandeIds, setBellDemandeIds] = useState<Set<string>>(new Set());
+  const [showToutsBell, setShowToutsBell] = useState(false);
+  const bellsInitialized = useRef(false);
+
+  // Initialiser les cloches une fois (notifications de nouvelles propositions non lues)
+  useEffect(() => {
+    if (bellsInitialized.current) return;
+    if (loading && notifications.length === 0) return;
+    bellsInitialized.current = true;
+    const expressNotifs = notifications.filter(
+      n => !n.lue && n.type === 'proposition_express_recue' && n.lien
+    );
+    if (expressNotifs.length === 0) return;
+    const ids = new Set<string>(
+      expressNotifs.map(n => n.lien!.split('/').pop() ?? '').filter(Boolean)
+    );
+    setBellDemandeIds(ids);
+    setShowToutsBell(true);
+    const timer = setTimeout(() => {
+      setBellDemandeIds(new Set());
+      setShowToutsBell(false);
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, [loading, notifications]);
 
   const toggleExpand = async (id: string, statut: DemandeExpressStatut) => {
     const next = new Set(expandedIds);
@@ -50,9 +82,15 @@ export default function MesDemandesExpressPage() {
       next.delete(id);
     } else {
       next.add(id);
+      // Effacer la cloche pour cette demande et marquer la notif comme lue
+      if (bellDemandeIds.has(id)) {
+        setBellDemandeIds(prev => { const s = new Set(prev); s.delete(id); return s; });
+        const notif = notifications.find(n => !n.lue && n.type === 'proposition_express_recue' && n.lien?.endsWith(`/${id}`));
+        if (notif) markAsRead(notif.id);
+      }
       // Charger la proposition si statut pertinent et pas encore chargée
       if (
-        ['proposition_recue', 'acceptee', 'payee', 'en_cours', 'terminee'].includes(statut) &&
+        ['proposition_recue', 'acceptee', 'payee', 'en_cours', 'travaux_termines', 'terminee'].includes(statut) &&
         !propositionsMap.has(id) &&
         !loadingPropsIds.has(id)
       ) {
@@ -61,6 +99,10 @@ export default function MesDemandesExpressPage() {
           const props = await getPropositionsByDemande(id);
           const active = props.find(p => p.statut === 'en_attente_acceptation') || props[0] || null;
           setPropositionsMap(prev => new Map(prev).set(id, active));
+          // Charger le nom de l'artisan depuis la proposition
+          if (active?.artisanId) {
+            loadArtisanNom(id, active.artisanId);
+          }
         } catch {
           setPropositionsMap(prev => new Map(prev).set(id, null));
         } finally {
@@ -118,7 +160,40 @@ export default function MesDemandesExpressPage() {
       setSubmitting(false);
     }
   }
+  async function loadArtisanNom(demandeId: string, artisanUserId: string) {
+    try {
+      const artisan = await getArtisanByUserId(artisanUserId);
+      if (artisan) {
+        const nom = (artisan as any).businessName || (artisan as any).raisonSociale || 'Artisan';
+        setArtisanNomMap(prev => {
+          if (prev.has(demandeId)) return prev;
+          return new Map(prev).set(demandeId, nom);
+        });
+      }
+    } catch {}
+  }
 
+  async function handleValiderTravaux(demandeId: string) {
+    if (!confirm("Confirmez-vous la bonne exécution des travaux ? Cela libèrera le paiement à l'artisan.")) return;
+    setValidatingId(demandeId);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/stripe-express/capture-payment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ demandeId }),
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Erreur lors de la libération du paiement');
+      }
+      await markTravauxValides(demandeId);
+      setDemandes(prev => prev.map(d => d.id === demandeId ? { ...d, statut: 'terminee' as DemandeExpressStatut } : d));
+    } catch (err: any) {
+      alert(err.message || 'Erreur lors de la validation des travaux');
+    } finally {
+      setValidatingId(null);
+    }
+  }
   useEffect(() => {
     if (authLoading) return;
 
@@ -156,24 +231,69 @@ export default function MesDemandesExpressPage() {
       });
       await Promise.all(toDelete.map((d) => deleteDemandeExpress(d.id)));
 
-      // Demandes en attente dont la date d'expiration est passée → marquer 'expiree'
+      // Demandes expirées : en attente sans réponse OU proposition reçue sans réponse client
       const toExpire = demandesList.filter(
         (d) =>
-          d.statut === 'en_attente_proposition' &&
+          (d.statut === 'en_attente_proposition' || d.statut === 'proposition_recue') &&
           d.expiresAt &&
           d.expiresAt.toDate().getTime() < nowMs
       );
       await Promise.all(toExpire.map((d) => updateDemandeExpressStatut(d.id, 'expiree')));
 
+      // Auto-libération : travaux_termines > 24h → libérer le paiement automatiquement
+      const toAutoRelease = demandesList.filter(
+        (d) =>
+          d.statut === 'travaux_termines' &&
+          d.travauxTerminesAt &&
+          d.travauxTerminesAt.toDate().getTime() < nowMs - oneDayMs
+      );
+      const autoReleasedIds = new Set<string>();
+      for (const d of toAutoRelease) {
+        try {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+          if (apiUrl) {
+            const resp = await fetch(`${apiUrl}/stripe-express/capture-payment`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ demandeId: d.id }),
+            });
+            if (resp.ok) {
+              await markTravauxValides(d.id);
+              autoReleasedIds.add(d.id);
+            }
+          }
+        } catch (e) {
+          console.error('Auto-libération échouée pour', d.id, e);
+        }
+      }
+
       const updatedList = demandesList
         .filter((d) => !toDelete.some((td) => td.id === d.id))
-        .map((d) =>
-          toExpire.some((te) => te.id === d.id)
-            ? { ...d, statut: 'expiree' as DemandeExpressStatut }
-            : d
-        );
+        .map((d) => {
+          if (toExpire.some((te) => te.id === d.id)) return { ...d, statut: 'expiree' as DemandeExpressStatut };
+          if (autoReleasedIds.has(d.id)) return { ...d, statut: 'terminee' as DemandeExpressStatut };
+          return d;
+        });
 
       setDemandes(updatedList);
+
+      // Charger les noms des artisans pour les demandes qui en ont
+      const demandesAvecArtisan = updatedList.filter(d => d.artisanId);
+      if (demandesAvecArtisan.length > 0) {
+        const nomMap = new Map<string, string>();
+        await Promise.all(
+          demandesAvecArtisan.map(async (d) => {
+            try {
+              const artisan = await getArtisanByUserId(d.artisanId!);
+              if (artisan) {
+                const nom = (artisan as any).businessName || (artisan as any).raisonSociale || 'Artisan';
+                nomMap.set(d.id, nom);
+              }
+            } catch {}
+          })
+        );
+        setArtisanNomMap(nomMap);
+      }
     } catch (error) {
       console.error('Erreur chargement demandes:', error);
     } finally {
@@ -188,6 +308,7 @@ export default function MesDemandesExpressPage() {
   const demandesFiltrees = demandes.filter((d) => {
     if (filtreStatut === 'toutes') return !isExpireeOuRefusee(d.statut);
     if (filtreStatut === 'expiree') return isExpireeOuRefusee(d.statut);
+    if (filtreStatut === 'en_cours') return ['payee', 'en_cours', 'travaux_termines'].includes(d.statut);
     return d.statut === filtreStatut;
   });
 
@@ -198,6 +319,7 @@ export default function MesDemandesExpressPage() {
       acceptee: 'bg-green-100 text-green-800',
       payee: 'bg-purple-100 text-purple-800',
       en_cours: 'bg-indigo-100 text-indigo-800',
+      travaux_termines: 'bg-amber-100 text-amber-800',
       terminee: 'bg-green-200 text-green-900',
       annulee: 'bg-red-100 text-red-800',
       expiree: 'bg-gray-200 text-gray-700',
@@ -297,6 +419,7 @@ export default function MesDemandesExpressPage() {
             }`}
           >
             {t('clientExpressRequests.filters.all')} ({demandesActives.length})
+            {showToutsBell && <span className="ml-1.5 animate-bounce">🔔</span>}
           </button>
           <button
             onClick={() => setFiltreStatut('en_attente_proposition')}
@@ -326,7 +449,7 @@ export default function MesDemandesExpressPage() {
                 : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
             }`}
           >
-            {t('clientExpressRequests.filters.inProgress')} ({demandes.filter(d => d.statut === 'en_cours').length})
+            {t('clientExpressRequests.filters.inProgress')} ({demandes.filter(d => ['payee', 'en_cours', 'travaux_termines'].includes(d.statut)).length})
           </button>
           <button
             onClick={() => setFiltreStatut('terminee')}
@@ -338,18 +461,16 @@ export default function MesDemandesExpressPage() {
           >
             {t('clientExpressRequests.filters.completed')} ({demandes.filter(d => d.statut === 'terminee').length})
           </button>
-          {demandesExpirees.length > 0 && (
-            <button
-              onClick={() => setFiltreStatut('expiree')}
-              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                filtreStatut === 'expiree'
-                  ? 'bg-gray-600 text-white'
-                  : 'bg-white text-gray-500 hover:bg-[#F5F7FA]'
-              }`}
-            >
-              🚫 Refusées/Expirées ({demandesExpirees.length})
-            </button>
-          )}
+          <button
+            onClick={() => setFiltreStatut('expiree')}
+            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+              filtreStatut === 'expiree'
+                ? 'bg-gray-600 text-white'
+                : 'bg-white text-gray-500 hover:bg-[#F5F7FA]'
+            }`}
+          >
+            🚫 Refusées/Expirées ({demandesExpirees.length})
+          </button>
         </div>
 
         {/* Liste des demandes */}
@@ -368,7 +489,7 @@ export default function MesDemandesExpressPage() {
           <div className="grid gap-6">
             {demandesFiltrees.map((demande) => {
               const isExpanded = expandedIds.has(demande.id);
-              const canExpand = demande.statut !== 'en_attente_proposition';
+              const canExpand = true;
               return (
               <div
                 key={demande.id}
@@ -378,6 +499,13 @@ export default function MesDemandesExpressPage() {
               >
                 {/* Barre latérale orange */}
                 <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-[#FF6B00] to-[#E56100]" />
+
+                {/* Cloche nouvelle proposition */}
+                {bellDemandeIds.has(demande.id) && (
+                  <div className="absolute top-4 left-5 z-10">
+                    <span className="animate-bounce text-xl" title="Nouvelle proposition !">🔔</span>
+                  </div>
+                )}
 
                 {/* Bouton expand/collapse */}
                 {canExpand && (
@@ -403,6 +531,11 @@ export default function MesDemandesExpressPage() {
                   <div className="flex items-center gap-3 mb-3 flex-wrap">
                     {getStatutBadge(demande.statut)}
                     {getUrgenceBadge(demande.urgence)}
+                    {artisanNomMap.has(demande.id) && (
+                      <span className="px-3 py-1 bg-blue-50 border border-blue-200 text-blue-700 rounded-full text-xs font-semibold">
+                        👤 {artisanNomMap.get(demande.id)}
+                      </span>
+                    )}
                     {demande.budgetPropose && (
                       <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
                         {t('clientExpressRequests.card.budgetProposed').replace('{amount}', String(demande.budgetPropose))}
@@ -462,6 +595,26 @@ export default function MesDemandesExpressPage() {
                         <div className="px-8 py-3 bg-[#F8F9FA] border-b border-gray-100">
                           <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-0.5">📍 Adresse complète</p>
                           <p className="text-sm font-medium text-[#2C3E50]">{demande.adresse}</p>
+                        </div>
+                      )}
+
+                      {/* Photos du chantier */}
+                      {demande.photos && demande.photos.length > 0 && (
+                        <div className="px-8 py-4 border-b border-gray-100">
+                          <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-2">
+                            📷 Photos ({demande.photos.length})
+                          </p>
+                          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                            {demande.photos.map((url: string, i: number) => (
+                              <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                                <img
+                                  src={url}
+                                  alt={`Photo ${i + 1}`}
+                                  className="w-full h-24 object-cover rounded-lg border-2 border-[#E9ECEF] hover:border-[#FF6B00] transition-colors cursor-pointer"
+                                />
+                              </a>
+                            ))}
+                          </div>
                         </div>
                       )}
 
@@ -573,6 +726,39 @@ export default function MesDemandesExpressPage() {
                             <div>
                               <p className="text-sm text-green-800 font-medium">Paiement confirmé.</p>
                               {prop && <p className="text-sm text-green-700">Montant sécurisé : <strong>{prop.montantPropose}€</strong></p>}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Travaux terminés - validation client requise */}
+                        {demande.statut === 'travaux_termines' && (
+                          <div className="bg-amber-50 border-2 border-amber-400 rounded-xl p-4">
+                            <div className="flex items-start gap-3">
+                              <span className="text-2xl">⏳</span>
+                              <div className="flex-1">
+                                <p className="font-bold text-[#2C3E50] mb-1">L&apos;artisan a terminé les travaux</p>
+                                <p className="text-sm text-amber-800 mb-1">Validez pour libérer le paiement à l&apos;artisan.</p>
+                                <p className="text-xs text-[#6C757D] mb-3">
+                                  Si vous ne validez pas dans 24h, le paiement sera libéré automatiquement.
+                                  {demande.travauxTerminesAt && (() => {
+                                    const autoAt = demande.travauxTerminesAt!.toDate().getTime() + 24 * 60 * 60 * 1000;
+                                    const rem = autoAt - Date.now();
+                                    if (rem > 0) {
+                                      const h = Math.floor(rem / 3600000);
+                                      const m = Math.floor((rem % 3600000) / 60000);
+                                      return ` (auto-libération dans ${h}h${m > 0 ? ` ${m}min` : ''})`;
+                                    }
+                                    return null;
+                                  })()}
+                                </p>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleValiderTravaux(demande.id); }}
+                                  disabled={validatingId === demande.id}
+                                  className="w-full px-4 py-3 bg-[#28A745] text-white rounded-xl hover:bg-green-700 font-bold text-sm transition-all disabled:opacity-50"
+                                >
+                                  {validatingId === demande.id ? '⏳ Libération du paiement...' : '\u2705 Valider les travaux et libérer le paiement'}
+                                </button>
+                              </div>
                             </div>
                           </div>
                         )}

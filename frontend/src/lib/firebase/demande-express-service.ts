@@ -21,6 +21,7 @@ import type {
   DemandeExpress,
   DemandeExpressStatut,
   PropositionExpress,
+  NegociationRound,
   Categorie,
 } from '@/types/firestore';
 import { createNotification } from './notification-service';
@@ -42,10 +43,10 @@ export async function createDemandeExpress(
     statut: 'en_attente_proposition' as const,
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
-    // Auto-expiration selon l'urgence : immediat=2h, urgent=6h (intervention dans 24h → l'artisan doit avoir le temps d'intervenir)
+    // Fenêtre pour que l'artisan réponde : immediat=1h (laisse 1h pour intervenir), urgent=6h
     expiresAt: Timestamp.fromDate(new Date(Date.now() + (
-      data.urgence === 'immediat' ? 2 * 60 * 60 * 1000 :
-      6 * 60 * 60 * 1000
+      data.urgence === 'immediat' ? 60 * 60 * 1000 :      // 1h — urgence totale
+      6 * 60 * 60 * 1000                                 // 6h — intervention dans 24h
     ))),  
   };
 
@@ -153,10 +154,15 @@ export async function createPropositionExpress(
 
   const docRef = await addDoc(collection(db, 'propositions_express'), propositionData);
 
-  // Mettre à jour la demande
+  // Mettre à jour la demande + nouvelle deadline de réponse pour le client
   await updateDoc(doc(db, 'demandes_express', data.demandeId), {
     statut: 'proposition_recue',
     updatedAt: Timestamp.now(),
+    // Phase 2 : le client doit répondre rapidement (remplace l'ancienne fenêtre artisan)
+    expiresAt: Timestamp.fromDate(new Date(Date.now() + (
+      demande.urgence === 'immediat' ? 30 * 60 * 1000 :  // 30min — client urgent
+      3 * 60 * 60 * 1000                                  // 3h — client non-urgent
+    ))),
   });
 
   // Notifier le client
@@ -211,7 +217,7 @@ export async function acceptPropositionExpress(propositionId: string): Promise<v
     throw new Error('Proposition introuvable');
   }
 
-  if (proposition.statut !== 'en_attente_acceptation') {
+  if (proposition.statut !== 'en_attente_acceptation' && proposition.statut !== 'proposition_finale_artisan') {
     throw new Error('Cette proposition ne peut plus être acceptée');
   }
 
@@ -248,9 +254,15 @@ export async function refusePropositionExpress(
     throw new Error('Proposition introuvable');
   }
 
-  if (proposition.statut !== 'en_attente_acceptation') {
+  if (proposition.statut !== 'en_attente_acceptation' && proposition.statut !== 'proposition_finale_artisan') {
     throw new Error('Cette proposition ne peut plus être refusée');
   }
+
+  // Charger la demande pour recalculer la fenêtre d'expiration artisan
+  const demandeForRefus = await getDemandeExpressById(proposition.demandeId);
+  const expiresAtAfterRefus = Timestamp.fromDate(new Date(Date.now() + (
+    demandeForRefus?.urgence === 'immediat' ? 60 * 60 * 1000 : 6 * 60 * 60 * 1000
+  )));
 
   // Mettre à jour la proposition
   await updateDoc(doc(db, 'propositions_express', propositionId), {
@@ -259,10 +271,11 @@ export async function refusePropositionExpress(
     motifRefus: motifRefus || 'Non spécifié',
   });
 
-  // Remettre la demande en attente
+  // Remettre la demande en attente avec une nouvelle fenêtre d'expiration fraîche
   await updateDoc(doc(db, 'demandes_express', proposition.demandeId), {
     statut: 'en_attente_proposition',
     updatedAt: Timestamp.now(),
+    expiresAt: expiresAtAfterRefus,
   });
 
   // Notifier l'artisan
@@ -275,8 +288,8 @@ export async function refusePropositionExpress(
 }
 
 /**
- * Envoyer une contre-proposition au lieu de simplement refuser
- * Le client propose un montant différent et un message à l'artisan
+ * Round 2 — Client envoie une contre-proposition (ne ferme pas la négociation)
+ * La proposition passe en 'en_negociation' — l'artisan doit répondre.
  */
 export async function sendContrePropositionExpress(
   propositionId: string,
@@ -284,38 +297,125 @@ export async function sendContrePropositionExpress(
   messageClient: string
 ): Promise<void> {
   const proposition = await getPropositionExpressById(propositionId);
-  if (!proposition) {
-    throw new Error('Proposition introuvable');
-  }
+  if (!proposition) throw new Error('Proposition introuvable');
+  if (proposition.statut !== 'en_attente_acceptation') throw new Error('Cette proposition ne peut plus être négociée');
 
-  if (proposition.statut !== 'en_attente_acceptation') {
-    throw new Error('Cette proposition ne peut plus être négociée');
-  }
-
-  // Marquer la proposition comme refusée avec le détail de la contre-prop
-  const motif = `[CONTRE-PROPOSITION] Budget souhaité : ${montantCounter}€\nMessage : ${messageClient}`;
+  const newRound: NegociationRound = {
+    auteur: 'client',
+    montant: montantCounter,
+    message: messageClient,
+    createdAt: Timestamp.now(),
+  };
+  const rounds = [...(proposition.rounds || []), newRound];
 
   await updateDoc(doc(db, 'propositions_express', propositionId), {
-    statut: 'refusee',
-    refusedAt: Timestamp.now(),
-    motifRefus: motif,
+    statut: 'en_negociation',
     contrePropositionMontant: montantCounter,
     contrePropositionMessage: messageClient,
+    montantCourant: montantCounter,
+    rounds,
   });
 
-  // Remettre la demande en attente de proposition
-  await updateDoc(doc(db, 'demandes_express', proposition.demandeId), {
-    statut: 'en_attente_proposition',
-    updatedAt: Timestamp.now(),
-  });
+  // La demande reste 'proposition_recue' — on négocie avec le même artisan
 
-  // Notifier l'artisan avec les détails de la contre-proposition
   await createNotification(proposition.artisanId, {
     type: 'contre_proposition_recue',
     titre: '💬 Contre-proposition reçue',
-    message: `Le client propose ${montantCounter}€ au lieu de ${proposition.montantPropose}€. Message : ${messageClient.slice(0, 80)}`,
+    message: `Le client propose ${montantCounter}€ au lieu de ${proposition.montantPropose}€ : ${messageClient.slice(0, 80)}`,
     lien: `/artisan/demandes-express/${proposition.demandeId}`,
   });
+}
+
+/**
+ * Round 3 — Artisan répond à la contre-proposition du client.
+ * action = 'accepter_prix_client' → l'artisan accepte le montant proposé par le client
+ * action = 'refuser'              → négociation rompue, demande repart en attente
+ * action = 'proposition_finale'   → artisan fait une DERNIERE offre (client accepte/refuse uniquement)
+ */
+export async function repondreArtisanNegociation(
+  propositionId: string,
+  action: 'accepter_prix_client' | 'refuser' | 'proposition_finale',
+  montantFinal?: number,
+  messageFinal?: string
+): Promise<void> {
+  const proposition = await getPropositionExpressById(propositionId);
+  if (!proposition) throw new Error('Proposition introuvable');
+  if (proposition.statut !== 'en_negociation') throw new Error('Cette proposition n\'est pas en négociation');
+
+  // Charger la demande pour recalculer la fenêtre d'expiration si on revient en attente
+  const demandeNego = await getDemandeExpressById(proposition.demandeId);
+  const resetExpiresAt = Timestamp.fromDate(new Date(Date.now() + (
+    demandeNego?.urgence === 'immediat' ? 60 * 60 * 1000 : 6 * 60 * 60 * 1000
+  )));
+
+  const now = Timestamp.now();
+
+  if (action === 'refuser') {
+    await updateDoc(doc(db, 'propositions_express', propositionId), {
+      statut: 'refusee',
+      refusedAt: now,
+      motifRefus: 'Artisan a refusé la contre-proposition',
+    });
+    await updateDoc(doc(db, 'demandes_express', proposition.demandeId), {
+      statut: 'en_attente_proposition',
+      updatedAt: now,
+      expiresAt: resetExpiresAt,  // Nouvelle fenêtre fraîche pour les autres artisans
+    });
+    await createNotification(proposition.clientId, {
+      type: 'proposition_refusee',
+      titre: 'Négociation rompue',
+      message: 'L\'artisan n\'a pas pu s\'aligner sur votre budget. Votre demande est de nouveau visible.',
+      lien: `/client/demandes-express/${proposition.demandeId}`,
+    });
+    return;
+  }
+
+  if (action === 'accepter_prix_client') {
+    const montant = proposition.contrePropositionMontant ?? proposition.montantCourant ?? proposition.montantPropose;
+    const round: NegociationRound = {
+      auteur: 'artisan',
+      montant,
+      message: 'J\'accepte votre budget.',
+      createdAt: now,
+    };
+    await updateDoc(doc(db, 'propositions_express', propositionId), {
+      statut: 'en_attente_acceptation',
+      montantPropose: montant,
+      montantCourant: montant,
+      rounds: [...(proposition.rounds || []), round],
+    });
+    await createNotification(proposition.clientId, {
+      type: 'proposition_express_recue',
+      titre: '✅ L\'artisan accepte votre budget',
+      message: `L\'artisan accepte vos ${montant}€. Vous pouvez maintenant accepter et payer.`,
+      lien: `/client/demandes-express/${proposition.demandeId}`,
+    });
+    return;
+  }
+
+  if (action === 'proposition_finale') {
+    if (!montantFinal || !messageFinal) throw new Error('Montant et message requis pour la proposition finale');
+    if (montantFinal > 150) throw new Error('Le montant ne peut pas dépasser 150€');
+    const round: NegociationRound = {
+      auteur: 'artisan',
+      montant: montantFinal,
+      message: messageFinal,
+      createdAt: now,
+    };
+    await updateDoc(doc(db, 'propositions_express', propositionId), {
+      statut: 'proposition_finale_artisan',
+      propositionFinaleMontant: montantFinal,
+      propositionFinaleMessage: messageFinal,
+      montantCourant: montantFinal,
+      rounds: [...(proposition.rounds || []), round],
+    });
+    await createNotification(proposition.clientId, {
+      type: 'proposition_express_recue',
+      titre: '🔔 Proposition finale reçue',
+      message: `L\'artisan vous fait une offre finale à ${montantFinal}€. Acceptez ou refusez — c\'est la dernière offre.`,
+      lien: `/client/demandes-express/${proposition.demandeId}`,
+    });
+  }
 }
 
 /**
@@ -363,17 +463,43 @@ export async function markInterventionTerminee(demandeId: string): Promise<void>
   }
 
   await updateDoc(doc(db, 'demandes_express', demandeId), {
+    statut: 'travaux_termines',
+    travauxTerminesAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
+  });
+
+  // Notifier le client pour validation des travaux
+  await createNotification(demande.clientId, {
+    type: 'travaux_termines',
+    titre: '🔔 Travaux terminés — Validation requise',
+    message: "L'artisan a terminé les travaux. Validez pour libérer le paiement (auto-libération dans 24h).",
+    lien: `/client/demandes-express/${demandeId}`,
+  });
+}
+
+/**
+ * Valider les travaux côté client — déclenche la libération du séquestre
+ */
+export async function markTravauxValides(demandeId: string): Promise<void> {
+  const demande = await getDemandeExpressById(demandeId);
+  if (!demande) {
+    throw new Error('Demande introuvable');
+  }
+
+  await updateDoc(doc(db, 'demandes_express', demandeId), {
     statut: 'terminee',
     updatedAt: Timestamp.now(),
   });
 
-  // Notifier le client pour qu'il laisse un avis
-  await createNotification(demande.clientId, {
-    type: 'demande_avis_express',
-    titre: 'Travaux terminés',
-    message: 'Donnez votre avis sur cette intervention',
-    lien: `/client/demandes-express/${demandeId}`,
-  });
+  // Notifier l'artisan que le paiement est libéré
+  if (demande.artisanId) {
+    await createNotification(demande.artisanId, {
+      type: 'paiement_libere',
+      titre: '💰 Paiement libéré !',
+      message: 'Le client a validé les travaux. Votre paiement a été versé.',
+      lien: `/artisan/demandes-express/${demandeId}`,
+    });
+  }
 }
 
 /**

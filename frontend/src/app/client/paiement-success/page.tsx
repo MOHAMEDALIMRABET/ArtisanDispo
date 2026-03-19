@@ -41,6 +41,11 @@ export default function PaiementSuccessPage() {
           setStatus('success');
           setMessage(t('clientPaymentSuccess.success.messageSuccess'));
           break;
+        case 'requires_capture':
+          // Paiement autorisé avec capture manuelle (séquestre) — succès pour le client
+          setStatus('success');
+          setMessage(t('clientPaymentSuccess.success.messageSuccess'));
+          break;
         case 'processing':
           setStatus('success');
           setMessage(t('clientPaymentSuccess.success.messageProcessing'));

@@ -11,12 +11,24 @@ service firebase.storage {
       allow read, write: if false;
     }
     
-    // Photos des demandes de devis
+    // Photos des demandes de devis (demandes classiques)
     match /demandes/{userId}/{fileName} {
       // Lecture: Tout utilisateur authentifié peut lire les photos des demandes
       allow read: if request.auth != null;
       
       // Écriture: Seulement l'utilisateur propriétaire peut uploader ses photos
+      allow write: if request.auth != null && 
+                      request.auth.uid == userId &&
+                      request.resource.size < 5 * 1024 * 1024 && // Max 5MB
+                      request.resource.contentType.matches('image/(jpeg|jpg|png|gif|webp)');
+    }
+    
+    // Photos des demandes express (< 150€)
+    match /demandes_express/{userId}/{fileName} {
+      // Lecture: Tout utilisateur authentifié peut lire (client + artisan)
+      allow read: if request.auth != null;
+      
+      // Écriture: Seulement le propriétaire peut uploader ses photos
       allow write: if request.auth != null && 
                       request.auth.uid == userId &&
                       request.resource.size < 5 * 1024 * 1024 && // Max 5MB

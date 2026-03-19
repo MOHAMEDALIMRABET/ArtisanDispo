@@ -58,6 +58,7 @@ export default function ArtisanDemandesPage() {
   const [expandedDemandeIds, setExpandedDemandeIds] = useState<Set<string>>(new Set());
   const [expandedExpressIds, setExpandedExpressIds] = useState<Set<string>>(new Set());
   const [expressPropositionsMap, setExpressPropositionsMap] = useState<Map<string, PropositionExpress[]>>(new Map());
+  const [expressFilter, setExpressFilter] = useState<'nouvelles' | 'propositions_envoyees' | 'acceptees' | 'refusees' | 'validees'>('nouvelles');
   const demandeRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
   // IDs des nouvelles demandes capturées UNE FOIS au chargement (pour le badge 🔔 stable)
   const [demandesNouvellesInitialIds, setDemandesNouvellesInitialIds] = useState<Set<string>>(new Set());
@@ -149,6 +150,22 @@ export default function ArtisanDemandesPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryActive, sectionActive, isLoading, demandes.length, demandesPubliques.length, demandesExpress.length]);
 
+  // Pré-charger toutes les propositions express quand on entre dans la section express
+  useEffect(() => {
+    if (categoryActive !== 'express' || demandesExpress.length === 0) return;
+    demandesExpress.forEach(async (d) => {
+      if (!expressPropositionsMap.has(d.id)) {
+        try {
+          const props = await getPropositionsByDemande(d.id);
+          setExpressPropositionsMap(prev => new Map(prev).set(d.id, props));
+        } catch (e) {
+          console.error('Erreur pré-chargement propositions:', e);
+        }
+      }
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryActive, demandesExpress.length]);
+
   async function loadData() {
     if (!authUser) return;
 
@@ -191,10 +208,11 @@ export default function ArtisanDemandesPage() {
       }
 
       // Charger les demandes express assignées à cet artisan
+      let loadedExpressData: DemandeExpress[] = [];
       try {
-        const demandesExpressData = await getDemandesExpressByArtisan(authUser.uid);
-        console.log('⚡ Demandes express récupérées:', demandesExpressData.length);
-        setDemandesExpress(demandesExpressData);
+        loadedExpressData = await getDemandesExpressByArtisan(authUser.uid);
+        console.log('⚡ Demandes express récupérées:', loadedExpressData.length);
+        setDemandesExpress(loadedExpressData);
       } catch (error) {
         console.error('Erreur chargement demandes express:', error);
       }
@@ -311,7 +329,18 @@ export default function ArtisanDemandesPage() {
           console.error(`Erreur chargement client ${clientId}:`, error);
         }
       }
-      setClientsInfo(clientsMap);
+      // Charger les noms clients des demandes express (clientsMap est maintenant rempli)
+      for (const demande of loadedExpressData) {
+        if (demande.clientId && !clientsMap.has(demande.clientId)) {
+          try {
+            const cd = await getUserById(demande.clientId);
+            if (cd) {
+              clientsMap.set(demande.clientId, { nom: cd.nom || '', prenom: cd.prenom || '' });
+            }
+          } catch {}
+        }
+      }
+      setClientsInfo(new Map(clientsMap));
 
       // Capturer au chargement les IDs des nouvelles demandes non encore vues
       // (lecture directe localStorage pour éviter la stale closure)
@@ -1713,9 +1742,87 @@ export default function ArtisanDemandesPage() {
               <h3 className="text-xl font-bold text-gray-700 mb-2">Aucune demande express</h3>
               <p className="text-gray-600">Vous n&apos;avez pas encore reçu de demande express.</p>
             </div>
-          ) : (
+          ) : (() => {
+            // Calcule les listes filtrées (en dehors du JSX pour éviter la repetition)
+            const getFilteredList = (key: typeof expressFilter) => demandesExpress.filter(d => {
+              const props = expressPropositionsMap.get(d.id) || [];
+              const maProps = props.find(p => p.artisanId === authUser?.uid);
+              if (key === 'nouvelles') {
+                return d.statut === 'en_attente_proposition' && !maProps;
+              }
+              if (key === 'propositions_envoyees') {
+                return maProps?.statut === 'en_attente_acceptation' || maProps?.statut === 'en_negociation' || maProps?.statut === 'proposition_finale_artisan';
+              }
+              if (key === 'acceptees') {
+                return ['acceptee', 'payee', 'en_cours', 'travaux_termines'].includes(d.statut);
+              }
+              if (key === 'validees') {
+                return d.statut === 'terminee';
+              }
+              if (key === 'refusees') {
+                if (maProps?.statut !== 'refusee') return false;
+                const refusedAt = maProps.refusedAt?.toDate().getTime() ?? 0;
+                return (Date.now() - refusedAt) < 24 * 60 * 60 * 1000;
+              }
+              return true;
+            });
+
+            const counts = {
+              nouvelles: getFilteredList('nouvelles').length,
+              propositions_envoyees: getFilteredList('propositions_envoyees').length,
+              acceptees: getFilteredList('acceptees').length,
+              validees: getFilteredList('validees').length,
+              refusees: getFilteredList('refusees').length,
+            };
+            const demandesExpressFiltrees = getFilteredList(expressFilter);
+
+            return (
             <div className="space-y-4">
-              {demandesExpress.map((demande) => {
+              {/* Onglets de filtre */}
+              <div className="flex gap-2 flex-wrap">
+                {([
+                  { key: 'nouvelles' as const, label: '🆕 Nouvelles', count: counts.nouvelles },
+                  { key: 'propositions_envoyees' as const, label: '📨 Propositions envoyées', count: counts.propositions_envoyees },
+                  { key: 'acceptees' as const, label: '✅ Acceptées/Payées', count: counts.acceptees },
+                  { key: 'validees' as const, label: '🎉 Validées', count: counts.validees },
+                  { key: 'refusees' as const, label: '❌ Refusées', count: counts.refusees },
+                ] as { key: typeof expressFilter; label: string; count: number }[]).map(tab => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setExpressFilter(tab.key)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm transition-all border-2 ${
+                      expressFilter === tab.key
+                        ? 'bg-[#FF6B00] text-white border-[#FF6B00] shadow-md'
+                        : 'bg-white text-[#2C3E50] border-gray-200 hover:border-[#FF6B00] hover:bg-orange-50'
+                    }`}
+                  >
+                    <span>{tab.label}</span>
+                    <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${
+                      expressFilter === tab.key ? 'bg-white text-[#FF6B00]' : 'bg-gray-100 text-gray-600'
+                    }`}>{tab.count}</span>
+                  </button>
+                ))}
+              </div>
+
+              {demandesExpressFiltrees.length === 0 ? (
+                <div className="bg-white rounded-xl shadow-sm p-10 text-center border border-gray-100">
+                  <span className="text-5xl mb-3 block">
+                    {expressFilter === 'nouvelles' ? '🔍' :
+                     expressFilter === 'propositions_envoyees' ? '📭' :
+                     expressFilter === 'acceptees' ? '💳' :
+                     expressFilter === 'validees' ? '🎉' : '✌️'}
+                  </span>
+                  <p className="text-gray-500 font-medium">
+                    {expressFilter === 'nouvelles' ? 'Aucune nouvelle demande pour le moment.' :
+                     expressFilter === 'propositions_envoyees' ? 'Aucune proposition en attente de réponse.' :
+                     expressFilter === 'acceptees' ? 'Aucune demande acceptée/payée.' :
+                     expressFilter === 'validees' ? 'Aucune demande validée par les clients.' :
+                     'Aucune proposition refusée (ou disparues après 24h).'}
+                  </p>
+                </div>
+              ) : (
+              <div className="space-y-4">
+              {demandesExpressFiltrees.map((demande) => {
                 const isExpanded = expandedExpressIds.has(demande.id);
                 const propositions = expressPropositionsMap.get(demande.id) || [];
                 const maProposition = propositions.find(p => p.artisanId === authUser?.uid);
@@ -1802,10 +1909,23 @@ export default function ArtisanDemandesPage() {
                            demande.statut}
                         </span>
                       </div>
+                      {(() => {
+                        const expClient = clientsInfo.get(demande.clientId);
+                        return expClient ? (
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-6 h-6 bg-[#2C3E50] text-white rounded-full flex items-center justify-center font-bold text-xs">
+                              {expClient.prenom?.[0]?.toUpperCase() || 'C'}{expClient.nom?.[0]?.toUpperCase() || ''}
+                            </div>
+                            <span className="text-sm font-semibold text-[#2C3E50]">{expClient.prenom} {expClient.nom}</span>
+                          </div>
+                        ) : null;
+                      })()}
                       <p className="text-gray-700 mb-3 line-clamp-3 break-all whitespace-pre-wrap overflow-hidden">{demande.description}</p>
                       <div className="flex flex-wrap gap-3 text-sm text-gray-500">
                         <span>📍 {demande.ville} ({demande.codePostal})</span>
-                        <span>📅 {demande.date}</span>
+                        {demande.createdAt && (
+                          <span>🕐 Créée le {demande.createdAt.toDate().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                        )}
                         {demande.budgetPropose && <span>💰 {demande.budgetPropose}€</span>}
                       </div>
                     </div>
@@ -1814,8 +1934,8 @@ export default function ArtisanDemandesPage() {
                     {isExpanded && (
                       <div className="px-8 pb-6 border-t border-gray-100 pt-4 space-y-4">
 
-                        {/* Bandeau expiration */}
-                        {demande.expiresAt && (() => {
+                        {/* Bandeau expiration — uniquement pendant la recherche d'artisan */}
+                        {demande.expiresAt && demande.statut === 'en_attente_proposition' && (() => {
                           const diff = demande.expiresAt.toDate().getTime() - Date.now();
                           const isExpired = diff <= 0;
                           const isUrgent = !isExpired && diff < 30 * 60 * 1000;
@@ -1847,6 +1967,17 @@ export default function ArtisanDemandesPage() {
                           );
                         })()}
 
+                        {/* Info : le client doit répondre — proposition déjà envoyée */}
+                        {demande.expiresAt && ['proposition_recue', 'en_negociation', 'proposition_finale_artisan'].includes(demande.statut) && (
+                          <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 flex items-center gap-3 text-sm">
+                            <span>📨</span>
+                            <p className="text-blue-700 font-medium">
+                              Proposition envoyée — le client doit répondre avant le{' '}
+                              <strong>{demande.expiresAt.toDate().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</strong>
+                            </p>
+                          </div>
+                        )}
+
                         {/* Grille de métadonnées */}
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
                           <div className="bg-gray-50 rounded-lg p-3">
@@ -1856,8 +1987,20 @@ export default function ArtisanDemandesPage() {
                             </p>
                           </div>
                           <div className="bg-gray-50 rounded-lg p-3">
-                            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">📅 Date souhaitée</p>
-                            <p className="font-semibold text-[#2C3E50]">{new Date(demande.date).toLocaleDateString('fr-FR')}</p>
+                            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
+                              {demande.urgence === 'immediat' ? '⚡' : '🚨'} Intervention attendue
+                            </p>
+                            <p className="font-semibold text-[#2C3E50]">
+                              {demande.urgence === 'immediat' ? 'Dans les 2h' : 'Dans les 24h'} après création
+                            </p>
+                            {demande.createdAt && (
+                              <p className="text-xs text-gray-400 mt-0.5">
+                                Avant le {new Date(
+                                  demande.createdAt.toDate().getTime() +
+                                  (demande.urgence === 'immediat' ? 2 : 24) * 60 * 60 * 1000
+                                ).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                              </p>
+                            )}
                           </div>
                           <div className="bg-gray-50 rounded-lg p-3">
                             <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">📍 Localisation</p>
@@ -1966,8 +2109,11 @@ export default function ArtisanDemandesPage() {
                   </div>
                 );
               })}
+              </div>
+              )}
             </div>
-          )
+            );
+          })()
         )}
       </div>
     </div>

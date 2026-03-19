@@ -10,7 +10,7 @@ import {
   acceptPropositionExpress,
   refusePropositionExpress,
   sendContrePropositionExpress,
-  cancelDemandeExpress
+  deleteDemandeExpress,
 } from '@/lib/firebase/demande-express-service';
 import { getUserById } from '@/lib/firebase/user-service';
 import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
@@ -84,9 +84,11 @@ export default function DemandeExpressDetailClientPage() {
       // 3. Récupérer les propositions (indépendant de l'artisan)
       try {
         const propositions = await getPropositionsByDemande(demandeId);
-        const activeProposition = propositions.find(
-          p => p.statut === 'en_attente_acceptation'
-        ) || propositions[0] || null;
+        const activeProposition =
+          propositions.find(p => p.statut === 'en_attente_acceptation') ||
+          propositions.find(p => p.statut === 'proposition_finale_artisan') ||
+          propositions.find(p => p.statut === 'en_negociation') ||
+          propositions[0] || null;
         setProposition(activeProposition);
 
         // 4. Récupérer l'info artisan (non-bloquant)
@@ -113,6 +115,10 @@ export default function DemandeExpressDetailClientPage() {
 
   async function handleAccepter() {
     if (!proposition || !confirm('Confirmer l\'acceptation de cette proposition ?')) return;
+    if (proposition.statut !== 'en_attente_acceptation' && proposition.statut !== 'proposition_finale_artisan') {
+      alert('Cette proposition ne peut plus être acceptée');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -181,12 +187,11 @@ export default function DemandeExpressDetailClientPage() {
   }
 
   async function handleAnnuler() {
-    if (!demande || !confirm('Voulez-vous vraiment annuler cette demande ?')) return;
+    if (!demande || !confirm('Voulez-vous vraiment annuler cette demande ? Elle sera définitivement supprimée.')) return;
 
     setSubmitting(true);
     try {
-      await cancelDemandeExpress(demandeId, firebaseUser!.uid);
-      alert('Demande annulée.');
+      await deleteDemandeExpress(demandeId);
       router.push('/client/demandes-express');
     } catch (error: any) {
       console.error('Erreur annulation:', error);
@@ -235,7 +240,9 @@ export default function DemandeExpressDetailClientPage() {
 
   if (!demande) return null;
 
-  const peutAnnuler = ['en_attente_proposition', 'proposition_recue'].includes(demande.statut);
+  const peutAnnuler = demande.statut === 'en_attente_proposition';
+  const annulationBloqueeParProposition = demande.statut === 'proposition_recue';
+  const showAnnulerBtn = peutAnnuler || annulationBloqueeParProposition;
   const artisanNom = artisanData
     ? ((artisanData as any).businessName || (artisanData as any).raisonSociale || 'Artisan')
     : null;
@@ -295,7 +302,27 @@ export default function DemandeExpressDetailClientPage() {
                 <p className="text-[#2C3E50] whitespace-pre-wrap break-words leading-relaxed">{demande.description}</p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2 border-t border-[#E9ECEF]">
+              {/* Photos du chantier */}
+              {demande.photos && demande.photos.length > 0 && (
+                <div>
+                  <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-2">
+                    📷 Mes photos ({demande.photos.length})
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {demande.photos.map((url: string, i: number) => (
+                      <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                        <img
+                          src={url}
+                          alt={`Photo chantier ${i + 1}`}
+                          className="w-full h-32 object-cover rounded-xl border-2 border-[#E9ECEF] hover:border-[#FF6B00] transition-colors cursor-pointer"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">📍 Ville</p>
                   <p className="text-[#2C3E50] font-medium text-sm">{demande.ville} ({demande.codePostal})</p>
@@ -354,7 +381,82 @@ export default function DemandeExpressDetailClientPage() {
             </div>
           )}
 
-          {/* ── PROPOSITION REÇUE : section principale ───── */}
+          {/* ── En négociation : client attend la réponse de l'artisan ──── */}
+          {proposition && proposition.statut === 'en_negociation' && (
+            <div className="bg-blue-50 border-2 border-blue-300 rounded-2xl p-6">
+              <div className="flex items-start gap-4">
+                <div className="text-3xl">💬</div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-[#2C3E50] mb-1">Contre-proposition envoyée</h3>
+                  <p className="text-[#6C757D] text-sm mb-4">
+                    Vous avez proposé <strong className="text-blue-700">{proposition.contrePropositionMontant}€</strong>.
+                    L\'artisan va répondre : accepter votre budget, vous faire une proposition finale, ou refuser.
+                  </p>
+                  {proposition.contrePropositionMessage && (
+                    <div className="bg-white rounded-xl p-3 border border-blue-200 text-sm text-[#2C3E50] italic">
+                      « {proposition.contrePropositionMessage} »
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── PROPOSITION FINALE : accept ou refuse uniquement ─── */}
+          {proposition && proposition.statut === 'proposition_finale_artisan' && (
+            <div className="bg-white rounded-2xl shadow-md border-2 border-purple-500 overflow-hidden">
+              <div className="bg-purple-600 px-6 py-3 flex items-center justify-between">
+                <span className="text-white font-bold text-lg">🔔 Proposition finale</span>
+                {artisanNom && (
+                  <span className="bg-white/20 text-white text-sm px-3 py-1 rounded-full font-medium">
+                    👤 {artisanNom}
+                  </span>
+                )}
+              </div>
+              <div className="p-6 space-y-5">
+                <div className="bg-purple-50 rounded-xl p-4">
+                  <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">Tarif final proposé</p>
+                  <p className="text-5xl font-extrabold text-purple-700">{proposition.propositionFinaleMontant ?? proposition.montantCourant ?? proposition.montantPropose}€</p>
+                  <p className="text-xs text-purple-500 mt-1">⚠️ C'est la dernière offre — vous ne pouvez plus contre-proposer.</p>
+                </div>
+                {proposition.propositionFinaleMessage && (
+                  <div>
+                    <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-2">📝 Message de l'artisan</p>
+                    <div className="bg-[#F8F9FA] rounded-xl p-4">
+                      <p className="text-[#2C3E50] whitespace-pre-wrap break-words">{proposition.propositionFinaleMessage}</p>
+                    </div>
+                  </div>
+                )}
+                {demande.expiresAt && (
+                  <div className="flex items-center gap-2 py-2.5 px-4 bg-purple-50 border border-purple-200 rounded-xl text-sm">
+                    <span>⏰</span>
+                    <p className="text-purple-700 font-medium">
+                      Offre valable jusqu'au{' '}
+                      <strong>{format(demande.expiresAt.toDate(), "dd MMM 'à' HH:mm", { locale: fr })}</strong>
+                    </p>
+                  </div>
+                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t border-[#E9ECEF]">
+                  <button
+                    onClick={() => setShowRefusModal(true)}
+                    disabled={submitting}
+                    className="px-5 py-3 border-2 border-red-400 text-red-600 rounded-xl hover:bg-red-50 font-semibold text-sm transition-all disabled:opacity-50"
+                  >
+                    ❌ Refuser
+                  </button>
+                  <button
+                    onClick={handleAccepter}
+                    disabled={submitting}
+                    className="px-5 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 font-semibold text-sm transition-all disabled:opacity-50 shadow-md"
+                  >
+                    {submitting ? '⏳ Traitement…' : '✅ Accepter et payer'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Proposition initiale artisan : Accept / Contre / Refuser ── */}
           {proposition && proposition.statut === 'en_attente_acceptation' && (
             <div className="bg-white rounded-2xl shadow-md border-2 border-[#FF6B00] overflow-hidden">
               {/* Badge artisan */}
@@ -451,6 +553,18 @@ export default function DemandeExpressDetailClientPage() {
                   <p className="text-xs text-[#6C757D] mb-5">
                     Proposition reçue le {format(proposition.createdAt.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr })}
                   </p>
+                )}
+
+                {/* Deadline de réponse */}
+                {demande.expiresAt && (
+                  <div className="flex items-center gap-2 mb-4 py-2.5 px-4 bg-orange-50 border border-orange-200 rounded-xl text-sm">
+                    <span>⏰</span>
+                    <p className="text-orange-700 font-medium">
+                      Répondez avant le{' '}
+                      <strong>{format(demande.expiresAt.toDate(), "dd MMM 'à' HH:mm", { locale: fr })}</strong>
+                      {' '}— la proposition expire automatiquement.
+                    </p>
+                  </div>
                 )}
 
                 {/* Boutons d'action */}
@@ -580,15 +694,24 @@ export default function DemandeExpressDetailClientPage() {
           )}
 
           {/* ── Bouton annuler ───────────────────────────── */}
-          {peutAnnuler && (
-            <div className="flex justify-center pt-2">
+          {showAnnulerBtn && (
+            <div className="flex flex-col items-center gap-2 pt-2">
               <button
-                onClick={handleAnnuler}
-                disabled={submitting}
-                className="px-6 py-2.5 border-2 border-[#6C757D] text-[#6C757D] rounded-xl hover:border-red-500 hover:text-red-500 font-medium text-sm transition-all disabled:opacity-50"
+                onClick={peutAnnuler ? handleAnnuler : undefined}
+                disabled={!peutAnnuler || submitting}
+                className={`px-6 py-2.5 border-2 rounded-xl font-medium text-sm transition-all ${
+                  peutAnnuler
+                    ? 'border-[#6C757D] text-[#6C757D] hover:border-red-500 hover:text-red-500 disabled:opacity-50'
+                    : 'border-gray-300 text-gray-400 cursor-not-allowed opacity-60'
+                }`}
               >
                 Annuler ma demande
               </button>
+              {annulationBloqueeParProposition && (
+                <p className="text-xs text-[#6C757D] text-center">
+                  🔒 Un artisan vous a soumis une proposition — l&apos;annulation n&apos;est plus possible.
+                </p>
+              )}
             </div>
           )}
 

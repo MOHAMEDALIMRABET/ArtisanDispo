@@ -137,7 +137,11 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
   ).length;
 
   const notifDemandes = notifications.filter(
-    n => !n.lue && (n.type === 'nouvelle_demande' || n.type === 'demande_refusee')
+    n => !n.lue && (
+      n.type === 'nouvelle_demande' ||
+      n.type === 'demande_refusee' ||
+      n.type === 'proposition_express_recue'
+    )
   ).length;
 
   const notifExpressDemandes = notifications.filter(
@@ -335,7 +339,7 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
 
                 {/* Mes Demandes */}
                 <button
-                  onClick={() => handleNavigationWithMarkRead('/client/demandes-hub', ['nouvelle_demande', 'demande_refusee'])}
+                  onClick={() => handleNavigationWithMarkRead('/client/demandes-hub', ['nouvelle_demande', 'demande_refusee', 'proposition_express_recue'])}
                   className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
                 >
                   <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

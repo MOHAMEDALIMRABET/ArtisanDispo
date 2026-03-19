@@ -15,21 +15,24 @@ import {
 
 const router = express.Router();
 
-// Initialiser Stripe seulement si la clé est configurée
+// Mode simulation : actif quand PAYMENT_SIMULATION_MODE=true ou STRIPE_SECRET_KEY vide
+const isSimulationMode = process.env.PAYMENT_SIMULATION_MODE === 'true' || !process.env.STRIPE_SECRET_KEY;
+
+// Initialiser Stripe seulement si la clé est configurée et pas en mode simulation
 let stripe: Stripe | null = null;
 
-if (process.env.STRIPE_SECRET_KEY) {
+if (!isSimulationMode && process.env.STRIPE_SECRET_KEY) {
   stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2026-01-28.clover',
   });
   console.log('✅ Stripe initialisé pour paiements Express');
 } else {
-  console.warn('⚠️  STRIPE_SECRET_KEY non configurée - Routes Stripe Express désactivées');
+  console.warn('⚠️  Mode simulation paiement activé (PAYMENT_SIMULATION_MODE=true ou STRIPE_SECRET_KEY vide)');
 }
 
-// Middleware pour vérifier si Stripe est configuré
+// Middleware pour vérifier si Stripe est configuré (ignoré en mode simulation)
 const requireStripe = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  if (!stripe) {
+  if (!stripe && !isSimulationMode) {
     return res.status(503).json({ 
       error: 'Service de paiement non disponible',
       message: 'Stripe n\'est pas configuré. Veuillez contacter l\'administrateur.'
@@ -77,6 +80,19 @@ router.post('/create-payment-intent', requireStripe, async (req, res) => {
       return res.status(404).json({ error: 'Demande introuvable' });
     }
 
+    // Mode simulation : retourner token simulé sans Stripe
+    if (isSimulationMode && !stripe) {
+      const simulationToken = `sim_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+      console.log(`🎭 [SIMULATION] PaymentIntent pour proposition ${proposition.id} — montant ${proposition.montantPropose}€`);
+      return res.json({
+        simulationMode: true,
+        simulationToken,
+        montant: proposition.montantPropose,
+        propositionId: proposition.id,
+        demandeId: proposition.demandeId,
+      });
+    }
+
     // Vérifier Stripe configuré
     if (!stripe) {
       return res.status(503).json({ error: 'Service de paiement non configuré' });
@@ -117,6 +133,54 @@ router.post('/create-payment-intent', requireStripe, async (req, res) => {
 });
 
 // ====================================
+// 1b. Confirmer paiement simulé
+// ====================================
+router.post('/simulate-confirm', async (req, res) => {
+  if (!isSimulationMode) {
+    return res.status(404).json({ error: 'Endpoint simulation non disponible en production' });
+  }
+  try {
+    const { simulationToken, propositionId } = req.body;
+    if (!simulationToken || !propositionId) {
+      return res.status(400).json({ error: 'simulationToken et propositionId requis' });
+    }
+
+    const proposition = await getPropositionExpressById(propositionId);
+    if (!proposition) return res.status(404).json({ error: 'Proposition introuvable' });
+
+    const existing = await getPaiementByDemandeId(proposition.demandeId);
+    if (existing) {
+      await markDemandePaid(proposition.demandeId);
+      return res.json({ success: true, alreadyExisted: true });
+    }
+
+    const montantTotal = proposition.montantPropose;
+    const commission = Math.round(montantTotal * 0.1 * 100) / 100;
+    const montantArtisan = montantTotal - commission;
+
+    await createPaiementExpress({
+      demandeId: proposition.demandeId,
+      propositionId: proposition.id,
+      clientId: proposition.clientId,
+      artisanId: proposition.artisanId,
+      stripePaymentIntentId: simulationToken,
+      montant: montantTotal,
+      commission,
+      montantArtisan,
+      statut: 'paye',
+    });
+
+    await markDemandePaid(proposition.demandeId);
+
+    console.log(`🎭 [SIMULATION] Paiement confirmé — ${montantTotal}€ — demande ${proposition.demandeId}`);
+    res.json({ success: true, montant: montantTotal, commission, montantArtisan });
+  } catch (error: any) {
+    console.error('❌ Erreur simulate-confirm:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ====================================
 // 2. Webhook Stripe (CRITIQUE)
 // ====================================
 router.post(
@@ -153,8 +217,14 @@ router.post(
     // Gérer événements
     try {
       switch (event.type) {
+        case 'payment_intent.amount_capturable_updated':
+          // Autorisation approuvée, fonds bloqués en séquestre
+          await handlePaymentIntentAuthorized(event.data.object as Stripe.PaymentIntent);
+          break;
+
         case 'payment_intent.succeeded':
-          await handlePaymentIntentSucceeded(event.data.object as Stripe.PaymentIntent);
+          // Capture effectuée (fonds libérés) — confirmation de sécurité
+          await handlePaymentIntentCaptured(event.data.object as Stripe.PaymentIntent);
           break;
 
         case 'charge.refunded':
@@ -173,20 +243,26 @@ router.post(
   }
 );
 
-// Handler: Paiement réussi
-async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
+// Handler: Paiement autorisé (séquestre activé — capture_method: 'manual')
+async function handlePaymentIntentAuthorized(paymentIntent: Stripe.PaymentIntent) {
   const { demandeId, propositionId, clientId, artisanId } = paymentIntent.metadata;
 
-  console.log(`✅ Paiement réussi: ${paymentIntent.id}`);
+  console.log(`🔒 Paiement autorisé (escrow): ${paymentIntent.id}`);
   console.log(`   - Demande: ${demandeId}`);
   console.log(`   - Montant: ${paymentIntent.amount / 100}€`);
 
-  // Calculer commission (10%)
+  // Idempotence : vérifier si déjà créé
+  const existing = await getPaiementByDemandeId(demandeId);
+  if (existing) {
+    console.log(`ℹ️  Paiement déjà enregistré: ${existing.id}`);
+    return;
+  }
+
   const montantTotal = paymentIntent.amount / 100;
   const commission = Math.round(montantTotal * 0.1 * 100) / 100;
   const montantArtisan = montantTotal - commission;
 
-  // Créer document paiement_express
+  // Créer document paiements_express (fonds bloqués en séquestre)
   await createPaiementExpress({
     demandeId,
     propositionId,
@@ -203,9 +279,22 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
   await markDemandePaid(demandeId);
 
   console.log(`💰 Commission plateforme: ${commission}€`);
-  console.log(`💰 Montant artisan (après capture): ${montantArtisan}€`);
-  
-  // TODO: Envoyer notification artisan "Vous pouvez intervenir"
+  console.log(`💰 Montant artisan (libéré après validation travaux): ${montantArtisan}€`);
+  // TODO: Envoyer notification artisan "Paiement sécurisé reçu, vous pouvez intervenir"
+}
+
+// Handler: Capture effectuée (payment_intent.succeeded après capture manuelle)
+async function handlePaymentIntentCaptured(paymentIntent: Stripe.PaymentIntent) {
+  const { demandeId } = paymentIntent.metadata;
+  console.log(`✅ Capture confirmée via webhook: ${paymentIntent.id}`);
+
+  // La libération est normalement gérée par l'endpoint /capture-payment
+  // Ce handler traite le cas d'une capture hors endpoint (ex: Stripe Dashboard)
+  const paiement = await getPaiementByDemandeId(demandeId);
+  if (paiement && paiement.statut === 'paye') {
+    await markPaiementLibere(paiement.id, paymentIntent.latest_charge as string);
+    console.log(`✅ Paiement ${paiement.id} marqué libéré via webhook`);
+  }
 }
 
 // Handler: Remboursement
@@ -255,7 +344,7 @@ router.post('/capture-payment', requireStripe, async (req, res) => {
 
     // Vérifier que demande est terminée
     const demande = await getDemandeExpressById(demandeId);
-    if (!demande || demande.statut !== 'terminee') {
+    if (!demande || !['terminee', 'travaux_termines'].includes(demande.statut)) {
       return res.status(400).json({ 
         error: 'La demande doit être terminée pour libérer le paiement',
         currentStatut: demande?.statut,
@@ -265,6 +354,18 @@ router.post('/capture-payment', requireStripe, async (req, res) => {
     console.log(`🔓 Capture paiement: ${paiement.stripePaymentIntentId}`);
     console.log(`   - Montant total: ${paiement.montant}€`);
     console.log(`   - Montant artisan: ${paiement.montantArtisan}€`);
+
+    // Mode simulation : libérer directement sans Stripe
+    if (isSimulationMode && !stripe) {
+      await markPaiementLibere(paiement.id, `sim_charge_${Date.now()}`);
+      console.log(`🎭 [SIMULATION] Paiement libéré`);
+      return res.json({
+        success: true,
+        simulated: true,
+        montantCapture: paiement.montantArtisan,
+        commission: paiement.commission,
+      });
+    }
 
     // Vérifier Stripe configuré
     if (!stripe) {
@@ -338,6 +439,18 @@ router.post('/refund-payment', requireStripe, async (req, res) => {
     console.log(`   - Montant: ${paiement.montant}€`);
     console.log(`   - Raison: ${reason || 'Non spécifiée'}`);
 
+    // Mode simulation : rembourser directement sans Stripe
+    if (isSimulationMode && !stripe) {
+      await markPaiementRembourse(paiement.id);
+      console.log(`🎭 [SIMULATION] Paiement remboursé — ${paiement.montant}€`);
+      return res.json({
+        success: true,
+        simulated: true,
+        refundId: `sim_refund_${Date.now()}`,
+        montantRembourse: paiement.montant,
+      });
+    }
+
     // Vérifier Stripe configuré
     if (!stripe) {
       return res.status(503).json({ error: 'Service de paiement non configuré' });
@@ -377,7 +490,7 @@ router.post('/refund-payment', requireStripe, async (req, res) => {
 // ====================================
 // 5. Statut paiement (pour debug)
 // ====================================
-router.get('/payment-status/:demandeId', requireStripe, async (req, res) => {
+router.get('/payment-status/:demandeId', async (req, res) => {
   try {
     const { demandeId } = req.params;
     

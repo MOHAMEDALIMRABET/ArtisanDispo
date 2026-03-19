@@ -3,11 +3,20 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { authService } from '@/lib/auth-service';
+import { useAuth } from '@/hooks/useAuth';
+import { useNotifications } from '@/hooks/useNotifications';
 import { getUserById } from '@/lib/firebase/user-service';
 
 export default function ClientDemandesHubPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
+  const { user: firebaseUser } = useAuth();
+  const { notifications, markTypeAsRead } = useNotifications(firebaseUser?.uid);
+
+  // Notifications non lues pour Demandes Express
+  const nbExpress = notifications.filter(
+    n => !n.lue && n.type === 'proposition_express_recue'
+  ).length;
 
   useEffect(() => {
     async function checkAuth() {
@@ -93,16 +102,24 @@ export default function ClientDemandesHubPage() {
 
           {/* ── CARTE Demandes Express ── */}
           <button
-            onClick={() => router.push('/client/demandes-express')}
-            className="group text-left bg-[#FF6B00] rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col"
+            onClick={() => {
+              if (nbExpress > 0) markTypeAsRead(['proposition_express_recue']);
+              router.push('/client/demandes-express');
+            }}
+            className="group text-left bg-[#FF6B00] rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col relative"
           >
             {/* Bandeau */}
             <div className="bg-[#FF6B00] px-6 py-4 flex items-center gap-3">
               <span className="text-3xl">⚡</span>
-              <div>
+              <div className="flex-1">
                 <div className="text-white font-bold text-xl">Demandes Express</div>
                 <div className="text-orange-100 text-sm">Petits travaux rapides</div>
               </div>
+              {nbExpress > 0 && (
+                <span className="bg-white text-[#FF6B00] text-sm font-black px-2.5 py-0.5 rounded-full animate-bounce shadow">
+                  🔔 {nbExpress}
+                </span>
+              )}
             </div>
             {/* Corps */}
             <div className="bg-white px-6 py-5 space-y-4 flex-1">
