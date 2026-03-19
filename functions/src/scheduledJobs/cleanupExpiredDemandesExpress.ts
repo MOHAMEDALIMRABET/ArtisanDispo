@@ -201,7 +201,6 @@ export const cleanupExpiredDemandesExpressManual = functions
 
       for (const demandeDoc of expiredDemandesSnapshot.docs) {
         const demandeId = demandeDoc.id;
-        const demande = demandeDoc.data();
 
         console.log(`🗑️ Suppression demande: ${demandeId}`);
 
