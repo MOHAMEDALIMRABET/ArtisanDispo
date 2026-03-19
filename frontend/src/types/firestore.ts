@@ -108,6 +108,8 @@ export type NotificationType =
   | 'paiement' 
   | 'paiement_libere'
   | 'paiement_recu_express'      // ✅ Paiement reçu pour travaux express
+  | 'paiement_expire'            // ✅ Délai de paiement dépassé (timeout 15-30 min)
+  | 'acceptation_expiree'        // ✅ Acceptation expirée sans paiement
   | 'nouveau_message'            // ✅ Ajouté - utilisé dans NotificationBell
   | 'message'                    // Gardé pour compatibilité
   | 'avis'
@@ -973,6 +975,7 @@ export interface DemandeExpress {
   updatedAt: Timestamp;
   expiresAt?: Timestamp;          // Auto-expire si pas de réponse
   travauxTerminesAt?: Timestamp;  // Quand l'artisan déclare la fin (24h auto-libération)
+  paymentDeadline?: Timestamp;    // Deadline pour payer après acceptation (15min immediat / 30min urgent)
 }
 
 /**

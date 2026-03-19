@@ -221,23 +221,36 @@ export async function acceptPropositionExpress(propositionId: string): Promise<v
     throw new Error('Cette proposition ne peut plus être acceptée');
   }
 
+  // Récupérer la demande pour connaître l'urgence
+  const demande = await getDemandeExpressById(proposition.demandeId);
+  if (!demande) {
+    throw new Error('Demande introuvable');
+  }
+
+  // Calculer deadline selon urgence :
+  // - immediat (intervention 2h) → 15 minutes pour payer
+  // - urgent (intervention 24h) → 30 minutes pour payer
+  const delaiMinutes = demande.urgence === 'immediat' ? 15 : 30;
+  const paymentDeadline = Timestamp.fromDate(new Date(Date.now() + delaiMinutes * 60 * 1000));
+
   // Mettre à jour la proposition
   await updateDoc(doc(db, 'propositions_express', propositionId), {
     statut: 'acceptee',
     acceptedAt: Timestamp.now(),
   });
 
-  // Mettre à jour la demande
+  // Mettre à jour la demande avec deadline
   await updateDoc(doc(db, 'demandes_express', proposition.demandeId), {
     statut: 'acceptee',
     updatedAt: Timestamp.now(),
+    paymentDeadline,
   });
 
   // Notifier l'artisan
   await createNotification(proposition.artisanId, {
     type: 'proposition_acceptee',
     titre: 'Proposition acceptée !',
-    message: 'Le client a accepté votre proposition. En attente du paiement.',
+    message: `Le client a accepté votre proposition. En attente du paiement (${delaiMinutes} min).`,
     lien: `/artisan/demandes-express/${proposition.demandeId}`,
   });
 }
@@ -475,6 +488,61 @@ export async function markInterventionTerminee(demandeId: string): Promise<void>
     message: "L'artisan a terminé les travaux. Validez pour libérer le paiement (auto-libération dans 24h).",
     lien: `/client/demandes-express/${demandeId}`,
   });
+}
+
+/**
+ * Annuler une demande acceptée non payée (timeout dépassé)
+ * Logique adaptée : demandes express = toujours directes (1 artisan)
+ * → Libère l'artisan, permet au client de re-accepter ou chercher ailleurs
+ */
+export async function cancelAcceptedUnpaid(demandeId: string): Promise<void> {
+  const demande = await getDemandeExpressById(demandeId);
+  if (!demande) {
+    throw new Error('Demande introuvable');
+  }
+
+  if (demande.statut !== 'acceptee') {
+    throw new Error('Seules les demandes acceptées non payées peuvent être annulées');
+  }
+
+  // Récupérer la proposition acceptée
+  const propositions = await getPropositionsByDemande(demandeId);
+  const propositionAcceptee = propositions.find(p => p.statut === 'acceptee');
+
+  if (!propositionAcceptee) {
+    throw new Error('Aucune proposition acceptée trouvée');
+  }
+
+  // Remettre la proposition en attente (l'artisan peut toujours être choisi)
+  await updateDoc(doc(db, 'propositions_express', propositionAcceptee.id), {
+    statut: 'en_attente_acceptation',
+    acceptedAt: null, // Supprimer date acceptation
+  });
+
+  // Remettre la demande avec la proposition (client peut re-accepter)
+  await updateDoc(doc(db, 'demandes_express', demandeId), {
+    statut: 'proposition_recue',
+    updatedAt: Timestamp.now(),
+    paymentDeadline: null, // Supprimer deadline
+  });
+
+  // Notifier le client
+  await createNotification(demande.clientId, {
+    type: 'paiement_expire',
+    titre: '⏰ Délai de paiement dépassé',
+    message: `Vous n'avez pas payé dans les délais (${demande.urgence === 'immediat' ? '15' : '30'} min). Vous pouvez accepter à nouveau la proposition.`,
+    lien: `/client/demandes-express/${demandeId}`,
+  });
+
+  // Notifier l'artisan
+  if (demande.artisanId) {
+    await createNotification(demande.artisanId, {
+      type: 'acceptation_expiree',
+      titre: '⏰ Acceptation expirée',
+      message: "Le client n'a pas payé dans les délais. Votre proposition reste active.",
+      lien: `/artisan/demandes-express/${demandeId}`,
+    });
+  }
 }
 
 /**

@@ -167,6 +167,33 @@ export {
   executePendingDeletionsManual   // Version HTTP pour tests manuels
 } from './scheduledJobs/executePendingDeletions';
 
+/**
+ * Watchdog paiements demandes express
+ * Exécution: Toutes les 5 minutes
+ * 
+ * Workflow:
+ * 1. Client accepte proposition express → paymentDeadline définie (15min immediat / 30min urgent)
+ * 2. Cette fonction vérifie toutes les 5 min les demandes acceptées non payées
+ * 3. Si paymentDeadline dépassée → Annulation automatique
+ * 4. Proposition remise en "en_attente_acceptation" (artisan garde sa chance)
+ * 5. Notifications client + artisan (délai dépassé)
+ * 
+ * Logique adaptée demandes express:
+ * - Toujours directes (1 artisan spécifique) → Pas de remise en circulation publique
+ * - Délais selon urgence:
+ *   - immediat (intervention 2h) → 15 minutes pour payer
+ *   - urgent (intervention 24h) → 30 minutes pour payer
+ * - Artisan libéré si client ne paie pas (peut proposer ailleurs)
+ * 
+ * Requirement user:
+ * "si le client clique sur accepter et après ne paye pas, qu'est ce qui se passe ?
+ *  Il faut retour arrière automatique avec timeout"
+ */
+export { 
+  checkPaymentDeadlines,          // Vérification toutes les 5 min (production)
+  checkPaymentDeadlinesManual     // Version HTTP pour tests manuels
+} from './scheduledJobs/checkPaymentDeadlines';
+
 
 // ========================================
 // FIRESTORE TRIGGERS

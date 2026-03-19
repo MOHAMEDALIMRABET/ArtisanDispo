@@ -18,6 +18,7 @@ import { useAuth } from '@/hooks/useAuth';
 import type { DemandeExpress, PropositionExpress, User, Artisan } from '@/types/firestore';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { CountdownTimer } from '@/components/CountdownTimer';
 
 export default function DemandeExpressDetailClientPage() {
   const router = useRouter();
@@ -602,6 +603,39 @@ export default function DemandeExpressDetailClientPage() {
                 <div className="text-3xl">✅</div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-[#2C3E50] mb-1">Proposition acceptée</h3>
+
+                  {/* Chrono paiement avec délai selon urgence */}
+                  {demande.paymentDeadline && (
+                    <div className="bg-orange-100 border-2 border-orange-400 rounded-lg px-4 py-3 mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-semibold text-orange-900">
+                          ⏰ Temps restant pour payer :
+                        </p>
+                        <CountdownTimer
+                          expiresAt={demande.paymentDeadline}
+                          onExpired={() => {
+                            alert('⏰ Délai de paiement dépassé. Rechargement...');
+                            window.location.reload();
+                          }}
+                        />
+                      </div>
+                      <p className="text-xs text-orange-700">
+                        {demande.urgence === 'immediat' ? (
+                          <>
+                            ⚡ <strong>Intervention immédiate (2h)</strong> → Paiement requis sous <strong>15 minutes</strong>
+                          </>
+                        ) : (
+                          <>
+                            🚨 <strong>Intervention urgente (24h)</strong> → Paiement requis sous <strong>30 minutes</strong>
+                          </>
+                        )}
+                      </p>
+                      <p className="text-xs text-orange-600 mt-1">
+                        Passé ce délai, l'acceptation sera automatiquement annulée
+                      </p>
+                    </div>
+                  )}
+
                   <p className="text-[#6C757D] text-sm mb-4">
                     Procédez au paiement sécurisé pour confirmer l'intervention de l'artisan.
                   </p>
@@ -610,9 +644,9 @@ export default function DemandeExpressDetailClientPage() {
                   )}
                   <button
                     onClick={() => router.push(`/client/paiement-express/${proposition?.id}`)}
-                    className="px-6 py-3 bg-[#FF6B00] text-white rounded-xl hover:bg-[#E56100] font-bold shadow-md"
+                    className="px-6 py-3 bg-[#FF6B00] text-white rounded-xl hover:bg-[#E56100] font-bold shadow-md animate-pulse"
                   >
-                    💳 Procéder au paiement
+                    💳 Procéder au paiement maintenant
                   </button>
                 </div>
               </div>
