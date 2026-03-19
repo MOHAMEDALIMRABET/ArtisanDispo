@@ -28,6 +28,7 @@ export default function DemandesExpressArtisanPage() {
   const [demandes, setDemandes] = useState<DemandeExpress[]>([]);
   const [clientNoms, setClientNoms] = useState<Map<string, string>>(new Map());
   const [loading, setLoading] = useState(true);
+  const [filtreStatut, setFiltreStatut] = useState<'toutes' | 'nouvelles' | 'discussion' | 'payees' | 'terminees' | 'refusees'>('toutes');
 
   useEffect(() => {
     if (authLoading) return;
@@ -105,6 +106,17 @@ export default function DemandesExpressArtisanPage() {
     return labels[statut] ?? statut;
   };
 
+  // Filtrer les demandes
+  const demandesFiltrees = demandes.filter((demande) => {
+    if (filtreStatut === 'toutes') return true;
+    if (filtreStatut === 'nouvelles') return demande.statut === 'en_attente_proposition';
+    if (filtreStatut === 'discussion') return demande.statut === 'proposition_recue';
+    if (filtreStatut === 'payees') return ['payee', 'en_cours'].includes(demande.statut);
+    if (filtreStatut === 'terminees') return ['travaux_termines', 'terminee'].includes(demande.statut);
+    if (filtreStatut === 'refusees') return ['refusee_artisan', 'annulee', 'expiree'].includes(demande.statut);
+    return true;
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -141,8 +153,76 @@ export default function DemandesExpressArtisanPage() {
         </div>
       </div>
 
+      {/* Filtres */}
+      <div className="container mx-auto px-4 py-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => setFiltreStatut('toutes')}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                filtreStatut === 'toutes'
+                  ? 'bg-[#FF6B00] text-white'
+                  : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+              }`}
+            >
+              {t('artisanExpressRequests.filters.all')} ({demandes.length})
+            </button>
+            <button
+              onClick={() => setFiltreStatut('nouvelles')}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                filtreStatut === 'nouvelles'
+                  ? 'bg-[#FF6B00] text-white'
+                  : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+              }`}
+            >
+              <span className="mr-2">🆕</span>{t('artisanExpressRequests.filters.new')} ({demandes.filter(d => d.statut === 'en_attente_proposition').length})
+            </button>
+            <button
+              onClick={() => setFiltreStatut('discussion')}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                filtreStatut === 'discussion'
+                  ? 'bg-[#FF6B00] text-white'
+                  : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+              }`}
+            >
+              <span className="mr-2">💬</span>{t('artisanExpressRequests.filters.discussion')} ({demandes.filter(d => d.statut === 'proposition_recue').length})
+            </button>
+            <button
+              onClick={() => setFiltreStatut('payees')}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                filtreStatut === 'payees'
+                  ? 'bg-[#FF6B00] text-white'
+                  : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+              }`}
+            >
+              <span className="mr-2">💳</span>{t('artisanExpressRequests.filters.paid')} ({demandes.filter(d => ['payee', 'en_cours'].includes(d.statut)).length})
+            </button>
+            <button
+              onClick={() => setFiltreStatut('terminees')}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                filtreStatut === 'terminees'
+                  ? 'bg-[#FF6B00] text-white'
+                  : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+              }`}
+            >
+              <span className="mr-2">✅</span>{t('artisanExpressRequests.filters.completed')} ({demandes.filter(d => ['travaux_termines', 'terminee'].includes(d.statut)).length})
+            </button>
+            <button
+              onClick={() => setFiltreStatut('refusees')}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                filtreStatut === 'refusees'
+                  ? 'bg-[#FF6B00] text-white'
+                  : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+              }`}
+            >
+              <span className="mr-2">❌</span>{t('artisanExpressRequests.filters.refused')} ({demandes.filter(d => ['refusee_artisan', 'annulee', 'expiree'].includes(d.statut)).length})
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Liste */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 pb-8">
         <div className="max-w-5xl mx-auto">
           {demandes.length === 0 ? (
             <div className="bg-white rounded-xl shadow-lg p-12 text-center">
@@ -154,9 +234,19 @@ export default function DemandesExpressArtisanPage() {
                 {t('artisanExpressRequests.empty.message')}
               </p>
             </div>
+          ) : demandesFiltrees.length === 0 ? (
+            <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+              <div className="text-6xl mb-4">🔍</div>
+              <h2 className="text-2xl font-bold text-[#2C3E50] mb-2">
+                {t('artisanExpressRequests.empty.filteredTitle')}
+              </h2>
+              <p className="text-[#6C757D]">
+                {t('artisanExpressRequests.empty.filteredMessage')}
+              </p>
+            </div>
           ) : (
             <div className="space-y-4">
-              {demandes.map((demande) => (
+              {demandesFiltrees.map((demande) => (
                 <Link
                   key={demande.id}
                   href={`/artisan/demandes-express/${demande.id}`}

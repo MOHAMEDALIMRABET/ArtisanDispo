@@ -1411,9 +1411,19 @@
       "expiree": "Expirée"
     },
     "urgentBadge": "🚨 Urgent",
+    "filters": {
+      "all": "Toutes",
+      "new": "Nouvelles",
+      "discussion": "En discussion",
+      "paid": "Payées",
+      "completed": "Terminées",
+      "refused": "Refusées/Expirées"
+    },
     "empty": {
       "title": "Aucune demande pour le moment",
-      "message": "Les demandes des clients apparaîtront ici"
+      "message": "Les demandes des clients apparaîtront ici",
+      "filteredTitle": "Aucune demande dans cette catégorie",
+      "filteredMessage": "Essayez un autre filtre pour voir plus de demandes"
     },
     "actions": {
       "makeProposal": "Faire une proposition →",
@@ -1550,14 +1560,14 @@
   "clientExpressRequests": {
     "pageTitle": "🚀 Mes demandes Express",
     "pageSubtitle": "Petits travaux rapides (≤ 150€) - Intervention sous 48h",
-    "newRequest": "➕ Nouvelle demande Express",
+    "newRequest": "+ Nouvelle demande Express",
     "loading": "Chargement de vos demandes Express...",
     "breadcrumb": {
       "dashboard": "Dashboard",
       "current": "Mes demandes Express"
     },
     "statuses": {
-      "en_attente_proposition": "⏳ En attente proposition",
+      "en_attente_proposition": "⏳ En attente retour artisan",
       "proposition_recue": "📨 Proposition reçue",
       "acceptee": "✅ Acceptée",
       "payee": "💳 Payée",
@@ -1586,7 +1596,7 @@
     "card": {
       "budgetProposed": "💰 {amount}€",
       "expires": "⏱️ Expire le",
-      "createdOn": "🕒 Créée le",
+      "createdOn": "� Créée le",
       "viewDetails": "👁️ Voir détails",
       "proposalWaiting": "📨 Proposition en attente",
       "interventionInProgress": "🔧 Intervention en cours"

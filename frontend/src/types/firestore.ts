@@ -933,7 +933,7 @@ export type DemandeExpressStatut =
   | 'travaux_termines'        // Artisan a déclaré la fin, validation client en attente
   | 'terminee'                // Intervention terminée et validée
   | 'annulee'                 // Annulée par client/artisan
-  | 'expiree'                 // Pas de réponse sous 48h
+  | 'expiree'                 // Paiement non effectué dans les délais après acceptation (15min immédiat / 30min urgent)
   | 'refusee_artisan';        // Refusée par l'artisan
 
 /**

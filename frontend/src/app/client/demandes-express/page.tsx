@@ -429,7 +429,7 @@ export default function MesDemandesExpressPage() {
                 : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
             }`}
           >
-            {t('clientExpressRequests.filters.waiting')} ({demandes.filter(d => d.statut === 'en_attente_proposition').length})
+            <span className="mr-2">⏳</span>{t('clientExpressRequests.filters.waiting')} ({demandes.filter(d => d.statut === 'en_attente_proposition').length})
           </button>
           <button
             onClick={() => setFiltreStatut('proposition_recue')}
@@ -439,7 +439,7 @@ export default function MesDemandesExpressPage() {
                 : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
             }`}
           >
-            {t('clientExpressRequests.filters.proposals')} ({demandes.filter(d => d.statut === 'proposition_recue').length})
+            <span className="mr-2">📋</span>{t('clientExpressRequests.filters.proposals')} ({demandes.filter(d => d.statut === 'proposition_recue').length})
           </button>
           <button
             onClick={() => setFiltreStatut('en_cours')}
@@ -449,7 +449,7 @@ export default function MesDemandesExpressPage() {
                 : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
             }`}
           >
-            {t('clientExpressRequests.filters.inProgress')} ({demandes.filter(d => ['payee', 'en_cours', 'travaux_termines'].includes(d.statut)).length})
+            <span className="mr-2">🔧</span>{t('clientExpressRequests.filters.inProgress')} ({demandes.filter(d => ['payee', 'en_cours', 'travaux_termines'].includes(d.statut)).length})
           </button>
           <button
             onClick={() => setFiltreStatut('terminee')}
@@ -459,7 +459,7 @@ export default function MesDemandesExpressPage() {
                 : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
             }`}
           >
-            {t('clientExpressRequests.filters.completed')} ({demandes.filter(d => d.statut === 'terminee').length})
+            <span className="mr-2">✅</span>{t('clientExpressRequests.filters.completed')} ({demandes.filter(d => d.statut === 'terminee').length})
           </button>
           <button
             onClick={() => setFiltreStatut('expiree')}
@@ -531,9 +531,9 @@ export default function MesDemandesExpressPage() {
                   <div className="flex items-center gap-3 mb-3 flex-wrap">
                     {getStatutBadge(demande.statut)}
                     {getUrgenceBadge(demande.urgence)}
-                    {artisanNomMap.has(demande.id) && (
-                      <span className="px-3 py-1 bg-blue-50 border border-blue-200 text-blue-700 rounded-full text-xs font-semibold">
-                        👤 {artisanNomMap.get(demande.id)}
+                    {demande.expiresAt && demande.statut === 'en_attente_proposition' && (
+                      <span className="px-3 py-1 bg-orange-50 border border-orange-200 text-orange-600 rounded-full text-xs font-semibold">
+                        ⏱️ Expire le {format(demande.expiresAt.toDate(), 'dd MMMM à HH:mm', { locale: fr })} ({demande.urgence === 'immediat' ? '2h' : '6h'})
                       </span>
                     )}
                     {demande.budgetPropose && (
@@ -544,6 +544,9 @@ export default function MesDemandesExpressPage() {
                   </div>
 
                   <h3 className="text-xl font-bold text-[#2C3E50] mb-2">
+                    {artisanNomMap.has(demande.id) && (
+                      <span className="text-[#2C3E50]">{artisanNomMap.get(demande.id)} - </span>
+                    )}
                     {demande.categorie.charAt(0).toUpperCase() + demande.categorie.slice(1)}
                     {demande.sousCategorie && ` - ${demande.sousCategorie}`}
                   </h3>
@@ -554,27 +557,8 @@ export default function MesDemandesExpressPage() {
 
                   <div className="flex flex-wrap gap-4 text-sm text-[#6C757D]">
                     <span>📍 {demande.ville} ({demande.codePostal})</span>
-                    <span>📅 {demande.date}</span>
                     <span>{t('clientExpressRequests.card.createdOn')} {format(demande.createdAt.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr })}</span>
                   </div>
-
-                  {demande.expiresAt && demande.statut === 'en_attente_proposition' && (
-                    <div className="mt-3 text-sm flex flex-wrap items-center gap-1">
-                      <span className="text-orange-600 font-semibold">
-                        {t('clientExpressRequests.card.expires')} {format(demande.expiresAt.toDate(), 'dd MMMM à HH:mm', { locale: fr })}
-                      </span>
-                      <span className="text-orange-400 text-xs">
-                        ({demande.urgence === 'immediat' ? '2h' : '6h'} après la création)
-                      </span>
-                    </div>
-                  )}
-
-                  {demande.statut === 'en_attente_proposition' && demande.artisanId && (
-                    <div className="mt-2 flex items-center gap-2">
-                      <span className="text-lg">⏳</span>
-                      <p className="text-sm text-yellow-800 font-medium">Votre demande a été envoyée à l&apos;artisan. En attente de son retour.</p>
-                    </div>
-                  )}
 
                   {demande.statut === 'en_attente_proposition' && !demande.artisanId && (
                     <div className="mt-2 flex items-center gap-2">

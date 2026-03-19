@@ -1411,9 +1411,19 @@
       "expiree": "Expired"
     },
     "urgentBadge": "🚨 Urgent",
+    "filters": {
+      "all": "All",
+      "new": "New",
+      "discussion": "In discussion",
+      "paid": "Paid",
+      "completed": "Completed",
+      "refused": "Refused/Expired"
+    },
     "empty": {
       "title": "No requests yet",
-      "message": "Client requests will appear here"
+      "message": "Client requests will appear here",
+      "filteredTitle": "No requests in this category",
+      "filteredMessage": "Try another filter to see more requests"
     },
     "actions": {
       "makeProposal": "Make a proposal →",
@@ -1550,14 +1560,14 @@
   "clientExpressRequests": {
     "pageTitle": "🚀 My Express Requests",
     "pageSubtitle": "Small quick jobs (≤ €150) - Service within 48h",
-    "newRequest": "➕ New Express Request",
+    "newRequest": "+ New Express Request",
     "loading": "Loading your Express requests...",
     "breadcrumb": {
       "dashboard": "Dashboard",
       "current": "My Express Requests"
     },
     "statuses": {
-      "en_attente_proposition": "⏳ Awaiting proposal",
+      "en_attente_proposition": "⏳ Awaiting craftsman response",
       "proposition_recue": "📨 Proposal received",
       "acceptee": "✅ Accepted",
       "payee": "💳 Paid",
@@ -1586,7 +1596,7 @@
     "card": {
       "budgetProposed": "💰 €{amount}",
       "expires": "⏱️ Expires on",
-      "createdOn": "🕒 Created on",
+      "createdOn": "� Created on",
       "viewDetails": "👁️ View details",
       "proposalWaiting": "📨 Proposal pending",
       "interventionInProgress": "🔧 Work in progress"
