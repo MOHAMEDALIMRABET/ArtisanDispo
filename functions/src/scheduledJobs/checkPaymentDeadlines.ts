@@ -2,14 +2,19 @@
  * Cloud Function: Watchdog paiements demandes express
  * 
  * Vérifie toutes les 5 minutes les demandes acceptées non payées
- * Annule automatiquement si deadline dépassée
+ * Expire automatiquement et définitivement si deadline dépassée
  * 
  * Logique adaptée:
  * - Demandes express = toujours directes (1 artisan spécifique)
  * - Délais selon urgence:
  *   - immediat (intervention 2h) → 15 minutes pour payer
  *   - urgent (intervention 24h) → 30 minutes pour payer
- * - Annulation → Remet proposition en "en_attente_acceptation" (artisan garde sa chance)
+ * - Timeout → Expiration définitive:
+ *   - Demande passe à statut 'expiree' + champ expireeAt
+ *   - Proposition passe à statut 'expiree'
+ *   - Client NE PEUT PAS re-accepter (doit créer nouvelle demande)
+ *   - Artisan libéré définitivement
+ *   - Suppression automatique après 24h (voir cleanupExpiredDemandesExpress)
  * 
  * Déclencheur: Cron toutes les 5 minutes
  */
@@ -63,9 +68,10 @@ export const checkPaymentDeadlines = functions
 
           if (propositionsSnap.empty) {
             console.warn(`⚠️ Demande ${demandeId} acceptée mais aucune proposition acceptée trouvée`);
-            // Nettoyer la demande pour éviter incohérence
+            // Nettoyer la demande pour éviter incohérence - expirer définitivement
             await doc.ref.update({
-              statut: 'proposition_recue',
+              statut: 'expiree',
+              expireeAt: admin.firestore.FieldValue.serverTimestamp(),
               paymentDeadline: null,
               updatedAt: admin.firestore.FieldValue.serverTimestamp(),
             });
@@ -77,38 +83,39 @@ export const checkPaymentDeadlines = functions
           // Mise à jour batch (atomique)
           const batch = admin.firestore().batch();
 
-          // 1. Remettre proposition en attente (artisan garde sa chance)
+          // 1. Expirer la proposition définitivement
           batch.update(propositionDoc.ref, {
-            statut: 'en_attente_acceptation',
-            acceptedAt: null, // Supprimer date acceptation
+            statut: 'expiree',
+            expiredAt: admin.firestore.FieldValue.serverTimestamp(),
           });
 
-          // 2. Remettre demande avec proposition visible
+          // 2. Expirer la demande définitivement (pas de réactivation)
           batch.update(doc.ref, {
-            statut: 'proposition_recue',
+            statut: 'expiree',
+            expireeAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-            paymentDeadline: null, // Supprimer deadline
+            paymentDeadline: null,
           });
 
-          // 3. Notification client (délai dépassé)
+          // 3. Notification client (demande expirée définitivement)
           const delaiMinutes = demande.urgence === 'immediat' ? 15 : 30;
           batch.set(admin.firestore().collection('notifications').doc(), {
             recipientId: demande.clientId,
             type: 'paiement_expire',
-            titre: '⏰ Délai de paiement dépassé',
-            message: `Vous n'avez pas payé dans les délais (${delaiMinutes} min). Vous pouvez accepter à nouveau la proposition.`,
+            titre: '❌ Demande expirée',
+            message: `Vous n'avez pas payé dans les délais (${delaiMinutes} min). La demande est expirée et sera supprimée automatiquement dans 24h. Créez une nouvelle demande si besoin.`,
             lien: `/client/demandes-express/${demandeId}`,
             isRead: false,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
           });
 
-          // 4. Notification artisan (acceptation expirée)
+          // 4. Notification artisan (demande expirée, artisan libéré)
           if (demande.artisanId) {
             batch.set(admin.firestore().collection('notifications').doc(), {
               recipientId: demande.artisanId,
               type: 'acceptation_expiree',
-              titre: '⏰ Acceptation expirée',
-              message: "Le client n'a pas payé dans les délais. Votre proposition reste active.",
+              titre: '✅ Demande expirée - Vous êtes libéré',
+              message: "Le client n'a pas payé dans les délais. La demande est expirée et sera supprimée automatiquement. Vous êtes libre pour d'autres interventions.",
               lien: `/artisan/demandes-express/${demandeId}`,
               isRead: false,
               createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -118,7 +125,7 @@ export const checkPaymentDeadlines = functions
           // Commit batch
           await batch.commit();
 
-          console.log(`✅ Demande ${demandeId} annulée et remise en circulation`);
+          console.log(`✅ Demande ${demandeId} expirée définitivement (sera supprimée dans 24h)`);
 
         } catch (error) {
           console.error(`❌ Erreur traitement demande ${demandeId}:`, error);
@@ -181,9 +188,10 @@ export const checkPaymentDeadlinesManual = functions
             .get();
 
           if (propositionsSnap.empty) {
-            // Nettoyer incohérence
+            // Nettoyer incohérence - expirer définitivement
             await doc.ref.update({
-              statut: 'proposition_recue',
+              statut: 'expiree',
+              expireeAt: admin.firestore.FieldValue.serverTimestamp(),
               paymentDeadline: null,
               updatedAt: admin.firestore.FieldValue.serverTimestamp(),
             });
@@ -199,13 +207,14 @@ export const checkPaymentDeadlinesManual = functions
           const propositionDoc = propositionsSnap.docs[0];
           const batch = admin.firestore().batch();
 
-          // Mise à jour
+          // Mise à jour - expirer définitivement
           batch.update(propositionDoc.ref, {
-            statut: 'en_attente_acceptation',
-            acceptedAt: null,
+            statut: 'expiree',
+            expiredAt: admin.firestore.FieldValue.serverTimestamp(),
           });
           batch.update(doc.ref, {
-            statut: 'proposition_recue',
+            statut: 'expiree',
+            expireeAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
             paymentDeadline: null,
           });
@@ -215,8 +224,8 @@ export const checkPaymentDeadlinesManual = functions
           batch.set(admin.firestore().collection('notifications').doc(), {
             recipientId: demande.clientId,
             type: 'paiement_expire',
-            titre: '⏰ Délai de paiement dépassé',
-            message: `Vous n'avez pas payé dans les délais (${delaiMinutes} min). Vous pouvez accepter à nouveau la proposition.`,
+            titre: '❌ Demande expirée',
+            message: `Vous n'avez pas payé dans les délais (${delaiMinutes} min). La demande est expirée et sera supprimée automatiquement dans 24h. Créez une nouvelle demande si besoin.`,
             lien: `/client/demandes-express/${demandeId}`,
             isRead: false,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -226,8 +235,8 @@ export const checkPaymentDeadlinesManual = functions
             batch.set(admin.firestore().collection('notifications').doc(), {
               recipientId: demande.artisanId,
               type: 'acceptation_expiree',
-              titre: '⏰ Acceptation expirée',
-              message: "Le client n'a pas payé dans les délais. Votre proposition reste active.",
+              titre: '✅ Demande expirée - Vous êtes libéré',
+              message: "Le client n'a pas payé dans les délais. La demande est expirée et sera supprimée automatiquement. Vous êtes libre pour d'autres interventions.",
               lien: `/artisan/demandes-express/${demandeId}`,
               isRead: false,
               createdAt: admin.firestore.FieldValue.serverTimestamp(),

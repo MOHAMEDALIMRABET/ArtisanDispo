@@ -513,33 +513,34 @@ export async function cancelAcceptedUnpaid(demandeId: string): Promise<void> {
     throw new Error('Aucune proposition acceptée trouvée');
   }
 
-  // Remettre la proposition en attente (l'artisan peut toujours être choisi)
+  // EXPIRATION DÉFINITIVE : La proposition et la demande deviennent expirées (pas de réactivation)
   await updateDoc(doc(db, 'propositions_express', propositionAcceptee.id), {
-    statut: 'en_attente_acceptation',
-    acceptedAt: null, // Supprimer date acceptation
+    statut: 'expiree',
+    expiredAt: Timestamp.now(), // Date d'expiration
   });
 
-  // Remettre la demande avec la proposition (client peut re-accepter)
+  // Expirer définitivement la demande → Suppression automatique après 24h
   await updateDoc(doc(db, 'demandes_express', demandeId), {
-    statut: 'proposition_recue',
+    statut: 'expiree',
+    expireeAt: Timestamp.now(), // Date d'expiration pour cleanup 24h
     updatedAt: Timestamp.now(),
     paymentDeadline: null, // Supprimer deadline
   });
 
-  // Notifier le client
+  // Notifier le client - expiration définitive
   await createNotification(demande.clientId, {
     type: 'paiement_expire',
-    titre: '⏰ Délai de paiement dépassé',
-    message: `Vous n'avez pas payé dans les délais (${demande.urgence === 'immediat' ? '15' : '30'} min). Vous pouvez accepter à nouveau la proposition.`,
+    titre: '⏰ Demande expirée définitivement',
+    message: `Vous n'avez pas payé dans les délais (${demande.urgence === 'immediat' ? '15' : '30'} min). La demande sera supprimée automatiquement dans 24h. Vous pouvez créer une nouvelle demande si nécessaire.`,
     lien: `/client/demandes-express/${demandeId}`,
   });
 
-  // Notifier l'artisan
+  // Notifier l'artisan - protection renforcée
   if (demande.artisanId) {
     await createNotification(demande.artisanId, {
       type: 'acceptation_expiree',
-      titre: '⏰ Acceptation expirée',
-      message: "Le client n'a pas payé dans les délais. Votre proposition reste active.",
+      titre: '⏰ Demande expirée définitivement',
+      message: "Le client n'a pas payé dans les délais. La demande sera automatiquement supprimée sous 24h.",
       lien: `/artisan/demandes-express/${demandeId}`,
     });
   }

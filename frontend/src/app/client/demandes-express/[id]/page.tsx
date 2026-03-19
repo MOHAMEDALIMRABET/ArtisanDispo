@@ -708,20 +708,102 @@ export default function DemandeExpressDetailClientPage() {
             </div>
           )}
 
-          {/* ── Annulée / Expirée ────────────────────────── */}
-          {(demande.statut === 'annulee' || demande.statut === 'expiree') && (
+          {/* ── Annulée ──────────────────────────────────── */}
+          {demande.statut === 'annulee' && (
             <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
               <div className="flex items-start gap-4">
-                <div className="text-3xl">{demande.statut === 'expiree' ? '⏰' : '❌'}</div>
+                <div className="text-3xl">❌</div>
                 <div>
-                  <h3 className="text-lg font-bold text-[#2C3E50] mb-1">
-                    {demande.statut === 'expiree' ? 'Demande expirée' : 'Demande annulée'}
-                  </h3>
-                  <p className="text-[#6C757D] text-sm">
-                    {demande.statut === 'expiree'
-                      ? 'Cette demande a expiré sans recevoir de proposition.'
-                      : 'Cette demande a été annulée.'}
-                  </p>
+                  <h3 className="text-lg font-bold text-[#2C3E50] mb-1">Demande annulée</h3>
+                  <p className="text-[#6C757D] text-sm">Cette demande a été annulée.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Expirée (timeout paiement ou pas de réponse) ── */}
+          {demande.statut === 'expiree' && (
+            <div className="bg-red-50 border-2 border-red-300 rounded-2xl p-6">
+              <div className="flex items-start gap-4">
+                <div className="text-3xl">⏰</div>
+                <div className="flex-1">
+                  {demande.expireeAt ? (
+                    /* Cas 1 : Expiration par timeout paiement (15/30 min) */
+                    <>
+                      <h3 className="text-lg font-bold text-red-700 mb-2">⏰ Demande expirée définitivement</h3>
+                      <p className="text-[#2C3E50] text-sm mb-3">
+                        Vous n'avez pas effectué le paiement dans les délais requis{' '}
+                        <strong>({demande.urgence === 'immediat' ? '15 minutes' : '30 minutes'})</strong>.
+                      </p>
+                      <p className="text-red-600 text-sm font-semibold mb-4">
+                        🗑️ Cette demande sera <strong>automatiquement supprimée dans 24 heures</strong> de la base de données.
+                      </p>
+
+                      {/* Temps restant avant suppression */}
+                      {(() => {
+                        const now = new Date();
+                        const expiredAt = demande.expireeAt.toDate();
+                        const deleteAt = new Date(expiredAt.getTime() + 24 * 60 * 60 * 1000); // +24h
+                        const remainingMs = deleteAt.getTime() - now.getTime();
+                        const remainingHours = Math.max(0, Math.floor(remainingMs / (1000 * 60 * 60)));
+                        const remainingMinutes = Math.max(0, Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60)));
+
+                        if (remainingMs > 0) {
+                          return (
+                            <div className="bg-orange-100 border border-orange-300 rounded-lg px-4 py-3 mb-4">
+                              <p className="text-sm text-orange-900">
+                                🕒 Suppression automatique dans :{' '}
+                                <strong className="text-lg">
+                                  {remainingHours}h {remainingMinutes}min
+                                </strong>
+                              </p>
+                              <p className="text-xs text-orange-700 mt-1">
+                                Expirée le {format(expiredAt, "dd MMM yyyy 'à' HH:mm", { locale: fr })}
+                              </p>
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div className="bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 mb-4">
+                              <p className="text-sm text-gray-700">
+                                ✅ Demande en cours de suppression automatique...
+                              </p>
+                            </div>
+                          );
+                        }
+                      })()}
+
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
+                        <p className="text-sm text-blue-900 mb-2">
+                          💡 <strong>Vous souhaitez toujours ces travaux ?</strong>
+                        </p>
+                        <p className="text-xs text-blue-700 mb-3">
+                          Créez une nouvelle demande express pour contacter{' '}
+                          {artisanData ? `${(artisanData as any).businessName || 'cet artisan'}` : 'un artisan'} à nouveau.
+                        </p>
+                        <button
+                          onClick={() => router.push('/client/demandes-express/nouvelle')}
+                          className="px-4 py-2 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] font-semibold text-sm transition-colors"
+                        >
+                          🚀 Créer une nouvelle demande
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    /* Cas 2 : Expiration normale (pas de proposition reçue sous 48h) */
+                    <>
+                      <h3 className="text-lg font-bold text-[#2C3E50] mb-1">Demande expirée</h3>
+                      <p className="text-[#6C757D] text-sm mb-4">
+                        Cette demande a expiré sans recevoir de proposition d'artisan.
+                      </p>
+                      <button
+                        onClick={() => router.push('/client/demandes-express/nouvelle')}
+                        className="px-4 py-2 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] font-semibold text-sm transition-colors"
+                      >
+                        🚀 Créer une nouvelle demande
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

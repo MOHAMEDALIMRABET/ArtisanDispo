@@ -194,6 +194,34 @@ export {
   checkPaymentDeadlinesManual     // Version HTTP pour tests manuels
 } from './scheduledJobs/checkPaymentDeadlines';
 
+/**
+ * Nettoyage automatique demandes express expirées
+ * Exécution: Tous les jours à 4h du matin
+ * 
+ * Workflow (Suite de checkPaymentDeadlines):
+ * 1. Client accepte proposition → Ne paie pas dans délai → statut='expiree' + expireeAt défini
+ * 2. checkPaymentDeadlines fait l'expiration initiale (statut='expiree')
+ * 3. Cette fonction supprime DÉFINITIVEMENT après 24h de rétention
+ * 4. Suppression complète: demande + proposition + notifications timeout
+ * 5. PRÉSERVATION: Messages (archivage légal conversations)
+ * 
+ * Logique définitive (Option A choisie):
+ * - Expiration = DÉFINITIVE (pas de réactivation possible)
+ * - Client ne peut PAS re-accepter la même proposition
+ * - Artisan libéré immédiatement
+ * - Database cleanup après 24h (évite pollution)
+ * 
+ * Requirement user:
+ * "Je propose que la demande sera expirée et supprimée automatiquement dans les 24 heures.
+ *  Si un client accepte et n'a pas payer dans le temps, l'expiration sera définitive."
+ * 
+ * MODIFIED: 2026-03-19 - Passage de logique réversible à définitive
+ */
+export { 
+  cleanupExpiredDemandesExpress,          // Nettoyage quotidien à 4h (production)
+  cleanupExpiredDemandesExpressManual     // Version HTTP pour tests manuels
+} from './scheduledJobs/cleanupExpiredDemandesExpress';
+
 
 // ========================================
 // FIRESTORE TRIGGERS

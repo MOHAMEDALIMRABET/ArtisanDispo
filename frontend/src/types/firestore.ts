@@ -973,7 +973,8 @@ export interface DemandeExpress {
   // Métadonnées
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  expiresAt?: Timestamp;          // Auto-expire si pas de réponse
+  expiresAt?: Timestamp;          // Auto-expire si pas de réponse artisan sous 48h
+  expireeAt?: Timestamp;          // Date expiration définitive (timeout paiement)
   travauxTerminesAt?: Timestamp;  // Quand l'artisan déclare la fin (24h auto-libération)
   paymentDeadline?: Timestamp;    // Deadline pour payer après acceptation (15min immediat / 30min urgent)
 }
@@ -987,6 +988,7 @@ export type PropositionExpressStatut =
   | 'proposition_finale_artisan'// Round 3 : Proposition finale artisan → client répond (LAST)
   | 'acceptee'                  // Acceptée
   | 'refusee'                   // Refusée définitivement
+  | 'expiree'                   // Expirée (timeout paiement) - Suppression 24h
   | 'expiree';                  // Pas de réponse sous 24h
 
 /**
