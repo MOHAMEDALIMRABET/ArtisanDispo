@@ -288,9 +288,9 @@ export default function DemandeExpressDetailArtisanPage() {
 
       {/* Contenu */}
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className="max-w-6xl mx-auto space-y-6">
 
-          {/* Bandeau expiration — uniquement pendant la recherche d'artisan */}
+          {/* ── Bandeaux pleine largeur ── */}
           {demande.expiresAt && demande.statut === 'en_attente_proposition' && (
             <div className={`rounded-xl px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-2 ${
               countdown.isExpired
@@ -316,14 +316,13 @@ export default function DemandeExpressDetailArtisanPage() {
               </div>
             </div>
           )}
-          {/* Bandeau « en attente de décision client » — proposition déjà envoyée */}
-          {demande.expiresAt && ['proposition_recue', 'en_negociation', 'proposition_finale_artisan'].includes(demande.statut) && (
+          {maProposition && ['proposition_recue', 'en_negociation', 'proposition_finale_artisan'].includes(maProposition.statut) && (
             <div className="bg-blue-50 border-2 border-blue-300 rounded-xl px-5 py-4 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">📨</span>
                 <div>
                   <p className="text-sm font-semibold text-blue-800">
-                    {demande.statut === 'proposition_finale_artisan'
+                    {maProposition.statut === 'proposition_finale_artisan'
                       ? '🔔 Proposition finale envoyée — en attente de la décision du client'
                       : '✅ Proposition envoyée — en attente du client'}
                   </p>
@@ -337,8 +336,14 @@ export default function DemandeExpressDetailArtisanPage() {
             </div>
           )}
 
-          {/* Infos demande */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
+          {/* ── Grille deux colonnes ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+            {/* ══ COLONNE GAUCHE : Infos demande ══ */}
+            <div className="space-y-6">
+
+            {/* Infos demande */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-[#2C3E50]">
                 {demande.categorie.charAt(0).toUpperCase() + demande.categorie.slice(1)}
@@ -453,7 +458,11 @@ export default function DemandeExpressDetailArtisanPage() {
                 )}
               </div>
             </div>
-          </div>
+            </div>{/* fin infos demande */}
+            </div>{/* fin colonne gauche */}
+
+            {/* ══ COLONNE DROITE : Proposition / Actions ══ */}
+            <div className="space-y-6 lg:sticky lg:top-8">
 
           {/* Ma proposition (si déjà envoyée) */}
           {maProposition && (
@@ -745,6 +754,9 @@ export default function DemandeExpressDetailArtisanPage() {
               </p>
             </div>
           )}
+
+            </div>
+          </div>
         </div>
       </div>
     </div>
