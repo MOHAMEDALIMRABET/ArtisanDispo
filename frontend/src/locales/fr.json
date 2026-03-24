@@ -1559,7 +1559,7 @@
   },
   "clientExpressRequests": {
     "pageTitle": "🚀 Mes demandes Express",
-    "pageSubtitle": "Petits travaux rapides (≤ 150€) - Intervention sous 48h",
+    "pageSubtitle": "Petits travaux rapides (≤ 150€) - Intervention immédiate ou urgente",
     "newRequest": "+ Nouvelle demande Express",
     "loading": "Chargement de vos demandes Express...",
     "breadcrumb": {
@@ -1604,7 +1604,7 @@
     "howItWorks": {
       "title": "ℹ️ Comment ça marche ?",
       "step1": "Créez une demande Express (budget max 150€)",
-      "step2": "Un artisan vous propose un prix fixe sous 48h",
+      "step2": "Un artisan vous envoie rapidement une proposition de prix",
       "step3": "Acceptez la proposition et payez en ligne (paiement sécurisé)",
       "step4": "L'artisan intervient rapidement",
       "step5": "Validez les travaux, l'argent est libéré"
