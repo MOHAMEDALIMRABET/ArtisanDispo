@@ -1603,10 +1603,10 @@
     },
     "howItWorks": {
       "title": "ℹ️ How does it work?",
-      "step1": "Create an Express request (max budget €150)",
+      "step1": "Create an Express request (max budget €150, immediate or urgent mode)",
       "step2": "A tradesperson quickly sends you a price proposal",
       "step3": "Accept the proposal and pay online (secure payment)",
-      "step4": "The tradesperson intervenes quickly",
+      "step4": "The tradesperson intervenes: same day (immediate) or within 24h (urgent)",
       "step5": "Validate the work, payment is released"
     },
     "links": {
