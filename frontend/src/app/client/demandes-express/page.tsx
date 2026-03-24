@@ -15,6 +15,7 @@ import {
   updateDemandeExpressStatut,
   deleteDemandeExpress,
   markTravauxValides,
+  signalerProblemeExpress,
 } from '@/lib/firebase/demande-express-service';
 import { getUserById } from '@/lib/firebase/user-service';
 import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
@@ -48,6 +49,11 @@ export default function MesDemandesExpressPage() {
   const [submitting, setSubmitting] = useState(false);
   const [validatingId, setValidatingId] = useState<string | null>(null);
   const [artisanNomMap, setArtisanNomMap] = useState<Map<string, string>>(new Map());
+
+  // Modale contestation
+  const [showDisputeModal, setShowDisputeModal] = useState(false);
+  const [disputeDemandeId, setDisputeDemandeId] = useState<string | null>(null);
+  const [motifLitige, setMotifLitige] = useState('');
 
   // Cloches temporaires (nouvelles propositions non lues)
   const { notifications, markAsRead } = useNotifications(firebaseUser?.uid);
@@ -194,6 +200,41 @@ export default function MesDemandesExpressPage() {
       setValidatingId(null);
     }
   }
+
+  async function handleSignalerProbleme(demandeId: string) {
+    setDisputeDemandeId(demandeId);
+    setMotifLitige('');
+    setShowDisputeModal(true);
+  }
+
+  async function submitSignalerProbleme() {
+    if (!disputeDemandeId || !firebaseUser) return;
+    
+    if (!motifLitige.trim() || motifLitige.trim().length < 10) {
+      alert(t('clientExpressRequests.dispute.validationRequired'));
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await signalerProblemeExpress(disputeDemandeId, firebaseUser.uid, motifLitige.trim());
+      
+      // Mettre à jour localement
+      setDemandes(prev => prev.map(d => 
+        d.id === disputeDemandeId ? { ...d, statut: 'litige' as DemandeExpressStatut } : d
+      ));
+      
+      setShowDisputeModal(false);
+      setDisputeDemandeId(null);
+      setMotifLitige('');
+      
+      alert(t('clientExpressRequests.dispute.successAlert'));
+    } catch (err: any) {
+      alert(err.message || 'Erreur lors du signalement du problème');
+    } finally {
+      setSubmitting(false);
+    }
+  }
   useEffect(() => {
     if (authLoading) return;
 
@@ -241,6 +282,7 @@ export default function MesDemandesExpressPage() {
       await Promise.all(toExpire.map((d) => updateDemandeExpressStatut(d.id, 'expiree')));
 
       // Auto-libération : travaux_termines > 24h → libérer le paiement automatiquement
+      // SAUF si statut = 'litige' (paiement bloqué pour médiation)
       const toAutoRelease = demandesList.filter(
         (d) =>
           d.statut === 'travaux_termines' &&
@@ -320,6 +362,7 @@ export default function MesDemandesExpressPage() {
       payee: 'bg-purple-100 text-purple-800',
       en_cours: 'bg-indigo-100 text-indigo-800',
       travaux_termines: 'bg-amber-100 text-amber-800',
+      litige: 'bg-red-600 text-white',
       terminee: 'bg-green-200 text-green-900',
       annulee: 'bg-red-100 text-red-800',
       expiree: 'bg-gray-200 text-gray-700',
@@ -788,13 +831,35 @@ export default function MesDemandesExpressPage() {
                                     return null;
                                   })()}
                                 </p>
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); handleValiderTravaux(demande.id); }}
-                                  disabled={validatingId === demande.id}
-                                  className="w-full px-4 py-3 bg-[#28A745] text-white rounded-xl hover:bg-green-700 font-bold text-sm transition-all disabled:opacity-50"
-                                >
-                                  {validatingId === demande.id ? '⏳ Libération du paiement...' : '\u2705 Valider les travaux et libérer le paiement'}
-                                </button>
+                                <div className="grid grid-cols-2 gap-3">
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); handleSignalerProbleme(demande.id); }}
+                                    disabled={validatingId === demande.id}
+                                    className="px-4 py-3 border-2 border-red-400 text-red-600 rounded-xl hover:bg-red-50 font-bold text-sm transition-all disabled:opacity-50"
+                                  >
+                                    {t('clientExpressRequests.dispute.reportButton')}
+                                  </button>
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); handleValiderTravaux(demande.id); }}
+                                    disabled={validatingId === demande.id}
+                                    className="px-4 py-3 bg-[#28A745] text-white rounded-xl hover:bg-green-700 font-bold text-sm transition-all disabled:opacity-50"
+                                  >
+                                    {validatingId === demande.id ? '⏳ Libération du paiement...' : t('clientExpressRequests.dispute.validateButton')}
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Litige en cours */}
+                        {demande.statut === 'litige' && (
+                          <div className="bg-red-50 border-2 border-red-400 rounded-xl p-4">
+                            <div className="flex items-start gap-3">
+                              <span className="text-2xl">🚨</span>
+                              <div className="flex-1">
+                                <p className="font-bold text-red-900 mb-1">{t('clientExpressRequests.dispute.disputeInProgress')}</p>
+                                <p className="text-sm text-red-800">{t('clientExpressRequests.dispute.disputeMessage')}</p>
                               </div>
                             </div>
                           </div>

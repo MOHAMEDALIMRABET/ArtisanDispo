@@ -931,6 +931,7 @@ export type DemandeExpressStatut =
   | 'payee'                   // Paiement effectué
   | 'en_cours'                // Artisan sur place
   | 'travaux_termines'        // Artisan a déclaré la fin, validation client en attente
+  | 'litige'                  // Problème signalé par le client, paiement gelé, médiation admin
   | 'terminee'                // Intervention terminée et validée
   | 'annulee'                 // Annulée par client/artisan
   | 'expiree'                 // Paiement non effectué dans les délais après acceptation (15min immédiat / 30min urgent)

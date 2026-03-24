@@ -1572,9 +1572,27 @@
       "acceptee": "✅ Accepted",
       "payee": "💳 Paid",
       "en_cours": "🔧 In progress",
+      "travaux_termines": "🏁 Work completed",
+      "litige": "⚠️ Issue reported",
       "terminee": "✔️ Completed",
       "annulee": "❌ Cancelled",
       "expiree": "⏱️ Expired"
+    },
+    "dispute": {
+      "reportButton": "⚠️ Report an issue",
+      "validateButton": "✅ Validate work",
+      "modalTitle": "Report an issue",
+      "modalDescription": "Describe the problem encountered. An administrator will contact you within 12h.",
+      "reasonPlaceholder": "Example: Non-compliant work, significant delay, abandonment...",
+      "reasonLabel": "Issue reason",
+      "photosLabel": "Photos (optional)",
+      "photosHint": "Add up to 3 photos to illustrate the issue",
+      "submitButton": "🚨 Report issue",
+      "cancelButton": "Cancel",
+      "successAlert": "⚠️ Issue reported.\n\nOur team will review your request and contact you within 12h.\n\nPayment remains blocked until resolution.",
+      "validationRequired": "Please describe the issue (minimum 10 characters)",
+      "disputeInProgress": "🚨 Issue being processed",
+      "disputeMessage": "An administrator is reviewing your request and will contact you within 12h. Payment is blocked."
     },
     "urgency": {
       "normal": "🕒 Normal",

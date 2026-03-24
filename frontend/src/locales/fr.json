@@ -1572,9 +1572,27 @@
       "acceptee": "✅ Acceptée",
       "payee": "💳 Payée",
       "en_cours": "🔧 En cours",
+      "travaux_termines": "🏁 Travaux terminés",
+      "litige": "⚠️ Problème signalé",
       "terminee": "✔️ Terminée",
       "annulee": "❌ Annulée",
       "expiree": "⏱️ Expirée"
+    },
+    "dispute": {
+      "reportButton": "⚠️ Signaler un problème",
+      "validateButton": "✅ Valider les travaux",
+      "modalTitle": "Signaler un problème",
+      "modalDescription": "Décrivez le problème rencontré. Un administrateur vous contactera sous 12h.",
+      "reasonPlaceholder": "Exemple : Travaux non conformes, retard important, abandon...",
+      "reasonLabel": "Motif du problème",
+      "photosLabel": "Photos (facultatif)",
+      "photosHint": "Ajoutez jusqu'à 3 photos pour illustrer le problème",
+      "submitButton": "🚨 Signaler le problème",
+      "cancelButton": "Annuler",
+      "successAlert": "⚠️ Problème signalé.\n\nNotre équipe va examiner votre demande et vous contacter sous 12h.\n\nLe paiement reste bloqué jusqu'à résolution.",
+      "validationRequired": "Veuillez décrire le problème (minimum 10 caractères)",
+      "disputeInProgress": "🚨 Problème en cours de traitement",
+      "disputeMessage": "Un administrateur examine votre demande et vous contactera sous 12h. Le paiement est bloqué."
     },
     "urgency": {
       "normal": "🕒 Normal",

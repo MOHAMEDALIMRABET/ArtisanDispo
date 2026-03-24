@@ -572,6 +572,68 @@ export async function markTravauxValides(demandeId: string): Promise<void> {
 }
 
 /**
+ * Client signale un problème sur travaux express
+ * Statut: travaux_termines/en_cours/payee → litige
+ * Bloque le paiement en attente de médiation admin (priorité haute)
+ */
+export async function signalerProblemeExpress(
+  demandeId: string,
+  clientId: string,
+  motif: string,
+  photos?: string[]
+): Promise<void> {
+  const demande = await getDemandeExpressById(demandeId);
+  if (!demande) {
+    throw new Error('Demande introuvable');
+  }
+
+  // Vérifications
+  if (demande.clientId !== clientId) {
+    throw new Error('Non autorisé');
+  }
+
+  const statutsAutorisesLitige: DemandeExpressStatut[] = ['payee', 'en_cours', 'travaux_termines'];
+  if (!statutsAutorisesLitige.includes(demande.statut)) {
+    throw new Error(`Impossible de signaler un problème (statut actuel: ${demande.statut}). Le litige est possible uniquement après paiement.`);
+  }
+
+  // Mettre à jour la demande
+  await updateDoc(doc(db, 'demandes_express', demandeId), {
+    statut: 'litige',
+    statutAvantLitige: demande.statut, // Mémoriser pour restauration si litige abandonné
+    litige: {
+      declarePar: 'client',
+      motif,
+      photos: photos || [],
+      date: Timestamp.now(),
+      statut: 'ouvert',
+    },
+    updatedAt: Timestamp.now(),
+  });
+
+  // Notifier artisan
+  if (demande.artisanId) {
+    await createNotification(demande.artisanId, {
+      type: 'litige_ouvert',
+      titre: '⚠️ Problème signalé',
+      message: `Le client a signalé un problème. Un administrateur va vous contacter sous 12h.`,
+      lien: `/artisan/demandes-express/${demandeId}`,
+    });
+  }
+
+  // TODO: Notifier admin (priorité haute - intervention rapide 12h max)
+  // const admins = await getAdminUsers();
+  // for (const admin of admins) {
+  //   await createNotification(admin.uid, {
+  //     type: 'litige_express_admin',
+  //     titre: '🚨 URGENT - Litige Express',
+  //     message: `Problème signalé sur demande express ${demandeId}. Intervention requise sous 12h.`,
+  //     lien: `/admin/litiges-express/${demandeId}`,
+  //   });
+  // }
+}
+
+/**
  * Annuler une demande express
  */
 export async function cancelDemandeExpress(demandeId: string, userId: string): Promise<void> {
