@@ -7,6 +7,7 @@ import { authService, resendVerificationEmail } from '@/lib/auth-service';
 import { getUserById } from '@/lib/firebase/user-service';
 import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
 import { getAvisByClientId, getContratsTerminesSansAvis } from '@/lib/firebase/avis-service';
+import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { User, Avis } from '@/types/firestore';
@@ -14,6 +15,7 @@ import type { User, Avis } from '@/types/firestore';
 export default function DashboardPage() {
   const router = useRouter();
   const { t } = useLanguage();
+  const { user: firebaseUser } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [emailVerified, setEmailVerified] = useState(true);
@@ -23,7 +25,7 @@ export default function DashboardPage() {
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [avisClient, setAvisClient] = useState<Avis[]>([]);
   const [contratsANoter, setContratsANoter] = useState<any[]>([]);
-  const { notifications, markTypeAsRead } = useNotifications(user?.uid);
+  const { notifications, markTypeAsRead } = useNotifications(firebaseUser?.uid);
   const devisNouveaux = notifications.filter(n => !n.lue && (
     n.type === 'devis_recu' ||
     n.type === 'devis_accepte' ||
