@@ -625,7 +625,39 @@ export default function MesDemandesExpressPage() {
 
                       <div className="px-8 py-5 space-y-4">
 
-                        {/* En attente sans artisan assigné - désormais affiché dans la zone principale */}
+                        {/* En attente de proposition */}
+                        {demande.statut === 'en_attente_proposition' && (
+                          <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-5">
+                            <div className="flex items-start gap-3">
+                              <span className="text-3xl">⏳</span>
+                              <div className="flex-1">
+                                <p className="font-bold text-blue-900 mb-2 text-lg">En attente d'une proposition</p>
+                                {demande.artisanId ? (
+                                  <p className="text-sm text-blue-800 mb-3">
+                                    L'artisan a été notifié de votre demande. Il va vous envoyer une proposition dans les prochaines heures.
+                                  </p>
+                                ) : (
+                                  <p className="text-sm text-blue-800 mb-3">
+                                    Votre demande est publiée. Les artisans qualifiés de votre secteur vont la consulter et vous enverront des propositions rapidement.
+                                  </p>
+                                )}
+                                {demande.expiresAt && (() => {
+                                  const diff = demande.expiresAt.toDate().getTime() - Date.now();
+                                  if (diff > 0) {
+                                    const hours = Math.floor(diff / (60 * 60 * 1000));
+                                    const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+                                    return (
+                                      <p className="text-xs text-blue-700 bg-blue-100 inline-block px-3 py-1.5 rounded-lg">
+                                        ⏱️ Expire dans {hours}h{minutes > 0 ? ` ${minutes}min` : ''} - Délai pour recevoir une proposition ({demande.urgence === 'immediat' ? '1h' : '6h'})
+                                      </p>
+                                    );
+                                  }
+                                  return null;
+                                })()}
+                              </div>
+                            </div>
+                          </div>
+                        )}
 
                         {/* Proposition reçue — chargement */}
                         {demande.statut === 'proposition_recue' && loadingProp && (
