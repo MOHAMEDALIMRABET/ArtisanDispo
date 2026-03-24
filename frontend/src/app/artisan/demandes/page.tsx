@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotifications } from '@/hooks/useNotifications';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getUserById } from '@/lib/firebase/user-service';
 import { getArtisanById } from '@/lib/firebase/artisan-service';
@@ -34,6 +35,7 @@ export default function ArtisanDemandesPage() {
   const searchParams = useSearchParams();
   const highlightedDemandeId = searchParams?.get('demandeId');
   const { user: authUser, loading: authLoading } = useAuth();
+  const { markTypeAsRead } = useNotifications(authUser?.uid);
   const { t, language } = useLanguage();
   const [user, setUser] = useState<User | null>(null);
   const [demandes, setDemandes] = useState<Demande[]>([]);
@@ -87,6 +89,8 @@ export default function ArtisanDemandesPage() {
     }
 
     loadData();
+    // Marquer les notifications de demandes comme lues
+    markTypeAsRead(['nouvelle_demande', 'nouvelle_demande_publique']);
   }, [authUser, authLoading, router]);
 
   // Si on arrive avec un demandeId dans l'URL → aller directement dans Classiques
