@@ -1071,6 +1071,12 @@ export default function MesDemandesPage() {
                         }
                         return null;
                       })()}
+                      {demande.localisation?.codePostal && demande.localisation?.ville && (
+                        <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-lg">
+                          <span className="text-blue-600">📍</span>
+                          <span className="font-semibold text-blue-900">Localisation: {demande.localisation.codePostal} {demande.localisation.ville}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
