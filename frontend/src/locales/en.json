@@ -1967,8 +1967,8 @@
       "revisionError": "Error sending. Please try again."
     },
     "expiredRetentionBanner": {
-      "title": "Automatic deletion after 120 days",
-      "message": "These expired requests are kept in your history for reference. They will be permanently deleted from the platform after 120 days of expiration."
+      "title": "Automatic deletion after 30 days",
+      "message": "These expired requests are kept in your history for reference. They will be permanently deleted from the platform after 30 days of expiration."
     },
     "expirationHelp": {
       "title": "How does request expiration work?",
@@ -2037,7 +2037,7 @@
         },
         "retention": {
           "question": "Are my expired requests deleted?",
-          "answer": "Not immediately. Your expired requests remain visible in your history for 120 days. After that, they are automatically and permanently deleted."
+          "answer": "Not immediately. Your expired requests remain visible in your history for 30 days. After that, they are automatically and permanently deleted."
         }
       }
     }

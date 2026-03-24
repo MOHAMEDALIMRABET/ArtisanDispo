@@ -1967,8 +1967,8 @@
       "revisionError": "Erreur lors de l'envoi. Veuillez réessayer."
     },
     "expiredRetentionBanner": {
-      "title": "Suppression automatique après 120 jours",
-      "message": "Ces demandes expirées sont conservées dans votre historique à titre informatif. Elles seront supprimées définitivement de la plateforme après 120 jours d'expiration."
+      "title": "Suppression automatique après 30 jours",
+      "message": "Ces demandes expirées sont conservées dans votre historique à titre informatif. Elles seront supprimées définitivement de la plateforme après 30 jours d'expiration."
     },
     "expirationHelp": {
       "title": "Comment fonctionne l'expiration des demandes ?",
@@ -2037,7 +2037,7 @@
         },
         "retention": {
           "question": "Mes demandes expirées sont-elles supprimées ?",
-          "answer": "Non, pas immédiatement. Vos demandes expirées restent visibles dans votre historique pendant 120 jours. Passé ce délai, elles sont supprimées définitivement de manière automatique."
+          "answer": "Non, pas immédiatement. Vos demandes expirées restent visibles dans votre historique pendant 30 jours. Passé ce délai, elles sont supprimées définitivement de manière automatique."
         }
       }
     }
