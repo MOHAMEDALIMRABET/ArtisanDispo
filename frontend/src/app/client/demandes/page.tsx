@@ -1020,19 +1020,19 @@ export default function MesDemandesPage() {
                     <h2 className="text-2xl font-extrabold text-[#2C3E50] mb-3 tracking-tight">
                       {demande.titre}
                     </h2>
-                    <div className="flex flex-wrap items-center gap-4 text-sm">
-                      <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-lg">
+                    <div className="flex items-center gap-3 text-sm overflow-x-auto">
+                      <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-lg whitespace-nowrap">
                         <span className="text-blue-600">🏷️</span>
                         <span className="font-semibold text-blue-900">{demande.categorie}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-gray-600">
+                      <div className="flex items-center gap-2 text-gray-600 whitespace-nowrap">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         <span className="font-medium">{t('clientDemandes.card.createdOn')} {demande.dateCreation?.toDate().toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}</span>
                       </div>
                       {demande.datesSouhaitees?.dates && demande.datesSouhaitees.dates.length > 0 && (
-                        <div className="flex items-center gap-2 bg-amber-50 px-3 py-1.5 rounded-lg">
+                        <div className="flex items-center gap-2 bg-amber-50 px-3 py-1.5 rounded-lg whitespace-nowrap">
                           <span className="text-amber-600">📅</span>
                           <span className="font-semibold text-amber-900">{t('clientDemandes.card.startDate')} {new Date(demande.datesSouhaitees.dates[0].toMillis()).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric' })}</span>
                         </div>
@@ -1043,7 +1043,7 @@ export default function MesDemandesPage() {
                         const devisPaye = devisForDemande.find(d => statutsPaye.includes(d.statut));
                         if (devisPaye?.delaiRealisation) {
                           return (
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1 whitespace-nowrap">
                               <span className="text-green-600">⏱️</span>
                               <span className="font-semibold">{t('clientDemandes.card.delay')}</span>
                               <span>{devisPaye.delaiRealisation} {t('clientDemandes.card.days')}</span>
@@ -1063,7 +1063,7 @@ export default function MesDemandesPage() {
                           dateFin.setDate(dateFin.getDate() + parseInt(devisPaye.delaiRealisation));
                           
                           return (
-                            <div className="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-lg">
+                            <div className="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-lg whitespace-nowrap">
                               <span className="text-green-600">📅</span>
                               <span className="font-semibold text-green-900">Fin: {dateFin.toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric' })}</span>
                             </div>
@@ -1072,7 +1072,7 @@ export default function MesDemandesPage() {
                         return null;
                       })()}
                       {demande.localisation?.codePostal && demande.localisation?.ville && (
-                        <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-lg">
+                        <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-lg whitespace-nowrap">
                           <span className="text-blue-600">📍</span>
                           <span className="font-semibold text-blue-900">Localisation: {demande.localisation.codePostal} {demande.localisation.ville}</span>
                         </div>
