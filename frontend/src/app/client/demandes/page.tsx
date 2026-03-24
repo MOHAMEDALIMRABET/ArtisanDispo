@@ -1045,8 +1045,27 @@ export default function MesDemandesPage() {
                           return (
                             <div className="flex items-center gap-1">
                               <span className="text-green-600">⏱️</span>
-                              <span className="font-semibold">{t('clientDemandes.card.delay')} :</span>
+                              <span className="font-semibold">{t('clientDemandes.card.delay')}</span>
                               <span>{devisPaye.delaiRealisation} {t('clientDemandes.card.days')}</span>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+                      {(() => {
+                        const devisForDemande = devisMap.get(demande.id) || [];
+                        const statutsPaye = ['paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide', 'litige'];
+                        const devisPaye = devisForDemande.find(d => statutsPaye.includes(d.statut));
+                        if (devisPaye?.delaiRealisation && demande.datesSouhaitees?.dates && demande.datesSouhaitees.dates.length > 0) {
+                          // Calculer la date de fin : date de début + délai
+                          const dateDebut = new Date(demande.datesSouhaitees.dates[0].toMillis());
+                          const dateFin = new Date(dateDebut);
+                          dateFin.setDate(dateFin.getDate() + parseInt(devisPaye.delaiRealisation));
+                          
+                          return (
+                            <div className="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-lg">
+                              <span className="text-green-600">📅</span>
+                              <span className="font-semibold text-green-900">Fin: {dateFin.toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric' })}</span>
                             </div>
                           );
                         }
