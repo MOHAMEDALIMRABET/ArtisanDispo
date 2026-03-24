@@ -565,7 +565,7 @@ export default function MesDemandesExpressPage() {
                       if (demande.travauxTerminesAt) {
                         return (
                           <span className="text-green-700 font-semibold">
-                            📅 Fin: {format(demande.travauxTerminesAt.toDate(), 'dd MMM yyyy', { locale: fr })}
+                            📅 Fin: {format(demande.travauxTerminesAt.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr })}
                           </span>
                         );
                       }
@@ -573,7 +573,7 @@ export default function MesDemandesExpressPage() {
                       if (['payee', 'en_cours', 'travaux_termines'].includes(demande.statut)) {
                         return (
                           <span className="text-blue-700 font-semibold">
-                            📅 Fin prévue: {format(dateIntervention, 'dd MMM yyyy', { locale: fr })}
+                            📅 Fin prévue: {format(dateIntervention, 'dd MMMM yyyy à HH:mm', { locale: fr })}
                           </span>
                         );
                       }
