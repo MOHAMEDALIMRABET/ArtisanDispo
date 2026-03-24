@@ -44,16 +44,33 @@ export default function MesDevisPage() {
   const [showInfoGestion, setShowInfoGestion] = useState(false);
   const devisRefs = useRef<{[key: string]: HTMLTableRowElement | null}>({});
 
+  // IDs des devis déjà consultés (persiste dans localStorage)
+  const [devisVusSet, setDevisVusSet] = useState<Set<string>>(() => {
+    if (typeof window === 'undefined') return new Set<string>();
+    try {
+      const stored = localStorage.getItem('artisan_devis_vus');
+      return stored ? new Set<string>(JSON.parse(stored)) : new Set<string>();
+    } catch { return new Set<string>(); }
+  });
+
+  // Helper : sauvegarder des IDs de devis comme vus dans localStorage
+  function saveDevisVusIds(ids: string[]) {
+    if (ids.length === 0) return;
+    const updated = new Set<string>([...devisVusSet, ...ids]);
+    setDevisVusSet(updated);
+    try { localStorage.setItem('artisan_devis_vus', JSON.stringify([...updated])); } catch {}
+  }
+
   // Helper pour vérifier si un devis a une réponse client récente (notification récente)
   // SYSTÈME LU/NON LU inspiré de Gmail, Slack, LinkedIn
   // Le badge apparaît UNIQUEMENT si le CLIENT a répondu ET l'artisan n'a PAS encore consulté
   const aReponseClienteRecente = (devis: Devis): boolean => {
-    // Badge si le client a interagi ET l'artisan n'a pas encore consulté
+    // Si déjà vu, pas de badge
+    if (devisVusSet.has(devis.id)) return false;
+    
+    // Badge si le client a interagi et l'artisan n'a pas encore consulté
     const statutsAvecBadge = ['en_attente_paiement', 'refuse', 'annule', 'en_revision', 'paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide'];
-    if (statutsAvecBadge.includes(devis.statut) && devis.vuParArtisan === false) {
-      return true;
-    }
-    return false;
+    return statutsAvecBadge.includes(devis.statut);
   };
 
   // Obtenir le texte du badge selon le statut
@@ -116,6 +133,31 @@ export default function MesDevisPage() {
       }, 500);
     }
   }, [highlightedDevisId, loading]);
+
+  /**
+   * Marquer les devis comme "vus" automatiquement après chargement
+   * Un délai de 800ms assure que la liste est bien rendue avant de marquer.
+   * Ce système est cohérent avec les demandes (référence).
+   */
+  useEffect(() => {
+    if (loading || devis.length === 0) return;
+
+    // Récupérer tous les IDs de devis affichés qui ont une réponse client
+    const devisIds = devis
+      .filter(d => {
+        const statutsAvecBadge = ['en_attente_paiement', 'refuse', 'annule', 'en_revision', 'paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide'];
+        return statutsAvecBadge.includes(d.statut);
+      })
+      .map(d => d.id);
+
+    // Marquer comme vus après 800ms (temps de lecture)
+    const timer = setTimeout(() => {
+      saveDevisVusIds(devisIds);
+      console.log(`✅ ${devisIds.length} devis marqués comme vus`);
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [loading, devis.length]); // Déclencher quand les devis sont chargés
 
   const loadDevis = async () => {
     if (!user) return;
@@ -195,9 +237,10 @@ export default function MesDevisPage() {
       setDevis(devisData);
 
       // 🔍 DEBUG : Vérifier les devis NON VUS (système lu/non lu)
-      const devisNonVus = devisData.filter(d => 
-        (d.statut === 'en_attente_paiement' || d.statut === 'refuse' || d.statut === 'en_revision') && d.vuParArtisan === false
-      );
+      const devisNonVus = devisData.filter(d => {
+        const statutsAvecBadge = ['en_attente_paiement', 'refuse', 'annule', 'en_revision', 'paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide'];
+        return statutsAvecBadge.includes(d.statut) && !devisVusSet.has(d.id);
+      });
       
       console.log('📊 Total devis:', devisData.length);
       console.log('🔔 Devis NON VUS (avec réponse client):', devisNonVus.length);
@@ -205,7 +248,7 @@ export default function MesDevisPage() {
       if (devisNonVus.length > 0) {
         console.log('📋 Devis nécessitant attention:');
         devisNonVus.forEach(d => {
-          console.log(`  ✓ ${d.numeroDevis}: statut=${d.statut}, vuParArtisan=${d.vuParArtisan}`);
+          console.log(`  ✓ ${d.numeroDevis}: statut=${d.statut}, déjàVu=${devisVusSet.has(d.id)}`);
         });
       }
 
@@ -237,104 +280,24 @@ export default function MesDevisPage() {
     }
   };
 
-  // Marquer un devis comme "vu" par l'artisan (système lu/non lu)
-  const marquerCommeVu = async (devisId: string) => {
-    try {
-      const devisRef = doc(db, 'devis', devisId);
-      await updateDoc(devisRef, {
-        vuParArtisan: true,
-        dateVueParArtisan: Timestamp.now(),
-      });
-      console.log(`✅ Devis ${devisId} marqué comme vu`);
-    } catch (error) {
-      console.error('Erreur marquage devis comme vu:', error);
-    }
-  };
+  // ⚠️ ANCIEN SYSTÈME FIRESTORE (vuParArtisan) SUPPRIMÉ
+  // Le système de marquage "vu" est maintenant géré par localStorage (devisVusSet)
+  // avec auto-marquage après 800ms (voir useEffect ci-dessous)
+  // Référence : frontend/src/app/artisan/demandes/page.tsx
 
-  // Marquer tous les devis d'une section comme "vus" par l'artisan
-  const marquerSectionCommeVue = async (filtre: DevisFilter) => {
-    try {
-      // Trouver tous les devis visibles dans cette section qui ont vuParArtisan=false
-      const devisAMarquer = devis.filter(d => {
-        // Ignorer les devis déjà vus
-        if (d.vuParArtisan !== false) return false;
-        
-        // Ignorer les devis remplacés si non affichés
-        if (!showRemplace && d.statut === 'remplace') return false;
-        
-        // Vérifier si le devis correspond au filtre sélectionné
-        if (filtre === 'tous') return true;
-        if (filtre === 'genere') return d.statut === 'genere';
-        if (filtre === 'envoye') return d.statut === 'envoye';
-        if (filtre === 'en_attente_paiement') return d.statut === 'en_attente_paiement';
-        if (filtre === 'paye') return ['paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide', 'litige'].includes(d.statut);
-        if (filtre === 'revision') return d.statut === 'en_revision';
-        if (filtre === 'refuse') return d.statut === 'refuse' || d.statut === 'annule';
-        
-        return false;
-      });
-
-      // Marquer tous ces devis comme vus
-      if (devisAMarquer.length > 0) {
-        console.log(`📝 Marquage de ${devisAMarquer.length} devis dans section "${filtre}"`);
-        
-        const updatedIds: string[] = [];
-        
-        for (const d of devisAMarquer) {
-          try {
-            const devisRef = doc(db, 'devis', d.id);
-            await updateDoc(devisRef, {
-              vuParArtisan: true,
-              dateVueParArtisan: Timestamp.now(),
-            });
-            updatedIds.push(d.id);
-          } catch (error: any) {
-            // Ignorer les erreurs de permission (devis supprimé ou non accessible)
-            console.warn(`⚠️ Impossible de marquer devis ${d.id}:`, error.code || error.message);
-          }
-        }
-        
-        if (updatedIds.length > 0) {
-          console.log(`✅ ${updatedIds.length} devis marqués comme vus`);
-          
-          // Mettre à jour l'état local au lieu de recharger depuis Firestore
-          setDevis(prev => prev.map(dv => 
-            updatedIds.includes(dv.id) 
-              ? { ...dv, vuParArtisan: true, dateVueParArtisan: Timestamp.now() }
-              : dv
-          ));
-        }
-      }
-    } catch (error) {
-      console.error('Erreur marquage section comme vue:', error);
-    }
-  };
-
-  // Gérer le changement de filtre avec marquage automatique comme "vu"
-  const handleFilterChange = async (newFilter: DevisFilter) => {
+  // Gérer le changement de filtre
+  const handleFilterChange = (newFilter: DevisFilter) => {
     // Réinitialiser le sous-filtre quand on quitte la section "Payés"
     if (newFilter !== 'paye') {
       setSousFiltrePayes('tout');
     }
-    // D'abord changer le filtre (synchrone)
     setFilter(newFilter);
-    
-    // Puis marquer les devis de cette section comme vus (asynchrone)
-    // Note : on utilise setTimeout pour laisser React finir le re-render
-    setTimeout(() => {
-      marquerSectionCommeVue(newFilter).catch(err => {
-        console.error('Erreur lors du marquage automatique:', err);
-      });
-    }, 100);
+    // Note : Le marquage "vu" est automatique via useEffect après 800ms
   };
 
   // Gérer le clic sur un devis pour le consulter
-  const handleVoirDevis = async (devisId: string, hasRecentNotif: boolean) => {
-    // Si le devis a une notification non vue, le marquer comme vu
-    if (hasRecentNotif) {
-      await marquerCommeVu(devisId);
-    }
-    // Naviguer vers le détail
+  const handleVoirDevis = (devisId: string, hasRecentNotif: boolean) => {
+    // Note : Le marquage "vu" est automatique via useEffect après 800ms
     router.push(`/artisan/devis/${devisId}`);
   };
 
@@ -1147,7 +1110,7 @@ export default function MesDevisPage() {
                       <td className="px-3 py-4 text-sm font-medium">
                         {d.statut === 'en_revision' && d.demandeId ? (
                           <button
-                            onClick={async () => { await marquerCommeVu(d.id); router.push(`/artisan/devis/nouveau?demandeId=${d.demandeId}&revisionDevisId=${d.id}`); }}
+                            onClick={() => router.push(`/artisan/devis/nouveau?demandeId=${d.demandeId}&revisionDevisId=${d.id}`)}
                             className="px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 text-xs font-semibold"
                           >
                             📝 {t('quotes.createRevision')}
