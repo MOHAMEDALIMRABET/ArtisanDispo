@@ -1596,7 +1596,7 @@
     "card": {
       "budgetProposed": "💰 {amount}€",
       "expires": "⏱️ Expire le",
-      "createdOn": "� Créée le",
+      "createdOn": "📅 Créée le",
       "viewDetails": "👁️ Voir détails",
       "proposalWaiting": "📨 Proposition en attente",
       "interventionInProgress": "🔧 Intervention en cours"
