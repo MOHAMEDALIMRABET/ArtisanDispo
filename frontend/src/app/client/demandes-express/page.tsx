@@ -558,6 +558,27 @@ export default function MesDemandesExpressPage() {
                   <div className="flex flex-wrap gap-4 text-sm text-[#6C757D]">
                     <span>📍 {demande.ville} ({demande.codePostal})</span>
                     <span>{t('clientExpressRequests.card.createdOn')} {format(demande.createdAt.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr })}</span>
+                    {(() => {
+                      // Calculer la date de fin basée sur la date d'intervention et le mode urgence
+                      const dateIntervention = new Date(demande.date);
+                      // Si travaux terminés, afficher la date réelle
+                      if (demande.travauxTerminesAt) {
+                        return (
+                          <span className="text-green-700 font-semibold">
+                            📅 Fin: {format(demande.travauxTerminesAt.toDate(), 'dd MMM yyyy', { locale: fr })}
+                          </span>
+                        );
+                      }
+                      // Sinon, afficher la date d'intervention prévue
+                      if (['payee', 'en_cours', 'travaux_termines'].includes(demande.statut)) {
+                        return (
+                          <span className="text-blue-700 font-semibold">
+                            📅 Fin prévue: {format(dateIntervention, 'dd MMM yyyy', { locale: fr })}
+                          </span>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
 
                   {demande.statut === 'en_attente_proposition' && !demande.artisanId && (
