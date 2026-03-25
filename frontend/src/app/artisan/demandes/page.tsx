@@ -2150,15 +2150,6 @@ export default function ArtisanDemandesPage() {
                                   <p className="text-sm font-medium text-[#2C3E50]">{maProposition.delaiIntervention}</p>
                                 </div>
                               )}
-                              <span className={`ml-auto px-3 py-1 rounded-full text-xs font-bold ${
-                                maProposition.statut === 'acceptee' ? 'bg-green-100 text-green-800' :
-                                maProposition.statut === 'refusee' ? 'bg-red-100 text-red-800' :
-                                'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {maProposition.statut === 'acceptee' ? '✅ Acceptée' :
-                                 maProposition.statut === 'refusee' ? '❌ Refusée' :
-                                 "⏳ En attente d'acceptation"}
-                              </span>
                             </div>
                             <div>
                               <p className="text-xs text-gray-500 mb-0.5">Description de votre prestation</p>
