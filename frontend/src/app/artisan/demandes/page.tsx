@@ -2104,12 +2104,6 @@ export default function ArtisanDemandesPage() {
                             <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">📍 Localisation</p>
                             <p className="font-semibold text-[#2C3E50]">{demande.ville} ({demande.codePostal})</p>
                           </div>
-                          {demande.budgetPropose && (
-                            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                              <p className="text-xs text-orange-400 font-semibold uppercase tracking-wide mb-1">💰 Budget client</p>
-                              <p className="text-xl font-black text-[#FF6B00]">{demande.budgetPropose}€</p>
-                            </div>
-                          )}
                         </div>
 
                         {/* Photos du chantier */}
