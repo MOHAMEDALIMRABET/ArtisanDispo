@@ -12,6 +12,7 @@ import { Logo } from '@/components/ui';
 import UserMenu from '@/components/UserMenu';
 import GuestMenu from '@/components/GuestMenu';
 import LanguageSelector from '@/components/LanguageSelector';
+import NotificationBell from '@/components/NotificationBell';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { authService } from '@/lib/auth-service';
 import { getUserById } from '@/lib/firebase/user-service';
@@ -206,6 +207,9 @@ export default function Header() {
                           {t('common.verifiedProfile')}
                         </span>
                       )}
+                      
+                      {/* Cloche de notifications */}
+                      <NotificationBell />
                       
                       {/* Sélecteur de langue */}
                       <LanguageSelector />
