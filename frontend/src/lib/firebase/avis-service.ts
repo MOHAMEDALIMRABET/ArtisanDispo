@@ -201,6 +201,33 @@ export async function getAvisByContratId(contratId: string): Promise<Avis | null
 }
 
 /**
+ * Récupérer un avis par ID de devis
+ * (cherche d'abord le contrat associé, puis l'avis)
+ */
+export async function getAvisByDevisId(devisId: string): Promise<Avis | null> {
+  try {
+    // 1. Chercher le contrat associé au devis
+    const contratQuery = query(
+      collection(db, 'contrats'),
+      where('devisId', '==', devisId)
+    );
+
+    const contratSnapshot = await getDocs(contratQuery);
+    if (contratSnapshot.empty) {
+      return null; // Pas de contrat = pas d'avis possible
+    }
+
+    const contratId = contratSnapshot.docs[0].id;
+
+    // 2. Chercher l'avis avec le contratId
+    return await getAvisByContratId(contratId);
+  } catch (error) {
+    console.error('❌ Erreur récupération avis par devisId:', error);
+    return null;
+  }
+}
+
+/**
  * Récupérer un avis par ID
  */
 export async function getAvisById(avisId: string): Promise<Avis | null> {

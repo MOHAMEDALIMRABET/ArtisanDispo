@@ -15,7 +15,7 @@ import type { Devis } from '@/types/devis';
 import type { Demande } from '@/types/firestore';
 import Link from 'next/link';
 import { annulerDevisParClient } from '@/lib/firebase/devis-service';
-import { getAvisByContratId } from '@/lib/firebase/avis-service';
+import { getAvisByContratId, getAvisByDevisId } from '@/lib/firebase/avis-service';
 import { markNotificationsByLienAsRead } from '@/lib/firebase/notification-service';
 import { resendVerificationEmail } from '@/lib/auth-service';
 
@@ -149,7 +149,7 @@ export default function ClientDevisPage() {
       const avisMap: Record<string, boolean> = {};
       await Promise.all(
         devisTermines.map(async (d) => {
-          const avis = await getAvisByContratId(d.id);
+          const avis = await getAvisByDevisId(d.id); // ✅ Utilise devisId au lieu de contratId
           avisMap[d.id] = !!avis;
         })
       );
