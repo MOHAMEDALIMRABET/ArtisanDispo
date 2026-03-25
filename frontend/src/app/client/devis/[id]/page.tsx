@@ -689,9 +689,22 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
       //   body: JSON.stringify({ contratId: devis.id, validePar: 'client' })
       // });
 
-      await loadDevis();
-      // Ouvrir le popup d'avis directement
-      setShowAvisPopup(true);
+      // ✅ Récupérer le contrat associé au devis pour rediriger vers la page d'avis
+      const contratQuery = query(
+        collection(db, 'contrats'),
+        where('devisId', '==', devis.id)
+      );
+      const contratSnapshot = await getDocs(contratQuery);
+      
+      if (!contratSnapshot.empty) {
+        const contratId = contratSnapshot.docs[0].id;
+        // ✅ Rediriger automatiquement vers la page de création d'avis
+        router.push(`/client/avis/nouveau/${contratId}`);
+      } else {
+        // Fallback : recharger la page si pas de contrat trouvé
+        await loadDevis();
+        alert('✅ Travaux validés ! Vous pouvez maintenant donner votre avis.');
+      }
     } catch (error: any) {
       console.error('Erreur validation:', error);
       alert(`❌ Erreur : ${error.message || 'Impossible de valider les travaux'}`);
