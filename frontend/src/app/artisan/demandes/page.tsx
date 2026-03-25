@@ -8,14 +8,14 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { getUserById } from '@/lib/firebase/user-service';
 import { getArtisanById } from '@/lib/firebase/artisan-service';
 import { getDemandesForArtisan, getDemandesPubliquesForArtisan, removeArtisanFromDemande } from '@/lib/firebase/demande-service';
-import { getDemandesExpressByArtisan, getPropositionsByDemande, refuserDemandeExpressParArtisan } from '@/lib/firebase/demande-express-service';
+import { getDemandesExpressByArtisan, getPropositionsByDemande, refuserDemandeExpressParArtisan, markInterventionEnCours, markInterventionTerminee } from '@/lib/firebase/demande-express-service';
 import { getDevisByDemande, declarerDebutTravaux, declarerFinTravaux } from '@/lib/firebase/devis-service';
 import { createNotification } from '@/lib/firebase/notification-service';
 import { getFileMetadata } from '@/lib/firebase/storage-service';
 import { isDemandeExpired } from '@/lib/dateExpirationUtils';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import type { User, Demande, DemandeExpress, PropositionExpress } from '@/types/firestore';
+import type { User, Demande, DemandeExpress, PropositionExpress, DemandeExpressStatut } from '@/types/firestore';
 import type { Devis } from '@/types/devis';
 
 /** Normalise un champ photo : tableau natif OU objet-map legacy {0:url,1:url,...} */
@@ -216,6 +216,58 @@ export default function ArtisanDemandesPage() {
       try {
         loadedExpressData = await getDemandesExpressByArtisan(authUser.uid);
         console.log('⚡ Demandes express récupérées:', loadedExpressData.length);
+        
+        // AUTO-VALIDATION : Vérifier les demandes > 24h après fin travaux
+        const nowMs = Date.now();
+        const oneDayMs = 24 * 60 * 60 * 1000;
+        
+        const toAutoRelease = loadedExpressData.filter(
+          (d) =>
+            d.statut === 'travaux_termines' &&
+            d.travauxTerminesAt &&
+            d.travauxTerminesAt.toDate().getTime() < nowMs - oneDayMs
+        );
+        
+        console.log(`🔄 Auto-validation : ${toAutoRelease.length} demande(s) à valider automatiquement`);
+        
+        const autoReleasedIds = new Set<string>();
+        for (const d of toAutoRelease) {
+          try {
+            console.log(`   → Auto-validation demande ${d.id}...`);
+            
+            // Capturer le paiement (libération escrow)
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+            if (apiUrl) {
+              const resp = await fetch(`${apiUrl}/stripe-express/capture-payment`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ demandeId: d.id }),
+              });
+              
+              if (resp.ok) {
+                // Marquer comme validée
+                const { markTravauxValides } = await import('@/lib/firebase/demande-express-service');
+                await markTravauxValides(d.id);
+                autoReleasedIds.add(d.id);
+                console.log(`   ✅ Demande ${d.id} auto-validée - Paiement libéré à l'artisan`);
+              } else {
+                const err = await resp.json();
+                console.error(`   ❌ Erreur capture paiement ${d.id}:`, err);
+              }
+            }
+          } catch (e) {
+            console.error('   ❌ Auto-validation échouée pour', d.id, e);
+          }
+        }
+        
+        // Mettre à jour les statuts localement
+        loadedExpressData = loadedExpressData.map((d) => {
+          if (autoReleasedIds.has(d.id)) {
+            return { ...d, statut: 'terminee' as DemandeExpressStatut };
+          }
+          return d;
+        });
+        
         setDemandesExpress(loadedExpressData);
       } catch (error) {
         console.error('Erreur chargement demandes express:', error);
@@ -493,6 +545,48 @@ export default function ArtisanDemandesPage() {
     } catch (error: any) {
       console.error('❌ Erreur fin travaux:', error);
       alert(`❌ Erreur : ${error.message || 'Impossible de déclarer la fin des travaux'}`);
+    }
+  }
+
+  // ========== HANDLERS DEMANDES EXPRESS ==========
+
+  async function handleDemarrerInterventionExpress(demandeId: string, categorie: string) {
+    const confirmation = confirm(
+      `🏁 Démarrer l'intervention\n\n` +
+      `Type : ${categorie}\n\n` +
+      `Confirmez-vous que vous démarrez l'intervention maintenant ?`
+    );
+
+    if (!confirmation) return;
+
+    try {
+      await markInterventionEnCours(demandeId);
+      alert('✅ Intervention démarrée avec succès !');
+      await loadData();
+    } catch (error: any) {
+      console.error('❌ Erreur démarrage intervention:', error);
+      alert(`❌ Erreur : ${error.message || "Impossible de démarrer l'intervention"}`);
+    }
+  }
+
+  async function handleTerminerInterventionExpress(demandeId: string, categorie: string) {
+    const confirmation = confirm(
+      `✅ Fin de l'intervention\n\n` +
+      `Type : ${categorie}\n\n` +
+      `Confirmez-vous que vous avez terminé l'intervention ?\n\n` +
+      `Le client recevra une notification et aura 24h pour valider.\n` +
+      `Ensuite, le paiement sera automatiquement libéré.`
+    );
+
+    if (!confirmation) return;
+
+    try {
+      await markInterventionTerminee(demandeId);
+      alert('✅ Intervention terminée avec succès ! Le client a été notifié.');
+      await loadData();
+    } catch (error: any) {
+      console.error('❌ Erreur fin intervention:', error);
+      alert(`❌ Erreur : ${error.message || "Impossible de déclarer la fin de l'intervention"}`);
     }
   }
 
@@ -2002,7 +2096,7 @@ export default function ArtisanDemandesPage() {
                                 Avant le {new Date(
                                   demande.createdAt.toDate().getTime() +
                                   (demande.urgence === 'immediat' ? 2 : 24) * 60 * 60 * 1000
-                                ).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                ).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                               </p>
                             )}
                           </div>
@@ -2065,6 +2159,71 @@ export default function ArtisanDemandesPage() {
                               <p className="text-xs text-gray-500 mb-0.5">Description de votre prestation</p>
                               <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">{maProposition.description}</p>
                             </div>
+
+                            {/* BOUTONS D'ACTION INTERVENTION */}
+                            {demande.statut === 'payee' && (
+                              <div className="pt-3 border-t border-purple-200">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDemarrerInterventionExpress(demande.id, demande.categorie);
+                                  }}
+                                  className="w-full px-5 py-3 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] font-bold transition-all"
+                                >
+                                  🏁 Démarrer l'intervention
+                                </button>
+                              </div>
+                            )}
+
+                            {demande.statut === 'en_cours' && (
+                              <div className="pt-3 border-t border-purple-200">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleTerminerInterventionExpress(demande.id, demande.categorie);
+                                  }}
+                                  className="w-full px-5 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold transition-all"
+                                >
+                                  ✅ Travaux terminés
+                                </button>
+                              </div>
+                            )}
+
+                            {demande.statut === 'travaux_termines' && demande.travauxTerminesAt && (() => {
+                              const finishedAt = demande.travauxTerminesAt.toDate().getTime();
+                              const releaseAt = finishedAt + 24 * 60 * 60 * 1000;
+                              const remainingMs = releaseAt - now;
+                              const hours = Math.floor(remainingMs / (60 * 60 * 1000));
+                              const minutes = Math.floor((remainingMs % (60 * 60 * 1000)) / (60 * 1000));
+                              const seconds = Math.floor((remainingMs % (60 * 1000)) / 1000);
+
+                              return (
+                                <div className="pt-3 border-t border-purple-200 bg-yellow-50 -mx-4 -mb-3 px-4 py-3 rounded-b-xl">
+                                  <p className="text-sm font-semibold text-yellow-800 mb-1">⏳ En attente de validation client</p>
+                                  <p className="text-xs text-yellow-700">
+                                    {remainingMs > 0 ? (
+                                      <>Libération automatique dans <span className="font-bold">{hours}h {minutes}m {seconds}s</span></>
+                                    ) : (
+                                      <span className="font-bold">⚡ Libération en cours...</span>
+                                    )}
+                                  </p>
+                                </div>
+                              );
+                            })()}
+
+                            {demande.statut === 'terminee' && (
+                              <div className="pt-3 border-t border-purple-200 bg-green-50 -mx-4 -mb-3 px-4 py-3 rounded-b-xl">
+                                <p className="text-sm font-bold text-green-800">💰 Paiement libéré !</p>
+                                <p className="text-xs text-green-700">Le montant a été versé sur votre porte-monnaie.</p>
+                              </div>
+                            )}
+
+                            {demande.statut === 'litige' && (
+                              <div className="pt-3 border-t border-purple-200 bg-red-50 -mx-4 -mb-3 px-4 py-3 rounded-b-xl">
+                                <p className="text-sm font-bold text-red-800">⚠️ Litige en cours</p>
+                                <p className="text-xs text-red-700">Le client a signalé un problème. Un administrateur va vous contacter.</p>
+                              </div>
+                            )}
                           </div>
                         ) : demande.statut === 'en_attente_proposition' ? (
                           <div className="text-center py-4">
