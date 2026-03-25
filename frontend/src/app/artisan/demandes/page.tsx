@@ -2134,11 +2134,22 @@ export default function ArtisanDemandesPage() {
                         {maProposition ? (
                           <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 space-y-3">
                             <h4 className="font-bold text-[#2C3E50]">✅ Votre proposition</h4>
-                            <div className="flex items-center gap-4">
-                              <div>
-                                <p className="text-xs text-gray-500 mb-0.5">Montant proposé</p>
-                                <p className="text-2xl font-bold text-[#FF6B00]">{maProposition.montantPropose}€</p>
+                            
+                            {/* Comparaison budget client vs proposition artisan */}
+                            <div className="grid grid-cols-2 gap-3">
+                              {demande.budgetPropose && (
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                  <p className="text-xs text-blue-600 font-semibold mb-1">💰 Proposition client</p>
+                                  <p className="text-xl font-bold text-blue-700">{demande.budgetPropose}€</p>
+                                </div>
+                              )}
+                              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                                <p className="text-xs text-orange-600 font-semibold mb-1">💰 Proposition artisan</p>
+                                <p className="text-xl font-bold text-[#FF6B00]">{maProposition.montantPropose}€</p>
                               </div>
+                            </div>
+
+                            <div className="flex items-center gap-4">
                               {maProposition.delaiIntervention && (
                                 <div>
                                   <p className="text-xs text-gray-500 mb-0.5">Délai</p>
