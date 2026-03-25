@@ -10,6 +10,8 @@ import { getAvisByClientId, getContratsTerminesSansAvis } from '@/lib/firebase/a
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { collection, query, where, onSnapshot, or } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 import type { User, Avis } from '@/types/firestore';
 
 export default function DashboardPage() {
@@ -25,6 +27,7 @@ export default function DashboardPage() {
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [avisClient, setAvisClient] = useState<Avis[]>([]);
   const [contratsANoter, setContratsANoter] = useState<any[]>([]);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
   const { notifications, markTypeAsRead } = useNotifications(firebaseUser?.uid);
   const devisNouveaux = notifications.filter(n => !n.lue && (
     n.type === 'devis_recu' ||
@@ -39,6 +42,28 @@ export default function DashboardPage() {
   useEffect(() => {
     loadUserData();
   }, []);
+
+  // Compter les messages non lus en temps réel
+  useEffect(() => {
+    if (!firebaseUser?.uid) return;
+
+    const q = query(
+      collection(db, 'conversations'),
+      or(where('participants', 'array-contains', firebaseUser.uid))
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      let totalUnread = 0;
+      snapshot.docs.forEach((doc) => {
+        const data = doc.data();
+        const unreadForUser = data.unreadCount?.[firebaseUser.uid] || 0;
+        totalUnread += unreadForUser;
+      });
+      setUnreadMessagesCount(totalUnread);
+    });
+
+    return () => unsubscribe();
+  }, [firebaseUser?.uid]);
 
   async function loadUserData() {
     try {
@@ -339,6 +364,35 @@ export default function DashboardPage() {
                         <span className="ml-1 text-[#FF6B00] font-semibold">
                           • {contratsANoter.length} {t('reviews.toRate')}
                         </span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            <Link href="/messages">
+              <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-[#FF6B00]">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center relative">
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    {unreadMessagesCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none">
+                        {unreadMessagesCount}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-800">{t('common.messages')}</h2>
+                    <p className="text-sm text-gray-600">
+                      {unreadMessagesCount > 0 ? (
+                        <span className="text-red-600 font-medium">
+                          💬 {unreadMessagesCount} {unreadMessagesCount > 1 ? t('messages.unreadPlural') : t('messages.unreadSingular')}
+                        </span>
+                      ) : (
+                        t('messages.clientConversations')
                       )}
                     </p>
                   </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotifications } from '@/hooks/useNotifications';
 import { getDemandesByClient, deleteDemande, updateDemandeStatut } from '@/lib/firebase/demande-service';
 import { getArtisansByIds } from '@/lib/firebase/artisan-service';
 import { getDevisByDemande } from '@/lib/firebase/devis-service';
@@ -19,6 +20,7 @@ export default function MesDemandesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
+  const { markTypeAsRead } = useNotifications(user?.uid);
   const { t, language } = useLanguage();
   const [demandes, setDemandes] = useState<Demande[]>([]);
   const [artisansMap, setArtisansMap] = useState<Map<string, Artisan>>(new Map());
@@ -71,6 +73,12 @@ export default function MesDemandesPage() {
       }
     }
   }, [loading]);
+
+  // Marquer les notifications de demandes classiques comme lues
+  useEffect(() => {
+    if (!user?.uid) return;
+    markTypeAsRead(['nouvelle_demande', 'demande_refusee']);
+  }, [user?.uid, markTypeAsRead]);
 
   useEffect(() => {
     // Attendre que l'auth soit chargée

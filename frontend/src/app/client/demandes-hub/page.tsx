@@ -35,6 +35,13 @@ export default function ClientDemandesHubPage() {
     checkAuth();
   }, [router]);
 
+  // Marquer les notifications de demandes comme lues au chargement
+  useEffect(() => {
+    if (!firebaseUser?.uid) return;
+    // Marquer tous les types de notifications liées aux demandes
+    markTypeAsRead(['nouvelle_demande', 'demande_refusee', 'proposition_express_recue']);
+  }, [firebaseUser?.uid, markTypeAsRead]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
@@ -103,7 +110,7 @@ export default function ClientDemandesHubPage() {
           {/* ── CARTE Demandes Express ── */}
           <button
             onClick={() => {
-              if (nbExpress > 0) markTypeAsRead(['proposition_express_recue']);
+              // Navigation vers demandes express (notifications déjà marquées au chargement de cette page)
               router.push('/client/demandes-express');
             }}
             className="group text-left bg-[#FF6B00] rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col relative"

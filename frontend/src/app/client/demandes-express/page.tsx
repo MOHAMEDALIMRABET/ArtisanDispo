@@ -56,10 +56,16 @@ export default function MesDemandesExpressPage() {
   const [motifLitige, setMotifLitige] = useState('');
 
   // Cloches temporaires (nouvelles propositions non lues)
-  const { notifications, markAsRead } = useNotifications(firebaseUser?.uid);
+  const { notifications, markAsRead, markTypeAsRead } = useNotifications(firebaseUser?.uid);
   const [bellDemandeIds, setBellDemandeIds] = useState<Set<string>>(new Set());
   const [showToutsBell, setShowToutsBell] = useState(false);
   const bellsInitialized = useRef(false);
+
+  // Marquer les notifications de propositions express comme lues au chargement
+  useEffect(() => {
+    if (!firebaseUser?.uid) return;
+    markTypeAsRead(['proposition_express_recue']);
+  }, [firebaseUser?.uid, markTypeAsRead]);
 
   // Initialiser les cloches une fois (notifications de nouvelles propositions non lues)
   useEffect(() => {

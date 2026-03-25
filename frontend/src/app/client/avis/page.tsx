@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 import { authService } from '@/lib/auth-service';
 import { getUserById } from '@/lib/firebase/user-service';
 import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
@@ -14,7 +15,8 @@ import Link from 'next/link';
 export default function AvisClientPage() {
   const router = useRouter();
   const { t } = useLanguage();
-  const [user, setUser] = useState<User | null>(null);
+  const { user: authUser } = useAuth(); // Firebase Auth user
+  const [user, setUser] = useState<User | null>(null); // Firestore user data
   const [avis, setAvis] = useState<Avis[]>([]);
   const [avisFiltres, setAvisFiltres] = useState<Avis[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,14 +27,15 @@ export default function AvisClientPage() {
   const [tri, setTri] = useState<'recent' | 'ancien' | 'note-haute' | 'note-basse'>('recent');
   const [recherche, setRecherche] = useState('');
 
-  const { markTypeAsRead } = useNotifications(user?.uid);
+  // Utiliser authUser (Firebase Auth) pour les notifications
+  const { markTypeAsRead } = useNotifications(authUser?.uid);
 
   // Marquer les notifications reponse_avis comme lues dès l'arrivée sur la page
   useEffect(() => {
-    if (user?.uid) {
+    if (authUser?.uid) {
       markTypeAsRead(['reponse_avis']);
     }
-  }, [user?.uid]);
+  }, [authUser?.uid, markTypeAsRead]);
 
   useEffect(() => {
     loadData();
