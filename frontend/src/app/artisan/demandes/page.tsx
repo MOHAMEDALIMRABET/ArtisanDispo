@@ -2139,7 +2139,7 @@ export default function ArtisanDemandesPage() {
                             <div className="grid grid-cols-2 gap-3">
                               {demande.budgetPropose && (
                                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                  <p className="text-xs text-blue-600 font-semibold mb-1">💰 Proposition client</p>
+                                  <p className="text-xs text-blue-600 font-semibold mb-1">💰 Budget client</p>
                                   <p className="text-xl font-bold text-blue-700">{demande.budgetPropose}€</p>
                                 </div>
                               )}
