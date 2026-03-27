@@ -392,7 +392,7 @@ export default function DashboardPage() {
                           💬 {unreadMessagesCount} {unreadMessagesCount > 1 ? t('messages.unreadPlural') : t('messages.unreadSingular')}
                         </span>
                       ) : (
-                        t('messages.clientConversations')
+                        t('messages.artisanConversations')
                       )}
                     </p>
                   </div>

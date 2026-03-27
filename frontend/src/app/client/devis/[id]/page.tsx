@@ -1530,12 +1530,14 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                 <div className="p-3 bg-blue-50 rounded border border-blue-200">
                   <p className="text-sm text-blue-800">
                     💡 <strong>Que se passe-t-il ensuite ?</strong>
-                    <br />
-                    • Si vous validez : l'artisan reçoit le paiement sous 24-48h
-                    <br />
-                    • Si vous signalez un problème : notre équipe intervient comme médiateur
-                    <br />
-                    • Si aucune action : validation automatique après 7 jours
+                  </p>
+                  <ul className="text-sm text-blue-800 space-y-1 mt-2">
+                    <li><strong>✅ Si vous validez</strong> : L&apos;argent est libéré et l&apos;artisan recevra son paiement.</li>
+                    <li><strong>⚖️ Si vous signalez un problème</strong> : Notre équipe intervient comme médiateur. Votre argent reste bloqué en sécurité jusqu&apos;à résolution.</li>
+                    <li><strong>⏱️ Si aucune action sous 7 jours</strong> : Validation automatique pour protéger l&apos;artisan. L&apos;argent sera libéré automatiquement.</li>
+                  </ul>
+                  <p className="text-xs text-blue-700 bg-blue-100 rounded px-3 py-2 mt-2">
+                    🔒 Votre argent reste sécurisé jusqu&apos;à ce que vous validiez ou que le délai expire
                   </p>
                 </div>
               </div>

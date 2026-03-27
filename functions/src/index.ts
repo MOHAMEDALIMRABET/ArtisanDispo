@@ -96,6 +96,39 @@ export {
 } from './scheduledJobs/rappellerDevisNonRepondus';
 
 /**
+ * Traitement automatique des demandes de virement artisans
+ * Exécution: Toutes les 6 heures (0h, 6h, 12h, 18h)
+ * 
+ * Workflow:
+ * 1. Artisan clique "Transfert total" ou "Transfert partiel" dans son wallet
+ * 2. Demande créée dans Firestore (collection: virementRequests, statut: 'pending')
+ * 3. Cette fonction s'exécute toutes les 6 heures
+ * 4. Détecte les demandes 'pending' et les traite automatiquement
+ * 5. Appelle Stripe Transfer API pour envoyer l'argent vers le compte bancaire artisan
+ * 6. Met à jour statut → 'completed' ou 'rejected' (si erreur)
+ * 7. Met à jour wallet.totalRetire (Bénéfice transféré)
+ * 
+ * Sécurité:
+ * - Vérification compte Stripe Connect artisan vérifié
+ * - Vérification solde Stripe suffisant
+ * - Retry automatique en cas d'erreur temporaire
+ * - Notifications artisan (succès ou échec)
+ * - Recréditation automatique solde si erreur
+ * 
+ * ⚠️ Phase MVP: Utilise mockStripeTransfer() - Passer à Stripe réel en production
+ * 
+ * Requirement user:
+ * "Pour l'artisan, quand l'argent part dans le Chiffre d'affaires, l'agent peut 
+ *  être cumulé dans le Chiffre d'affaires. Il est possible pour l'artisan de 
+ *  transférer la totalité de son chiffre d'affaires ou une partie de son chiffre 
+ *  d'affaires vers votre compte artisan."
+ */
+export { 
+  processVirementRequests,        // Traitement automatique toutes les 6h
+  processVirementRequestsManual   // Version HTTP pour tests manuels
+} from './scheduledJobs/processVirementRequests';
+
+/**
  * Nettoyage automatique demandes obsolètes
  * Exécution: Tous les dimanches à 2h du matin
  * 

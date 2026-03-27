@@ -413,40 +413,74 @@ export default function WalletPage() {
               </p>
             )}
             <p className="text-sm text-[#6C757D] mt-1">Vers votre banque</p>
-            {stripeOnboardingStatus === 'active' && soldeDisponible > 0 && (
-              <div className="mt-4 flex flex-col gap-2">
-                <button
-                  onClick={() => {
+            
+            {/* Boutons de transfert - Toujours visibles */}
+            <div className="mt-3 space-y-1.5">
+              {/* Message d'info si conditions non remplies */}
+              {(stripeOnboardingStatus !== 'active' || soldeDisponible <= 0) && (
+                <div className="space-y-1">
+                  <p className="text-[10px] text-yellow-700 bg-yellow-50 px-2 py-1 rounded leading-tight">
+                    ⚠️ Compte bancaire requis et Chiffre d&apos;affaires &gt; 0 €
+                  </p>
+                  {soldeDisponible > 0 && stripeOnboardingStatus !== 'active' && (
+                    <p className="text-[9px] text-blue-600 bg-blue-50 px-2 py-1 rounded leading-tight">
+                      💡 Configurez votre compte bancaire pour recevoir vos virements
+                    </p>
+                  )}
+                </div>
+              )}
+              {stripeOnboardingStatus === 'active' && soldeDisponible > 0 && (
+                <p className="text-[10px] text-green-700 bg-green-50 px-2 py-1 rounded leading-tight">
+                  ⏱️ Virement SEPA : 1-3 jours ouvrés après demande
+                </p>
+              )}
+              
+              <button
+                onClick={() => {
+                  if (stripeOnboardingStatus === 'active' && soldeDisponible > 0) {
                     setVirementAmount(soldeDisponible.toFixed(2));
                     setVirementNote('');
                     setVirementError('');
                     setVirementSuccess('');
                     setShowVirementModal(true);
-                  }}
-                  className="w-full bg-[#17A2B8] text-white text-sm font-semibold py-2 px-3 rounded-lg hover:bg-[#138496] transition flex items-center justify-center gap-1"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  Transfert total
-                </button>
-                <button
-                  onClick={() => {
+                  }
+                }}
+                disabled={stripeOnboardingStatus !== 'active' || soldeDisponible <= 0}
+                className={`w-full text-xs font-semibold py-1.5 px-2 rounded transition flex items-center justify-center gap-1 ${
+                  stripeOnboardingStatus === 'active' && soldeDisponible > 0
+                    ? 'bg-[#17A2B8] text-white hover:bg-[#138496] cursor-pointer'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'
+                }`}
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                Transfert total
+              </button>
+              
+              <button
+                onClick={() => {
+                  if (stripeOnboardingStatus === 'active' && soldeDisponible > 0) {
                     setVirementAmount('');
                     setVirementNote('');
                     setVirementError('');
                     setVirementSuccess('');
                     setShowVirementModal(true);
-                  }}
-                  className="w-full border-2 border-[#17A2B8] text-[#17A2B8] text-sm font-semibold py-2 px-3 rounded-lg hover:bg-[#17A2B8] hover:text-white transition flex items-center justify-center gap-1"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Transfert partiel
-                </button>
-              </div>
-            )}
+                  }
+                }}
+                disabled={stripeOnboardingStatus !== 'active' || soldeDisponible <= 0}
+                className={`w-full border text-xs font-semibold py-1.5 px-2 rounded transition flex items-center justify-center gap-1 ${
+                  stripeOnboardingStatus === 'active' && soldeDisponible > 0
+                    ? 'border-[#17A2B8] text-[#17A2B8] hover:bg-[#17A2B8] hover:text-white cursor-pointer'
+                    : 'border-gray-300 text-gray-500 cursor-not-allowed opacity-60'
+                }`}
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Transfert partiel
+              </button>
+            </div>
           </div>
         </div>
 
@@ -566,7 +600,9 @@ export default function WalletPage() {
                     <li>• Recevez des paiements sécurisés de vos clients via Stripe</li>
                     <li>• Les fonds restent en séquestre jusqu&apos;à validation des travaux</li>
                     <li>• À la libération, une <strong>commission plateforme de 8%</strong> est prélevée sur le montant TTC</li>
-                    <li>• Le montant net (92%) reste disponible sur votre portefeuille ArtisanDispo — vous pouvez demander un virement vers votre compte bancaire quand vous le souhaitez</li>
+                    <li>• Le montant net (92%) est transféré dans votre <strong>Chiffre d&apos;affaires</strong> (immédiatement)</li>
+                    <li>• Vous pouvez demander un virement vers votre compte bancaire quand vous le souhaitez</li>
+                    <li>• <strong>⏱️ Délai virement bancaire : 1 à 3 jours ouvrés</strong> (SEPA standard)</li>
                     <li>• Suivez l&apos;historique complet de vos transactions ici</li>
                   </ul>
                   <p className="text-xs text-blue-700 mt-3 bg-blue-100 rounded px-3 py-2 inline-block">

@@ -805,9 +805,17 @@ export default function VoirDevisPage() {
                 {declarationEnCours ? 'Enregistrement...' : '✅ Déclarer la fin des travaux'}
               </button>
               
-              <p className="text-xs text-gray-600 mt-3">
-                💡 Le client aura 7 jours pour valider les travaux. Passé ce délai, validation automatique.
-              </p>
+              <div className="bg-blue-50 rounded-lg p-3 mt-3">
+                <p className="text-xs text-blue-800 font-medium mb-1">
+                  💡 Après déclaration de fin :
+                </p>
+                <ul className="text-xs text-blue-700 space-y-1">
+                  <li>• Le client a <strong>7 jours</strong> pour valider ou signaler un problème</li>
+                  <li>• Si aucune action : <strong>validation automatique</strong></li>
+                  <li>• À la validation : argent transféré immédiatement dans votre Chiffre d&apos;affaires</li>
+                  <li>• Vous pouvez ensuite demander un virement bancaire (1-3 jours SEPA)</li>
+                </ul>
+              </div>
             </div>
           )}
 
@@ -884,9 +892,16 @@ export default function VoirDevisPage() {
                   <span className="text-xs text-gray-600">(Commission plateforme : {((devis.totaux?.totalTTC || 0) * 0.08).toFixed(2)}€)</span>
                 </p>
                 
-                <div className="p-3 bg-gray-50 rounded border border-gray-200">
-                  <p className="text-sm text-[#2C3E50]">
-                    ℹ️ Vous recevrez le paiement sous <strong>24-48 heures</strong> par virement bancaire.
+                <div className="p-3 bg-gray-50 rounded border border-gray-200 space-y-2">
+                  <p className="text-sm text-[#2C3E50] font-semibold">
+                    💰 Vos paiements en 2 étapes :
+                  </p>
+                  <ol className="text-sm text-[#2C3E50] space-y-1.5 pl-4">
+                    <li><strong>1️⃣ Immédiat</strong> : L&apos;argent est transféré dans votre <strong>Chiffre d&apos;affaires</strong> (portefeuille ArtisanDispo)</li>
+                    <li><strong>2️⃣ Sur demande</strong> : Vous demandez un virement vers votre compte bancaire → Délai <strong>1-3 jours ouvrés</strong> (SEPA)</li>
+                  </ol>
+                  <p className="text-xs text-blue-700 bg-blue-50 rounded px-3 py-2">
+                    💡 Vous pouvez cumuler plusieurs paiements avant de demander un virement groupé
                   </p>
                 </div>
               </div>

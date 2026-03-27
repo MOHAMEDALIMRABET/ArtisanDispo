@@ -180,9 +180,25 @@ export async function recordPaiementClient(
  * Enregistrer la libération d'un paiement
  * Appelé quand les travaux sont validés (Stripe transfère automatiquement)
  * 
- * La commission plateforme (8%) est prélevée à ce stade :
- *   commission    = montantBrut × 8%
- *   montantArtisan = montantBrut - commission
+ * 💰 COMMISSION PLATEFORME (8%) :
+ *   - Phase MVP  : Suivi comptable uniquement dans Firestore
+ *   - Phase 2    : Vraie commission via Stripe Connect Transfer
+ * 
+ * Le montant TTC est divisé en :
+ *   - 8%  → Commission plateforme (reste sur compte ArtisanDispo)
+ *   - 92% → Net artisan (transféré vers compte bancaire artisan)
+ * 
+ * 📊 Impacts Wallet :
+ *   soldeEnAttente   -= montantBrut (retire du séquestre)
+ *   soldeDisponible  += montantArtisan (92%)
+ *   soldeTotal       -= commission (8% quitte le système)
+ *   totalEncaisse    += montantArtisan (CHIFFRE D'AFFAIRES)
+ *   totalCommission  += commission (cumul commissions prélevées)
+ * 
+ * 🔄 TODO Phase 2 Stripe Connect :
+ *   1. Appeler /api/v1/payments/release-escrow depuis validerTravaux()
+ *   2. Le backend fera : capture PaymentIntent + Transfer 92% vers artisan
+ *   3. Les 8% resteront automatiquement dans le compte plateforme Stripe
  */
 export async function recordPaiementLibere(
   artisanId: string,
@@ -191,15 +207,15 @@ export async function recordPaiementLibere(
   stripeTransferId: string
 ): Promise<WalletTransaction> {
   const walletRef = doc(db, 'wallets', artisanId);
-  const wallet = await getWalletByArtisanId(artisanId);
-
-  if (!wallet) {
-    throw new Error('Wallet introuvable');
-  }
-
+  
+  // ✅ FIX PERMISSIONS : Utiliser increment() au lieu de lire le wallet
+  // Permet au client de mettre à jour sans avoir besoin de lire d'abord
+  
   // Calcul de la commission plateforme (8%)
   const commission = Math.round(montantBrut * TAUX_COMMISSION * 100) / 100;
   const montantArtisan = Math.round((montantBrut - commission) * 100) / 100;
+  
+  console.log(`💰 Libération paiement: ${montantBrut}€ TTC → ${montantArtisan}€ net artisan + ${commission}€ commission plateforme`);
 
   // Mettre à jour le wallet :
   //   - Retirer le montant brut du séquestre
@@ -207,11 +223,11 @@ export async function recordPaiementLibere(
   //   - soldeTotal diminue de la commission (quitte le système vers la plateforme)
   //   - Incrémenter le cumul de commissions
   await updateDoc(walletRef, {
-    soldeEnAttente: Math.max(0, wallet.soldeEnAttente - montantBrut),
-    soldeDisponible: wallet.soldeDisponible + montantArtisan,
-    soldeTotal: Math.max(0, wallet.soldeTotal - commission),
-    totalEncaisse: wallet.totalEncaisse + montantArtisan,
-    totalCommission: (wallet.totalCommission || 0) + commission,
+    soldeEnAttente: increment(-montantBrut),
+    soldeDisponible: increment(montantArtisan),
+    soldeTotal: increment(-commission),
+    totalEncaisse: increment(montantArtisan),
+    totalCommission: increment(commission),
     updatedAt: Timestamp.now(),
     lastTransaction: Timestamp.now(),
   });

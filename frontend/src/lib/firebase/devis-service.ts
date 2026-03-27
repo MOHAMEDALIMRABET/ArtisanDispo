@@ -467,6 +467,21 @@ export async function updateDevis(
       } catch (emailError) {
         console.error('⚠️ Erreur envoi emails paiement:', emailError);
       }
+      
+      // 🆕 NOTIFICATION ARTISAN : Devis accepté et payé
+      try {
+        await createNotification(devisActuel.artisanId, {
+          type: 'devis_accepte',
+          titre: '✅ Devis accepté et payé !',
+          message: client && artisan 
+            ? `${client.prenom} ${client.nom} a accepté et payé votre devis ${devisActuel.numeroDevis || ''} (${devisActuel.montantTTC}€ TTC). Le montant est en séquestre.`
+            : `Votre devis ${devisActuel.numeroDevis || ''} a été accepté et payé (${devisActuel.montantTTC}€ TTC).`,
+          lien: `/artisan/devis/${devisId}`,
+        });
+        console.log(`✅ Notification devis_accepte créée pour artisan ${devisActuel.artisanId}`);
+      } catch (notifError) {
+        console.error('⚠️ Erreur création notification devis accepté:', notifError);
+      }
     } else if (updates.statut === 'refuse') {
       updateData.dateRefus = Timestamp.now();
       updateData.dateDerniereNotification = Timestamp.now(); // Notifier l'artisan
@@ -1015,6 +1030,8 @@ export async function validerTravaux(devisId: string, clientId: string): Promise
   });
   
   // ✅ Mettre à jour le wallet artisan : séquestre → disponible (net après commission 8%)
+  // 💰 COMMISSION : 8% du TTC va dans le chiffre d'affaires de la plateforme
+  // 📊 CHIFFRE D'AFFAIRES ARTISAN = 92% du TTC (net après commission)
   try {
     await recordPaiementLibere(
       devis.artisanId,
@@ -1026,6 +1043,23 @@ export async function validerTravaux(devisId: string, clientId: string): Promise
   } catch (walletError) {
     console.error('⚠️ Erreur mise à jour wallet libération (non-bloquant):', walletError);
   }
+  
+  // TODO Phase 2 Stripe Connect :
+  // Appeler /api/v1/payments/release-escrow pour vraie libération Stripe
+  // try {
+  //   const response = await fetch(`${API_URL}/payments/release-escrow`, {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify({ 
+  //       contratId: devisId, 
+  //       validePar: 'client' 
+  //     })
+  //   });
+  //   const data = await response.json();
+  //   console.log('✅ Paiement Stripe libéré:', data);
+  // } catch (stripeError) {
+  //   console.error('⚠️ Erreur libération Stripe:', stripeError);
+  // }
 
   // Notification artisan
   await createNotification(devis.artisanId, {

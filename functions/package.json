@@ -20,8 +20,10 @@
     "shell": "npm run build && firebase functions:shell",
     "deploy": "npm run build && firebase deploy --only functions",
     "deploy:annulation": "npm run build && firebase deploy --only functions:annulerDevisNonPayes",
+    "deploy:virements": "npm run build && firebase deploy --only functions:processVirementRequests",
     "logs": "firebase functions:log",
-    "logs:annulation": "firebase functions:log --only annulerDevisNonPayes"
+    "logs:annulation": "firebase functions:log --only annulerDevisNonPayes",
+    "logs:virements": "firebase functions:log --only processVirementRequests"
   },
   "private": true
 }

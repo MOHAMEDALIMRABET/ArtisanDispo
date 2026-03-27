@@ -10,7 +10,7 @@ import { getDemandesForArtisan, getDemandesPubliquesForArtisan } from '@/lib/fir
 import { getAvisByArtisanId, calculateAverageRating } from '@/lib/firebase/avis-service';
 import { useNotifications } from '@/hooks/useNotifications';
 import { markNotificationsByTypeAsRead } from '@/lib/firebase/notification-service';
-import { getWalletByArtisanId, getSequestreTransactions } from '@/lib/firebase/wallet-service';
+import { getWalletByArtisanId, getSequestreTransactions, requestManualVirement } from '@/lib/firebase/wallet-service';
 import { artisanDoitDecennale } from '@/lib/decennale-helper';
 import { db } from '@/lib/firebase/config';
 import { collection, query, where, or, onSnapshot } from 'firebase/firestore';
@@ -32,9 +32,19 @@ export default function ArtisanDashboardPage() {
   const [walletSolde, setWalletSolde] = useState(0);
   const [walletEnAttente, setWalletEnAttente] = useState(0);
   const [walletNbTransactions, setWalletNbTransactions] = useState(0);
+  const [chiffreAffaires, setChiffreAffaires] = useState(0); // totalEncaisse
+  const [beneficeTransfere, setBeneficeTransfere] = useState(0); // totalRetire
   const [avisRecents, setAvisRecents] = useState<Avis[]>([]);
   const [statsAvis, setStatsAvis] = useState({ moyenne: 0, total: 0 });
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+  
+  // États pour la modale de transfert
+  const [showTransfertModal, setShowTransfertModal] = useState(false);
+  const [montantTransfert, setMontantTransfert] = useState('');
+  const [noteTransfert, setNoteTransfert] = useState('');
+  const [isTransferring, setIsTransferring] = useState(false);
+  const [transferError, setTransferError] = useState('');
+  const [transferSuccess, setTransferSuccess] = useState('');
 
   // Hook pour les notifications
   const { notifications, unreadCount } = useNotifications(user?.uid);
@@ -184,6 +194,8 @@ export default function ArtisanDashboardPage() {
         if (wallet) {
           setWalletSolde(wallet.soldeDisponible || 0);
           setWalletEnAttente(wallet.soldeEnAttente || 0);
+          setChiffreAffaires(wallet.totalEncaisse || 0);
+          setBeneficeTransfere(wallet.totalRetire || 0);
         }
         const sequestreTransactions = await getSequestreTransactions(currentUser.uid);
         setWalletNbTransactions(sequestreTransactions.length);

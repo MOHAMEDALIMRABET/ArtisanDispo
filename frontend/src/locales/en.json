@@ -734,6 +734,7 @@
     "unreadSingular": "unread",
     "unreadPlural": "unread",
     "clientConversations": "Conversations with your clients",
+    "artisanConversations": "Conversations with your artisans",
     "noNewMessages": "No new messages"
   },
   "profile": {
@@ -1313,9 +1314,9 @@
       "transactionsCount": "{count} transaction{plural} recorded",
       "transactionSingular": "",
       "transactionPlural": "s",
-      "autoTransfer": "💡 Automatic Transfer",
-      "managedByStripe": "Managed by Stripe Connect",
-      "fundsTransferredAuto": "Funds are transferred automatically"
+      "autoTransfer": "💡 Transfer on Demand",
+      "managedByStripe": "You decide when to withdraw",
+      "fundsTransferredAuto": "Request a transfer whenever you want"
     },
     "stats": {
       "totalEarned": "Total Earned",
@@ -1343,11 +1344,11 @@
       "processStep1": "✅ Fill out the form in ArtisanDispo (2 minutes)",
       "processStep2": "✅ Your data is securely transmitted to Stripe",
       "processStep3": "✅ Automatic verification by Stripe (24-48h)",
-      "processStep4": "✅ Receive your payments in your wallet and request a bank transfer whenever you wish",
+      "processStep4": "✅ Receive your earnings in your Revenue and request a transfer whenever you want (1-3 days SEPA)",
       "securityNote": "🔒 Maximum security: Your banking details are never stored in our database",
       "notConfigured": {
         "title": "🏦 Configure Your Bank Account",
-        "description": "To receive your payments automatically after work validation, add your IBAN.",
+        "description": "To receive your payments, add your IBAN. You can then request bank transfers whenever you wish.",
         "hint": "💡 Click on \"Configuration Process\" to learn more",
         "button": "Configure My Bank Account"
       },
@@ -1358,9 +1359,9 @@
       },
       "active": {
         "title": "✅ Bank Account Verified",
-        "description": "Your IBAN is verified. Payments will be automatically transferred to your bank account after work validation.",
+        "description": "Your IBAN is verified. You can now request bank transfers whenever you wish.",
         "ibanLabel": "Registered IBAN",
-        "autoTransferInfo": "💡 Automatic transfers: Funds are transferred by Stripe within 2 business days after validation",
+        "autoTransferInfo": "💡 Transfers on demand: Use the buttons above to request a transfer (processed within 6h, SEPA delay 1-3 days)",
         "modifyIban": "🔒 Modify your IBAN? For security reasons, you must contact support.",
         "contactSupport": "📨 Contact Support"
       },
