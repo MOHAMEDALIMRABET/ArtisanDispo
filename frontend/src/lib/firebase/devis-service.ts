@@ -884,7 +884,7 @@ export async function declarerDebutTravaux(devisId: string, artisanId: string): 
     throw new Error(`Impossible de démarrer les travaux (statut actuel: ${devis.statut})`);
   }
   
-  // Mettre à jour
+  // Mettre à jour le devis
   await updateDoc(devisRef, {
     statut: 'en_cours',
     'travaux.dateDebut': Timestamp.now(),
@@ -899,13 +899,42 @@ export async function declarerDebutTravaux(devisId: string, artisanId: string): 
     ],
   });
   
-  // Notification client
+  // 🆕 Synchroniser le statut de la DEMANDE
+  if (devis.demandeId) {
+    try {
+      const demandeRef = doc(db, 'demandes', devis.demandeId);
+      await updateDoc(demandeRef, {
+        statut: 'en_cours',
+        dateModification: Timestamp.now(),
+      });
+      console.log(`✅ Demande ${devis.demandeId} mise à jour: statut → en_cours`);
+    } catch (error) {
+      console.error('⚠️ Erreur mise à jour statut demande (non-bloquant):', error);
+    }
+  }
+  
+  // Notification client au niveau du DEVIS
   await createNotification(devis.clientId, {
     type: 'travaux_demarres',
     titre: '🚧 Travaux démarrés',
     message: `${devis.artisan.raisonSociale} a démarré les travaux.`,
     lien: `/client/devis/${devisId}`,
   });
+
+  // 🆕 Notification client au niveau de la DEMANDE (si elle existe)
+  if (devis.demandeId) {
+    try {
+      await createNotification(devis.clientId, {
+        type: 'travaux_demarres_demande',
+        titre: '🚧 Travaux démarrés',
+        message: `${devis.artisan.raisonSociale} a commencé les travaux pour votre demande.`,
+        lien: `/client/demandes/${devis.demandeId}`,
+      });
+      console.log(`✅ Notification demande créée pour demandeId: ${devis.demandeId}`);
+    } catch (error) {
+      console.error('⚠️ Erreur création notification demande (non-bloquant):', error);
+    }
+  }
 }
 
 /**
@@ -936,7 +965,7 @@ export async function declarerFinTravaux(devisId: string, artisanId: string): Pr
     new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // +7 jours
   );
   
-  // Mettre à jour
+  // Mettre à jour le devis
   await updateDoc(devisRef, {
     statut: 'travaux_termines',
     'travaux.dateFin': Timestamp.now(),
@@ -952,18 +981,47 @@ export async function declarerFinTravaux(devisId: string, artisanId: string): Pr
     ],
   });
   
+  // 🆕 Synchroniser le statut de la DEMANDE
+  if (devis.demandeId) {
+    try {
+      const demandeRef = doc(db, 'demandes', devis.demandeId);
+      await updateDoc(demandeRef, {
+        statut: 'travaux_termines',
+        dateModification: Timestamp.now(),
+      });
+      console.log(`✅ Demande ${devis.demandeId} mise à jour: statut → travaux_termines`);
+    } catch (error) {
+      console.error('⚠️ Erreur mise à jour statut demande (non-bloquant):', error);
+    }
+  }
+  
   // Marquer la notification "travaux_demarres" comme lue (supersedée par travaux_termines)
   try {
     await markNotificationsByLienAsRead(devis.clientId, `/client/devis/${devisId}`);
   } catch (e) { /* non bloquant */ }
 
-  // Notification client
+  // Notification client au niveau du DEVIS
   await createNotification(devis.clientId, {
     type: 'travaux_termines',
     titre: '🏁 Travaux terminés — validation requise',
     message: `${devis.artisan.raisonSociale} a terminé les travaux. Vous avez 7 jours pour valider ou signaler un problème.`,
     lien: `/client/devis/${devisId}`,
   });
+
+  // 🆕 Notification client au niveau de la DEMANDE (si elle existe)
+  if (devis.demandeId) {
+    try {
+      await createNotification(devis.clientId, {
+        type: 'travaux_termines_demande',
+        titre: '🏁 Travaux terminés — validation requise',
+        message: `${devis.artisan.raisonSociale} a terminé les travaux pour votre demande. Vous avez 7 jours pour valider.`,
+        lien: `/client/demandes/${devis.demandeId}`,
+      });
+      console.log(`✅ Notification demande créée pour demandeId: ${devis.demandeId}`);
+    } catch (error) {
+      console.error('⚠️ Erreur création notification demande (non-bloquant):', error);
+    }
+  }
   
   // Envoyer email au client
   try {
@@ -1061,6 +1119,20 @@ export async function validerTravaux(devisId: string, clientId: string): Promise
   //   console.error('⚠️ Erreur libération Stripe:', stripeError);
   // }
 
+  // 🆕 Synchroniser le statut de la DEMANDE
+  if (devis.demandeId) {
+    try {
+      const demandeRef = doc(db, 'demandes', devis.demandeId);
+      await updateDoc(demandeRef, {
+        statut: 'terminee',
+        dateModification: Timestamp.now(),
+      });
+      console.log(`✅ Demande ${devis.demandeId} mise à jour: statut → terminee`);
+    } catch (error) {
+      console.error('⚠️ Erreur mise à jour statut demande (non-bloquant):', error);
+    }
+  }
+  
   // Notification artisan
   await createNotification(devis.artisanId, {
     type: 'travaux_valides',

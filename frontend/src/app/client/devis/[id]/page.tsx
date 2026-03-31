@@ -536,13 +536,27 @@ export default function ClientDevisDetailPage() {
       // 5. Notifier l'artisan (devis payé)
       try {
         const clientNom = `${devis.client.prenom} ${devis.client.nom}`;
+        
+        // Notification pour le DEVIS
         await notifyArtisanDevisAccepte(
           devis.artisanId,
           devisId,
           clientNom,
           devis.numeroDevis
         );
-        console.log('✅ Artisan notifié du paiement');
+        console.log('✅ Artisan notifié du paiement (niveau devis)');
+
+        // 🆕 Notification pour la DEMANDE
+        if (devis.demandeId) {
+          const { createNotification } = await import('@/lib/firebase/notification-service');
+          await createNotification(devis.artisanId, {
+            type: 'demande_paye',
+            titre: '✅ Demande payée',
+            message: `${clientNom} a payé le devis ${devis.numeroDevis || ''}. ${devis.totaux.totalTTC.toFixed(2)}€ sont bloqués en séquestre.`,
+            lien: `/artisan/demandes?demandeId=${devis.demandeId}`,
+          });
+          console.log('✅ Artisan notifié du paiement (niveau demande)');
+        }
       } catch (error) {
         console.error('Erreur notification artisan:', error);
       }
@@ -1446,20 +1460,13 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                 </div>
               </div>
               
-              <div className="bg-white rounded-lg p-4 border border-yellow-200 mb-4">
+              <div className="bg-white rounded-lg p-4 border border-yellow-200">
                 <p className="text-sm text-gray-700">
                   💰 <strong>Paiement sécurisé</strong> : Votre paiement de <strong>{devis.totaux.totalTTC.toFixed(2)}€</strong> est bloqué en sécurité.
                   <br />
                   <span className="text-xs text-gray-600">Il sera libéré à l'artisan uniquement après validation des travaux.</span>
                 </p>
               </div>
-
-              <button
-                onClick={() => setShowLitigeModal(true)}
-                className="w-full bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition"
-              >
-                ⚠️ Signaler un problème
-              </button>
             </div>
           )}
 
@@ -1480,28 +1487,21 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                 </div>
               </div>
               
-              <div className="bg-white rounded-lg p-4 border border-blue-200 mb-4">
+              <div className="bg-white rounded-lg p-4 border border-blue-200">
                 <p className="text-sm text-gray-700">
                   L'artisan <strong>{devis.artisan.raisonSociale}</strong> réalise actuellement les travaux.
                   <br />
                   Vous pourrez valider une fois qu'il aura déclaré avoir terminé.
                 </p>
               </div>
-
-              <button
-                onClick={() => setShowLitigeModal(true)}
-                className="w-full bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition"
-              >
-                ⚠️ Signaler un problème
-              </button>
             </div>
           )}
 
-          {/* Statut: travaux_termines - VALIDATION REQUISE */}
+          {/* Statut: travaux_termines - Information uniquement, actions via la page Demandes */}
           {devis.statut === 'travaux_termines' && (
             <div className="bg-orange-50 border-2 border-orange-500 rounded-lg p-6 mb-6 print:hidden">
               <div className="flex items-center gap-3 mb-4">
-                <span className="text-3xl">✅</span>
+                <span className="text-3xl">🏁</span>
                 <div>
                   <h3 className="text-lg font-bold text-orange-800">Travaux terminés - Validation requise</h3>
                   <p className="text-sm text-orange-700">
@@ -1514,7 +1514,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                 </div>
               </div>
               
-              <div className="bg-white rounded-lg p-4 border border-orange-300 mb-4">
+              <div className="bg-white rounded-lg p-4 border border-orange-300">
                 <p className="text-sm text-gray-700 mb-3">
                   Vous avez <strong>7 jours</strong> pour valider les travaux ou signaler un problème.
                   <br />
@@ -1529,34 +1529,19 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                 
                 <div className="p-3 bg-blue-50 rounded border border-blue-200">
                   <p className="text-sm text-blue-800">
-                    💡 <strong>Que se passe-t-il ensuite ?</strong>
+                    💡 <strong>Pour valider ou signaler un problème, rendez-vous sur la page de votre demande.</strong>
                   </p>
-                  <ul className="text-sm text-blue-800 space-y-1 mt-2">
-                    <li><strong>✅ Si vous validez</strong> : L&apos;argent est libéré et l&apos;artisan recevra son paiement.</li>
-                    <li><strong>⚖️ Si vous signalez un problème</strong> : Notre équipe intervient comme médiateur. Votre argent reste bloqué en sécurité jusqu&apos;à résolution.</li>
-                    <li><strong>⏱️ Si aucune action sous 7 jours</strong> : Validation automatique pour protéger l&apos;artisan. L&apos;argent sera libéré automatiquement.</li>
-                  </ul>
-                  <p className="text-xs text-blue-700 bg-blue-100 rounded px-3 py-2 mt-2">
-                    🔒 Votre argent reste sécurisé jusqu&apos;à ce que vous validiez ou que le délai expire
-                  </p>
+                  <button
+                    onClick={() => {
+                      if (devis.demandeId) {
+                        router.push(`/client/demandes`);
+                      }
+                    }}
+                    className="mt-3 w-full bg-[#FF6B00] hover:bg-[#E56100] text-white px-4 py-2 rounded-lg font-medium transition"
+                  >
+                    📋 Voir ma demande
+                  </button>
                 </div>
-              </div>
-              
-              <div className="flex gap-3">
-                <button
-                  onClick={handleValiderTravaux}
-                  disabled={validationEnCours}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
-                >
-                  {validationEnCours ? 'Validation...' : '✅ Valider les travaux'}
-                </button>
-                
-                <button
-                  onClick={() => setShowLitigeModal(true)}
-                  className="flex-1 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition"
-                >
-                  ⚠️ Signaler un problème
-                </button>
               </div>
             </div>
           )}

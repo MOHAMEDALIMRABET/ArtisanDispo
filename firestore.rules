@@ -91,6 +91,7 @@ service cloud.firestore {
       allow read: if isAdmin() ||
                      isOwner(resource.data.clientId) ||
                      (isAuthenticated() && request.auth.uid in resource.data.get('artisansMatches', [])) ||
+                     (isAuthenticated() && request.auth.uid == resource.data.get('artisanId', '')) ||
                      (isArtisan() && resource.data.statut in ['publiee', 'matchee', 'quota_atteint'] && isVerified());
       allow create: if isAuthenticated() && 
                        request.auth.uid == request.resource.data.clientId;

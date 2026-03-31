@@ -11,9 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { 
-  dupliquerDevis,
-  declarerDebutTravaux,
-  declarerFinTravaux 
+  dupliquerDevis
 } from '@/lib/firebase/devis-service';
 import { Logo } from '@/components/ui';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -55,7 +53,6 @@ export default function VoirDevisPage() {
   const [demande, setDemande] = useState<Demande | null>(null);
   const [loading, setLoading] = useState(true);
   const [duplicationEnCours, setDuplicationEnCours] = useState(false);
-  const [declarationEnCours, setDeclarationEnCours] = useState(false);
 
   const loadDevis = async () => {
     if (!devisId) return;
@@ -135,44 +132,6 @@ export default function VoirDevisPage() {
     }
   };
 
-  const handleDeclarerDebut = async () => {
-    if (!devis || !user) return;
-    
-    if (!confirm('Confirmer le démarrage des travaux ?')) return;
-    
-    try {
-      setDeclarationEnCours(true);
-      await declarerDebutTravaux(devis.id, user.uid);
-      
-      alert(t('alerts.devis.workStartDeclared'));
-      await loadDevis(); // Recharger le devis pour voir le nouveau statut
-    } catch (error: any) {
-      console.error('Erreur déclaration début:', error);
-      alert(`❌ Erreur : ${error.message || 'Impossible de déclarer le début des travaux'}`);
-    } finally {
-      setDeclarationEnCours(false);
-    }
-  };
-
-  const handleDeclarerFin = async () => {
-    if (!devis || !user) return;
-    
-    if (!confirm('Confirmer la fin des travaux ? Le client aura 7 jours pour valider.')) return;
-    
-    try {
-      setDeclarationEnCours(true);
-      await declarerFinTravaux(devis.id, user.uid);
-      
-      alert(t('alerts.devis.workEndDeclared'));
-      await loadDevis(); // Recharger le devis
-    } catch (error: any) {
-      console.error('Erreur déclaration fin:', error);
-      alert(`❌ Erreur : ${error.message || 'Impossible de déclarer la fin des travaux'}`);
-    } finally {
-      setDeclarationEnCours(false);
-    }
-  };
-
   // Fonctions de masquage des coordonnées (similaires au client)
   const masquerEmail = (email: string, shouldMask: boolean = true): string => {
     if (!email || !shouldMask) return email;
@@ -216,7 +175,7 @@ export default function VoirDevisPage() {
       genere: '📝 Généré',
       envoye: '📤 Envoyé',
       en_attente_paiement: '⏳ En attente de paiement',
-      paye: '💰 Payé - Contrat signé',
+      paye: '💰 Payé - Devis signé',
       en_cours: '🔨 Travaux en cours',
       travaux_termines: '✅ Travaux terminés',
       termine_valide: '🎉 Travaux validés par le client',
@@ -751,7 +710,7 @@ export default function VoirDevisPage() {
           {/* SECTION GESTION TRAVAUX (selon statut)   */}
           {/* ========================================= */}
 
-          {/* Statut: paye - Prêt à démarrer */}
+          {/* Statut: paye - Information uniquement (actions dans /artisan/demandes) */}
           {devis.statut === 'paye' && (
             <div className="bg-green-50 border-2 border-green-500 rounded-lg p-6 mb-6 print:hidden">
               <div className="flex items-center gap-3 mb-4">
@@ -760,25 +719,23 @@ export default function VoirDevisPage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-green-800">Devis payé - Prêt à démarrer</h3>
-                  <p className="text-sm text-green-700">Le client a signé et payé. Vous pouvez démarrer les travaux.</p>
+                  <p className="text-sm text-green-700">Le client a signé et payé.</p>
                 </div>
               </div>
               
-              <button
-                onClick={handleDeclarerDebut}
-                disabled={declarationEnCours}
-                className="bg-[#FF6B00] hover:bg-[#E56100] text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {declarationEnCours ? 'Enregistrement...' : '🚀 Déclarer le début des travaux'}
-              </button>
-              
-              <p className="text-xs text-gray-600 mt-3">
-                💡 Une fois démarrés, le client sera notifié et le suivi des travaux sera activé.
-              </p>
+              <div className="bg-blue-50 rounded-lg p-3">
+                <p className="text-sm text-blue-800">
+                  {devis.demandeId ? (
+                    <>💡 Pour déclarer le début des travaux, <a href={`/artisan/demandes?demandeId=${devis.demandeId}`} className="font-semibold underline hover:text-blue-900">accédez à la demande</a></>
+                  ) : (
+                    <>💡 Pour déclarer le début des travaux, gérez cette action depuis la page "Mes Demandes"</>
+                  )}
+                </p>
+              </div>
             </div>
           )}
 
-          {/* Statut: en_cours - Travaux en cours */}
+          {/* Statut: en_cours - Information uniquement (actions dans /artisan/demandes) */}
           {devis.statut === 'en_cours' && (
             <div className="bg-amber-50 border-2 border-amber-500 rounded-lg p-6 mb-6 print:hidden">
               <div className="flex items-center gap-3 mb-4">
@@ -797,23 +754,18 @@ export default function VoirDevisPage() {
                 </div>
               </div>
               
-              <button
-                onClick={handleDeclarerFin}
-                disabled={declarationEnCours}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {declarationEnCours ? 'Enregistrement...' : '✅ Déclarer la fin des travaux'}
-              </button>
-              
-              <div className="bg-blue-50 rounded-lg p-3 mt-3">
-                <p className="text-xs text-blue-800 font-medium mb-1">
-                  💡 Après déclaration de fin :
+              <div className="bg-blue-50 rounded-lg p-3">
+                <p className="text-sm text-blue-800 mb-2">
+                  {devis.demandeId ? (
+                    <>💡 Pour déclarer la fin des travaux, <a href={`/artisan/demandes?demandeId=${devis.demandeId}`} className="font-semibold underline hover:text-blue-900">accédez à la demande</a></>
+                  ) : (
+                    <>💡 Pour déclarer la fin des travaux, gérez cette action depuis la page "Mes Demandes"</>
+                  )}
                 </p>
                 <ul className="text-xs text-blue-700 space-y-1">
-                  <li>• Le client a <strong>7 jours</strong> pour valider ou signaler un problème</li>
+                  <li>• Le client aura <strong>7 jours</strong> pour valider</li>
                   <li>• Si aucune action : <strong>validation automatique</strong></li>
-                  <li>• À la validation : argent transféré immédiatement dans votre Chiffre d&apos;affaires</li>
-                  <li>• Vous pouvez ensuite demander un virement bancaire (1-3 jours SEPA)</li>
+                  <li>• Argent transféré dans votre Chiffre d&apos;affaires dès validation</li>
                 </ul>
               </div>
             </div>

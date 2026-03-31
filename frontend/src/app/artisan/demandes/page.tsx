@@ -13,7 +13,7 @@ import { getDevisByDemande, declarerDebutTravaux, declarerFinTravaux } from '@/l
 import { createNotification } from '@/lib/firebase/notification-service';
 import { getFileMetadata } from '@/lib/firebase/storage-service';
 import { isDemandeExpired } from '@/lib/dateExpirationUtils';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, getDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { User, Demande, DemandeExpress, PropositionExpress, DemandeExpressStatut } from '@/types/firestore';
 import type { Devis } from '@/types/devis';
@@ -61,6 +61,7 @@ export default function ArtisanDemandesPage() {
   const [expandedExpressIds, setExpandedExpressIds] = useState<Set<string>>(new Set());
   const [expressPropositionsMap, setExpressPropositionsMap] = useState<Map<string, PropositionExpress[]>>(new Map());
   const [expressFilter, setExpressFilter] = useState<'nouvelles' | 'propositions_envoyees' | 'acceptees' | 'refusees' | 'validees'>('nouvelles');
+  const [bypassHighlight, setBypassHighlight] = useState(false); // Pour ignorer highlightedDemandeId après une action
   const demandeRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
   // IDs des nouvelles demandes capturées UNE FOIS au chargement (pour le badge 🔔 stable)
   const [demandesNouvellesInitialIds, setDemandesNouvellesInitialIds] = useState<Set<string>>(new Set());
@@ -93,21 +94,63 @@ export default function ArtisanDemandesPage() {
     markTypeAsRead(['nouvelle_demande', 'nouvelle_demande_publique']);
   }, [authUser, authLoading, router]);
 
-  // Si on arrive avec un demandeId dans l'URL → aller directement dans Classiques
+  // Si on arrive avec un demandeId dans l'URL → aller directement dans Classiques et activer le bon filtre
   useEffect(() => {
-    if (highlightedDemandeId) {
+    if (highlightedDemandeId && !bypassHighlight && !isLoading) {
       setCategoryActive('classiques');
+      
+      // Trouver la demande dans TOUTES les listes
+      const toutesLesDemandes = [...demandes, ...demandesPubliques];
+      const demande = toutesLesDemandes.find(d => d.id === highlightedDemandeId);
+      
+      if (demande) {
+        // Déterminer si c'est une demande publique ou personnelle
+        const estPublique = demandesPubliques.some(d => d.id === highlightedDemandeId);
+        setSectionActive(estPublique ? 'demandes_publiques' : 'mes_demandes');
+        
+        const devisForDemande = devisMap.get(demande.id) || [];
+        const devisPaye = devisForDemande.find(d => 
+          ['paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(d.statut)
+        );
+        
+        if (devisPaye) {
+          // Demande avec devis payé → Section "Traitées"
+          setFilter('traitees');
+          
+          // Déterminer le sous-filtre selon le statut
+          if (devisPaye.statut === 'paye') {
+            setSousFiltreTraitees('payees');
+          } else if (devisPaye.statut === 'en_cours') {
+            setSousFiltreTraitees('travaux_en_cours');
+          } else if (['travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(devisPaye.statut)) {
+            setSousFiltreTraitees('termines');
+          }
+        } else if (demande.devisRecus && demande.devisRecus > 0) {
+          // Demande avec devis envoyés mais pas payé → Section "En traitement"
+          setFilter('en_traitement');
+        } else {
+          // Demande sans devis → Section "Nouvelles"
+          setFilter('nouvelles');
+        }
+      }
     }
-  }, [highlightedDemandeId]);
+  }, [highlightedDemandeId, bypassHighlight, isLoading, demandes, demandesPubliques, devisMap]);
 
-  // Scroller vers la demande mise en évidence
+  // Scroller vers la demande mise en évidence et ajouter l'animation de surbrillance
   useEffect(() => {
     if (highlightedDemandeId && !isLoading && demandeRefs.current[highlightedDemandeId]) {
+      const element = demandeRefs.current[highlightedDemandeId];
       setTimeout(() => {
-        demandeRefs.current[highlightedDemandeId]?.scrollIntoView({ 
+        element?.scrollIntoView({ 
           behavior: 'smooth', 
           block: 'center' 
         });
+        // Ajouter la classe d'animation de surbrillance
+        element?.classList.add('highlight-demande');
+        // Retirer la classe après 3 secondes
+        setTimeout(() => {
+          element?.classList.remove('highlight-demande');
+        }, 3000);
       }, 300);
     }
   }, [highlightedDemandeId, isLoading]);
@@ -182,6 +225,28 @@ export default function ArtisanDemandesPage() {
 
       setUser(userData);
 
+      // DEBUG: Si une demande spécifique est recherchée, la charger directement d'abord
+      if (highlightedDemandeId) {
+        try {
+          const demandeDoc = await getDoc(doc(db, 'demandes', highlightedDemandeId));
+          if (demandeDoc.exists()) {
+            const demandeData = { id: demandeDoc.id, ...demandeDoc.data() };
+            console.log('🔍 DEBUG: Demande trouvée directement dans Firestore:', {
+              id: demandeData.id,
+              statut: (demandeData as any).statut,
+              artisanId: (demandeData as any).artisanId,
+              artisansMatches: (demandeData as any).artisansMatches,
+              clientId: (demandeData as any).clientId,
+              titre: (demandeData as any).titre
+            });
+          } else {
+            console.log('❌ DEBUG: Demande introuvable dans Firestore (document n\'existe pas)');
+          }
+        } catch (error) {
+          console.error('❌ DEBUG: Erreur lors du chargement direct de la demande:', error);
+        }
+      }
+
       // Charger les demandes pour cet artisan
       const demandesData = await getDemandesForArtisan(authUser.uid);
       console.log('📋 Demandes récupérées:', demandesData.map(d => ({
@@ -190,6 +255,21 @@ export default function ArtisanDemandesPage() {
         photosUrls: d.photosUrls,
         photos: d.photos,
       })));
+      
+      // Debug: vérifier si la demande recherchée est présente
+      if (highlightedDemandeId) {
+        const demandePresente = demandesData.find(d => d.id === highlightedDemandeId);
+        console.log(`🔍 Recherche demande ${highlightedDemandeId}:`, demandePresente ? 'TROUVÉE ✅' : 'NON TROUVÉE ❌');
+        if (demandePresente) {
+          console.log('   → Détails:', {
+            titre: demandePresente.titre,
+            statut: demandePresente.statut,
+            artisanId: demandePresente.artisanId,
+            devisRecus: demandePresente.devisRecus
+          });
+        }
+      }
+      
       setDemandes(demandesData);
       
       // Charger les demandes publiques qui matchent le profil de l'artisan
@@ -208,6 +288,20 @@ export default function ArtisanDemandesPage() {
           }
         });
         console.log('📢 Demandes publiques récupérées:', demandesPubliquesData.length);
+        
+        // Debug: vérifier si la demande recherchée est dans les publiques
+        if (highlightedDemandeId) {
+          const demandePubliquePresente = demandesPubliquesData.find(d => d.id === highlightedDemandeId);
+          console.log(`🔍 Recherche demande ${highlightedDemandeId} dans publiques:`, demandePubliquePresente ? 'TROUVÉE ✅' : 'NON TROUVÉE ❌');
+          if (demandePubliquePresente) {
+            console.log('   → Détails:', {
+              titre: demandePubliquePresente.titre,
+              statut: demandePubliquePresente.statut,
+              metier: demandePubliquePresente.metier
+            });
+          }
+        }
+        
         setDemandesPubliques(demandesPubliquesData);
       }
 
@@ -518,8 +612,20 @@ export default function ArtisanDemandesPage() {
 
     try {
       await declarerDebutTravaux(devisId, user.uid);
+      
+      // Recharger les données en premier
+      await loadData();
+      
+      // Ignorer le paramètre highlightedDemandeId pour afficher toutes les demandes
+      setBypassHighlight(true);
+      
+      // Puis mettre à jour les filtres pour afficher la section appropriée
+      setCategoryActive('classiques');
+      setSectionActive('mes_demandes');
+      setFilter('traitees');
+      setSousFiltreTraitees('travaux_en_cours');
+      
       alert('✅ Travaux démarrés avec succès !');
-      await loadData(); // Recharger les données
     } catch (error: any) {
       console.error('❌ Erreur démarrage travaux:', error);
       alert(`❌ Erreur : ${error.message || 'Impossible de démarrer les travaux'}`);
@@ -540,8 +646,20 @@ export default function ArtisanDemandesPage() {
 
     try {
       await declarerFinTravaux(devisId, user.uid);
+      
+      // Recharger les données en premier
+      await loadData();
+      
+      // Ignorer le paramètre highlightedDemandeId pour afficher toutes les demandes
+      setBypassHighlight(true);
+      
+      // Puis mettre à jour les filtres pour afficher la section appropriée
+      setCategoryActive('classiques');
+      setSectionActive('mes_demandes');
+      setFilter('traitees');
+      setSousFiltreTraitees('termines');
+      
       alert('✅ Fin des travaux déclarée avec succès ! Le client a été notifié.');
-      await loadData(); // Recharger les données
     } catch (error: any) {
       console.error('❌ Erreur fin travaux:', error);
       alert(`❌ Erreur : ${error.message || 'Impossible de déclarer la fin des travaux'}`);
@@ -751,9 +869,20 @@ export default function ArtisanDemandesPage() {
   // Filtrer les demandes selon l'onglet sélectionné
   let demandesFiltrees = demandesSource;
   
-  // Si un demandeId est spécifié dans l'URL, afficher uniquement cette demande
-  if (highlightedDemandeId) {
-    demandesFiltrees = demandesSource.filter(d => d.id === highlightedDemandeId);
+  // Si un demandeId est spécifié dans l'URL ET qu'on n'a pas fait d'action récente, afficher uniquement cette demande
+  if (highlightedDemandeId && !bypassHighlight) {
+    // Chercher dans TOUTES les listes (mes demandes + publiques) pour être sûr de trouver la demande
+    const toutesLesDemandes = [...demandes, ...demandesPubliques];
+    demandesFiltrees = toutesLesDemandes.filter(d => d.id === highlightedDemandeId);
+    
+    console.log(`🔍 Filtrage pour demandeId=${highlightedDemandeId}:`);
+    console.log('   demandes.length:', demandes.length);
+    console.log('   demandesPubliques.length:', demandesPubliques.length);
+    console.log('   toutesLesDemandes.length:', toutesLesDemandes.length);
+    console.log('   demandesFiltrees.length:', demandesFiltrees.length);
+    if (demandesFiltrees.length === 0) {
+      console.log('   ❌ DEMANDE NON TROUVÉE - Vérifier dans Firestore si la demande existe et si elle est assignée à cet artisan');
+    }
   } else if (sectionActive === 'mes_demandes') {
     // Filtrage par onglet uniquement pour "Mes demandes"
     if (filter === 'nouvelles') {
@@ -785,11 +914,8 @@ export default function ArtisanDemandesPage() {
         <div className="container mx-auto px-4 max-w-6xl">
           <button
             onClick={() => router.push('/artisan/dashboard')}
-            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4 transition-colors"
+            className="text-white hover:text-[#FF6B00] mb-4 transition-colors"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
             {t('artisanRequests.backToDashboard')}
           </button>
           <div className="flex items-center justify-between">
@@ -1122,7 +1248,8 @@ export default function ArtisanDemandesPage() {
               const isNouveau = demandesNouvellesInitialIds.has(demande.id);
               return (
               <div 
-                key={demande.id} 
+                key={demande.id}
+                id={`demande-${demande.id}`}
                 ref={(el) => { demandeRefs.current[demande.id] = el; }}
                 onClick={() => toggleExpandDemande(demande.id)}
                 className={`bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer relative border-2 overflow-hidden group ${
@@ -1243,10 +1370,19 @@ export default function ArtisanDemandesPage() {
                           </span>
                         );
                       }
-                      if (devisPaye && ['travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(devisPaye.statut)) {
+                      // Travaux terminés en attente validation
+                      if (devisPaye?.statut === 'travaux_termines') {
+                        return (
+                          <span className="bg-orange-100 text-orange-700 px-4 py-2 rounded-lg text-sm font-bold border-2 border-orange-400">
+                            🏁 Travaux terminés
+                          </span>
+                        );
+                      }
+                      // Travaux validés par le client
+                      if (devisPaye && ['termine_valide', 'termine_auto_valide'].includes(devisPaye.statut)) {
                         return (
                           <span className="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold border-2 border-gray-400">
-                            ✅ Travaux terminés
+                            ✅ Travaux validés
                           </span>
                         );
                       }
@@ -1457,8 +1593,88 @@ export default function ArtisanDemandesPage() {
                       </div>
                     </div>
 
+                    {/* Date prévisionnelle de fin des travaux (pour devis signés) */}
+                    {(() => {
+                      const devisForDemande = devisMap.get(demande.id) || [];
+                      const devisPaye = devisForDemande.find(d => 
+                        ['paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(d.statut)
+                      );
+                      
+                      if (!devisPaye) return null;
+                      
+                      // Calculer la date de fin prévisionnelle
+                      const dateDebut = devisPaye.dateDebut || devisPaye.dateDebutPrevue;
+                      const delai = devisPaye.delaiRealisation;
+                      
+                      if (!dateDebut || !delai) return null;
+                      
+                      // delaiRealisation est un number (jours) selon les types TypeScript
+                      let joursDelai: number;
+                      let delaiTexte: string;
+                      
+                      if (typeof delai === 'number') {
+                        // Cas normal : delaiRealisation est un nombre de jours
+                        joursDelai = delai;
+                        // Formater l'affichage
+                        if (joursDelai === 1) {
+                          delaiTexte = '1 jour';
+                        } else if (joursDelai < 7) {
+                          delaiTexte = `${joursDelai} jours`;
+                        } else if (joursDelai % 7 === 0 && joursDelai < 60) {
+                          const semaines = joursDelai / 7;
+                          delaiTexte = semaines === 1 ? '1 semaine' : `${semaines} semaines`;
+                        } else if (joursDelai >= 30 && joursDelai % 30 === 0) {
+                          const mois = joursDelai / 30;
+                          delaiTexte = mois === 1 ? '1 mois' : `${mois} mois`;
+                        } else {
+                          delaiTexte = `${joursDelai} jours`;
+                        }
+                      } else if (typeof delai === 'string') {
+                        // Cas string (rétrocompatibilité) : parser "X jours/semaines/mois"
+                        const match = delai.match(/(\d+)\s*(jour|semaine|mois)/i);
+                        if (!match) return null;
+                        
+                        const valeur = parseInt(match[1]);
+                        const unite = match[2].toLowerCase();
+                        
+                        if (unite.startsWith('jour')) joursDelai = valeur;
+                        else if (unite.startsWith('semaine')) joursDelai = valeur * 7;
+                        else if (unite.startsWith('mois')) joursDelai = valeur * 30;
+                        else return null;
+                        
+                        delaiTexte = delai;
+                      } else {
+                        return null;
+                      }
+                      
+                      // Calculer la date de fin
+                      const dateDebutMs = dateDebut.toDate().getTime();
+                      const dateFinPrevue = new Date(dateDebutMs + joursDelai * 24 * 60 * 60 * 1000);
+                      
+                      return (
+                        <div className="flex items-start gap-2">
+                          <span className="text-blue-600 mt-0.5">🏁</span>
+                          <div>
+                            <p className="font-semibold text-blue-900">Date prévisionnelle de fin</p>
+                            <p className="text-blue-800">
+                              {dateFinPrevue.toLocaleDateString(language === 'en' ? 'en-US' : 'fr-FR', {
+                                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                              })}{' '}
+                              à {dateFinPrevue.toLocaleTimeString(language === 'en' ? 'en-US' : 'fr-FR', {
+                                hour: '2-digit', minute: '2-digit'
+                              })}
+                            </p>
+                            <p className="text-xs text-gray-600 mt-0.5">
+                              Délai estimé : {delaiTexte}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
                     {/* Date d'expiration avec heure + compte à rebours en temps réel */}
-                    {demande.dateExpiration ? (
+                    {/* Ne pas afficher si la demande a un devis payé (travaux en cours/terminés) */}
+                    {demande.dateExpiration && !demandesAvecDevisPayeIds.has(demande.id) ? (
                       <div className="flex items-start gap-2">
                         <span className={`mt-0.5 ${isDemandeExpired(demande.dateExpiration) ? 'text-red-500' : 'text-orange-500'}`}>⏳</span>
                         <div>
@@ -1499,7 +1715,7 @@ export default function ArtisanDemandesPage() {
                           })()}
                         </div>
                       </div>
-                    ) : (
+                    ) : demande.dateExpiration ? null : !demandesAvecDevisPayeIds.has(demande.id) ? (
                       <div className="flex items-start gap-2">
                         <span className="text-gray-400 mt-0.5">⏳</span>
                         <div>
@@ -1507,7 +1723,7 @@ export default function ArtisanDemandesPage() {
                           <p className="text-gray-500 italic">Non définie</p>
                         </div>
                       </div>
-                    )}
+                    ) : null}
 
                     {/* Budget indicatif */}
                     {demande.budgetIndicatif && demande.budgetIndicatif > 0 ? (

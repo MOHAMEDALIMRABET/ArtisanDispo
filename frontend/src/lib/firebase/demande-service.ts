@@ -137,23 +137,47 @@ export async function getDemandesByClient(clientId: string): Promise<Demande[]> 
  */
 export async function getDemandesForArtisan(artisanId: string): Promise<Demande[]> {
   const demandesRef = collection(db, COLLECTION_NAME);
-  const q = query(
+  
+  // Requête 1: Demandes où l'artisan est dans artisansMatches (demandes publiques matchées)
+  const q1 = query(
     demandesRef,
     where('artisansMatches', 'array-contains', artisanId)
   );
-  const querySnapshot = await getDocs(q);
+  const snapshot1 = await getDocs(q1);
   
-  const demandes = querySnapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data(),
-  } as Demande));
+  // Requête 2: Demandes directes où artisanId correspond (demandes privées)
+  const q2 = query(
+    demandesRef,
+    where('artisanId', '==', artisanId)
+  );
+  const snapshot2 = await getDocs(q2);
+  
+  // Combiner les résultats et dédupliquer
+  const demandesMap = new Map<string, Demande>();
+  
+  snapshot1.docs.forEach(doc => {
+    demandesMap.set(doc.id, {
+      id: doc.id,
+      ...doc.data(),
+    } as Demande);
+  });
+  
+  snapshot2.docs.forEach(doc => {
+    demandesMap.set(doc.id, {
+      id: doc.id,
+      ...doc.data(),
+    } as Demande);
+  });
+  
+  const demandes = Array.from(demandesMap.values());
 
   // Filtrage et tri côté client
   return demandes
     .filter(d => {
-      // ✅ Inclure TOUTES les demandes actives (publiée, matchée, attribuée, quota_atteint)
-      // Ne plus exclure les demandes attribuées car l'artisan doit voir ses contrats
-      return ['publiee', 'matchee', 'attribuee', 'quota_atteint'].includes(d.statut);
+      // ✅ Inclure TOUTES les demandes actives et en cours de réalisation
+      // - Demandes en attente : publiee, matchee, attribuee, quota_atteint
+      // - Demandes avec contrats actifs : en_cours, travaux_termines, termine_valide, termine_auto_valide
+      return ['publiee', 'matchee', 'attribuee', 'quota_atteint', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(d.statut);
     })
     .sort((a, b) => {
       const dateA = a.dateCreation?.toMillis() || 0;

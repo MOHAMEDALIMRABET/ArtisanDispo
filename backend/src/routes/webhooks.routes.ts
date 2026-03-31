@@ -153,7 +153,7 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
     // ✅ Mettre à jour le wallet artisan (solde en séquestre)
     await updateWalletSequestre(artisanId, devisId, montant, paymentIntent.id, clientNom, numeroDevis);
 
-    // Créer notification artisan
+    // Créer notification artisan pour le DEVIS
     await db.collection('notifications').add({
       recipientId: artisanId,
       type: 'devis_paye',
@@ -163,6 +163,20 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
       isRead: false,
       createdAt: Timestamp.now()
     });
+
+    // 🆕 Créer notification artisan pour la DEMANDE (si demandeId existe)
+    if (devisData?.demandeId) {
+      await db.collection('notifications').add({
+        recipientId: artisanId,
+        type: 'demande_paye',
+        title: '✅ Demande payée',
+        message: `${clientNom} a payé le devis ${numeroDevis}. ${montant.toFixed(2)}€ sont bloqués en séquestre.`,
+        relatedId: devisData.demandeId,
+        isRead: false,
+        createdAt: Timestamp.now()
+      });
+      console.log(`✅ Notification demande créée: ${devisData.demandeId}`);
+    }
 
     console.log(`✅ Devis ${devisId} mis à jour: statut=paye | Wallet séquestre +${montant}€`);
 

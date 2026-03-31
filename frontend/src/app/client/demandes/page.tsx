@@ -309,10 +309,17 @@ export default function MesDemandesPage() {
             </span>
           );
         }
-        if (['travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(devisPaye.statut)) {
+        if (devisPaye.statut === 'travaux_termines') {
+          return (
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700 border-2 border-orange-400">
+              🏁 Travaux terminés
+            </span>
+          );
+        }
+        if (['termine_valide', 'termine_auto_valide'].includes(devisPaye.statut)) {
           return (
             <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-900 border-2 border-green-500">
-              ✅ Travaux terminés
+              ✅ Travaux validés
             </span>
           );
         }
@@ -884,9 +891,14 @@ export default function MesDemandesPage() {
                 if (filtreSection === 'traitees') {
                   // PRIORITÉ 1 : Vérifier d'abord le statut du devis payé (contrat)
                   if (devisPaye) {
-                    // Badge "✅ Travaux terminés" → Noir
-                    if (['travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(devisPaye.statut)) {
+                    // Badge "✅ Travaux validés" → Noir
+                    if (['termine_valide', 'termine_auto_valide'].includes(devisPaye.statut)) {
                       return 'bg-gradient-to-b from-gray-700 to-gray-900';
+                    }
+                    
+                    // Badge "🏁 Travaux terminés" (en attente validation) → Orange
+                    if (devisPaye.statut === 'travaux_termines') {
+                      return 'bg-gradient-to-b from-orange-400 to-orange-600';
                     }
                     
                     // Badge "🚧 Travaux en cours" → Jaune
@@ -1482,6 +1494,50 @@ export default function MesDemandesPage() {
                             </button>
                           )}
                         </div>
+
+                        {/* 🆕 Boutons Valider/Contester si travaux terminés */}
+                        {st === 'travaux_termines' && devisPaye?.id && (
+                          <div className="flex gap-3 mt-3 pt-3 border-t border-gray-200">
+                            <button
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                if (!confirm('Confirmez-vous que les travaux sont satisfaisants ?\n\nL\'argent sera libéré à l\'artisan.')) return;
+                                try {
+                                  const { validerTravaux } = await import('@/lib/firebase/devis-service');
+                                  await validerTravaux(devisPaye.id, user!.uid);
+                                  alert('✅ Travaux validés ! L\'artisan recevra son paiement sous 24-48h.');
+                                  window.location.reload();
+                                } catch (error: any) {
+                                  alert(`❌ Erreur : ${error.message || 'Impossible de valider'}`);
+                                }
+                              }}
+                              className="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-2.5 font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
+                            >
+                              ✅ Valider les travaux
+                            </button>
+                            <button
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                const motif = prompt('Veuillez décrire le problème :');
+                                if (!motif || motif.trim().length < 10) {
+                                  alert('⚠️ Veuillez décrire le problème en détail (minimum 10 caractères).');
+                                  return;
+                                }
+                                try {
+                                  const { signalerLitige } = await import('@/lib/firebase/devis-service');
+                                  await signalerLitige(devisPaye.id, user!.uid, motif);
+                                  alert('⚠️ Litige enregistré. Notre équipe va examiner votre demande.');
+                                  window.location.reload();
+                                } catch (error: any) {
+                                  alert(`❌ Erreur : ${error.message || 'Impossible de signaler le litige'}`);
+                                }
+                              }}
+                              className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-lg px-4 py-2.5 font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
+                            >
+                              ⚠️ Signaler un problème
+                            </button>
+                          </div>
+                        )}
                     </div>
                   </div>
                   );

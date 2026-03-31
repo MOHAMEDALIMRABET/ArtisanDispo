@@ -460,9 +460,22 @@ export async function markDemandePaid(demandeId: string): Promise<void> {
  * Marquer une intervention comme en cours
  */
 export async function markInterventionEnCours(demandeId: string): Promise<void> {
+  const demande = await getDemandeExpressById(demandeId);
+  if (!demande) {
+    throw new Error('Demande introuvable');
+  }
+
   await updateDoc(doc(db, 'demandes_express', demandeId), {
     statut: 'en_cours',
     updatedAt: Timestamp.now(),
+  });
+
+  // 🆕 Notifier le client que l'intervention a démarré
+  await createNotification(demande.clientId, {
+    type: 'intervention_demarree',
+    titre: '🚧 Intervention démarrée',
+    message: 'L\'artisan a commencé votre intervention.',
+    lien: `/client/demandes-express/${demandeId}`,
   });
 }
 

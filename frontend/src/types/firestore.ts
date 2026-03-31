@@ -39,6 +39,7 @@ export type DemandeStatut =
   | 'matchee' 
   | 'en_cours' 
   | 'attribuee'      // Devis accepté et payé, demande fermée
+  | 'travaux_termines'  // Travaux terminés, en attente validation client
   | 'expiree'        // Date + flexibilité dépassée, demande archivée
   | 'quota_atteint'  // 10 devis reçus, demande automatiquement fermée (Phase 2)
   | 'terminee' 
@@ -89,6 +90,7 @@ export type NotificationType =
   | 'demande_refusee'            // ✅ Ajouté - utilisé dans artisan/demandes
   | 'demande_annulee'            // ✅ Demande annulée
   | 'demande_avis_express'       // ✅ Demande avis travaux express
+  | 'demande_paye'               // ✅ Demande payée (notification demande)
   | 'nouveau_devis'              // ✅ Ajouté - utilisé dans notification-service
   | 'devis_recu' 
   | 'devis_accepte'
@@ -96,6 +98,7 @@ export type NotificationType =
   | 'devis_annule'               // ✅ Ajouté - client annule devis accepté
   | 'devis_supprime'             // ✅ Ajouté - suppression auto après 24h
   | 'devis_revision'             // ✅ Ajouté - demande de révision/nouvelle variante
+  | 'devis_paye'                 // ✅ Devis payé (notification devis)
   | 'proposition_express_recue'  // ✅ Proposition express reçue
   | 'proposition_acceptee'       // ✅ Proposition acceptée
   | 'proposition_refusee'        // ✅ Proposition refusée

@@ -736,61 +736,30 @@ export default function ClientDevisPage() {
                       </>
                     )}
 
-                    {/* Devis payé (en attente démarrage) ou en cours : Signaler + Voir le détail */}
+                    {/* Devis payé (en attente démarrage) ou en cours : Voir le détail uniquement */}
                     {(d.statut === 'paye' || d.statut === 'en_cours') && (
-                      <>
-                        <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            naviguerVersDevis(d.id, `action=contester&returnFilter=${filter}`);
-                          }}
-                          className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-center font-medium cursor-pointer"
-                        >
-                          ⚠️ Signaler un problème
-                        </div>
-                        <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            naviguerVersDevis(d.id, `returnFilter=${filter}`);
-                          }}
-                          className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
-                        >
-                          📄 {t('quotes.viewDetails')}
-                        </div>
-                      </>
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          naviguerVersDevis(d.id, `returnFilter=${filter}`);
+                        }}
+                        className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
+                      >
+                        📄 {t('quotes.viewDetails')}
+                      </div>
                     )}
 
-                    {/* Travaux terminés : Valider + Contester + Voir le détail */}
+                    {/* Travaux terminés : Voir le détail uniquement (validation/contestation via la demande) */}
                     {d.statut === 'travaux_termines' && (
-                      <>
-                        <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            naviguerVersDevis(d.id, `action=valider&returnFilter=${filter}`);
-                          }}
-                          className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition text-center font-medium cursor-pointer"
-                        >
-                          ✅ Valider les travaux
-                        </div>
-                        <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            naviguerVersDevis(d.id, `action=contester&returnFilter=${filter}`);
-                          }}
-                          className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-center font-medium cursor-pointer"
-                        >
-                          ⚠️ Contester
-                        </div>
-                        <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            naviguerVersDevis(d.id, `returnFilter=${filter}`);
-                          }}
-                          className="px-4 py-2 border-2 border-[#2C3E50] text-[#2C3E50] rounded-lg hover:bg-[#2C3E50] hover:text-white transition text-center font-medium cursor-pointer"
-                        >
-                          📄 {t('quotes.viewDetails')}
-                        </div>
-                      </>
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          naviguerVersDevis(d.id, `returnFilter=${filter}`);
+                        }}
+                        className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
+                      >
+                        📄 {t('quotes.viewDetails')}
+                      </div>
                     )}
 
                     {/* Travaux validés : bouton avis + Voir le détail */}

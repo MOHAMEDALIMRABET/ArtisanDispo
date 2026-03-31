@@ -40,6 +40,23 @@ body {
   animation: slideDown 0.3s ease-out;
 }
 
+/* Animation highlight pour demandes mises en évidence */
+@keyframes highlightPulse {
+  0%, 100% {
+    border-color: #FF6B00;
+    box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.7);
+  }
+  50% {
+    border-color: #FF6B00;
+    box-shadow: 0 0 0 8px rgba(255, 107, 0, 0);
+  }
+}
+
+.highlight-demande {
+  animation: highlightPulse 1s ease-in-out 3;
+  border-color: #FF6B00 !important;
+}
+
 /* Styles pour le calendrier react-big-calendar */
 
 /* Jours hors du mois en cours (grisés par défaut) */
