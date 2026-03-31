@@ -1278,14 +1278,19 @@ export default function ArtisanDemandesPage() {
                       const diffMs = demande.dateExpiration.toDate().getTime() - now;
                       if (diffMs <= 0) return null;
                       const totalSec = Math.floor(diffMs / 1000);
-                      const h = Math.floor(totalSec / 3600);
+                      const d = Math.floor(totalSec / 86400);
+                      const h = Math.floor((totalSec % 86400) / 3600);
                       const m = Math.floor((totalSec % 3600) / 60);
                       const s = totalSec % 60;
                       const isUrgent = diffMs < 60 * 60 * 1000;
-                      const minuteLabel = h > 0
+                      const minuteLabel = d > 0
+                        ? `${d}j ${h}h ${String(m).padStart(2, '0')}min`
+                        : h > 0
                         ? `${h}h ${String(m).padStart(2, '0')}min`
                         : `${m}min`;
-                      const secLabel = h > 0
+                      const secLabel = d > 0
+                        ? `${d}j ${h}h ${String(m).padStart(2, '0')}min ${String(s).padStart(2, '0')}s`
+                        : h > 0
                         ? `${h}h ${String(m).padStart(2, '0')}min ${String(s).padStart(2, '0')}s`
                         : m > 0
                         ? `${m}min ${String(s).padStart(2, '0')}s`
@@ -1298,7 +1303,7 @@ export default function ArtisanDemandesPage() {
                         }`}>
                           <span className={`text-xs font-black ${isUrgent ? 'animate-pulse' : ''}`}>⏱️ Expire dans {minuteLabel}</span>
                           <span className="text-[10px] font-bold opacity-80 tabular-nums">{secLabel}</span>
-                          <span className="text-[10px] font-normal opacity-60">Expire le {expiresDateStr}</span>
+                          <span className="text-[10px] font-semibold opacity-100">Expire le {expiresDateStr}</span>
                         </div>
                       );
                     })()}
@@ -1328,7 +1333,7 @@ export default function ArtisanDemandesPage() {
                   return (
                     <div className="mb-4">
                       <p className="text-sm font-semibold text-gray-700 mb-2">
-                        📸 {t('artisanRequests.card.projectPhotos').replace('{count}', validPhotos.length.toString())}
+                        {t('artisanRequests.card.projectPhotos').replace('{count}', validPhotos.length.toString())}
                       </p>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         {validPhotos.map((url: string, idx: number) => {
@@ -1410,7 +1415,6 @@ export default function ArtisanDemandesPage() {
                     {demande.datesSouhaitees?.dates && demande.datesSouhaitees.dates.length > 0 && (
                       <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                         <p className="text-sm font-bold text-green-900 mb-3 flex items-center gap-2">
-                          <span>📅</span>
                           {t('artisanRequests.card.desiredDate')}
                         </p>
                         <p className="text-green-800">
@@ -1526,20 +1530,6 @@ export default function ArtisanDemandesPage() {
                         </div>
                       </div>
                     )}
-
-                    {/* Type de demande */}
-                    <div className="flex items-start gap-2">
-                      <span className="text-gray-500 mt-0.5">📂</span>
-                      <div>
-                        <p className="font-semibold text-blue-900">Type</p>
-                        <p className="text-gray-700">
-                          {demande.type === 'publique' ? '📢 Publique' : '🎯 Directe'}
-                          {demande.typeProjet === 'express' && (
-                            <span className="ml-2 bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-full">⚡ Express</span>
-                          )}
-                        </p>
-                      </div>
-                    </div>
                   </div>
                 </div>
 

@@ -37,6 +37,11 @@ interface Message {
   deleted?: boolean; // Soft delete par admin uniquement
   deletedAt?: Timestamp;
   deletedBy?: string;
+  // ✅ NOUVEAUX CHAMPS - Messages refusés (style BlaBlaCar)
+  rejected?: boolean;           // true si message refusé par validation
+  rejectionReason?: string;     // Raison du refus (ex: "Numéro de téléphone détecté")
+  rejectionPatterns?: string[]; // Patterns détectés (ex: ["telephone_fragmente", "9_chiffres"])
+  visibleTo?: string[];         // Si rejected=true, visible uniquement par senderId
 }
 
 interface Conversation {
@@ -56,6 +61,12 @@ interface UserInfo {
   email: string;
   photoURL?: string;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MESSAGE D'ERREUR STANDARDISÉ (fallback si validation.message vide)
+// ─────────────────────────────────────────────────────────────────────────────
+const BLOCKED_MSG =
+  "⚠️ Le partage de coordonnées personnelles est interdit avant l'acceptation du devis.";
 
 // Composant pour afficher une conversation dans la liste
 function ConversationItem({ 
@@ -610,27 +621,49 @@ export default function MessagesPage() {
 
       const validation = validateMessageWithHistory(messageContent.trim(), recentSenderMessages, isPaid);
 
-      if (!validation.isValid) {
-        alert(validation.message); // Message déjà traduit par antiBypassValidator
-        setSending(false);
-        return;
-      }
-
       const conv = conversations.find(c => c.id === selectedConversation);
       if (!conv) return;
 
       const receiverId = conv.participants.find(p => p !== user.uid);
       if (!receiverId) return;
 
-      // Créer le message
-      await addDoc(collection(db, 'messages'), {
+      // ========================================
+      // NOUVEAUTÉ : Préparer les données du message
+      // ========================================
+      const messageData: any = {
         conversationId: selectedConversation,
         senderId: user.uid,
         receiverId,
         content: messageContent.trim(),
         createdAt: serverTimestamp(),
         read: false,
-      });
+      };
+
+      // ========================================
+      // SI MESSAGE REFUSÉ : Style BlaBlaCar
+      // ========================================
+      if (!validation.isValid) {
+        // ✅ Enregistrer le message refusé dans Firestore
+        messageData.rejected = true;
+        messageData.rejectionReason = validation.message || BLOCKED_MSG;
+        messageData.rejectionPatterns = validation.blockedPatterns || [];
+        messageData.visibleTo = [user.uid]; // Visible uniquement par expéditeur
+        
+        await addDoc(collection(db, 'messages'), messageData);
+        
+        // ✅ NE PAS mettre à jour lastMessage (message invisible pour destinataire)
+        // Le message refusé apparaîtra uniquement dans l'historique de l'expéditeur
+        
+        setMessageContent('');
+        setValidationWarning(null);
+        setSending(false);
+        return;
+      }
+
+      // ========================================
+      // MESSAGE VALIDE : Enregistrement normal
+      // ========================================
+      await addDoc(collection(db, 'messages'), messageData);
 
       // Mettre à jour la conversation
       await updateDoc(doc(db, 'conversations', selectedConversation), {
@@ -772,6 +805,12 @@ export default function MessagesPage() {
 
                   {messages.map((msg) => {
                     const isOwn = msg.senderId === user.uid;
+                    const isRejected = msg.rejected || false;
+                    
+                    // ✅ Si message refusé et pas l'expéditeur → ne pas afficher
+                    if (isRejected && !isOwn) {
+                      return null;
+                    }
                     
                     return (
                       <div
@@ -780,20 +819,36 @@ export default function MessagesPage() {
                           isConversationInactive ? 'opacity-50' : ''
                         }`}
                       >
-                        <div
-                          className={`max-w-[70%] rounded-lg px-4 py-2 ${
-                            isOwn
-                              ? 'bg-[#FF6B00] text-white'
-                              : 'bg-gray-200 text-[#2C3E50]'
-                          }`}
-                        >
-                          <p className="break-words">{msg.content}</p>
-                          <p className={`text-xs mt-1 ${isOwn ? 'text-orange-100' : 'text-gray-500'}`}>
-                            {msg.createdAt?.toDate().toLocaleTimeString(language === 'en' ? 'en-US' : 'fr-FR', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </p>
+                        <div className="max-w-[70%]">
+                          {/* Bulle du message */}
+                          <div
+                            className={`rounded-lg px-4 py-2 ${
+                              isRejected 
+                                ? 'bg-[#1e3a5f] text-white border-2 border-red-500' // ✅ Style BlaBlaCar : Bleu foncé + bordure rouge
+                                : isOwn
+                                ? 'bg-[#FF6B00] text-white'
+                                : 'bg-gray-200 text-[#2C3E50]'
+                            }`}
+                          >
+                            <p className="break-words">{msg.content}</p>
+                            <p className={`text-xs mt-1 flex items-center gap-1 ${
+                              isRejected ? 'text-red-200' :
+                              isOwn ? 'text-orange-100' : 'text-gray-500'
+                            }`}>
+                              {msg.createdAt?.toDate().toLocaleTimeString(language === 'en' ? 'en-US' : 'fr-FR', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                              {isRejected && <span className="text-red-300">⛔</span>}
+                            </p>
+                          </div>
+                          
+                          {/* ✅ Message d'erreur en dessous (style BlaBlaCar) */}
+                          {isRejected && (
+                            <p className="text-red-600 text-sm font-semibold mt-1 px-2">
+                              {t('messaging.messageRejected')}
+                            </p>
+                          )}
                         </div>
                       </div>
                     );
@@ -841,7 +896,7 @@ export default function MessagesPage() {
                     />
                     <button
                       type="submit"
-                      disabled={sending || !messageContent.trim() || !!validationWarning || isConversationInactive}
+                      disabled={sending || !messageContent.trim() || isConversationInactive}
                       className="bg-[#FF6B00] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#E56100] transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {sending ? '⏳' : '📤'} {sending ? t('messaging.sending') : t('messaging.send')}

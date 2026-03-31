@@ -1057,7 +1057,7 @@
       "postalCode": "Code postal :",
       "desiredDate": "📅 Date souhaitée",
       "flexible": "Dates flexibles",
-      "urgent": "⚠️ Demande urgente"
+      "urgent": "Demande urgente"
     },
     "status": {
       "public": "Publique",
@@ -1121,7 +1121,11 @@
       "completed": "Les travaux ont été terminés et validés par les deux parties. Cette conversation est maintenant close. Vous pouvez consulter l'historique mais ne pouvez plus envoyer de messages."
     },
     "conversationClosed": "Conversation close",
-    "conversations": "Conversations"
+    "conversations": "Conversations",
+    "messageRejected": "Message refusé par la modération",
+    "rejectionReasonPhone": "Numéro de téléphone détecté",
+    "rejectionReasonEmail": "Adresse email détectée",
+    "rejectionReasonAddress": "Adresse postale détectée"
   },
   "clientProfile": {
     "pageTitle": "Mon profil",

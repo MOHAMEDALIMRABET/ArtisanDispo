@@ -25,7 +25,7 @@ export interface ValidationResult {
 // MESSAGE D'ERREUR STANDARDISÉ
 // ─────────────────────────────────────────────────────────────────────────────
 const BLOCKED_MSG =
-  "⚠️ Le partage de coordonnées personnelles (téléphone, email, adresse postale) est interdit avant l'acceptation du devis.";
+  "⚠️ Le partage de coordonnées personnelles est interdit avant l'acceptation du devis.";
 
 const BLOCKED_PHONE: ValidationResult = {
   isValid: false,

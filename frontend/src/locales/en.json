@@ -1057,7 +1057,7 @@
       "postalCode": "Postal code:",
       "desiredDate": "📅 Desired date",
       "flexible": "Flexible dates",
-      "urgent": "⚠️ Urgent request"
+      "urgent": "Urgent request"
     },
     "status": {
       "public": "Public",
@@ -1121,7 +1121,11 @@
       "completed": "The work has been completed and validated by both parties. This conversation is now closed. You can view the history but can no longer send messages."
     },
     "conversationClosed": "Conversation closed",
-    "conversations": "Conversations"
+    "conversations": "Conversations",
+    "messageRejected": "Message rejected by moderation",
+    "rejectionReasonPhone": "Phone number detected",
+    "rejectionReasonEmail": "Email address detected",
+    "rejectionReasonAddress": "Postal address detected"
   },
   "clientProfile": {
     "pageTitle": "My Profile",
