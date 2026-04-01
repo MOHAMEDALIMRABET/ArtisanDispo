@@ -35,7 +35,7 @@ export default function ClientDevisPage() {
   const [demandes, setDemandes] = useState<Map<string, Demande>>(new Map());
   const [loading, setLoading] = useState(true);
   const [emailResent, setEmailResent] = useState(false);
-  const [filter, setFilter] = useState<'tous' | 'en_attente' | 'en_revision' | 'acceptes' | 'payes' | 'refuses'>('en_attente');
+  const [filter, setFilter] = useState<'tous' | 'en_attente' | 'en_revision' | 'acceptes' | 'payes' | 'refuses'>('tous');
   const [avisParDevisId, setAvisParDevisId] = useState<Record<string, boolean>>({});
   const [sousFiltrePayes, setSousFiltrePayes] = useState<'tout' | 'paye' | 'en_cours' | 'travaux_termines' | 'valides' | 'litige'>('tout');
   const [devisAvecNotifNonLues, setDevisAvecNotifNonLues] = useState<Set<string>>(new Set());
@@ -49,11 +49,15 @@ export default function ClientDevisPage() {
     }
   }, [filter]);
 
-  // Restaurer le filtre depuis l'URL au retour
+  // Restaurer le filtre depuis l'URL au retour ou initialiser depuis l'URL
   useEffect(() => {
     const returnFilter = searchParams.get('returnFilter');
+    const urlFilter = searchParams.get('filter');
+    
     if (returnFilter && ['tous', 'en_attente', 'en_revision', 'acceptes', 'payes', 'refuses'].includes(returnFilter)) {
       setFilter(returnFilter as typeof filter);
+    } else if (urlFilter && ['tous', 'en_attente', 'en_revision', 'acceptes', 'payes', 'refuses'].includes(urlFilter)) {
+      setFilter(urlFilter as typeof filter);
     }
   }, [searchParams]);
 
@@ -632,7 +636,7 @@ export default function ClientDevisPage() {
                     {/* Devis envoyé : Voir détail + Accepter + Refuser */}
                     {d.statut === 'envoye' && (
                       <>
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 mb-3">
                           <div
                             onClick={(e) => {
                               e.stopPropagation();
@@ -673,7 +677,28 @@ export default function ClientDevisPage() {
                           >
                             ❌ {t('quotes.refuse')}
                           </div>
-
+                        </div>
+                        <div className="flex gap-3">
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              naviguerVersDevis(d.id, `returnFilter=${filter}`);
+                            }}
+                            className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
+                          >
+                            📄 {t('quotes.viewDetails')}
+                          </div>
+                          {d.demandeId && (
+                            <div
+                              onClick={(e) => {
+                                e.stopPropagation();                                e.preventDefault();                                router.push(`/client/demandes?demandeId=${d.demandeId}`);
+                              }}
+                              className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
+                            >
+                              📋 Voir demande associée
+                            </div>
+                          )}
                         </div>
                         {!user?.emailVerified && (
                           <div className="mt-2 flex items-center gap-2 text-xs text-red-600 font-medium">
@@ -705,81 +730,54 @@ export default function ClientDevisPage() {
                     {/* Devis accepté/en attente paiement : Procéder au paiement + Annuler + Voir le détail */}
                     {d.statut === 'en_attente_paiement' && (
                       <>
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            naviguerVersDevis(d.id, `action=payer&returnFilter=${filter}`);
-                          }}
-                          className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition font-medium"
-                        >
-                          💳 {t('quotes.proceedPayment')}
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const nomArtisan = d.artisan.raisonSociale || `${d.artisan.prenom} ${d.artisan.nom}`;
-                            handleAnnulerDevis(d.id, d.numeroDevis, d.totaux.totalTTC, nomArtisan);
-                          }}
-                          className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition font-medium"
-                        >
-                          🚫 {t('quotes.cancel')}
-                        </button>
-                        <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            naviguerVersDevis(d.id, `returnFilter=${filter}`);
-                          }}
-                          className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
-                        >
-                          📄 {t('quotes.viewDetails')}
+                        <div className="flex gap-3 mb-3">
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              naviguerVersDevis(d.id, `action=payer&returnFilter=${filter}`);
+                            }}
+                            className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition font-medium"
+                          >
+                            💳 {t('quotes.proceedPayment')}
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const nomArtisan = d.artisan.raisonSociale || `${d.artisan.prenom} ${d.artisan.nom}`;
+                              handleAnnulerDevis(d.id, d.numeroDevis, d.totaux.totalTTC, nomArtisan);
+                            }}
+                            className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition font-medium"
+                          >
+                            🚫 {t('quotes.cancel')}
+                          </button>
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              naviguerVersDevis(d.id, `returnFilter=${filter}`);
+                            }}
+                            className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
+                          >
+                            📄 {t('quotes.viewDetails')}
+                          </div>
                         </div>
+                        {d.demandeId && (
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              router.push(`/client/demandes?demandeId=${d.demandeId}`);
+                            }}
+                            className="w-full bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer mt-3"
+                          >
+                            📋 Voir demande associée
+                          </div>
+                        )}
                       </>
                     )}
 
                     {/* Devis payé (en attente démarrage) ou en cours : Voir le détail uniquement */}
                     {(d.statut === 'paye' || d.statut === 'en_cours') && (
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          naviguerVersDevis(d.id, `returnFilter=${filter}`);
-                        }}
-                        className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
-                      >
-                        📄 {t('quotes.viewDetails')}
-                      </div>
-                    )}
-
-                    {/* Travaux terminés : Voir le détail uniquement (validation/contestation via la demande) */}
-                    {d.statut === 'travaux_termines' && (
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          naviguerVersDevis(d.id, `returnFilter=${filter}`);
-                        }}
-                        className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
-                      >
-                        📄 {t('quotes.viewDetails')}
-                      </div>
-                    )}
-
-                    {/* Travaux validés : bouton avis + Voir le détail */}
-                    {['termine_valide', 'termine_auto_valide'].includes(d.statut) && (
-                      <>
-                        {avisParDevisId[d.id] ? (
-                          <div className="flex items-center gap-1.5 bg-yellow-50 border border-yellow-300 text-yellow-700 px-3 py-1.5 rounded-full text-xs font-semibold cursor-default">
-                            ⭐ Avis publié
-                          </div>
-                        ) : (
-                          <div
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.push(`/client/avis/nouveau/${d.id}`);
-                            }}
-                            className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
-                          >
-                            ⭐ Donner mon avis
-                          </div>
-                        )}
+                      <div className="flex gap-3">
                         <div
                           onClick={(e) => {
                             e.stopPropagation();
@@ -789,38 +787,132 @@ export default function ClientDevisPage() {
                         >
                           📄 {t('quotes.viewDetails')}
                         </div>
-                      </>
+                        {d.demandeId && (
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              router.push(`/client/demandes?demandeId=${d.demandeId}`);
+                            }}
+                            className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
+                          >
+                            📋 Voir demande associée
+                          </div>
+                        )}
+                      </div>
                     )}
 
-                    {/* Devis en révision : info + Voir le détail */}
-                    {d.statut === 'en_revision' && (
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1 bg-purple-50 border border-purple-200 text-purple-700 px-4 py-2 rounded-lg text-sm text-center font-medium">
-                          🔄 Révision demandée — en attente de la variante
-                        </div>
+                    {/* Travaux terminés : Voir le détail uniquement (validation/contestation via la demande) */}
+                    {d.statut === 'travaux_termines' && (
+                      <div className="flex gap-3">
                         <div
                           onClick={(e) => {
                             e.stopPropagation();
                             naviguerVersDevis(d.id, `returnFilter=${filter}`);
                           }}
-                          className="bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer whitespace-nowrap"
+                          className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
                         >
-                          📄 Voir le détail
+                          📄 {t('quotes.viewDetails')}
                         </div>
+                        {d.demandeId && (
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              router.push(`/client/demandes?demandeId=${d.demandeId}`);
+                            }}
+                            className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
+                          >
+                            📋 Voir demande associée
+                          </div>
+                        )}
                       </div>
+                    )}
+
+                    {/* Travaux validés : Voir le détail uniquement */}
+                    {['termine_valide', 'termine_auto_valide'].includes(d.statut) && (
+                      <div className="flex gap-3">
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            naviguerVersDevis(d.id, `returnFilter=${filter}`);
+                          }}
+                          className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
+                        >
+                          📄 {t('quotes.viewDetails')}
+                        </div>
+                        {d.demandeId && (
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              router.push(`/client/demandes?demandeId=${d.demandeId}`);
+                            }}
+                            className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
+                          >
+                            📋 Voir demande associée
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Devis en révision : info + Voir le détail */}
+                    {d.statut === 'en_revision' && (
+                      <>
+                        <div className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-2 rounded-lg text-sm text-center font-medium mb-3">
+                          🔄 Révision demandée — en attente de la variante
+                        </div>
+                        <div className="flex gap-3">
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              naviguerVersDevis(d.id, `returnFilter=${filter}`);
+                            }}
+                            className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
+                          >
+                            📄 Voir le détail
+                          </div>
+                          {d.demandeId && (
+                            <div
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                router.push(`/client/demandes?demandeId=${d.demandeId}`);
+                              }}
+                              className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
+                            >
+                              📋 Voir demande associée
+                            </div>
+                          )}
+                        </div>
+                      </>
                     )}
 
                     {/* Autres statuts payés (litige) : Voir le détail uniquement */}
                     {isDevisPaye(d.statut) && !['paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(d.statut) && (
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          naviguerVersDevis(d.id, `returnFilter=${filter}`);
-                        }}
-                        className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
-                      >
-                        📄 {t('quotes.viewDetails')}
+                      <div className="flex gap-3">
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            naviguerVersDevis(d.id, `returnFilter=${filter}`);
+                          }}
+                          className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
+                        >
+                          📄 {t('quotes.viewDetails')}
+                        </div>
+                        {d.demandeId && (
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              router.push(`/client/demandes?demandeId=${d.demandeId}`);
+                            }}
+                            className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
+                          >
+                            📋 Voir demande associée
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

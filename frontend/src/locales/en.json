@@ -690,6 +690,7 @@
     "notMatched": "No matched tradesperson",
     "createdOn": "Created on",
     "startDate": "Start",
+    "endDate": "Expected end",
     "deadline": "Deadline",
     "hideDetails": "Hide details",
     "showDetails": "Show details",
@@ -841,6 +842,7 @@
     "reviewSingular": "review",
     "reviewsPlural": "reviews",
     "giveReview": "Leave a review",
+    "reviewPublished": "Your review has been published",
     "toRate": "To rate",
     "reviewsGiven": "review given",
     "given": "given"

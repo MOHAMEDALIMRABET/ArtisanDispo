@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -19,13 +19,16 @@ import { useLanguage } from '@/contexts/LanguageContext';
 export default function MesDemandesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const highlightedDemandeId = searchParams?.get('demandeId');
   const { user, loading: authLoading } = useAuth();
   const { markTypeAsRead } = useNotifications(user?.uid);
   const { t, language } = useLanguage();
+  const demandeRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
   const [demandes, setDemandes] = useState<Demande[]>([]);
   const [artisansMap, setArtisansMap] = useState<Map<string, Artisan>>(new Map());
   const [devisMap, setDevisMap] = useState<Map<string, Devis[]>>(new Map());
   const [demandesAvecDevisPayeIds, setDemandesAvecDevisPayeIds] = useState<Set<string>>(new Set());
+  const [avisMap, setAvisMap] = useState<Map<string, boolean>>(new Map()); // devisId -> a un avis ?
   const [loading, setLoading] = useState(true);
   const [showAnnulees, setShowAnnulees] = useState(false);
   const [filtreStatut, setFiltreStatut] = useState<'toutes' | 'publiee' | 'annulee' | 'genere'>('toutes');
@@ -73,6 +76,78 @@ export default function MesDemandesPage() {
       }
     }
   }, [loading]);
+
+  // Gérer l'arrivée avec demandeId dans l'URL → changer section et filtres automatiquement
+  useEffect(() => {
+    // Attendre que TOUTES les données soient chargées
+    if (highlightedDemandeId && !loading && demandes.length > 0 && devisMap.size > 0) {
+      const demande = demandes.find(d => d.id === highlightedDemandeId);
+      
+      if (demande) {
+        console.log('🎯 Navigation vers demande:', demande.id, 'Statut:', demande.statut);
+        const devisListe = devisMap.get(demande.id) || [];
+        console.log('📋 Devis pour cette demande:', devisListe.map(d => ({ id: d.id, statut: d.statut })));
+        
+        const devisPaye = devisListe.find(d => 
+          ['paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide', 'litige'].includes(d.statut)
+        );
+        
+        if (devisPaye) {
+          // Demande avec devis payé → Section "Traitées"
+          console.log('✅ Demande avec devis payé détecté, statut:', devisPaye.statut);
+          setFiltreSection('traitees');
+          
+          // ✨ COMPORTEMENT UNIFIÉ : Toujours afficher TOUTES les demandes traitées
+          // Au lieu de filtrer par sous-catégorie, on montre tout pour que le client
+          // voie toutes ses demandes traitées en un seul coup d'œil
+          setSousFiltreTraitees('tout');
+          console.log('→ Sous-filtre: tout (affichage de toutes les demandes traitées)');
+        } else if (demande.devisRecus && demande.devisRecus > 0) {
+          // Demande avec devis envoyés → Section "En traitement"
+          console.log('📬 Demande en traitement (devis reçus)');
+          setFiltreSection('en_traitement');
+        } else if (demande.statut === 'publiee') {
+          // Demande publiée → Section "Publiées"
+          console.log('📢 Demande publiée');
+          setFiltreSection('publiees');
+        } else {
+          // Autres cas → Section "Toutes"
+          console.log('📋 Affichage dans section Toutes');
+          setFiltreSection('toutes');
+        }
+        
+        // Étendre automatiquement la demande
+        setExpandedDemandeIds(new Set([highlightedDemandeId]));
+      } else {
+        console.warn('⚠️ Demande non trouvée avec ID:', highlightedDemandeId);
+      }
+    }
+  }, [highlightedDemandeId, loading, demandes, devisMap]);
+
+  // Scroller vers la demande mise en évidence
+  useEffect(() => {
+    if (highlightedDemandeId && !loading && demandeRefs.current[highlightedDemandeId]) {
+      const element = demandeRefs.current[highlightedDemandeId];
+      console.log('📍 Tentative de scroll vers demande:', highlightedDemandeId);
+      setTimeout(() => {
+        if (element) {
+          console.log('✅ Élément trouvé, scroll en cours...');
+          element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+          // Ajouter la classe d'animation de surbrillance
+          element.classList.add('highlight-demande');
+          // Retirer la classe après 3 secondes
+          setTimeout(() => {
+            element.classList.remove('highlight-demande');
+          }, 3000);
+        } else {
+          console.warn('⚠️ Élément non trouvé dans le DOM');
+        }
+      }, 500); // Augmenté de 300 à 500ms pour laisser le temps au re-render
+    }
+  }, [highlightedDemandeId, loading, filtreSection, sousFiltreTraitees]); // ← Ajout des dépendances de filtre
 
   // Marquer les notifications de demandes classiques comme lues
   useEffect(() => {
@@ -219,6 +294,18 @@ export default function MesDemandesPage() {
           return updated;
         });
       }
+
+      // Charger les avis pour chaque devis
+      // On lit directement le champ avisPublie sur chaque devis (plus fiable qu'une query séparée)
+      const avisMapTemp = new Map<string, boolean>();
+      for (const [demandeId, devisList] of devisMapTemp) {
+        for (const devis of devisList) {
+          // Vérifier si le devis a le champ avisPublie à true
+          const avisPublie = !!(devis as any).avisPublie;
+          avisMapTemp.set(devis.id, avisPublie);
+        }
+      }
+      setAvisMap(avisMapTemp);
     } catch (error) {
       console.error('Erreur chargement demandes:', error);
     } finally {
@@ -625,41 +712,64 @@ export default function MesDemandesPage() {
   function getDemandesTraitees(demandes: Demande[]) {
     const demandesTraitees = getToutesDemandesTraitees(demandes);
 
+    console.log('🔍 getDemandesTraitees - filtreSection:', filtreSection, 'sousFiltreTraitees:', sousFiltreTraitees);
+    console.log('📊 Demandes traitées avant filtre:', demandesTraitees.length);
+
     // Appliquer le sous-filtre si on est dans la section "traitees"
     if (filtreSection === 'traitees' && sousFiltreTraitees !== 'tout') {
-      return demandesTraitees.filter(d => {
+      const filtered = demandesTraitees.filter(d => {
         const devisForDemande = devisMap.get(d.id) || [];
         const devisPaye = devisForDemande.find(dv =>
           ['paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide', 'litige'].includes(dv.statut)
         );
 
+        console.log(`  📋 Demande ${d.id}:`, {
+          titre: d.titre?.substring(0, 30),
+          statutDevis: devisPaye?.statut,
+          sousFiltreActif: sousFiltreTraitees
+        });
+
         // ⚠️ RÈGLE CRITIQUE : Un devis payé a TOUJOURS la priorité sur le statut de la demande
+        let match = false;
         switch (sousFiltreTraitees) {
           case 'devis_signes':
-            return devisPaye?.statut === 'paye';
+            match = devisPaye?.statut === 'paye';
+            break;
           case 'travaux_en_cours':
-            return devisPaye?.statut === 'en_cours';
+            // Inclure AUSSI 'travaux_termines' pour correspondre à la logique de navigation
+            match = devisPaye ? ['en_cours', 'travaux_termines'].includes(devisPaye.statut) : false;
+            break;
           case 'termines':
-            return devisPaye && ['travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(devisPaye.statut);
+            match = devisPaye ? ['termine_valide', 'termine_auto_valide'].includes(devisPaye.statut) : false;
+            break;
           case 'litiges':
-            return devisPaye?.statut === 'litige';
+            match = devisPaye?.statut === 'litige';
+            break;
           case 'refusees': {
             // Demandes annulées OU toutes les variantes refusées (mais PAS seulement expirées) OU artisan a refusé
             // Si tous les devis sont expirés → appartient à 'expirees', pas 'refusees'
             const tousRefuses = devisForDemande.length > 0 && devisForDemande.every(dv => dv.statut === 'refuse');
             const tousExpires = devisForDemande.length > 0 && devisForDemande.every(dv => dv.statut === 'expire');
-            return (d.statut === 'annulee' || tousRefuses || !!d.artisanRefuseId) && !devisPaye && !tousExpires;
+            match = (d.statut === 'annulee' || tousRefuses || !!d.artisanRefuseId) && !devisPaye && !tousExpires;
+            break;
           }
           case 'expirees':
             // Expirées = dateExpiration dépassée OU tous les devis du dossier sont expirés, sans devis payé
             {
               const tousDevisExpires = devisForDemande.length > 0 && devisForDemande.every(dv => dv.statut === 'expire');
-              return ((d.dateExpiration && isDemandeExpired(d.dateExpiration)) || tousDevisExpires) && !devisPaye;
+              match = ((d.dateExpiration && isDemandeExpired(d.dateExpiration)) || tousDevisExpires) && !devisPaye;
+              break;
             }
           default:
-            return true;
+            match = true;
         }
+
+        console.log(`    → Match: ${match ? '✅' : '❌'}`);
+        return match;
       });
+      
+      console.log('✅ Demandes après filtre:', filtered.length);
+      return filtered;
     }
 
     return demandesTraitees;
@@ -943,6 +1053,7 @@ export default function MesDemandesPage() {
                 return (
                   <div
                     key={demande.id}
+                    ref={(el) => { demandeRefs.current[demande.id] = el; }}
                     onClick={() => toggleExpandDemande(demande.id)}
                     className={`bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer relative border-2 overflow-hidden group ${
                       isExpanded ? 'border-[#FF6B00] ring-1 ring-[#FF6B00] ring-opacity-30' : 'border-transparent hover:border-gray-200'
@@ -1085,7 +1196,7 @@ export default function MesDemandesPage() {
                           return (
                             <div className="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-lg whitespace-nowrap">
                               <span className="text-green-600">📅</span>
-                              <span className="font-semibold text-green-900">Fin: {dateFin.toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric' })}</span>
+                              <span className="font-semibold text-green-900">{t('clientDemandes.endDate')}: {dateFin.toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric' })}</span>
                             </div>
                           );
                         }
@@ -1433,11 +1544,51 @@ export default function MesDemandesPage() {
                           )}
                           <div className="flex-1">
                             <p className={`font-bold ${titleColorClass} mb-1`}>{t(titleKey)}</p>
-                            <p className={`text-sm ${descColorClass}`}>
-                              {t(descKey)}
-                            </p>
+                            {/* Message personnalisé pour travaux_termines avec la date */}
+                            {st === 'travaux_termines' && devisPaye?.travaux?.dateFin ? (
+                              <p className={`text-sm ${descColorClass}`}>
+                                L'artisan a déclaré avoir terminé les travaux le {devisPaye.travaux.dateFin.toDate().toLocaleDateString('fr-FR', {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric'
+                                })}. Vérifiez et validez pour libérer le paiement.
+                              </p>
+                            ) : (
+                              <p className={`text-sm ${descColorClass}`}>
+                                {t(descKey)}
+                              </p>
+                            )}
                           </div>
                         </div>
+                        
+                        {/* Bloc orange séparé pour la validation des travaux terminés */}
+                        {st === 'travaux_termines' && devisPaye?.travaux?.dateFin && (
+                          <div className="mt-3 bg-orange-50 border border-orange-200 rounded-lg p-4">
+                            <p className="text-sm font-semibold text-orange-700 mb-2">
+                              🏁 Validation requise
+                            </p>
+                            <p className="text-sm text-orange-600 mb-2">
+                              Vous avez 7 jours pour valider les travaux ou signaler un problème.
+                            </p>
+                            <p className="text-sm font-semibold text-orange-700">
+                              Validation automatique le : {(devisPaye.travaux.dateValidationAuto
+                                ? devisPaye.travaux.dateValidationAuto.toDate()
+                                : new Date(devisPaye.travaux.dateFin.toDate().getTime() + 7 * 24 * 60 * 60 * 1000)
+                              ).toLocaleDateString('fr-FR', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric'
+                              })} à {(devisPaye.travaux.dateValidationAuto
+                                ? devisPaye.travaux.dateValidationAuto.toDate()
+                                : new Date(devisPaye.travaux.dateFin.toDate().getTime() + 7 * 24 * 60 * 60 * 1000)
+                              ).toLocaleTimeString('fr-FR', {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </p>
+                          </div>
+                        )}
+                        
                         <div className="flex gap-3 mt-3">
                           <button
                             onClick={(e) => {
@@ -1453,25 +1604,42 @@ export default function MesDemandesPage() {
                             {t('clientDemandes.contract.viewQuote')}
                           </button>
 
-                          {/* Bouton Contacter artisan : masqué si travaux terminés/validés */}
-                          {['travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(st || '') ? (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const params = new URLSearchParams({
-                                  categorie: demande.categorie,
-                                  ville: demande.localisation.ville,
-                                  codePostal: demande.localisation.codePostal,
-                                });
-                                router.push(`/recherche?${params.toString()}`);
-                              }}
-                              className="px-4 py-2.5 border-2 border-[#FF6B00] text-[#FF6B00] hover:bg-[#FF6B00] hover:text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-2 text-sm"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                              </svg>
-                              {t('clientDemandes.contract.newProject')}
-                            </button>
+                          {/* Bouton Donner mon avis : affiché UNIQUEMENT si travaux validés */}
+                          {['termine_valide', 'termine_auto_valide'].includes(st || '') ? (
+                            (() => {
+                              const avisDejaPublie = devisPaye?.id && avisMap.get(devisPaye.id) === true;
+                              
+                              return (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    
+                                    // Si avis déjà publié, ne rien faire
+                                    if (avisDejaPublie) {
+                                      return;
+                                    }
+                                    
+                                    // Naviguer vers la page de création d'avis
+                                    if (devisPaye) {
+                                      router.push(`/client/avis/nouveau/${devisPaye.id}`);
+                                    } else {
+                                      alert('Aucun devis trouvé pour donner un avis.');
+                                    }
+                                  }}
+                                  disabled={avisDejaPublie}
+                                  className={`rounded-lg px-6 py-2.5 font-semibold transition-all duration-200 shadow-sm flex items-center gap-2 ${
+                                    avisDejaPublie
+                                      ? 'bg-blue-50 text-blue-700 cursor-not-allowed border border-blue-200'
+                                      : 'bg-amber-500 hover:bg-amber-600 text-white hover:shadow-md'
+                                  }`}
+                                >
+                                  <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                  </svg>
+                                  {avisDejaPublie ? t('reviews.reviewPublished') : t('reviews.giveReview')}
+                                </button>
+                              );
+                            })()
                           ) : (
                             <button
                               onClick={(e) => {
@@ -1505,8 +1673,17 @@ export default function MesDemandesPage() {
                                 try {
                                   const { validerTravaux } = await import('@/lib/firebase/devis-service');
                                   await validerTravaux(devisPaye.id, user!.uid);
-                                  alert('✅ Travaux validés ! L\'artisan recevra son paiement sous 24-48h.');
-                                  window.location.reload();
+                                  
+                                  // Proposer de donner un avis immédiatement
+                                  const wantsToReview = confirm('✅ Travaux validés ! L\'artisan recevra son paiement sous 24-48h.\n\nSouhaitez-vous donner votre avis sur cette prestation maintenant ?');
+                                  
+                                  if (wantsToReview && devisPaye.artisanId) {
+                                    // Rediriger vers la page de création d'avis
+                                    router.push(`/client/avis/nouveau/${devisPaye.artisanId}?devisId=${devisPaye.id}&demandeId=${demande.id}`);
+                                  } else {
+                                    // Recharger la page pour afficher le bouton "Donner mon avis"
+                                    window.location.reload();
+                                  }
                                 } catch (error: any) {
                                   alert(`❌ Erreur : ${error.message || 'Impossible de valider'}`);
                                 }
@@ -1538,6 +1715,8 @@ export default function MesDemandesPage() {
                             </button>
                           </div>
                         )}
+
+
                     </div>
                   </div>
                   );

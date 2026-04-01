@@ -628,7 +628,7 @@ export default function MesDevisPage() {
       <div className="bg-[#2C3E50] text-white py-8">
         <div className="container mx-auto px-4">
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push('/artisan/dashboard')}
             className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

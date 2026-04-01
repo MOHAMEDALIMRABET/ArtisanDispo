@@ -1527,21 +1527,9 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                   })}</strong>
                 </p>
                 
-                <div className="p-3 bg-blue-50 rounded border border-blue-200">
-                  <p className="text-sm text-blue-800">
-                    💡 <strong>Pour valider ou signaler un problème, rendez-vous sur la page de votre demande.</strong>
-                  </p>
-                  <button
-                    onClick={() => {
-                      if (devis.demandeId) {
-                        router.push(`/client/demandes`);
-                      }
-                    }}
-                    className="mt-3 w-full bg-[#FF6B00] hover:bg-[#E56100] text-white px-4 py-2 rounded-lg font-medium transition"
-                  >
-                    📋 Voir ma demande
-                  </button>
-                </div>
+                <p className="text-sm text-blue-800 bg-blue-50 rounded p-3 border border-blue-200">
+                  💡 <strong>Pour valider ou signaler un problème, rendez-vous sur la page de votre demande.</strong>
+                </p>
               </div>
             </div>
           )}
@@ -1588,37 +1576,9 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                   <p className="text-sm text-blue-800">
                     💡 <strong>Merci d'avoir utilisé ArtisanDispo !</strong>
                     <br />
-                    Vous pouvez laisser un avis sur l'artisan pour aider d'autres clients.
+                    Vous pouvez laisser un avis depuis votre liste de demandes.
                   </p>
                 </div>
-
-                {/* Bouton donner un avis */}
-                {!checkingAvis && !avisExiste && (
-                  <button
-                    onClick={() => setShowAvisPopup(true)}
-                    className="w-full bg-[#FF6B00] hover:bg-[#E56100] text-white px-6 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2"
-                  >
-                    <span className="text-xl">⭐</span>
-                    Donner mon avis maintenant
-                  </button>
-                )}
-
-                {/* Message si avis déjà donné */}
-                {!checkingAvis && avisExiste && (
-                  <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-300 flex items-center justify-center gap-2">
-                    <span className="text-lg">⭐</span>
-                    <p className="text-sm font-semibold text-yellow-700">
-                      Votre avis a été publié — merci pour votre retour !
-                    </p>
-                  </div>
-                )}
-
-                {/* Loading pendant vérification */}
-                {checkingAvis && (
-                  <div className="text-center text-gray-500 text-sm">
-                    Vérification...
-                  </div>
-                )}
               </div>
             </div>
           )}

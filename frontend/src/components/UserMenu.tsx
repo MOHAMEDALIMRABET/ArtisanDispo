@@ -318,7 +318,7 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
               <>
                 {/* Mes Devis */}
                 <button
-                  onClick={() => handleNavigationWithMarkRead('/client/devis', ['devis_accepte', 'devis_refuse', 'devis_recu', 'nouveau_devis', 'devis_revision', 'travaux_demarres', 'travaux_termines'])}
+                  onClick={() => handleNavigationWithMarkRead('/client/devis?filter=tous', ['devis_accepte', 'devis_refuse', 'devis_recu', 'nouveau_devis', 'devis_revision', 'travaux_demarres', 'travaux_termines'])}
                   className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
                 >
                   <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

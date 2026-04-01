@@ -622,7 +622,7 @@ export default function MesDemandesExpressPage() {
                       if (['payee', 'en_cours', 'travaux_termines'].includes(demande.statut)) {
                         return (
                           <span className="text-blue-700 font-semibold">
-                            📅 Fin prévue: {format(dateIntervention, 'dd MMMM yyyy à HH:mm', { locale: fr })}
+                            📅 {t('clientDemandes.endDate')}: {format(dateIntervention, 'dd MMMM yyyy à HH:mm', { locale: fr })}
                           </span>
                         );
                       }

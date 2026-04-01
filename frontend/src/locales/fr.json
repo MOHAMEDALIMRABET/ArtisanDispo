@@ -690,6 +690,7 @@
     "notMatched": "Pas d'artisan matché",
     "createdOn": "Créée le",
     "startDate": "Début",
+    "endDate": "Fin prévu",
     "deadline": "Délai",
     "hideDetails": "Masquer les détails",
     "showDetails": "Voir le détail",
@@ -841,6 +842,7 @@
     "reviewSingular": "avis",
     "reviewsPlural": "avis",
     "giveReview": "Donner un avis",
+    "reviewPublished": "Votre avis a été publié",
     "toRate": "À noter",
     "reviewsGiven": "avis donné",
     "given": "donné"

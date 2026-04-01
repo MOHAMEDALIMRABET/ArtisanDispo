@@ -914,9 +914,12 @@ export default function ArtisanDemandesPage() {
         <div className="container mx-auto px-4 max-w-6xl">
           <button
             onClick={() => router.push('/artisan/dashboard')}
-            className="text-white hover:text-[#FF6B00] mb-4 transition-colors"
+            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4"
           >
-            {t('artisanRequests.backToDashboard')}
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Retour au tableau de bord
           </button>
           <div className="flex items-center justify-between">
             <div>
@@ -1655,7 +1658,7 @@ export default function ArtisanDemandesPage() {
                         <div className="flex items-start gap-2">
                           <span className="text-blue-600 mt-0.5">🏁</span>
                           <div>
-                            <p className="font-semibold text-blue-900">Date prévisionnelle de fin</p>
+                            <p className="font-semibold text-blue-900">Date / heure prévisionnelle de fin</p>
                             <p className="text-blue-800">
                               {dateFinPrevue.toLocaleDateString(language === 'en' ? 'en-US' : 'fr-FR', {
                                 weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
@@ -1782,6 +1785,58 @@ export default function ArtisanDemandesPage() {
                           </div>
                         </div>
                       </div>
+
+                      {/* Bloc d'information pour travaux terminés en attente de validation */}
+                      {devisPaye?.statut === 'travaux_termines' && devisPaye?.travaux?.dateFin && (() => {
+                        const dateFinTravaux = devisPaye.travaux.dateFin.toDate();
+                        // Utiliser la date de validation auto du devis si elle existe, sinon la calculer
+                        const dateValidationAuto = devisPaye.travaux.dateValidationAuto 
+                          ? devisPaye.travaux.dateValidationAuto.toDate()
+                          : new Date(dateFinTravaux.getTime() + 7 * 24 * 60 * 60 * 1000);
+                        
+                        return (
+                          <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-4 mt-3">
+                            <div className="flex items-start gap-3">
+                              <span className="text-3xl">⏳</span>
+                              <div className="flex-1 space-y-3">
+                                <div>
+                                  <p className="font-bold text-orange-800 mb-1">
+                                    En attente de validation client
+                                  </p>
+                                  <p className="text-sm text-orange-700">
+                                    Vous avez déclaré avoir terminé les travaux le {dateFinTravaux.toLocaleDateString('fr-FR', {
+                                      day: 'numeric',
+                                      month: 'long',
+                                      year: 'numeric'
+                                    })}.
+                                  </p>
+                                </div>
+                                
+                                <div className="border-t border-orange-300 pt-3">
+                                  <p className="font-semibold text-orange-800 mb-2 flex items-center gap-2">
+                                    <span>⏱️</span>
+                                    Délai de validation :
+                                  </p>
+                                  <p className="text-sm text-orange-700 mb-1">
+                                    Le client a 7 jours pour valider ou signaler un problème.
+                                  </p>
+                                  <p className="text-sm font-semibold text-orange-900">
+                                    Validation automatique le : {dateValidationAuto.toLocaleDateString('fr-FR', {
+                                      day: 'numeric',
+                                      month: 'long',
+                                      year: 'numeric'
+                                    })} à {dateValidationAuto.toLocaleTimeString('fr-FR', {
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
                       <div className="flex gap-3 mt-3">
                         {/* Bouton "Commencer travaux" si statut = 'paye' */}
                         {devisPaye?.statut === 'paye' && (
