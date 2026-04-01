@@ -71,10 +71,14 @@ export default function Home() {
 
     try {
       const response = await fetch(
-        `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(query)}&fields=nom,codesPostaux,codeDepartement&boost=population&limit=10`
+        `/api/geo/communes?nom=${encodeURIComponent(query)}&fields=nom,codesPostaux,codeDepartement&boost=population&limit=10`
       );
 
-      if (!response.ok) return;
+      if (!response.ok) {
+        setVilleSuggestions([]);
+        setShowSuggestions(false);
+        return;
+      }
 
       const data = await response.json();
       const suggestions = data.flatMap((commune: any) =>
@@ -123,7 +127,7 @@ export default function Home() {
     if (!codePostal) {
       try {
         const response = await fetch(
-          `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(searchForm.ville.trim())}&fields=codesPostaux&limit=1`
+          `/api/geo/communes?nom=${encodeURIComponent(searchForm.ville.trim())}&fields=codesPostaux&limit=1`
         );
         if (response.ok) {
           const data = await response.json();
