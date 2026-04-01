@@ -7,8 +7,10 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { getDemandesByClient, deleteDemande, updateDemandeStatut } from '@/lib/firebase/demande-service';
 import { getArtisansByIds } from '@/lib/firebase/artisan-service';
 import { getDevisByDemande } from '@/lib/firebase/devis-service';
-import { createNotification } from '@/lib/firebase/notification-service';
+import { createNotification, markNotificationsByTypeAsRead } from '@/lib/firebase/notification-service';
 import { getFileMetadata } from '@/lib/firebase/storage-service';
+import { db } from '@/lib/firebase/config';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { isDemandeExpired } from '@/lib/dateExpirationUtils';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -39,6 +41,7 @@ export default function MesDemandesPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [expandedDemandeIds, setExpandedDemandeIds] = useState<Set<string>>(new Set());
   const [photoMetadata, setPhotoMetadata] = useState<Map<string, string>>(new Map());
+  const [demandeNotifsInitialIds, setDemandeNotifsInitialIds] = useState<Set<string>>(new Set());
   const [showExpirationHelp, setShowExpirationHelp] = useState(false);
 
   // Clé pour sauvegarder l'état dans sessionStorage
@@ -320,6 +323,32 @@ export default function MesDemandesPage() {
         }
       }
       setAvisMap(avisMapTemp);
+
+      // 🔔 Détecter les notifications "travaux terminés" non lues liées aux demandes
+      try {
+        const notifsQ = query(
+          collection(db, 'notifications'),
+          where('userId', '==', user.uid),
+          where('lue', '==', false)
+        );
+        const notifsSnap = await getDocs(notifsQ);
+        const notifDemandeIds = new Set<string>();
+        notifsSnap.docs.forEach(notifDoc => {
+          const data = notifDoc.data();
+          if (data.type === 'travaux_termines_demande') {
+            // lien format: /client/demandes/<demandeId>
+            const match = data.lien?.match(/\/client\/demandes\/([^?/]+)/);
+            if (match) notifDemandeIds.add(match[1]);
+          }
+        });
+        setDemandeNotifsInitialIds(new Set(notifDemandeIds));
+        // Marquer les notifications comme lues après 1.5s
+        if (notifDemandeIds.size > 0) {
+          setTimeout(() => markNotificationsByTypeAsRead(user.uid, ['travaux_termines_demande']), 1500);
+        }
+      } catch (e) {
+        console.error('Erreur chargement notifications demandes:', e);
+      }
     } catch (error) {
       console.error('Erreur chargement demandes:', error);
     } finally {
@@ -1162,9 +1191,16 @@ export default function MesDemandesPage() {
                     })()}
                     
                     {/* Titre principal + Dates + Badge statut */}
-                    <h2 className="text-2xl font-extrabold text-[#2C3E50] mb-3 tracking-tight">
-                      {demande.titre}
-                    </h2>
+                    <div className="flex items-center gap-2 mb-3">
+                      <h2 className="text-2xl font-extrabold text-[#2C3E50] tracking-tight">
+                        {demande.titre}
+                      </h2>
+                      {demandeNotifsInitialIds.has(demande.id) && (
+                        <span className="inline-flex items-center bg-[#FF6B00] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse" title="Travaux terminés — validation requise">
+                          🔔
+                        </span>
+                      )}
+                    </div>
                     <div className="flex flex-wrap items-start gap-3 text-sm">
                       <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-lg whitespace-nowrap">
                         <span className="text-blue-600">🏷️</span>
