@@ -961,30 +961,26 @@ export default function MesDevisPage() {
                 )}
               </div>
             ) : (
-              <table className="w-full min-w-[900px] divide-y divide-gray-200 table-auto">
+              <table className="w-full min-w-[900px] divide-y divide-gray-200 table-fixed">
                 <colgroup>
+                  <col style={{width:'12%'}} />
+                  <col style={{width:'20%'}} />
+                  <col style={{width:'12%'}} />
                   <col style={{width:'10%'}} />
                   <col style={{width:'14%'}} />
-                  <col style={{width:'11%'}} />
-                  <col style={{width:'15%'}} />
-                  <col style={{width:'9%'}} />
-                  <col style={{width:'13%'}} />
-                  <col style={{width:'8%'}} />
-                  <col style={{width:'20%'}} />
+                  <col style={{width:'10%'}} />
+                  <col style={{width:'22%'}} />
                 </colgroup>
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('quotes.number')}
+                      NUMERO DEVIS
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {t('quotes.associatedRequest')}
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {t('quotes.client')}
-                    </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('quotes.title')}
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {t('quotes.amount')}
@@ -1038,7 +1034,7 @@ export default function MesDevisPage() {
                               <svg className="w-3 h-3 text-[#FF6B00] flex-shrink-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                               </svg>
-                              <span className="text-xs font-medium text-[#2C3E50] group-hover:text-[#FF6B00] truncate">
+                              <span className="text-xs font-medium text-[#2C3E50] group-hover:text-[#FF6B00] whitespace-normal break-all leading-snug">
                                 {demandesInfo[d.demandeId].titre}
                               </span>
                             </div>
@@ -1054,9 +1050,6 @@ export default function MesDevisPage() {
                       </td>
                       <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900">
                         {d.client.prenom} {d.client.nom}
-                      </td>
-                      <td className="px-3 py-4 text-sm text-gray-900">
-                        {d.titre}
                       </td>
                       <td className="px-3 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                         {d.totaux.totalTTC.toFixed(2)} €

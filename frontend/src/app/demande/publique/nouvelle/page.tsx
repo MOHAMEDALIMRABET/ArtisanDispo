@@ -326,7 +326,6 @@ export default function NouvelleDemandePubliquePage() {
           adresse: formData.adresse || '',
           ville: formData.ville,
           codePostal: formData.codePostal,
-          coordonneesGPS: undefined, // TODO: Géocodage si nécessaire
         },
         
         datesSouhaitees: {

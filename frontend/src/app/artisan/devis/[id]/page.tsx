@@ -353,10 +353,10 @@ export default function VoirDevisPage() {
               </>
             )}
           </div>
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 flex-1">
               <h1 className="text-2xl font-bold">Devis {devis.numeroDevis}</h1>
-              <p className="text-gray-300 mt-1">{devis.titre}</p>
+              <p className="text-gray-300 mt-1 whitespace-normal break-all leading-snug">{devis.titre}</p>
             </div>
             {getStatutBadge(devis.statut)}
           </div>
@@ -443,7 +443,7 @@ export default function VoirDevisPage() {
 
           {/* Titre du devis */}
           <div className="mb-6">
-            <h3 className="text-xl font-bold text-[#2C3E50] mb-2">{devis.titre}</h3>
+            <h3 className="text-xl font-bold text-[#2C3E50] mb-2 whitespace-normal break-all leading-snug">{devis.titre}</h3>
           </div>
 
           {/* Date de début prévue */}

@@ -182,7 +182,7 @@ export default function RecherchePage() {
     let coordonneesGPS = null;
     try {
       const response = await fetch(
-        `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(criteria.localisation.ville)}&codePostal=${criteria.localisation.codePostal}&fields=centre&limit=1`
+        `/api/geo/communes?nom=${encodeURIComponent(criteria.localisation.ville)}&codePostal=${criteria.localisation.codePostal}&fields=centre&limit=1`
       );
       const data = await response.json();
       if (data.length > 0 && data[0].centre) {

@@ -196,7 +196,7 @@ function NouvelleDemandeContent() {
           adresse: criteria.adresse || '',
           ville: criteria.ville,
           codePostal: criteria.codePostal,
-          coordonneesGPS: criteria.coordonneesGPS,
+          ...(criteria.coordonneesGPS ? { coordonneesGPS: criteria.coordonneesGPS } : {}),
         },
         datesSouhaitees: {
           dates: criteria.dates.map((d: string) => Timestamp.fromDate(new Date(d))),

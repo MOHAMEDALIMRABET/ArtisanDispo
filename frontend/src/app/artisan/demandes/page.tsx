@@ -1311,9 +1311,9 @@ export default function ArtisanDemandesPage() {
 
                 {/* Titre principal + Dates + Badge statut */}
                 <div className="flex items-start justify-between mb-4 pb-4 border-b border-gray-200 pr-12">
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2 flex-wrap">
-                      <h2 className="text-2xl font-bold text-[#2C3E50]">
+                      <h2 className="text-2xl font-bold text-[#2C3E50] break-words break-all">
                         {demande.titre}
                       </h2>
                       {isNouveau && (

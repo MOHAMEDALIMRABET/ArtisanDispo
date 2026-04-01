@@ -1756,9 +1756,9 @@ export default function MesDemandesPage() {
                                   // Proposer de donner un avis immédiatement
                                   const wantsToReview = confirm('✅ Travaux validés ! L\'artisan recevra son paiement sous 24-48h.\n\nSouhaitez-vous donner votre avis sur cette prestation maintenant ?');
                                   
-                                  if (wantsToReview && devisPaye.artisanId) {
+                                  if (wantsToReview) {
                                     // Rediriger vers la page de création d'avis
-                                    router.push(`/client/avis/nouveau/${devisPaye.artisanId}?devisId=${devisPaye.id}&demandeId=${demande.id}`);
+                                    router.push(`/client/avis/nouveau/${devisPaye.id}?devisId=${devisPaye.id}&demandeId=${demande.id}`);
                                   } else {
                                     // Recharger la page pour afficher le bouton "Donner mon avis"
                                     window.location.reload();

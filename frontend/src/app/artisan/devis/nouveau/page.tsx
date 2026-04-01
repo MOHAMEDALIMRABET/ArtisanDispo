@@ -301,8 +301,8 @@ export default function NouveauDevisPage() {
           setArtisanInfo(artisanData);
         }
 
-        // Pré-remplir le titre avec la description de la demande
-        setTitre(`Devis - ${demandeData.titre || 'Travaux'}`);
+        // Pré-remplir le titre avec le titre de la demande (sans préfixe redondant)
+        setTitre(demandeData.titre || 'Travaux');
         setDescription(demandeData.description || '');
         
         // Pré-remplir la date de début avec la première date souhaitée du client
