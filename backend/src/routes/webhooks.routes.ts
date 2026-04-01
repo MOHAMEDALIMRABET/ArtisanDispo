@@ -4,6 +4,17 @@
  * Reçoit et traite les événements Stripe pour sécuriser les paiements
  * CRITIQUE : Valide signature webhook pour éviter fraude
  * 
+ * ⚠️  IMPORTANT : Ce webhook gère UNIQUEMENT les paiements DEVIS (demandes PUBLIQUES)
+ * 
+ * ═══════════════════════════════════════════════════════════════
+ * Type de demande : PUBLIQUES (marketplace)
+ * Collection      : 'devis' (pas 'propositions_express')
+ * Metadata        : devisId, clientId, artisanId
+ * 
+ * ❌ NE concerne PAS les demandes EXPRESS (<150€)
+ *    → Demandes express : markDemandePaid() dans demande-express-service.ts
+ * ═══════════════════════════════════════════════════════════════
+ * 
  * Événements gérés :
  * - payment_intent.amount_capturable_updated : Paiement autorisé (escrow bloqué)
  * - payment_intent.payment_failed : Paiement échoué
@@ -113,10 +124,20 @@ router.post('/stripe', async (req: Request, res: Response) => {
 });
 
 /**
- * Paiement autorisé (escrow bloqué)
+ * Paiement autorisé pour un DEVIS (demandes PUBLIQUES uniquement)
  * 
- * Appelé quand le client paie avec succès
- * L'argent est BLOQUÉ (pas encore capturé)
+ * ⚠️  IMPORTANT : Ne concerne QUE les paiements de DEVIS (marketplace)
+ * 
+ * Appelé quand le client paie un devis avec succès
+ * L'argent est BLOQUÉ en séquestre (pas encore capturé)
+ * 
+ * Actions :
+ * 1. Mise à jour collection 'devis' (statut → 'paye')
+ * 2. Mise à jour wallet artisan (séquestre)
+ * 3. Double notification artisan (niveau devis + niveau demande)
+ * 
+ * ❌ NE concerne PAS les demandes EXPRESS (<150€)
+ *    → Demandes express : markDemandePaid() dans demande-express-service.ts
  */
 async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
   const devisId = paymentIntent.metadata.devisId;

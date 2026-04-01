@@ -1,7 +1,20 @@
 /**
- * Service de gestion des devis
- * CRUD operations pour la collection 'devis'
- * Modèle Qonto-style avec prévisualisation temps réel
+ * ═══════════════════════════════════════════════════════════════════════════
+ * SERVICE : DEVIS (Pour demandes PUBLIQUES uniquement)
+ * ═══════════════════════════════════════════════════════════════════════════
+ * 
+ * ⚠️  Ce service gère UNIQUEMENT les DEVIS pour demandes PUBLIQUES
+ * 
+ * Collection Firestore : 'devis'
+ * Lié à              : 'demandes' (demandes publiques marketplace)
+ * Workflow           : Devis → Acceptation → Paiement Stripe → Contrat
+ * Format             : Prestations détaillées (HT + TVA)
+ * 
+ * ❌ NE PAS UTILISER pour les demandes EXPRESS (<150€)
+ *    → Demandes express utilisent des PROPOSITIONS (propositions_express)
+ *    → Voir : demande-express-service.ts
+ * 
+ * ═══════════════════════════════════════════════════════════════════════════
  */
 
 import {
@@ -862,8 +875,18 @@ export async function dupliquerDevis(devisId: string): Promise<string> {
 // ============================================
 
 /**
- * Artisan déclare le début des travaux
+ * Artisan déclare le début des travaux (demandes PUBLIQUES uniquement)
  * Statut: paye → en_cours
+ * 
+ * ⚠️  IMPORTANT : Synchronise automatiquement la demande publique liée
+ * 
+ * Actions :
+ * 1. Mise à jour devis.statut → 'en_cours'
+ * 2. Mise à jour demandes.statut → 'en_cours' (synchronisation)
+ * 3. Double notification client (niveau devis + niveau demande)
+ * 
+ * ❌ NE PAS UTILISER pour demandes EXPRESS
+ *    → Demandes express : markInterventionEnCours() dans demande-express-service.ts
  */
 export async function declarerDebutTravaux(devisId: string, artisanId: string): Promise<void> {
   const devisRef = doc(db, COLLECTION_NAME, devisId);
@@ -938,9 +961,20 @@ export async function declarerDebutTravaux(devisId: string, artisanId: string): 
 }
 
 /**
- * Artisan déclare la fin des travaux
+ * Artisan déclare la fin des travaux (demandes PUBLIQUES uniquement)
  * Statut: en_cours → travaux_termines
  * Déclenche countdown 7 jours pour validation client
+ * 
+ * ⚠️  IMPORTANT : Synchronise automatiquement la demande publique liée
+ * 
+ * Actions :
+ * 1. Mise à jour devis.statut → 'travaux_termines'
+ * 2. Mise à jour demandes.statut → 'travaux_termines' (synchronisation)
+ * 3. Double notification client (niveau devis + niveau demande)
+ * 4. Deadline validation : +7 jours
+ * 
+ * ❌ NE PAS UTILISER pour demandes EXPRESS
+ *    → Demandes express : markInterventionTerminee() dans demande-express-service.ts
  */
 export async function declarerFinTravaux(devisId: string, artisanId: string): Promise<void> {
   const devisRef = doc(db, COLLECTION_NAME, devisId);

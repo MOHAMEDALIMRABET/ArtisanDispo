@@ -1,6 +1,20 @@
 /**
- * Service Firestore pour les demandes de travaux express (< 150€)
- * ArtisanDispo - Workflow simplifié sans devis formel
+ * ═══════════════════════════════════════════════════════════════════════════
+ * SERVICE : DEMANDES EXPRESS (<150€)
+ * ═══════════════════════════════════════════════════════════════════════════
+ * 
+ * ⚠️  Ce service gère UNIQUEMENT les demandes EXPRESS (petits travaux)
+ * 
+ * Collection Firestore : 'demandes_express'
+ * Réponse artisan    : PROPOSITION (collection 'propositions_express')
+ * Workflow           : Demande → Proposition → Paiement Direct → Intervention
+ * Budget max         : 150€ TTC
+ * Urgence           : immediat (2h) / urgent (24h)
+ * 
+ * ❌ NE PAS UTILISER pour les demandes publiques marketplace
+ *    → Voir : demande-service.ts + devis-service.ts
+ * 
+ * ═══════════════════════════════════════════════════════════════════════════
  */
 
 import { db } from './config';
@@ -432,7 +446,19 @@ export async function repondreArtisanNegociation(
 }
 
 /**
- * Marquer une demande comme payée (appelé après confirmation Stripe)
+ * Marquer une demande EXPRESS comme payée (demandes EXPRESS uniquement)
+ * 
+ * ⚠️  IMPORTANT : Cette fonction est UNIQUEMENT pour demandes EXPRESS (<150€)
+ * 
+ * Appelé après confirmation Stripe du paiement
+ * Collection : 'demandes_express' (pas 'devis')
+ * 
+ * Actions :
+ * 1. Mise à jour demandes_express.statut → 'payee'
+ * 2. Notification artisan : 'paiement_recu_express'
+ * 
+ * ❌ NE PAS UTILISER pour demandes PUBLIQUES
+ *    → Demandes publiques : Webhook handlePaymentAuthorized() dans webhooks.routes.ts
  */
 export async function markDemandePaid(demandeId: string): Promise<void> {
   const demande = await getDemandeExpressById(demandeId);
@@ -457,7 +483,18 @@ export async function markDemandePaid(demandeId: string): Promise<void> {
 }
 
 /**
- * Marquer une intervention comme en cours
+ * Marquer une intervention EXPRESS comme en cours (demandes EXPRESS uniquement)
+ * 
+ * ⚠️  IMPORTANT : Cette fonction est UNIQUEMENT pour demandes EXPRESS (<150€)
+ * 
+ * Collection : 'demandes_express' (pas 'devis')
+ * 
+ * Actions :
+ * 1. Mise à jour demandes_express.statut → 'en_cours'
+ * 2. Notification client : 'intervention_demarree'
+ * 
+ * ❌ NE PAS UTILISER pour demandes PUBLIQUES
+ *    → Demandes publiques : declarerDebutTravaux() dans devis-service.ts
  */
 export async function markInterventionEnCours(demandeId: string): Promise<void> {
   const demande = await getDemandeExpressById(demandeId);
@@ -480,7 +517,20 @@ export async function markInterventionEnCours(demandeId: string): Promise<void> 
 }
 
 /**
- * Marquer une intervention comme terminée
+ * Marquer une intervention EXPRESS comme terminée (demandes EXPRESS uniquement)
+ * 
+ * ⚠️  IMPORTANT : Cette fonction est UNIQUEMENT pour demandes EXPRESS (<150€)
+ * 
+ * Collection : 'demandes_express' (pas 'devis')
+ * Auto-validation : 24h (vs 7 jours pour demandes publiques)
+ * 
+ * Actions :
+ * 1. Mise à jour demandes_express.statut → 'travaux_termines'
+ * 2. Notification client : 'travaux_termines' (validation requise)
+ * 3. Auto-libération séquestre : 24h
+ * 
+ * ❌ NE PAS UTILISER pour demandes PUBLIQUES
+ *    → Demandes publiques : declarerFinTravaux() dans devis-service.ts (7 jours)
  */
 export async function markInterventionTerminee(demandeId: string): Promise<void> {
   const demande = await getDemandeExpressById(demandeId);

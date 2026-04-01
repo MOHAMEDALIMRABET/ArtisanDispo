@@ -1,6 +1,18 @@
 /**
- * Service de gestion des demandes de travaux
- * CRUD operations pour la collection 'demandes'
+ * ═══════════════════════════════════════════════════════════════════════════
+ * SERVICE : DEMANDES PUBLIQUES (Marketplace)
+ * ═══════════════════════════════════════════════════════════════════════════
+ * 
+ * ⚠️  Ce service gère UNIQUEMENT les demandes PUBLIQUES/CLASSIQUES
+ * 
+ * Collection Firestore : 'demandes'
+ * Réponse artisan    : DEVIS (collection 'devis')
+ * Workflow           : Demande → Devis → Paiement → Contrat → Travaux
+ * 
+ * ❌ NE PAS UTILISER pour les demandes EXPRESS (<150€)
+ *    → Voir : demande-express-service.ts
+ * 
+ * ═══════════════════════════════════════════════════════════════════════════
  */
 
 import {
@@ -131,9 +143,22 @@ export async function getDemandesByClient(clientId: string): Promise<Demande[]> 
 }
 
 /**
- * Récupérer les demandes matchées pour un artisan
+ * Récupérer les demandes PUBLIQUES matchées pour un artisan (marketplace)
+ * 
+ * ⚠️  IMPORTANT : Cette fonction concerne UNIQUEMENT les demandes PUBLIQUES
+ * 
+ * Collection : 'demandes' (pas 'demandes_express')
+ * Résultat : Demandes qui recevront des DEVIS (pas des propositions)
+ * 
  * ⚠️ ÉVITER index composite : where() seul, tri en JavaScript après
  * Exclut les demandes déjà attribuées à un autre artisan
+ * 
+ * Fusion de 2 requêtes :
+ * - Requête 1 : Demandes matchées publiques (artisansMatches)
+ * - Requête 2 : Demandes directes privées (artisanId)
+ * 
+ * ❌ NE retourne PAS les demandes EXPRESS
+ *    → Demandes express : getDemandesExpressByArtisan() dans demande-express-service.ts
  */
 export async function getDemandesForArtisan(artisanId: string): Promise<Demande[]> {
   const demandesRef = collection(db, COLLECTION_NAME);
