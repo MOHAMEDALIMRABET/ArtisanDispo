@@ -13,6 +13,15 @@ export default function ClientDemandesHubPage() {
   const { user: firebaseUser } = useAuth();
   const { notifications, markTypeAsRead } = useNotifications(firebaseUser?.uid);
 
+  // Notifications non lues pour Demandes Classiques
+  const nbClassiques = notifications.filter(
+    n => !n.lue && (
+      n.type === 'nouvelle_demande' ||
+      n.type === 'demande_refusee' ||
+      n.type === 'travaux_termines_demande'
+    )
+  ).length;
+
   // Notifications non lues pour Demandes Express
   const nbExpress = notifications.filter(
     n => !n.lue && n.type === 'proposition_express_recue'
@@ -34,13 +43,6 @@ export default function ClientDemandesHubPage() {
     }
     checkAuth();
   }, [router]);
-
-  // Marquer les notifications de demandes comme lues au chargement
-  useEffect(() => {
-    if (!firebaseUser?.uid) return;
-    // Marquer tous les types de notifications liées aux demandes
-    markTypeAsRead(['nouvelle_demande', 'demande_refusee', 'proposition_express_recue']);
-  }, [firebaseUser?.uid, markTypeAsRead]);
 
   if (isLoading) {
     return (
@@ -74,16 +76,24 @@ export default function ClientDemandesHubPage() {
 
           {/* ── CARTE Demandes Classiques ── */}
           <button
-            onClick={() => router.push('/client/demandes')}
+            onClick={() => {
+              markTypeAsRead(['nouvelle_demande', 'demande_refusee', 'travaux_termines_demande']);
+              router.push('/client/demandes');
+            }}
             className="group text-left bg-[#2C3E50] rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col"
           >
             {/* Bandeau */}
             <div className="bg-[#2C3E50] px-6 py-4 flex items-center gap-3">
               <span className="text-3xl">🏗️</span>
-              <div>
+              <div className="flex-1">
                 <div className="text-white font-bold text-xl">Demandes Classiques</div>
                 <div className="text-gray-300 text-sm">Demandes directes et publiées</div>
               </div>
+              {nbClassiques > 0 && (
+                <span className="bg-white text-[#2C3E50] text-sm font-black px-2.5 py-0.5 rounded-full animate-bounce shadow">
+                  🔔 {nbClassiques}
+                </span>
+              )}
             </div>
             {/* Corps */}
             <div className="bg-white px-6 py-5 space-y-4 flex-1">
@@ -110,7 +120,7 @@ export default function ClientDemandesHubPage() {
           {/* ── CARTE Demandes Express ── */}
           <button
             onClick={() => {
-              // Navigation vers demandes express (notifications déjà marquées au chargement de cette page)
+              markTypeAsRead(['proposition_express_recue']);
               router.push('/client/demandes-express');
             }}
             className="group text-left bg-[#FF6B00] rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col relative"
