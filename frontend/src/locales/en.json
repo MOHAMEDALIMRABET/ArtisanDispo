@@ -1928,7 +1928,7 @@
       "endDate": "Expected end",
       "workEndDate": "Work end date",
       "validationDate": "Validation date",
-      "delay": "Delay:",
+      "delay": "Expected duration:",
       "days": "day(s)",
       "description": "Description:",
       "expand": "View details",
