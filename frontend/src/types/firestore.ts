@@ -104,7 +104,8 @@ export type NotificationType =
   | 'proposition_refusee'        // ✅ Proposition refusée
   | 'contre_proposition_recue'   // ✅ Contre-proposition reçue du client
   | 'contrat_signe'
-  | 'travaux_demarres'            // ✅ Artisan a démarré les travaux
+  | 'travaux_demarres'            // ✅ Artisan a démarré les travaux (niveau devis)
+  | 'travaux_demarres_demande'    // ✅ Artisan a démarré les travaux (niveau demande)
   | 'travaux_termines'            // ✅ Artisan a déclaré la fin des travaux (niveau devis)
   | 'travaux_termines_demande'   // ✅ Artisan a déclaré la fin des travaux (niveau demande)
   | 'travaux_valides'             // ✅ Client a validé les travaux

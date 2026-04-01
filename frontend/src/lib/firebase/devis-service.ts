@@ -944,14 +944,14 @@ export async function declarerDebutTravaux(devisId: string, artisanId: string): 
     lien: `/client/devis/${devisId}`,
   });
 
-  // 🆕 Notification client au niveau de la DEMANDE (si elle existe)
+  // 🆕 Notification client au niveau de la DEMANDE (si elle existe) — REMPLACE la notification devis
   if (devis.demandeId) {
     try {
       await createNotification(devis.clientId, {
         type: 'travaux_demarres_demande',
         titre: '🚧 Travaux démarrés',
         message: `${devis.artisan.raisonSociale} a commencé les travaux pour votre demande.`,
-        lien: `/client/demandes/${devis.demandeId}`,
+        lien: `/client/demandes?demandeId=${devis.demandeId}`,
       });
       console.log(`✅ Notification demande créée pour demandeId: ${devis.demandeId}`);
     } catch (error) {
@@ -1042,14 +1042,14 @@ export async function declarerFinTravaux(devisId: string, artisanId: string): Pr
     lien: `/client/devis/${devisId}`,
   });
 
-  // 🆕 Notification client au niveau de la DEMANDE (si elle existe)
+  // 🆕 Notification client au niveau de la DEMANDE (si elle existe) — REMPLACE la notification devis
   if (devis.demandeId) {
     try {
       await createNotification(devis.clientId, {
         type: 'travaux_termines_demande',
         titre: '🏁 Travaux terminés — validation requise',
         message: `${devis.artisan.raisonSociale} a terminé les travaux pour votre demande. Vous avez 7 jours pour valider.`,
-        lien: `/client/demandes/${devis.demandeId}`,
+        lien: `/client/demandes?demandeId=${devis.demandeId}`,
       });
       console.log(`✅ Notification demande créée pour demandeId: ${devis.demandeId}`);
     } catch (error) {

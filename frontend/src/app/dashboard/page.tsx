@@ -41,6 +41,7 @@ export default function DashboardPage() {
     n.type === 'nouvelle_demande' ||
     n.type === 'demande_refusee' ||
     n.type === 'proposition_express_recue' ||
+    n.type === 'travaux_demarres_demande' || // ✅ Artisan a démarré les travaux (niveau demande)
     n.type === 'travaux_termines_demande'  // ✅ Artisan a terminé, validation client requise
   )).length;
   const reponseAvisNouveaux = notifications.filter(n => !n.lue && n.type === 'reponse_avis').length;
@@ -301,7 +302,7 @@ export default function DashboardPage() {
               </div>
             </Link>
 
-            <Link href="/client/demandes-hub" onClick={() => markTypeAsRead && markTypeAsRead(['nouvelle_demande', 'demande_refusee', 'proposition_express_recue', 'travaux_termines_demande'])}>
+            <Link href="/client/demandes-hub">
               <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-[#FF6B00]">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center relative">

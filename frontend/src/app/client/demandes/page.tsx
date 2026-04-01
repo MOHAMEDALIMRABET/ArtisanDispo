@@ -18,6 +18,21 @@ import type { Demande, Artisan } from '@/types/firestore';
 import type { Devis } from '@/types/devis';
 import { useLanguage } from '@/contexts/LanguageContext';
 
+function extractDemandeIdFromNotificationLink(link?: string): string | null {
+  if (!link || !link.startsWith('/client/demandes')) {
+    return null;
+  }
+
+  if (link.startsWith('/client/demandes?')) {
+    const [, queryString = ''] = link.split('?');
+    const params = new URLSearchParams(queryString);
+    return params.get('demandeId');
+  }
+
+  const match = link.match(/\/client\/demandes\/([^?/]+)/);
+  return match?.[1] ?? null;
+}
+
 export default function MesDemandesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -161,6 +176,17 @@ export default function MesDemandesPage() {
     if (!user?.uid) return;
     markTypeAsRead(['nouvelle_demande', 'demande_refusee']);
   }, [user?.uid, markTypeAsRead]);
+
+  useEffect(() => {
+    const requestedSection = searchParams.get('section');
+    if (!requestedSection) {
+      return;
+    }
+
+    if (['toutes', 'envoyes', 'publiees', 'en_traitement', 'traitees'].includes(requestedSection)) {
+      setFiltreSection(requestedSection as 'toutes' | 'envoyes' | 'publiees' | 'en_traitement' | 'traitees');
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     // Attendre que l'auth soit chargée
@@ -335,16 +361,15 @@ export default function MesDemandesPage() {
         const notifDemandeIds = new Set<string>();
         notifsSnap.docs.forEach(notifDoc => {
           const data = notifDoc.data();
-          if (data.type === 'travaux_termines_demande') {
-            // lien format: /client/demandes/<demandeId>
-            const match = data.lien?.match(/\/client\/demandes\/([^?/]+)/);
-            if (match) notifDemandeIds.add(match[1]);
+          if (data.type === 'travaux_demarres_demande' || data.type === 'travaux_termines_demande') {
+            const demandeId = extractDemandeIdFromNotificationLink(data.lien);
+            if (demandeId) notifDemandeIds.add(demandeId);
           }
         });
         setDemandeNotifsInitialIds(new Set(notifDemandeIds));
         // Marquer les notifications comme lues après 1.5s
         if (notifDemandeIds.size > 0) {
-          setTimeout(() => markNotificationsByTypeAsRead(user.uid, ['travaux_termines_demande']), 1500);
+          setTimeout(() => markNotificationsByTypeAsRead(user.uid, ['travaux_demarres_demande', 'travaux_termines_demande']), 1500);
         }
       } catch (e) {
         console.error('Erreur chargement notifications demandes:', e);
@@ -1196,7 +1221,7 @@ export default function MesDemandesPage() {
                         {demande.titre}
                       </h2>
                       {demandeNotifsInitialIds.has(demande.id) && (
-                        <span className="inline-flex items-center bg-[#FF6B00] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse" title="Travaux terminés — validation requise">
+                        <span className="inline-flex items-center bg-[#FF6B00] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse" title="Notification récente sur cette demande">
                           🔔
                         </span>
                       )}

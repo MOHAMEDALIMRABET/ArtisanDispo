@@ -141,6 +141,7 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
       n.type === 'nouvelle_demande' ||
       n.type === 'demande_refusee' ||
       n.type === 'proposition_express_recue' ||
+      n.type === 'travaux_demarres_demande' || // ✅ Artisan a démarré les travaux (niveau demande)
       n.type === 'travaux_valides' ||
       n.type === 'travaux_termines_demande'  // ✅ Artisan a terminé, validation client requise
     )
@@ -343,7 +344,7 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
 
                 {/* Mes Demandes */}
                 <button
-                  onClick={() => handleNavigationWithMarkRead('/client/demandes-hub', ['nouvelle_demande', 'demande_refusee', 'proposition_express_recue', 'travaux_termines_demande'])}
+                  onClick={() => handleNavigation('/client/demandes-hub')}
                   className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
                 >
                   <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
