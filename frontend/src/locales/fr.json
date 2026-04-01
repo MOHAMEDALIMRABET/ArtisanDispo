@@ -1925,6 +1925,7 @@
     "card": {
       "createdOn": "Créée le",
       "startDate": "Début:",
+      "endDate": "Fin prévu",
       "delay": "Délai :",
       "days": "jour(s)",
       "description": "Description :",

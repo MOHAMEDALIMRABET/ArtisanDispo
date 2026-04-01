@@ -1175,27 +1175,14 @@ export async function validerTravaux(devisId: string, clientId: string): Promise
     lien: `/artisan/devis/${devisId}`,
   });
 
-  // ✅ Récupérer le contrat associé au devis pour le lien de notification
-  let contratId = devisId; // Fallback
-  try {
-    const contratQuery = query(
-      collection(db, 'contrats'),
-      where('devisId', '==', devisId)
-    );
-    const contratSnapshot = await getDocs(contratQuery);
-    if (!contratSnapshot.empty) {
-      contratId = contratSnapshot.docs[0].id;
-    }
-  } catch (error) {
-    console.warn('⚠️ Contrat non trouvé pour notification avis (non-bloquant):', error);
-  }
-
   // Notification client pour l'inviter à donner un avis
+  // ✅ On utilise directement le devisId car la page /client/avis/nouveau/[contratId]
+  // attend un devisId (le devis signé = contrat juridique)
   await createNotification(devis.clientId, {
     type: 'demande_avis_express',
     titre: '⭐ Donnez votre avis !',
     message: `Aidez la communauté en partageant votre expérience avec ${devis.artisan?.raisonSociale || 'cet artisan'}.`,
-    lien: `/client/avis/nouveau/${contratId}`, // ✅ Utilise contratId au lieu de devisId
+    lien: `/client/avis/nouveau/${devisId}`,
   });
   
   // Envoyer emails
