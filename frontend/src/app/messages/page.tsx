@@ -391,6 +391,49 @@ export default function MessagesPage() {
               const isRefused = data.artisanRefuseId && (
                 data.artisanRefuseId === user?.uid || data.artisanRefuseId === otherIp
               );
+
+              // IMPORTANT: certaines conversations sont liées à une demande mais sans devisId.
+              // On cherche alors un devis entre ces 2 participants pour activer le bypass post-paiement.
+              const devisByDemandeSnap = await getDocs(query(
+                collection(db, 'devis'),
+                where('demandeId', '==', conv.demandeId)
+              ));
+              const participantIds = new Set(conv.participants);
+              const devisConversation = devisByDemandeSnap.docs
+                .map((d) => ({ id: d.id, ...d.data() } as any))
+                .filter((d) => participantIds.has(d.clientId) && participantIds.has(d.artisanId))
+                .sort((a, b) => {
+                  const dateA = a.dateCreation?.toMillis?.() || 0;
+                  const dateB = b.dateCreation?.toMillis?.() || 0;
+                  return dateB - dateA;
+                });
+
+              const statutsPostPaiement = ['paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide', 'litige'];
+              const devisPostPaiement = devisConversation.find((d) => statutsPostPaiement.includes(d.statut));
+
+              if (devisPostPaiement) {
+                const devisStatut = devisPostPaiement.statut;
+                const devisTypeRefus = devisPostPaiement.typeRefus;
+                let isInactive = false;
+
+                if (devisStatut === 'refuse') {
+                  isInactive = devisTypeRefus === 'definitif';
+                } else if (devisStatut === 'annule' || devisStatut === 'expire') {
+                  isInactive = true;
+                } else if (devisStatut === 'termine_valide' || devisStatut === 'termine_auto_valide') {
+                  isInactive = true;
+                }
+
+                setDevisStatus(devisStatut);
+                setDevisInfo({
+                  numeroDevis: devisPostPaiement.numeroDevis,
+                  montantTTC: devisPostPaiement.totaux?.montantTTC || devisPostPaiement.montantTTC,
+                  typeRefus: devisTypeRefus,
+                });
+                setIsConversationInactive(isInactive);
+                return;
+              }
+
               const isInactive = (
                 st === 'annulee' || st === 'annule' ||
                 st === 'expiree' || st === 'expire' ||
