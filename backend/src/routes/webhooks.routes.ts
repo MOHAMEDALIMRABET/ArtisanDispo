@@ -218,6 +218,21 @@ async function updateWalletSequestre(
   clientNom?: string,
   numeroDevis?: string
 ) {
+  // Idempotence: si un sequestre pending existe deja pour ce devis, ne pas doubler.
+  const existingTxSnapshot = await db.collection('walletTransactions')
+    .where('artisanId', '==', artisanId)
+    .get();
+
+  const alreadyRecorded = existingTxSnapshot.docs.some(docSnap => {
+    const data = docSnap.data() as any;
+    return data.statut === 'pending' && data.devisId === devisId && data.metadata?.phase === 'sequestre';
+  });
+
+  if (alreadyRecorded) {
+    console.log(`ℹ️ Séquestre déjà enregistré pour devis ${devisId}, webhook ignoré.`);
+    return;
+  }
+
   const walletRef = db.collection('wallets').doc(artisanId);
   const walletDoc = await walletRef.get();
 

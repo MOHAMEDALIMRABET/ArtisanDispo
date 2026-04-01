@@ -131,6 +131,25 @@ export async function recordPaiementClient(
   clientNom?: string,
   devisNumero?: string
 ): Promise<WalletTransaction> {
+  // Idempotence: eviter le double comptage si paiement traite par plusieurs chemins.
+  const existingQ = query(
+    collection(db, 'walletTransactions'),
+    where('artisanId', '==', artisanId)
+  );
+  const existingSnap = await getDocs(existingQ);
+  const existingPendingSequestre = existingSnap.docs
+    .map(docSnap => ({ id: docSnap.id, ...docSnap.data() } as WalletTransaction))
+    .find(tx =>
+      tx.statut === 'pending' &&
+      tx.metadata?.phase === 'sequestre' &&
+      tx.devisId === devisId
+    );
+
+  if (existingPendingSequestre) {
+    console.log(`ℹ️ Séquestre déjà enregistré pour devis ${devisId}, écriture ignorée.`);
+    return existingPendingSequestre;
+  }
+
   const walletRef = doc(db, 'wallets', artisanId);
 
   // setDoc avec merge=true : crée le wallet si inexistant, sinon incrémente
@@ -214,6 +233,23 @@ export async function recordPaiementLibere(
   // Calcul de la commission plateforme (8%)
   const commission = Math.round(montantBrut * TAUX_COMMISSION * 100) / 100;
   const montantArtisan = Math.round((montantBrut - commission) * 100) / 100;
+
+  // Rechercher les transactions séquestre pending liées à ce contrat/devis
+  const pendingQ = query(
+    collection(db, 'walletTransactions'),
+    where('artisanId', '==', artisanId)
+  );
+  const pendingSnap = await getDocs(pendingQ);
+  const pendingSequestreTx = pendingSnap.docs
+    .map(docSnap => ({ id: docSnap.id, ...docSnap.data() } as WalletTransaction))
+    .filter(tx =>
+      tx.statut === 'pending' &&
+      tx.metadata?.phase === 'sequestre' &&
+      (tx.contratId === contratId || tx.devisId === contratId)
+    );
+
+  const montantPendingTotal = pendingSequestreTx.reduce((sum, tx) => sum + (tx.montant || 0), 0);
+  const montantSequestreADeduire = montantPendingTotal > 0 ? montantPendingTotal : montantBrut;
   
   console.log(`💰 Libération paiement: ${montantBrut}€ TTC → ${montantArtisan}€ net artisan + ${commission}€ commission plateforme`);
 
@@ -223,7 +259,7 @@ export async function recordPaiementLibere(
   //   - soldeTotal diminue de la commission (quitte le système vers la plateforme)
   //   - Incrémenter le cumul de commissions
   await updateDoc(walletRef, {
-    soldeEnAttente: increment(-montantBrut),
+    soldeEnAttente: increment(-montantSequestreADeduire),
     soldeDisponible: increment(montantArtisan),
     soldeTotal: increment(-commission),
     totalEncaisse: increment(montantArtisan),
@@ -231,6 +267,21 @@ export async function recordPaiementLibere(
     updatedAt: Timestamp.now(),
     lastTransaction: Timestamp.now(),
   });
+
+  // Fermer les transactions séquestre liées pour garder une vue cohérente.
+  await Promise.all(
+    pendingSequestreTx.map(tx =>
+      updateDoc(doc(db, 'walletTransactions', tx.id), {
+        statut: 'completed' as WalletTransactionStatut,
+        completedAt: Timestamp.now(),
+        metadata: {
+          ...(tx.metadata || {}),
+          phase: 'libere',
+          releasedBy: 'client_validation',
+        },
+      })
+    )
+  );
 
   // Transaction commission (débit invisible pour la plateforme)
   await addDoc(collection(db, 'walletTransactions'), {
