@@ -1067,7 +1067,7 @@ export default function ArtisanDemandesPage() {
             {/* Fil d'Ariane + retour */}
             <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
               <button onClick={() => setCategoryActive(null)} className="hover:text-[#FF6B00] transition flex items-center gap-1">
-                ← Retour
+                Demandes
               </button>
               <span>/</span>
               <span className="font-semibold text-[#2C3E50]">🏗️ Demandes Classiques</span>
@@ -1121,7 +1121,7 @@ export default function ArtisanDemandesPage() {
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
               <button onClick={() => setCategoryActive(null)} className="hover:text-[#FF6B00] transition flex items-center gap-1">
-                ← Retour
+                Demandes
               </button>
               <span>/</span>
               <span className="font-semibold text-[#2C3E50]">⚡ Demandes Express</span>
@@ -1345,13 +1345,30 @@ export default function ArtisanDemandesPage() {
                         const devisForDemande = devisMap.get(demande.id) || [];
                         const statutsPaye = ['paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide', 'litige'];
                         const devisPaye = devisForDemande.find(d => statutsPaye.includes(d.statut));
-                        if (devisPaye?.delaiRealisation) {
+                        if (devisPaye) {
+                          const dateFinTravaux = devisPaye.travaux?.dateFin;
+                          const isValide = ['termine_valide', 'termine_auto_valide'].includes(devisPaye.statut);
+                          const dateValidation = devisPaye.statut === 'termine_auto_valide'
+                            ? (devisPaye.travaux?.dateValidationAuto || devisPaye.dateModification)
+                            : (devisPaye.travaux?.dateValidationClient || devisPaye.dateModification);
+
                           return (
-                            <div className="flex items-center gap-1">
-                              <span className="text-green-600">⏱️</span>
-                              <span className="font-semibold">{t('artisanRequests.card.deadline')}</span>
-                              <span>{devisPaye.delaiRealisation} {t('artisanRequests.card.days')}</span>
-                            </div>
+                            <>
+                              {dateFinTravaux && (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-red-500">📅</span>
+                                  <span className="font-semibold">Date de fin des travaux</span>
+                                  <span>{dateFinTravaux.toDate().toLocaleDateString(language === 'en' ? 'en-US' : 'fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                </div>
+                              )}
+                              {isValide && dateValidation && (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-red-500">📅</span>
+                                  <span className="font-semibold">Date de validation par le client</span>
+                                  <span>{dateValidation.toDate().toLocaleDateString(language === 'en' ? 'en-US' : 'fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                </div>
+                              )}
+                            </>
                           );
                         }
                         return null;
@@ -1881,15 +1898,17 @@ export default function ArtisanDemandesPage() {
                         >
                           📋 {t('artisanRequests.actions.viewPaidQuote')}
                         </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/messages?userId=${demande.clientId}&demandeId=${demande.id}`);
-                          }}
-                          className="px-4 py-2.5 border-2 border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
-                        >
-                          💬 {t('artisanRequests.actions.contactClient')}
-                        </button>
+                        {!((demande.statut as string) === 'terminee' || (devisMap.get(demande.id) || []).some(d => d.artisanId === user?.uid && ['termine_valide', 'termine_auto_valide'].includes(d.statut))) && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/messages?userId=${demande.clientId}&demandeId=${demande.id}`);
+                            }}
+                            className="px-4 py-2.5 border-2 border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
+                          >
+                            💬 {t('artisanRequests.actions.contactClient')}
+                          </button>
+                        )}
                       </div>
                     </div>
                   );
@@ -1939,15 +1958,17 @@ export default function ArtisanDemandesPage() {
                         >
                           🔄 {t('artisanRequests.actions.createRevisedQuote')}
                         </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/messages?userId=${demande.clientId}&demandeId=${demande.id}`);
-                          }}
-                          className="px-4 py-2.5 border-2 border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white rounded-lg font-medium transition-all duration-200"
-                        >
-                          💬 {t('artisanRequests.actions.contactClient')}
-                        </button>
+                        {!((demande.statut as string) === 'terminee' || (devisMap.get(demande.id) || []).some(d => d.artisanId === user?.uid && ['termine_valide', 'termine_auto_valide'].includes(d.statut))) && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/messages?userId=${demande.clientId}&demandeId=${demande.id}`);
+                            }}
+                            className="px-4 py-2.5 border-2 border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white rounded-lg font-medium transition-all duration-200"
+                          >
+                            💬 {t('artisanRequests.actions.contactClient')}
+                          </button>
+                        )}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -2042,15 +2063,17 @@ export default function ArtisanDemandesPage() {
                           🔒 {t('artisanRequests.status.quotaReached')}
                         </div>
                       )}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push(`/messages?userId=${demande.clientId}&demandeId=${demande.id}`);
-                        }}
-                        className="px-4 py-2.5 border-2 border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white rounded-lg font-medium transition-all duration-200"
-                      >
-                        💬 {t('artisanRequests.actions.contactClient')}
-                      </button>
+                      {!((demande.statut as string) === 'terminee' || (devisMap.get(demande.id) || []).some(d => d.artisanId === user?.uid && ['termine_valide', 'termine_auto_valide'].includes(d.statut))) && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/messages?userId=${demande.clientId}&demandeId=${demande.id}`);
+                          }}
+                          className="px-4 py-2.5 border-2 border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white rounded-lg font-medium transition-all duration-200"
+                        >
+                          💬 {t('artisanRequests.actions.contactClient')}
+                        </button>
+                      )}
                       {(() => {
                         // Griser si un devis est en attente de réponse client (envoye)
                         // OU si le client a déjà accepté (en_attente_paiement, paye, en_cours...)
