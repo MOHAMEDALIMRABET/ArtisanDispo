@@ -983,6 +983,17 @@ export default function NouveauDevisPage() {
       return;
     }
     
+    // 🚫 VÉRIFICATION : Limite de 5 devis pour les demandes publiques
+    if (demande && demande.type === 'publique' && (demande.devisRecus ?? 0) >= 5) {
+      alert(
+        `🚫 ENVOI BLOQUÉ : Limite de devis atteinte\n\n` +
+        `Cette demande publique a déjà reçu 5 devis (la limite maximale).\n\n` +
+        `❌ Aucun nouveau devis ne peut être envoyé pour cette demande.\n\n` +
+        `💡 Conseil : Cherchez une autre demande plus intéressante !`
+      );
+      return; // Bloquer l'envoi
+    }
+
     // Vérifier que la date de début est dans les préférences du client (si demande existe)
     if (demande?.datesSouhaitees?.dates?.[0]) {
       const dateProposee = new Date(dateDebutPrevue);
@@ -1185,36 +1196,36 @@ export default function NouveauDevisPage() {
           </div>
 
           {/* Avertissement limite de devis (demandes publiques) */}
-          {demande && demande.type === 'publique' && (demande.devisRecus ?? 0) >= 8 && (
+          {demande && demande.type === 'publique' && (demande.devisRecus ?? 0) >= 4 && (
             <div className={`mb-6 border-l-4 p-4 rounded-lg ${
-              (demande.devisRecus ?? 0) >= 10 
+              (demande.devisRecus ?? 0) >= 5 
                 ? 'bg-red-50 border-red-500' 
                 : 'bg-yellow-50 border-yellow-500'
             }`}>
               <div className="flex items-start">
                 <span className="text-2xl mr-3">
-                  {(demande.devisRecus ?? 0) >= 10 ? '🚫' : '⚠️'}
+                  {(demande.devisRecus ?? 0) >= 5 ? '🚫' : '⚠️'}
                 </span>
                 <div>
                   <h3 className={`font-semibold mb-1 ${
-                    (demande.devisRecus ?? 0) >= 10 ? 'text-red-800' : 'text-yellow-800'
+                    (demande.devisRecus ?? 0) >= 5 ? 'text-red-800' : 'text-yellow-800'
                   }`}>
-                    {(demande.devisRecus ?? 0) >= 10 
+                    {(demande.devisRecus ?? 0) >= 5 
                       ? 'Limite de devis atteinte' 
-                      : 'Demande très sollicitée'
+                      : 'Demande presque au maximum'
                     }
                   </h3>
                   <p className={`text-sm ${
-                    (demande.devisRecus ?? 0) >= 10 ? 'text-red-700' : 'text-yellow-700'
+                    (demande.devisRecus ?? 0) >= 5 ? 'text-red-700' : 'text-yellow-700'
                   }`}>
-                    {(demande.devisRecus ?? 0) >= 10 
-                      ? `Cette demande a déjà reçu ${demande.devisRecus} devis (limite maximale). Le client ne pourra pas traiter plus de devis.`
-                      : `Cette demande a déjà reçu ${demande.devisRecus} devis. Le client risque d'être submergé et pourrait ne pas consulter tous les devis.`
+                    {(demande.devisRecus ?? 0) >= 5 
+                      ? `Cette demande a atteint son maximum de 5 devis. Aucun nouveau devis ne peut être envoyé.`
+                      : `Cette demande a déjà reçu ${demande.devisRecus} des 5 devis maximum. Préparez une offre compétitive !`
                     }
                   </p>
-                  {(demande.devisRecus ?? 0) < 10 && (
+                  {(demande.devisRecus ?? 0) === 4 && (
                     <p className="text-yellow-600 text-xs mt-2">
-                      💡 <strong>Conseil</strong> : Démarquez-vous avec une offre claire et compétitive.
+                      💡 <strong>C'est votre dernière chance</strong> : Présentez votre meilleure offre !
                     </p>
                   )}
                 </div>
