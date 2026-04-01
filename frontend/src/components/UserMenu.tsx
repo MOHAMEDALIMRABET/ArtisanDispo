@@ -150,9 +150,11 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
     n => !n.lue && n.type === 'nouvelle_demande_express'
   ).length;
 
-  // Notifications avis : nouvel avis reçu (artisan) ou réponse artisan (client)
+  // Notifications avis strictes par rôle
+  // - Client: uniquement réponse de l'artisan
+  // - Artisan: uniquement nouvel avis reçu
   const notifAvis = notifications.filter(
-    n => !n.lue && (n.type === 'nouvel_avis' || n.type === 'reponse_avis')
+    n => !n.lue && (isArtisan ? n.type === 'nouvel_avis' : n.type === 'reponse_avis')
   ).length;
 
   // Nombre total de notifications non lues (incluant messages et nouvelles demandes)
