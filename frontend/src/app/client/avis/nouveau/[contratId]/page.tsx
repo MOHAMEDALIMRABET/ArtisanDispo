@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { authService } from '@/lib/auth-service';
 import { getUserById } from '@/lib/firebase/user-service';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -33,7 +33,11 @@ const POINTS_AMELIORATION_OPTIONS = [
 export default function NouvelAvisPage() {
   const router = useRouter();
   const params = useParams();
-  const contratId = params.contratId as string; // En réalité, c'est un devisId (devis signé = contrat)
+  const searchParams = useSearchParams();
+  const routeParamId = params.contratId as string; // Historique: segment nommé contratId
+  const devisIdFromQuery = searchParams.get('devisId');
+  // Compatibilité: certains liens envoient /client/avis/nouveau/<artisanId>?devisId=<devisId>
+  const effectiveDevisId = devisIdFromQuery || routeParamId;
   const { t } = useLanguage();
 
   const [user, setUser] = useState<User | null>(null);
@@ -51,7 +55,7 @@ export default function NouvelAvisPage() {
 
   useEffect(() => {
     loadData();
-  }, [contratId]);
+  }, [effectiveDevisId]);
 
   async function loadData() {
     try {
@@ -70,7 +74,7 @@ export default function NouvelAvisPage() {
       setUser(userData);
 
       // Charger le devis (un devis signé = contrat juridique)
-      const contratData = await getDevisById(contratId);
+      const contratData = await getDevisById(effectiveDevisId);
       if (!contratData) {
         alert(t('alerts.review.contractNotFound'));
         router.push('/dashboard');
@@ -92,7 +96,7 @@ export default function NouvelAvisPage() {
       }
 
       // Vérifier qu'un avis n'a pas déjà été donné pour ce travail
-      const avisExistant = await getAvisByContratId(contratId);
+      const avisExistant = await getAvisByContratId(effectiveDevisId);
       if (avisExistant) {
         alert('✅ Vous avez déjà donné un avis pour cette intervention. Un seul avis est possible par travaux terminés.');
         router.push('/client/avis');
@@ -133,7 +137,7 @@ export default function NouvelAvisPage() {
       setSubmitting(true);
 
       await createAvis({
-        contratId: contrat.id!,
+        contratId: effectiveDevisId,
         artisanId: contrat.artisanId,
         clientId: user.uid,
         note,
