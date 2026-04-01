@@ -16,6 +16,8 @@ import { useAuth } from '@/hooks/useAuth';
 import type { DemandeExpress, PropositionExpress, User } from '@/types/firestore';
 import { Button } from '@/components/ui/Button';
 import type { Timestamp } from 'firebase/firestore';
+import { EXPRESS_WORK_TAXONOMY } from '@/lib/express-work-taxonomy';
+import { getExpressArtisanWindowMs } from '@/lib/express-work-taxonomy';
 
 /**
  * Normalise le champ photos : accepte tableau OU objet-map {0:url,...} (bug historique sanitizeForFirestore).
@@ -226,8 +228,19 @@ export default function DemandeExpressDetailArtisanPage() {
     return null;
   }
 
+  const typeTravauxLabel = demande.typeTravauxExpress
+    ? EXPRESS_WORK_TAXONOMY[demande.typeTravauxExpress].label
+    : 'Travaux express';
+  const categorieLabel = demande.categorieLabel || (demande.categorie.charAt(0).toUpperCase() + demande.categorie.slice(1));
+  const sousCategorieLabel = demande.sousCategorieLabel || demande.sousCategorie;
+  const interventionWindowHours = Math.round(getExpressArtisanWindowMs(demande) / (60 * 60 * 1000));
+
   const maProposition = propositions.find(p => p.artisanId === firebaseUser?.uid);
-  const peutFaireProposition = demande.statut === 'en_attente_proposition' && !maProposition;
+  const isPublished = !demande.artisanId;
+  const peutFaireProposition = !maProposition && (
+    demande.statut === 'en_attente_proposition' ||
+    (isPublished && demande.statut === 'proposition_recue')
+  );
 
   async function handleRepondreNegociation() {
     if (!maProposition || !negoAction) return;
@@ -346,8 +359,8 @@ export default function DemandeExpressDetailArtisanPage() {
             <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-[#2C3E50]">
-                {demande.categorie.charAt(0).toUpperCase() + demande.categorie.slice(1)}
-                {demande.sousCategorie && ` • ${demande.sousCategorie}`}
+                {categorieLabel}
+                {sousCategorieLabel && ` • ${sousCategorieLabel}`}
               </h2>
               {demande.urgence === 'urgent' && (
                 <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-semibold">
@@ -392,6 +405,26 @@ export default function DemandeExpressDetailArtisanPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-[#2C3E50] mb-1">
+                    🧭 Type de travaux
+                  </label>
+                  <p className="text-[#6C757D]">{typeTravauxLabel}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C3E50] mb-1">
+                    🛠️ Catégorie déclarée
+                  </label>
+                  <p className="text-[#6C757D]">{categorieLabel}</p>
+                </div>
+                {sousCategorieLabel && (
+                  <div>
+                    <label className="block text-sm font-semibold text-[#2C3E50] mb-1">
+                      🔎 Sous catégorie
+                    </label>
+                    <p className="text-[#6C757D]">{sousCategorieLabel}</p>
+                  </div>
+                )}
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C3E50] mb-1">
                     📍 Localisation
                   </label>
                   <p className="text-[#6C757D]">{demande.ville} ({demande.codePostal})</p>
@@ -402,13 +435,13 @@ export default function DemandeExpressDetailArtisanPage() {
                     {demande.urgence === 'immediat' ? '⚡' : '🚨'} Intervention attendue
                   </label>
                   <p className="font-semibold text-[#FF6B00]">
-                    {demande.urgence === 'immediat' ? 'Dans les 2h' : 'Dans les 24h'} après création
+                    {`Dans les ${interventionWindowHours}h`} après création
                   </p>
                   {demande.createdAt && (
                     <p className="text-sm text-[#6C757D] mt-0.5">
                       Avant le {new Date(
                         demande.createdAt.toDate().getTime() +
-                        (demande.urgence === 'immediat' ? 2 : 24) * 60 * 60 * 1000
+                        getExpressArtisanWindowMs(demande)
                       ).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </p>
                   )}

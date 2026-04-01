@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -24,20 +24,24 @@ import { Button } from '@/components/ui/Button';
 import type { DemandeExpress, PropositionExpress, User, DemandeExpressStatut } from '@/types/firestore';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { getExpressArtisanWindowLabel } from '@/lib/express-work-taxonomy';
 
 export default function MesDemandesExpressPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user: firebaseUser, loading: authLoading } = useAuth();
   const { t } = useLanguage();
   const [userData, setUserData] = useState<User | null>(null);
   const [demandes, setDemandes] = useState<DemandeExpress[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtreStatut, setFiltreStatut] = useState<'toutes' | DemandeExpressStatut>('toutes');
+  const [sourceFilter, setSourceFilter] = useState<'toutes' | 'directes' | 'publiees'>('toutes');
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [showHowItWorks, setShowHowItWorks] = useState(false);
 
   // Propositions chargées à la volée à l'ouverture d'une carte
   const [propositionsMap, setPropositionsMap] = useState<Map<string, PropositionExpress | null>>(new Map());
+  const [propositionsCountMap, setPropositionsCountMap] = useState<Map<string, number>>(new Map());
   const [loadingPropsIds, setLoadingPropsIds] = useState<Set<string>>(new Set());
 
   // Modales inline refus / contre-proposition
@@ -109,6 +113,7 @@ export default function MesDemandesExpressPage() {
         setLoadingPropsIds(prev => new Set(prev).add(id));
         try {
           const props = await getPropositionsByDemande(id);
+          setPropositionsCountMap(prev => new Map(prev).set(id, props.length));
           const active = props.find(p => p.statut === 'en_attente_acceptation') || props[0] || null;
           setPropositionsMap(prev => new Map(prev).set(id, active));
           // Charger le nom de l'artisan depuis la proposition
@@ -252,6 +257,15 @@ export default function MesDemandesExpressPage() {
     loadDemandes();
   }, [firebaseUser, authLoading, router]);
 
+  useEffect(() => {
+    const source = searchParams.get('source');
+    if (source === 'directes' || source === 'publiees') {
+      setSourceFilter(source);
+      return;
+    }
+    setSourceFilter('toutes');
+  }, [searchParams]);
+
   async function loadDemandes() {
     if (!firebaseUser) return;
 
@@ -354,11 +368,18 @@ export default function MesDemandesExpressPage() {
   const demandesActives = demandes.filter((d) => !isExpireeOuRefusee(d.statut));
 
   const demandesFiltrees = demandes.filter((d) => {
+    const isPublished = !d.artisanId;
+    if (sourceFilter === 'directes' && isPublished) return false;
+    if (sourceFilter === 'publiees' && !isPublished) return false;
+
     if (filtreStatut === 'toutes') return !isExpireeOuRefusee(d.statut);
     if (filtreStatut === 'expiree') return isExpireeOuRefusee(d.statut);
     if (filtreStatut === 'en_cours') return ['payee', 'en_cours', 'travaux_termines'].includes(d.statut);
     return d.statut === filtreStatut;
   });
+
+  const demandesDirectesCount = demandes.filter((d) => d.artisanId && !isExpireeOuRefusee(d.statut)).length;
+  const demandesPublieesCount = demandes.filter((d) => !d.artisanId && !isExpireeOuRefusee(d.statut)).length;
 
   const getStatutBadge = (statut: DemandeExpressStatut) => {
     const classes: Record<DemandeExpressStatut, string> = {
@@ -458,6 +479,39 @@ export default function MesDemandesExpressPage() {
         </div>
 
         {/* Filtres */}
+        <div className="mb-4 flex flex-wrap gap-3">
+          <button
+            onClick={() => setSourceFilter('toutes')}
+            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+              sourceFilter === 'toutes'
+                ? 'bg-[#2C3E50] text-white'
+                : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+            }`}
+          >
+            Toutes les demandes ({demandesDirectesCount + demandesPublieesCount})
+          </button>
+          <button
+            onClick={() => setSourceFilter('directes')}
+            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+              sourceFilter === 'directes'
+                ? 'bg-[#2C3E50] text-white'
+                : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+            }`}
+          >
+            ⚡ Mes demandes express directes ({demandesDirectesCount})
+          </button>
+          <button
+            onClick={() => setSourceFilter('publiees')}
+            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+              sourceFilter === 'publiees'
+                ? 'bg-[#2C3E50] text-white'
+                : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+            }`}
+          >
+            📢 Mes demandes express publiées ({demandesPublieesCount})
+          </button>
+        </div>
+
         <div className="mb-6 flex flex-wrap gap-3">
           <button
             onClick={() => setFiltreStatut('toutes')}
@@ -582,7 +636,7 @@ export default function MesDemandesExpressPage() {
                     {getUrgenceBadge(demande.urgence)}
                     {demande.expiresAt && demande.statut === 'en_attente_proposition' && (
                       <span className="px-3 py-1 bg-orange-50 border border-orange-200 text-orange-600 rounded-full text-xs font-semibold">
-                        ⏱️ Expire le {format(demande.expiresAt.toDate(), 'dd MMMM à HH:mm', { locale: fr })} ({demande.urgence === 'immediat' ? '2h' : '6h'})
+                        ⏱️ Expire le {format(demande.expiresAt.toDate(), 'dd MMMM à HH:mm', { locale: fr })} ({getExpressArtisanWindowLabel(demande)})
                       </span>
                     )}
                     {demande.budgetPropose && (
@@ -641,6 +695,8 @@ export default function MesDemandesExpressPage() {
                 {/* Zone dépliée */}
                 {isExpanded && (() => {
                   const prop = propositionsMap.get(demande.id);
+                  const propositionCount = propositionsCountMap.get(demande.id) || 0;
+                  const isPublished = !demande.artisanId;
                   const loadingProp = loadingPropsIds.has(demande.id);
                   return (
                     <div className="border-t border-gray-100">
@@ -719,6 +775,24 @@ export default function MesDemandesExpressPage() {
                         {/* Proposition reçue — affichage */}
                         {demande.statut === 'proposition_recue' && !loadingProp && prop && (
                           <div className="space-y-4">
+                            {isPublished && propositionCount > 1 && (
+                              <div className="bg-amber-50 border-2 border-amber-300 rounded-xl p-4">
+                                <p className="text-sm text-amber-900 font-medium mb-3">
+                                  📢 Cette demande publiée a reçu {propositionCount} propositions.
+                                  Comparez-les avant de choisir un artisan.
+                                </p>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    router.push(`/client/demandes-express/${demande.id}`);
+                                  }}
+                                  className="px-4 py-2 bg-[#2C3E50] text-white rounded-lg hover:bg-[#1A3A5C] text-sm font-semibold"
+                                >
+                                  Comparer les propositions
+                                </button>
+                              </div>
+                            )}
+
                             {/* Header proposition */}
                             <div className="flex items-center justify-between flex-wrap gap-2">
                               <span className="text-base font-bold text-[#2C3E50]">💬 Proposition de l&apos;artisan</span>
@@ -764,29 +838,31 @@ export default function MesDemandesExpressPage() {
                             )}
 
                             {/* Boutons d'action */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-gray-100">
-                              <button
-                                onClick={(e) => { e.stopPropagation(); setMotifRefus(''); setRefusModal({ id: demande.id, propId: prop.id }); }}
-                                disabled={submitting}
-                                className="px-4 py-2.5 border-2 border-red-400 text-red-600 rounded-xl hover:bg-red-50 font-semibold text-sm transition-all disabled:opacity-50"
-                              >
-                                ❌ Refuser
-                              </button>
-                              <button
-                                onClick={(e) => { e.stopPropagation(); setContreMontant(String(demande.budgetPropose || '')); setContreMessage(''); setContreModal({ id: demande.id, propId: prop.id, currentMontant: prop.montantPropose }); }}
-                                disabled={submitting}
-                                className="px-4 py-2.5 border-2 border-[#FF6B00] text-[#FF6B00] rounded-xl hover:bg-[#FFF5EB] font-semibold text-sm transition-all disabled:opacity-50"
-                              >
-                                💬 Contre-proposer
-                              </button>
-                              <button
-                                onClick={(e) => { e.stopPropagation(); handleAccepterInline(demande.id, prop.id); }}
-                                disabled={submitting}
-                                className="px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 font-bold text-sm transition-all disabled:opacity-50 shadow"
-                              >
-                                {submitting ? '⏳…' : '✅ Accepter et payer'}
-                              </button>
-                            </div>
+                            {!isPublished || propositionCount <= 1 ? (
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-gray-100">
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setMotifRefus(''); setRefusModal({ id: demande.id, propId: prop.id }); }}
+                                  disabled={submitting}
+                                  className="px-4 py-2.5 border-2 border-red-400 text-red-600 rounded-xl hover:bg-red-50 font-semibold text-sm transition-all disabled:opacity-50"
+                                >
+                                  ❌ Refuser
+                                </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setContreMontant(String(demande.budgetPropose || '')); setContreMessage(''); setContreModal({ id: demande.id, propId: prop.id, currentMontant: prop.montantPropose }); }}
+                                  disabled={submitting}
+                                  className="px-4 py-2.5 border-2 border-[#FF6B00] text-[#FF6B00] rounded-xl hover:bg-[#FFF5EB] font-semibold text-sm transition-all disabled:opacity-50"
+                                >
+                                  💬 Contre-proposer
+                                </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleAccepterInline(demande.id, prop.id); }}
+                                  disabled={submitting}
+                                  className="px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 font-bold text-sm transition-all disabled:opacity-50 shadow"
+                                >
+                                  {submitting ? '⏳…' : '✅ Accepter et payer'}
+                                </button>
+                              </div>
+                            ) : null}
                           </div>
                         )}
 

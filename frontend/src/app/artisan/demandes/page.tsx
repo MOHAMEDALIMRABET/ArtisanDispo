@@ -8,7 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { getUserById } from '@/lib/firebase/user-service';
 import { getArtisanById } from '@/lib/firebase/artisan-service';
 import { getDemandesForArtisan, getDemandesPubliquesForArtisan, removeArtisanFromDemande } from '@/lib/firebase/demande-service';
-import { getDemandesExpressByArtisan, getPropositionsByDemande, refuserDemandeExpressParArtisan, markInterventionEnCours, markInterventionTerminee } from '@/lib/firebase/demande-express-service';
+import { getDemandesExpressByArtisan, getDemandesExpressPubliquesByArtisan, getPropositionsByDemande, refuserDemandeExpressParArtisan, markInterventionEnCours, markInterventionTerminee } from '@/lib/firebase/demande-express-service';
 import { getDevisByDemande, declarerDebutTravaux, declarerFinTravaux } from '@/lib/firebase/devis-service';
 import { createNotification } from '@/lib/firebase/notification-service';
 import { getFileMetadata } from '@/lib/firebase/storage-service';
@@ -41,6 +41,7 @@ export default function ArtisanDemandesPage() {
   const [demandes, setDemandes] = useState<Demande[]>([]);
   const [demandesPubliques, setDemandesPubliques] = useState<Demande[]>([]);
   const [demandesExpress, setDemandesExpress] = useState<DemandeExpress[]>([]);
+  const [demandesExpressPubliques, setDemandesExpressPubliques] = useState<DemandeExpress[]>([]);
   const [refusingExpressId, setRefusingExpressId] = useState<string | null>(null);
   const [sectionActive, setSectionActive] = useState<'mes_demandes' | 'demandes_publiques' | 'demandes_express'>('mes_demandes');
   const [categoryActive, setCategoryActive] = useState<'classiques' | 'express' | null>(
@@ -61,6 +62,7 @@ export default function ArtisanDemandesPage() {
   const [expandedExpressIds, setExpandedExpressIds] = useState<Set<string>>(new Set());
   const [expressPropositionsMap, setExpressPropositionsMap] = useState<Map<string, PropositionExpress[]>>(new Map());
   const [expressFilter, setExpressFilter] = useState<'nouvelles' | 'propositions_envoyees' | 'acceptees' | 'refusees' | 'validees'>('nouvelles');
+  const [expressSource, setExpressSource] = useState<'attribuees' | 'publiees'>('attribuees');
   const [bypassHighlight, setBypassHighlight] = useState(false); // Pour ignorer highlightedDemandeId après une action
   const demandeRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
   // IDs des nouvelles demandes capturées UNE FOIS au chargement (pour le badge 🔔 stable)
@@ -187,15 +189,15 @@ export default function ArtisanDemandesPage() {
     }
 
     // Section "Demandes Express" affichée
-    if (categoryActive === 'express' && sectionActive === 'demandes_express' && demandesExpress.length > 0) {
-      const ids = demandesExpress
+    if (categoryActive === 'express' && sectionActive === 'demandes_express' && (demandesExpress.length > 0 || demandesExpressPubliques.length > 0)) {
+      const ids = [...demandesExpress, ...demandesExpressPubliques]
         .filter(d => d.statut === 'en_attente_proposition')
         .map(d => d.id);
       const timer = setTimeout(() => saveVuesIds(ids), 800);
       return () => clearTimeout(timer);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categoryActive, sectionActive, isLoading, demandes.length, demandesPubliques.length, demandesExpress.length]);
+  }, [categoryActive, sectionActive, isLoading, demandes.length, demandesPubliques.length, demandesExpress.length, demandesExpressPubliques.length]);
 
   // Pré-charger toutes les propositions express quand on entre dans la section express
   useEffect(() => {
@@ -272,7 +274,7 @@ export default function ArtisanDemandesPage() {
       
       setDemandes(demandesData);
       
-      // Charger les demandes publiques qui matchent le profil de l'artisan
+      // Charger le profil artisan (réutilisé pour demandes publiques + express publiques)
       const artisanData = await getArtisanById(authUser.uid);
       if (artisanData && artisanData.zonesIntervention && artisanData.zonesIntervention.length > 0) {
         const demandesPubliquesData = await getDemandesPubliquesForArtisan({
@@ -365,6 +367,29 @@ export default function ArtisanDemandesPage() {
         setDemandesExpress(loadedExpressData);
       } catch (error) {
         console.error('Erreur chargement demandes express:', error);
+      }
+
+      // Charger les demandes express publiées proches (0-30km)
+      if (artisanData) {
+        try {
+          const zonePrincipale = artisanData.zonesIntervention?.[0];
+          const expressPubliques = await getDemandesExpressPubliquesByArtisan({
+            artisanMetiers: artisanData.metiers || [],
+            artisanCity: zonePrincipale?.ville,
+            artisanCoordinates:
+              zonePrincipale?.latitude && zonePrincipale?.longitude
+                ? { latitude: zonePrincipale.latitude, longitude: zonePrincipale.longitude }
+                : undefined,
+            maxDistanceKm: 30,
+          });
+          console.log('📢 Demandes express publiées récupérées:', expressPubliques.length);
+          setDemandesExpressPubliques(expressPubliques);
+        } catch (error) {
+          console.error('Erreur chargement demandes express publiées:', error);
+          setDemandesExpressPubliques([]);
+        }
+      } else {
+        setDemandesExpressPubliques([]);
       }
       
       // Charger les devis pour chaque demande
@@ -859,9 +884,15 @@ export default function ArtisanDemandesPage() {
       d => d.statut !== 'annulee' && !(d.dateExpiration && isDemandeExpired(d.dateExpiration)) && !demandesVuesSet.has(d.id)
     ).length;
 
-  const nbNouvellesExpress = demandesExpress.filter(
+  const nbNouvellesExpressAttribuees = demandesExpress.filter(
     d => d.statut === 'en_attente_proposition' && !demandesVuesSet.has(d.id)
   ).length;
+
+  const nbNouvellesExpressPubliees = demandesExpressPubliques.filter(
+    d => d.statut === 'en_attente_proposition' && !demandesVuesSet.has(d.id)
+  ).length;
+
+  const nbNouvellesExpress = nbNouvellesExpressAttribuees + nbNouvellesExpressPubliees;
 
   // Utiliser la bonne liste selon la section active
   const demandesSource = sectionActive === 'mes_demandes' ? demandes : demandesPubliques;
@@ -1033,11 +1064,22 @@ export default function ArtisanDemandesPage() {
                 <div className="flex items-center gap-4 p-3 rounded-xl bg-orange-50 border border-orange-200">
                   <span className="text-2xl">⚡</span>
                   <div className="flex-1">
-                    <div className="font-semibold text-[#2C3E50] text-sm">Demandes express</div>
+                    <div className="font-semibold text-[#2C3E50] text-sm">⚡ Mes demandes express</div>
                   </div>
-                  {nbNouvellesExpress > 0 && (
+                  {nbNouvellesExpressAttribuees > 0 && (
                     <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                      {nbNouvellesExpress}
+                      {nbNouvellesExpressAttribuees}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-4 p-3 rounded-xl bg-amber-50 border border-amber-200">
+                  <span className="text-2xl">📢</span>
+                  <div className="flex-1">
+                    <div className="font-semibold text-[#2C3E50] text-sm">📢 Demandes publiées (0-30 km)</div>
+                  </div>
+                  {nbNouvellesExpressPubliees > 0 && (
+                    <span className="bg-amber-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                      {nbNouvellesExpressPubliees}
                     </span>
                   )}
                 </div>
@@ -2118,19 +2160,23 @@ export default function ArtisanDemandesPage() {
 
         {/* Section Demandes Express */}
         {categoryActive === 'express' && sectionActive === 'demandes_express' && (
-          demandesExpress.length === 0 ? (
+          (demandesExpress.length === 0 && demandesExpressPubliques.length === 0) ? (
             <div className="bg-white rounded-lg shadow-md p-12 text-center">
               <span className="text-6xl mb-4 block">⚡</span>
               <h3 className="text-xl font-bold text-gray-700 mb-2">Aucune demande express</h3>
               <p className="text-gray-600">Vous n&apos;avez pas encore reçu de demande express.</p>
             </div>
           ) : (() => {
+            const demandesExpressSource = expressSource === 'publiees' ? demandesExpressPubliques : demandesExpress;
+
             // Calcule les listes filtrées (en dehors du JSX pour éviter la repetition)
-            const getFilteredList = (key: typeof expressFilter) => demandesExpress.filter(d => {
+            const getFilteredList = (key: typeof expressFilter) => demandesExpressSource.filter(d => {
               const props = expressPropositionsMap.get(d.id) || [];
               const maProps = props.find(p => p.artisanId === authUser?.uid);
+              const isPublished = !d.artisanId;
               if (key === 'nouvelles') {
-                return d.statut === 'en_attente_proposition' && !maProps;
+                const openForNewProposals = d.statut === 'en_attente_proposition' || (isPublished && d.statut === 'proposition_recue');
+                return openForNewProposals && !maProps;
               }
               if (key === 'propositions_envoyees') {
                 return maProps?.statut === 'en_attente_acceptation' || maProps?.statut === 'en_negociation' || maProps?.statut === 'proposition_finale_artisan';
@@ -2160,6 +2206,36 @@ export default function ArtisanDemandesPage() {
 
             return (
             <div className="space-y-4">
+              {/* Sous-sections express */}
+              <div className="flex gap-3 flex-wrap">
+                <button
+                  onClick={() => {
+                    setExpressSource('attribuees');
+                    setExpressFilter('nouvelles');
+                  }}
+                  className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all border-2 ${
+                    expressSource === 'attribuees'
+                      ? 'bg-[#FF6B00] text-white border-[#FF6B00] shadow-md'
+                      : 'bg-white text-[#2C3E50] border-gray-200 hover:border-[#FF6B00] hover:bg-orange-50'
+                  }`}
+                >
+                  ⚡ Mes demandes express ({demandesExpress.length})
+                </button>
+                <button
+                  onClick={() => {
+                    setExpressSource('publiees');
+                    setExpressFilter('nouvelles');
+                  }}
+                  className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all border-2 ${
+                    expressSource === 'publiees'
+                      ? 'bg-[#FF6B00] text-white border-[#FF6B00] shadow-md'
+                      : 'bg-white text-[#2C3E50] border-gray-200 hover:border-[#FF6B00] hover:bg-orange-50'
+                  }`}
+                >
+                  📢 Demandes publiées (0-30 km) ({demandesExpressPubliques.length})
+                </button>
+              </div>
+
               {/* Onglets de filtre */}
               <div className="flex gap-2 flex-wrap">
                 {([

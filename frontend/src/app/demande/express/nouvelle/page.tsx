@@ -10,46 +10,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getUserById } from '@/lib/firebase/user-service';
 import type { Categorie, User } from '@/types/firestore';
-
-const SOUS_CATEGORIES: Record<string, Array<{ value: string; label: string }>> = {
-  electricite: [
-    { value: 'eclairage', label: 'Éclairage' },
-    { value: 'domotique', label: 'Domotique' },
-    { value: 'prises-interrupteurs', label: 'Prises / Interrupteurs' },
-    { value: 'petits-travaux', label: 'Petits dépannages électriques' },
-  ],
-  plomberie: [
-    { value: 'robinetterie', label: 'Robinetterie' },
-    { value: 'depannage', label: 'Petits dépannages' },
-    { value: 'fuite', label: 'Fuite d\'eau' },
-    { value: 'wc-lavabo', label: 'WC / Lavabo' },
-  ],
-  menuiserie: [
-    { value: 'fenetres', label: 'Fenêtres' },
-    { value: 'portes', label: 'Portes' },
-    { value: 'volets-stores', label: 'Volets / Stores' },
-    { value: 'portails', label: 'Portails' },
-  ],
-  peinture: [
-    { value: 'murs', label: 'Peinture murs' },
-    { value: 'plafonds', label: 'Peinture plafonds' },
-    { value: 'papier-peint', label: 'Papier peint' },
-    { value: 'enduit', label: 'Enduit' },
-  ],
-  serrurerie: [
-    { value: 'serrures', label: 'Changement serrures' },
-    { value: 'portes-blindees', label: 'Portes blindées' },
-    { value: 'depannage', label: 'Dépannage d\'urgence' },
-  ],
-  'exterieur-jardin': [
-    { value: 'cloture-portail', label: 'Clôture et portail' },
-    { value: 'terrasse-dallage', label: 'Terrasse et dallage' },
-    { value: 'elagage-abattage', label: 'Élagage et abattage' },
-    { value: 'entretien-jardin', label: 'Entretien jardin' },
-    { value: 'arrosage-automatique', label: 'Arrosage automatique' },
-    { value: 'amenagement-paysager', label: 'Aménagement paysager' },
-  ],
-};
+import {
+  EXPRESS_WORK_TAXONOMY,
+  getExpressCategories,
+  getExpressCategorieOption,
+  getExpressSousCategorieLabel,
+  type TypeTravauxExpress,
+} from '@/lib/express-work-taxonomy';
 
 export default function NouvelleDemandeExpressPage() {
   const router = useRouter();
@@ -60,23 +27,29 @@ export default function NouvelleDemandeExpressPage() {
 
   // Paramètres URL
   const artisanIdParam = searchParams.get('artisanId') || '';
-  const categorieParam = searchParams.get('categorie') as Categorie || '';
-  const sousCategorieParam = searchParams.get('sousCategorie') || 'toutes';
+  const typeTravauxParam = (searchParams.get('typeTravaux') as TypeTravauxExpress) || 'depannage-urgence';
+  const categorieExpressParam = searchParams.get('categorieExpress') || '';
+  const categorieMetierParam = (searchParams.get('categorie') as Categorie) || '';
+  const sousCategorieParam = searchParams.get('sousCategorie') || '';
   const villeParam = searchParams.get('ville') || '';
   const codePostalParam = searchParams.get('codePostal') || '';
 
   // États du formulaire
   const [artisanId, setArtisanId] = useState(artisanIdParam);
-  const [categorie, setCategorie] = useState<Categorie | ''>(categorieParam);
+  const [typeTravaux, setTypeTravaux] = useState<TypeTravauxExpress>(typeTravauxParam);
+  const [categorieExpress, setCategorieExpress] = useState(categorieExpressParam || categorieMetierParam || '');
   const [sousCategorie, setSousCategorie] = useState(sousCategorieParam);
   const [description, setDescription] = useState('');
   const [budgetPropose, setBudgetPropose] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [urgence, setUrgence] = useState<'immediat' | 'urgent'>('urgent');
   const [ville, setVille] = useState(villeParam);
   const [codePostal, setCodePostal] = useState(codePostalParam);
   const [photos, setPhotos] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const categorieOptions = getExpressCategories(typeTravaux);
+  const selectedCategorie = getExpressCategorieOption(typeTravaux, categorieExpress);
+  const urgence = EXPRESS_WORK_TAXONOMY[typeTravaux].urgenceValue;
+  const dateReference = new Date().toISOString().slice(0, 10);
 
   useEffect(() => {
     if (authLoading) return; // Attendre que Firebase initialise
@@ -86,6 +59,19 @@ export default function NouvelleDemandeExpressPage() {
     }
     loadUserData();
   }, [firebaseUser, authLoading]);
+
+  useEffect(() => {
+    const isValidCategorie = categorieOptions.some((cat) => cat.value === categorieExpress);
+    if (!isValidCategorie) {
+      setCategorieExpress('');
+      setSousCategorie('');
+      return;
+    }
+
+    if (selectedCategorie && !selectedCategorie.sousCategories.some((sub) => sub.value === sousCategorie)) {
+      setSousCategorie('');
+    }
+  }, [typeTravaux, categorieExpress, sousCategorie]);
 
   async function loadUserData() {
     if (firebaseUser) {
@@ -134,7 +120,7 @@ export default function NouvelleDemandeExpressPage() {
       return;
     }
 
-    if (!categorie || !description || !ville || !codePostal) {
+    if (!selectedCategorie || !description || !ville || !codePostal) {
       alert(t('alerts.express.fillRequired'));
       return;
     }
@@ -176,14 +162,17 @@ export default function NouvelleDemandeExpressPage() {
       const demandeId = await createDemandeExpress({
         clientId: firebaseUser.uid,
         artisanId: artisanId ? artisanId : undefined,
-        categorie,
-        sousCategorie: sousCategorie,  // '' est valide pour Firestore
+        typeTravauxExpress: typeTravaux,
+        categorie: selectedCategorie.metier,
+        categorieLabel: selectedCategorie.label,
+        sousCategorie: sousCategorie || undefined,
+        sousCategorieLabel: getExpressSousCategorieLabel(typeTravaux, categorieExpress, sousCategorie) || undefined,
         description,
         budgetPropose: budget,
         ville,
         codePostal,
         coordonneesGPS: coordinates !== null ? coordinates : undefined,
-        date,
+        date: dateReference,
         urgence,
         typeProjet: 'express',
         photos: photoUrls.length > 0 ? photoUrls : undefined,
@@ -246,37 +235,53 @@ export default function NouvelleDemandeExpressPage() {
                 Type de travaux <span className="text-red-500">*</span>
               </label>
               <select
-                value={categorie}
+                value={typeTravaux}
                 onChange={(e) => {
-                  setCategorie(e.target.value as Categorie);
+                  setTypeTravaux(e.target.value as TypeTravauxExpress);
+                  setCategorieExpress('');
                   setSousCategorie('');
                 }}
                 required
                 className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
               >
-                <option value="">Sélectionnez un type</option>
-                <option value="electricite">💡 Électricité</option>
-                <option value="plomberie">🔧 Plomberie</option>
-                <option value="menuiserie">🪵 Menuiserie</option>
-                <option value="peinture">🎨 Peinture</option>
-                <option value="serrurerie">🔐 Serrurerie</option>
-                <option value="exterieur-jardin">🌳 Extérieur et jardin</option>
+                <option value="depannage-urgence">🚨 Dépannage en urgence</option>
+                <option value="petits-travaux-maintenance">🛠️ Petits travaux & maintenance</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                Catégorie <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={categorieExpress}
+                onChange={(e) => {
+                  setCategorieExpress(e.target.value);
+                  setSousCategorie('');
+                }}
+                required
+                className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
+              >
+                <option value="">Sélectionnez une catégorie</option>
+                {categorieOptions.map((cat) => (
+                  <option key={cat.value} value={cat.value}>{cat.label}</option>
+                ))}
               </select>
             </div>
 
             {/* Sous-catégorie */}
-            {categorie && SOUS_CATEGORIES[categorie] && (
+            {selectedCategorie && (
               <div>
                 <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                  Sous-catégorie
+                  Sous catégorie
                 </label>
                 <select
                   value={sousCategorie}
                   onChange={(e) => setSousCategorie(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
                 >
-                  <option value="toutes">Toutes</option>
-                  {SOUS_CATEGORIES[categorie].map((sc) => (
+                  <option value="">Toutes</option>
+                  {selectedCategorie.sousCategories.map((sc) => (
                     <option key={sc.value} value={sc.value}>
                       {sc.label}
                     </option>
@@ -402,34 +407,12 @@ export default function NouvelleDemandeExpressPage() {
               </div>
             </div>
 
-            {/* Date et urgence */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                  Date souhaitée <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  min={new Date().toISOString().slice(0, 10)}
-                  required
-                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                  Urgence
-                </label>
-                <select
-                  value={urgence}
-                  onChange={(e) => setUrgence(e.target.value as any)}
-                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
-                >
-                  <option value="immediat">⚡ Immédiat (2h)</option>
-                  <option value="urgent">🚨 Urgent (24h)</option>
-                </select>
+            <div>
+              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                Urgence
+              </label>
+              <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
+                {typeTravaux === 'depannage-urgence' ? '🚨' : '⚡'} {EXPRESS_WORK_TAXONOMY[typeTravaux].urgenceLabel}
               </div>
             </div>
 

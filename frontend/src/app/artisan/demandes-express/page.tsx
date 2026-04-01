@@ -9,12 +9,16 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
 import { getUserById } from '@/lib/firebase/user-service';
 import type { DemandeExpress, User } from '@/types/firestore';
+import { getExpressArtisanWindowMs } from '@/lib/express-work-taxonomy';
 
 function getInterventionDeadline(demande: DemandeExpress): string {
-  if (!demande.createdAt) return demande.urgence === 'immediat' ? 'Dans les 2h' : 'Dans les 24h';
+  if (!demande.createdAt) {
+    const hours = Math.round(getExpressArtisanWindowMs(demande) / (60 * 60 * 1000));
+    return `Dans les ${hours}h`;
+  }
   const deadline = new Date(
     demande.createdAt.toDate().getTime() +
-    (demande.urgence === 'immediat' ? 2 : 24) * 60 * 60 * 1000
+    getExpressArtisanWindowMs(demande)
   );
   return deadline.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 }

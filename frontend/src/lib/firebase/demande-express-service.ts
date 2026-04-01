@@ -39,6 +39,10 @@ import type {
   Categorie,
 } from '@/types/firestore';
 import { createNotification } from './notification-service';
+import {
+  getExpressArtisanWindowMs,
+  getExpressPaymentWindowMinutes,
+} from '@/lib/express-work-taxonomy';
 
 /**
  * Créer une demande de travaux express
@@ -57,10 +61,12 @@ export async function createDemandeExpress(
     statut: 'en_attente_proposition' as const,
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
-    // Fenêtre pour que l'artisan réponde : immediat=1h (laisse 1h pour intervenir), urgent=6h
+    // Fenetre artisan selon stratégie:
+    // - depannage-urgence: 1h
+    // - petits-travaux-maintenance: 2h
+    // (fallback legacy: immediat=1h, urgent=6h)
     expiresAt: Timestamp.fromDate(new Date(Date.now() + (
-      data.urgence === 'immediat' ? 60 * 60 * 1000 :      // 1h — urgence totale
-      6 * 60 * 60 * 1000                                 // 6h — intervention dans 24h
+      getExpressArtisanWindowMs(data)
     ))),  
   };
 
@@ -139,6 +145,91 @@ export async function getDemandesExpressByArtisan(artisanId: string): Promise<De
     .sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
 }
 
+function calculateDistanceKm(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  const earthRadiusKm = 6371;
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) *
+      Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return earthRadiusKm * c;
+}
+
+/**
+ * Récupérer les demandes express publiques proches d'un artisan (0-30 km)
+ */
+export async function getDemandesExpressPubliquesByArtisan(options: {
+  artisanMetiers: Categorie[];
+  artisanCity?: string;
+  artisanCoordinates?: { latitude: number; longitude: number };
+  maxDistanceKm?: number;
+}): Promise<DemandeExpress[]> {
+  const maxDistanceKm = options.maxDistanceKm ?? 30;
+
+  // Requête simple pour éviter les index composites:
+  // - demandes express
+  // - non attribuées
+  // - encore ouvertes
+  const qAttente = query(
+    collection(db, 'demandes_express'),
+    where('typeProjet', '==', 'express'),
+    where('artisanId', '==', null),
+    where('statut', '==', 'en_attente_proposition')
+  );
+
+  const qPropositionRecue = query(
+    collection(db, 'demandes_express'),
+    where('typeProjet', '==', 'express'),
+    where('artisanId', '==', null),
+    where('statut', '==', 'proposition_recue')
+  );
+
+  const [snapAttente, snapPropositionRecue] = await Promise.all([
+    getDocs(qAttente),
+    getDocs(qPropositionRecue),
+  ]);
+  const allDocs = [...snapAttente.docs, ...snapPropositionRecue.docs];
+  const nowMs = Date.now();
+
+  return allDocs
+    .map(docSnap => ({ id: docSnap.id, ...docSnap.data() } as DemandeExpress))
+    .filter((demande) => {
+      if (!options.artisanMetiers.includes(demande.categorie)) return false;
+
+      if (demande.expiresAt && demande.expiresAt.toDate().getTime() <= nowMs) {
+        return false;
+      }
+
+      const demandeCoords = demande.coordonneesGPS;
+      if (options.artisanCoordinates && demandeCoords) {
+        const distance = calculateDistanceKm(
+          options.artisanCoordinates.latitude,
+          options.artisanCoordinates.longitude,
+          demandeCoords.latitude,
+          demandeCoords.longitude
+        );
+        return distance <= maxDistanceKm;
+      }
+
+      // Fallback: si coords manquantes, on garde seulement la même ville
+      if (options.artisanCity && demande.ville) {
+        return demande.ville.trim().toLowerCase() === options.artisanCity.trim().toLowerCase();
+      }
+
+      return false;
+    })
+    .sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+}
+
 /**
  * Créer une proposition pour une demande express
  */
@@ -156,8 +247,23 @@ export async function createPropositionExpress(
     throw new Error('Demande introuvable');
   }
 
-  if (demande.statut !== 'en_attente_proposition') {
+  const isPublished = !demande.artisanId;
+  const canCreateOnPublished = isPublished && ['en_attente_proposition', 'proposition_recue'].includes(demande.statut);
+  const canCreateOnDirect = !isPublished && demande.statut === 'en_attente_proposition';
+
+  if (!canCreateOnPublished && !canCreateOnDirect) {
     throw new Error('Cette demande a déjà reçu une proposition ou est terminée');
+  }
+
+  // Empêcher qu'un artisan envoie plusieurs propositions actives sur la même demande.
+  const existingProps = await getPropositionsByDemande(data.demandeId);
+  const myActiveProp = existingProps.find(
+    p =>
+      p.artisanId === data.artisanId &&
+      ['en_attente_acceptation', 'en_negociation', 'proposition_finale_artisan', 'acceptee'].includes(p.statut)
+  );
+  if (myActiveProp) {
+    throw new Error('Vous avez déjà une proposition active sur cette demande');
   }
 
   const propositionData = {
@@ -241,10 +347,11 @@ export async function acceptPropositionExpress(propositionId: string): Promise<v
     throw new Error('Demande introuvable');
   }
 
-  // Calculer deadline selon urgence :
-  // - immediat (intervention 2h) → 15 minutes pour payer
-  // - urgent (intervention 24h) → 30 minutes pour payer
-  const delaiMinutes = demande.urgence === 'immediat' ? 15 : 30;
+  // Calculer deadline paiement selon stratégie:
+  // - depannage-urgence: 60 minutes
+  // - petits-travaux-maintenance: 120 minutes
+  // (fallback legacy: immediat=15, urgent=30)
+  const delaiMinutes = getExpressPaymentWindowMinutes(demande);
   const paymentDeadline = Timestamp.fromDate(new Date(Date.now() + delaiMinutes * 60 * 1000));
 
   // Mettre à jour la proposition
@@ -253,12 +360,42 @@ export async function acceptPropositionExpress(propositionId: string): Promise<v
     acceptedAt: Timestamp.now(),
   });
 
+  const isPublished = !demande.artisanId;
+
   // Mettre à jour la demande avec deadline
   await updateDoc(doc(db, 'demandes_express', proposition.demandeId), {
     statut: 'acceptee',
+    artisanId: isPublished ? proposition.artisanId : demande.artisanId,
     updatedAt: Timestamp.now(),
     paymentDeadline,
   });
+
+  // Si demande publiée: fermer les autres propositions concurrentes.
+  if (isPublished) {
+    const allPropositions = await getPropositionsByDemande(proposition.demandeId);
+    const concurrentes = allPropositions.filter(
+      p =>
+        p.id !== proposition.id &&
+        ['en_attente_acceptation', 'en_negociation', 'proposition_finale_artisan'].includes(p.statut)
+    );
+
+    await Promise.all(
+      concurrentes.map(async (p) => {
+        await updateDoc(doc(db, 'propositions_express', p.id), {
+          statut: 'refusee',
+          refusedAt: Timestamp.now(),
+          motifRefus: 'Demande attribuée à un autre artisan',
+        });
+
+        await createNotification(p.artisanId, {
+          type: 'proposition_refusee',
+          titre: 'Demande attribuée à un autre artisan',
+          message: 'Le client a retenu une autre proposition pour cette demande express publiée.',
+          lien: `/artisan/demandes`,
+        });
+      })
+    );
+  }
 
   // Notifier l'artisan
   await createNotification(proposition.artisanId, {
@@ -288,7 +425,7 @@ export async function refusePropositionExpress(
   // Charger la demande pour recalculer la fenêtre d'expiration artisan
   const demandeForRefus = await getDemandeExpressById(proposition.demandeId);
   const expiresAtAfterRefus = Timestamp.fromDate(new Date(Date.now() + (
-    demandeForRefus?.urgence === 'immediat' ? 60 * 60 * 1000 : 6 * 60 * 60 * 1000
+    getExpressArtisanWindowMs(demandeForRefus || {})
   )));
 
   // Mettre à jour la proposition
@@ -298,12 +435,32 @@ export async function refusePropositionExpress(
     motifRefus: motifRefus || 'Non spécifié',
   });
 
-  // Remettre la demande en attente avec une nouvelle fenêtre d'expiration fraîche
-  await updateDoc(doc(db, 'demandes_express', proposition.demandeId), {
-    statut: 'en_attente_proposition',
-    updatedAt: Timestamp.now(),
-    expiresAt: expiresAtAfterRefus,
-  });
+  // Demande publiée: si d'autres propositions actives existent, rester en proposition_recue.
+  // Sinon revenir en attente.
+  const isPublished = !demandeForRefus?.artisanId;
+  if (isPublished) {
+    const allPropositions = await getPropositionsByDemande(proposition.demandeId);
+    const hasOtherActive = allPropositions.some(
+      p =>
+        p.id !== proposition.id &&
+        ['en_attente_acceptation', 'en_negociation', 'proposition_finale_artisan'].includes(p.statut)
+    );
+
+    await updateDoc(doc(db, 'demandes_express', proposition.demandeId), {
+      statut: hasOtherActive ? 'proposition_recue' : 'en_attente_proposition',
+      updatedAt: Timestamp.now(),
+      expiresAt: hasOtherActive
+        ? Timestamp.fromDate(new Date(Date.now() + 30 * 60 * 1000))
+        : expiresAtAfterRefus,
+    });
+  } else {
+    // Demande directe: on revient en attente.
+    await updateDoc(doc(db, 'demandes_express', proposition.demandeId), {
+      statut: 'en_attente_proposition',
+      updatedAt: Timestamp.now(),
+      expiresAt: expiresAtAfterRefus,
+    });
+  }
 
   // Notifier l'artisan
   await createNotification(proposition.artisanId, {
@@ -372,7 +529,7 @@ export async function repondreArtisanNegociation(
   // Charger la demande pour recalculer la fenêtre d'expiration si on revient en attente
   const demandeNego = await getDemandeExpressById(proposition.demandeId);
   const resetExpiresAt = Timestamp.fromDate(new Date(Date.now() + (
-    demandeNego?.urgence === 'immediat' ? 60 * 60 * 1000 : 6 * 60 * 60 * 1000
+    getExpressArtisanWindowMs(demandeNego || {})
   )));
 
   const now = Timestamp.now();
@@ -509,7 +666,7 @@ export async function markInterventionEnCours(demandeId: string): Promise<void> 
 
   // 🆕 Notifier le client que l'intervention a démarré
   await createNotification(demande.clientId, {
-    type: 'intervention_demarree',
+    type: 'intervention_demarree' as any,
     titre: '🚧 Intervention démarrée',
     message: 'L\'artisan a commencé votre intervention.',
     lien: `/client/demandes-express/${demandeId}`,
@@ -594,7 +751,7 @@ export async function cancelAcceptedUnpaid(demandeId: string): Promise<void> {
   await createNotification(demande.clientId, {
     type: 'paiement_expire',
     titre: '⏰ Demande expirée définitivement',
-    message: `Vous n'avez pas payé dans les délais (${demande.urgence === 'immediat' ? '15' : '30'} min). La demande sera supprimée automatiquement dans 24h. Vous pouvez créer une nouvelle demande si nécessaire.`,
+    message: `Vous n'avez pas payé dans les délais (${getExpressPaymentWindowMinutes(demande)} min). La demande sera supprimée automatiquement dans 24h. Vous pouvez créer une nouvelle demande si nécessaire.`,
     lien: `/client/demandes-express/${demandeId}`,
   });
 

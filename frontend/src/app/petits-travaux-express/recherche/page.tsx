@@ -5,52 +5,16 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { matchArtisans } from '@/lib/firebase/matching-service';
-import { createDemande } from '@/lib/firebase/demande-service';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getUserById } from '@/lib/firebase/user-service';
 import type { MatchingResult, User, Categorie } from '@/types/firestore';
-
-// Mapping des sous-catégories par catégorie
-const SOUS_CATEGORIES: Record<string, Array<{ value: string; label: string }>> = {
-  electricite: [
-    { value: 'eclairage', label: 'Éclairage' },
-    { value: 'domotique', label: 'Domotique' },
-    { value: 'prises-interrupteurs', label: 'Prises / Interrupteurs' },
-    { value: 'petits-travaux', label: 'Petits dépannages électriques' },
-  ],
-  plomberie: [
-    { value: 'robinetterie', label: 'Robinetterie' },
-    { value: 'depannage', label: 'Petits dépannages' },
-    { value: 'fuite', label: 'Fuite d\'eau' },
-    { value: 'wc-lavabo', label: 'WC / Lavabo' },
-  ],
-  menuiserie: [
-    { value: 'fenetres', label: 'Fenêtres' },
-    { value: 'portes', label: 'Portes' },
-    { value: 'volets-stores', label: 'Volets / Stores' },
-    { value: 'portails', label: 'Portails' },
-  ],
-  peinture: [
-    { value: 'murs', label: 'Peinture murs' },
-    { value: 'plafonds', label: 'Peinture plafonds' },
-    { value: 'papier-peint', label: 'Papier peint' },
-    { value: 'enduit', label: 'Enduit' },
-  ],
-  serrurerie: [
-    { value: 'serrures', label: 'Changement serrures' },
-    { value: 'portes-blindees', label: 'Portes blindées' },
-    { value: 'depannage', label: 'Dépannage d\'urgence' },
-  ],
-  'exterieur-jardin': [
-    { value: 'cloture-portail', label: 'Clôture et portail' },
-    { value: 'terrasse-dallage', label: 'Terrasse et dallage' },
-    { value: 'elagage-abattage', label: 'Élagage et abattage' },
-    { value: 'entretien-jardin', label: 'Entretien jardin' },
-    { value: 'arrosage-automatique', label: 'Arrosage automatique' },
-    { value: 'amenagement-paysager', label: 'Aménagement paysager' },
-  ],
-};
+import {
+  EXPRESS_WORK_TAXONOMY,
+  getExpressCategories,
+  getExpressCategorieOption,
+  type TypeTravauxExpress,
+} from '@/lib/express-work-taxonomy';
 
 interface VilleSuggestion {
   nom: string;
@@ -66,23 +30,26 @@ export default function RechercheExpressPage() {
   const [userData, setUserData] = useState<User | null>(null);
 
   // Paramètres URL
-  const categorieParam = searchParams.get('categorie') as Categorie || '';
+  const typeTravauxParam = (searchParams.get('typeTravaux') as TypeTravauxExpress) || 'depannage-urgence';
+  const categorieParam = searchParams.get('categorie') || '';
   const sousCategorieParam = searchParams.get('sousCategorie') || '';
   const villeParam = searchParams.get('ville') || '';
   const codePostalParam = searchParams.get('codePostal') || '';
-  const dateParam = searchParams.get('date') || new Date().toISOString().slice(0, 10);
-  const urgenceParam = (searchParams.get('urgence') as 'immediat' | 'urgent') || 'urgent';
   const rayonMaxParam = Number(searchParams.get('rayonMax')) || 20;
 
   // États du formulaire
   const typeProjet = 'express'; // Toujours express sur cette page
-  const [categorie, setCategorie] = useState<Categorie | ''>(categorieParam);
+  const [typeTravaux, setTypeTravaux] = useState<TypeTravauxExpress>(typeTravauxParam);
+  const [categorie, setCategorie] = useState(categorieParam);
   const [sousCategorie, setSousCategorie] = useState(sousCategorieParam);
   const [ville, setVille] = useState(villeParam);
   const [codePostal, setCodePostal] = useState(codePostalParam);
-  const [date, setDate] = useState(dateParam);
-  const [urgence, setUrgence] = useState<'immediat' | 'urgent'>(urgenceParam);
   const [rayonMax, setRayonMax] = useState(rayonMaxParam);
+
+  const categorieOptions = getExpressCategories(typeTravaux);
+  const selectedCategorie = categorieOptions.find((cat) => cat.value === categorie);
+  const urgence = EXPRESS_WORK_TAXONOMY[typeTravaux].urgenceValue;
+  const dateReference = new Date().toISOString().slice(0, 10);
 
   // Recherche de villes
   const [villeSuggestions, setVilleSuggestions] = useState<VilleSuggestion[]>([]);
@@ -97,6 +64,7 @@ export default function RechercheExpressPage() {
   const [loading, setLoading] = useState(hasSearchParams);
   const [searched, setSearched] = useState(hasSearchParams);
   const [showPublishModal, setShowPublishModal] = useState(false);
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
   const hasAutoSearched = useRef(false);
 
@@ -117,17 +85,29 @@ export default function RechercheExpressPage() {
     if (!hasAutoSearched.current && categorieParam && villeParam && codePostalParam) {
       hasAutoSearched.current = true;
       performSearch({
+        typeTravaux: typeTravauxParam,
         categorie: categorieParam,
         sousCategorie: sousCategorieParam,
         ville: villeParam,
         codePostal: codePostalParam,
-        date: dateParam,
-        urgence: urgenceParam,
         rayonMax: rayonMaxParam,
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const isValidCategorie = categorieOptions.some((cat) => cat.value === categorie);
+    if (!isValidCategorie) {
+      setCategorie('');
+      setSousCategorie('');
+      return;
+    }
+
+    if (selectedCategorie && !selectedCategorie.sousCategories.some((sub) => sub.value === sousCategorie)) {
+      setSousCategorie('');
+    }
+  }, [typeTravaux, categorie, sousCategorie]);
 
   async function loadUserData() {
     if (firebaseUser) {
@@ -200,25 +180,30 @@ export default function RechercheExpressPage() {
   }
 
   async function performSearch(params: {
-    categorie: Categorie | '';
+    typeTravaux: TypeTravauxExpress;
+    categorie: string;
     sousCategorie: string;
     ville: string;
     codePostal: string;
-    date: string;
-    urgence: 'immediat' | 'urgent';
     rayonMax: number;
   }) {
     setLoading(true);
     setSearched(true);
     setCurrentPage(1);
 
+    const selectedCat = getExpressCategorieOption(params.typeTravaux, params.categorie);
+    if (!selectedCat) {
+      alert('Veuillez sélectionner une catégorie valide.');
+      setLoading(false);
+      return;
+    }
+
     // Mettre à jour l'URL avec les paramètres de recherche (permet le retour en arrière)
     const urlParams = new URLSearchParams({
+      typeTravaux: params.typeTravaux,
       categorie: params.categorie,
       ville: params.ville,
       codePostal: params.codePostal,
-      date: params.date,
-      urgence: params.urgence,
       rayonMax: String(params.rayonMax),
     });
     if (params.sousCategorie) urlParams.set('sousCategorie', params.sousCategorie);
@@ -247,16 +232,16 @@ export default function RechercheExpressPage() {
 
       // Matching artisans
       const matchResults = await matchArtisans({
-        categorie: params.categorie as Categorie,
+        categorie: selectedCat.metier,
         ville: params.ville,
         codePostal: params.codePostal,
         coordonneesGPS: {
           latitude: lon,
           longitude: lat,
         },
-        dates: [params.date],
+        dates: [dateReference],
         flexible: false,
-        urgence: urgenceMapping[params.urgence] || 'normale',
+        urgence: urgenceMapping[EXPRESS_WORK_TAXONOMY[params.typeTravaux].urgenceValue] || 'normale',
         rayonMax: params.rayonMax,
       });
 
@@ -283,7 +268,7 @@ export default function RechercheExpressPage() {
       return;
     }
 
-    await performSearch({ categorie, sousCategorie, ville, codePostal, date, urgence, rayonMax });
+    await performSearch({ typeTravaux, categorie, sousCategorie, ville, codePostal, rayonMax });
   }
 
   async function handleDemanderDevis(artisanId: string) {
@@ -292,12 +277,14 @@ export default function RechercheExpressPage() {
     if (!firebaseUser) {
       // Sauvegarder le contexte et rediriger vers inscription
       const context = {
-        categorie,
+        categorie: selectedCategorie?.metier || 'renovation',
+        categorieExpress: categorie,
         sousCategorie,
         typeProjet: 'express',
         ville,
         codePostal,
         artisanId,
+        typeTravaux,
       };
       sessionStorage.setItem('searchContext', JSON.stringify(context));
       router.push('/inscription?role=client');
@@ -307,9 +294,11 @@ export default function RechercheExpressPage() {
     // Créer une demande express directe
     const params = new URLSearchParams({
       artisanId,
-      categorie,
+      categorie: selectedCategorie?.metier || 'renovation',
+      categorieExpress: categorie,
       ville,
       codePostal,
+      typeTravaux,
     });
     if (sousCategorie) {
       params.append('sousCategorie', sousCategorie);
@@ -321,28 +310,31 @@ export default function RechercheExpressPage() {
     if (!firebaseUser) {
       // Sauvegarder le contexte et rediriger vers inscription
       const context = {
-        categorie,
+        categorie: selectedCategorie?.metier || 'renovation',
+        categorieExpress: categorie,
         sousCategorie,
         typeProjet: 'express',
         ville,
         codePostal,
+        typeTravaux,
       };
       sessionStorage.setItem('searchContext', JSON.stringify(context));
       router.push('/inscription?role=client');
       return;
     }
 
-    // Rediriger vers création demande publique
+    // Rediriger vers création demande express publique (sans artisan attribué)
     const params = new URLSearchParams({
-      categorie,
-      typeProjet: 'express',
+      categorie: selectedCategorie?.metier || 'renovation',
+      categorieExpress: categorie,
       ville,
       codePostal,
+      typeTravaux,
     });
     if (sousCategorie) {
       params.append('sousCategorie', sousCategorie);
     }
-    router.push(`/demande/publique/nouvelle?${params.toString()}`);
+    router.push(`/demande/express/nouvelle?${params.toString()}`);
   }
 
   return (
@@ -379,6 +371,43 @@ export default function RechercheExpressPage() {
             </svg>
             <span>Recherche spécialisée petits travaux express uniquement</span>
           </div>
+
+          <div className="mt-5 bg-white border border-[#E9ECEF] rounded-xl p-5 shadow-sm">
+            <p className="text-[#2C3E50] font-semibold">
+              Des artisans disponibles pour vos petits travaux du quotidien
+            </p>
+            <p className="text-[#6C757D] text-sm mt-1">
+              2500 artisans près de chez vous pour vos dépannages express (moins de 150€)
+            </p>
+
+            <div className="mt-4">
+              <button
+                type="button"
+                onClick={() => setShowHowItWorks(!showHowItWorks)}
+                className="inline-flex items-center gap-2 bg-[#2C3E50] text-white hover:bg-[#1A3A5C] px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+              >
+                {showHowItWorks ? 'Masquer' : 'Comment ça marche ?'}
+                <span>{showHowItWorks ? '▲' : '▼'}</span>
+              </button>
+
+              {showHowItWorks && (
+                <ol className="mt-3 space-y-2 text-sm text-[#2C3E50]">
+                  <li>
+                    <span className="font-bold text-[#FF6B00] mr-2">1.</span>
+                    Vous décrivez votre projet
+                  </li>
+                  <li>
+                    <span className="font-bold text-[#FF6B00] mr-2">2.</span>
+                    Nous vous mettons en relation avec des artisans de notre réseau proches de chez vous
+                  </li>
+                  <li>
+                    <span className="font-bold text-[#FF6B00] mr-2">3.</span>
+                    L'artisan intervient rapidement (moins de 150€, sans devis formel)
+                  </li>
+                </ol>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -393,29 +422,45 @@ export default function RechercheExpressPage() {
                 Type de travaux <span className="text-red-500">*</span>
               </label>
               <select
-                value={categorie}
+                value={typeTravaux}
                 onChange={(e) => {
-                  setCategorie(e.target.value as Categorie);
-                  setSousCategorie(''); // Reset sous-catégorie
+                  setTypeTravaux(e.target.value as TypeTravauxExpress);
+                  setCategorie('');
+                  setSousCategorie('');
                 }}
                 required
                 className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
               >
-                <option value="">Sélectionnez un type de travaux</option>
-                <option value="electricite">💡 Électricité</option>
-                <option value="plomberie">🔧 Plomberie</option>
-                <option value="menuiserie">🔨 Menuiserie</option>
-                <option value="peinture">🎨 Peinture &amp; Décoration</option>
-                <option value="serrurerie">🔐 Serrurerie</option>
-                <option value="exterieur-jardin">🌳 Extérieur &amp; Jardin</option>
+                <option value="depannage-urgence">🚨 Dépannage en urgence</option>
+                <option value="petits-travaux-maintenance">🛠️ Petits travaux &amp; maintenance</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                Catégorie <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={categorie}
+                onChange={(e) => {
+                  setCategorie(e.target.value);
+                  setSousCategorie('');
+                }}
+                required
+                className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
+              >
+                <option value="">Sélectionnez une catégorie</option>
+                {categorieOptions.map((cat) => (
+                  <option key={cat.value} value={cat.value}>{cat.label}</option>
+                ))}
               </select>
             </div>
 
             {/* Sous-catégorie */}
-            {categorie && SOUS_CATEGORIES[categorie] && (
+            {selectedCategorie && (
               <div>
                 <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                  Sous-catégorie
+                  Sous catégorie
                 </label>
                 <select
                   value={sousCategorie}
@@ -423,7 +468,7 @@ export default function RechercheExpressPage() {
                   className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
                 >
                   <option value="">Toutes les sous-catégories</option>
-                  {SOUS_CATEGORIES[categorie].map((sc) => (
+                  {selectedCategorie.sousCategories.map((sc) => (
                     <option key={sc.value} value={sc.value}>
                       {sc.label}
                     </option>
@@ -514,34 +559,13 @@ export default function RechercheExpressPage() {
               </div>
             </div>
 
-            {/* Date et urgence */}
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                  Date souhaitée <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  min={new Date().toISOString().slice(0, 10)}
-                  required
-                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                  Urgence
-                </label>
-                <select
-                  value={urgence}
-                  onChange={(e) => setUrgence(e.target.value as any)}
-                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
-                >
-                  <option value="immediat">⚡ Immédiat (2 heures)</option>
-                  <option value="urgent">🚨 Urgent (sous 24h)</option>
-                </select>
+            {/* Urgence auto */}
+            <div>
+              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                Urgence
+              </label>
+              <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
+                {typeTravaux === 'depannage-urgence' ? '🚨' : '⚡'} {EXPRESS_WORK_TAXONOMY[typeTravaux].urgenceLabel}
               </div>
             </div>
 
@@ -755,6 +779,12 @@ export default function RechercheExpressPage() {
                     <br />
                     Publiez votre demande et les artisans proches de vous vous contacteront !
                   </p>
+                  <button
+                    onClick={handlePublierDemande}
+                    className="bg-[#FF6B00] text-white hover:bg-[#E56100] px-6 py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    📢 Publier ma demande express
+                  </button>
                 </div>
               )
               )}

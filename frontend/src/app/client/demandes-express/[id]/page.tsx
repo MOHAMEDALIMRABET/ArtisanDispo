@@ -19,6 +19,7 @@ import type { DemandeExpress, PropositionExpress, User, Artisan } from '@/types/
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { CountdownTimer } from '@/components/CountdownTimer';
+import { EXPRESS_WORK_TAXONOMY } from '@/lib/express-work-taxonomy';
 
 export default function DemandeExpressDetailClientPage() {
   const router = useRouter();
@@ -30,6 +31,8 @@ export default function DemandeExpressDetailClientPage() {
   const [userData, setUserData] = useState<User | null>(null);
   const [demande, setDemande] = useState<DemandeExpress | null>(null);
   const [proposition, setProposition] = useState<PropositionExpress | null>(null);
+  const [allPropositions, setAllPropositions] = useState<PropositionExpress[]>([]);
+  const [selectedPropositionId, setSelectedPropositionId] = useState<string | null>(null);
   const [artisanData, setArtisanData] = useState<Artisan | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -85,12 +88,15 @@ export default function DemandeExpressDetailClientPage() {
       // 3. Récupérer les propositions (indépendant de l'artisan)
       try {
         const propositions = await getPropositionsByDemande(demandeId);
+        setAllPropositions(propositions);
         const activeProposition =
+          (selectedPropositionId ? propositions.find(p => p.id === selectedPropositionId) : undefined) ||
           propositions.find(p => p.statut === 'en_attente_acceptation') ||
           propositions.find(p => p.statut === 'proposition_finale_artisan') ||
           propositions.find(p => p.statut === 'en_negociation') ||
           propositions[0] || null;
         setProposition(activeProposition);
+        setSelectedPropositionId(activeProposition?.id || null);
 
         // 4. Récupérer l'info artisan (non-bloquant)
         if (activeProposition?.artisanId) {
@@ -113,6 +119,12 @@ export default function DemandeExpressDetailClientPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (!selectedPropositionId) return;
+    const selected = allPropositions.find(p => p.id === selectedPropositionId) || null;
+    setProposition(selected);
+  }, [selectedPropositionId, allPropositions]);
 
   async function handleAccepter() {
     if (!proposition || !confirm('Confirmer l\'acceptation de cette proposition ?')) return;
@@ -259,6 +271,15 @@ export default function DemandeExpressDetailClientPage() {
     expiree:                { bg: 'bg-gray-100',   color: 'text-gray-600',   label: '⏰ Expirée' },
   };
   const badge = statutBadge[demande.statut] ?? { bg: 'bg-gray-100', color: 'text-gray-700', label: demande.statut };
+  const isPublished = !demande.artisanId;
+  const openPropositions = allPropositions.filter((p) =>
+    ['en_attente_acceptation', 'en_negociation', 'proposition_finale_artisan'].includes(p.statut)
+  );
+  const typeTravauxLabel = demande.typeTravauxExpress
+    ? EXPRESS_WORK_TAXONOMY[demande.typeTravauxExpress].label
+    : 'Travaux express';
+  const categorieLabel = demande.categorieLabel || (demande.categorie.charAt(0).toUpperCase() + demande.categorie.slice(1));
+  const sousCategorieLabel = demande.sousCategorieLabel || demande.sousCategorie;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#F8F9FA] to-white">
@@ -277,8 +298,8 @@ export default function DemandeExpressDetailClientPage() {
             <div>
               <h1 className="text-2xl font-bold">🚀 Demande express</h1>
               <p className="text-white/70 text-sm mt-0.5">
-                {demande.categorie.charAt(0).toUpperCase() + demande.categorie.slice(1)}
-                {demande.sousCategorie && ` · ${demande.sousCategorie}`}
+                {typeTravauxLabel} · {categorieLabel}
+                {sousCategorieLabel && ` · ${sousCategorieLabel}`}
               </p>
             </div>
             <span className={`px-3 py-1.5 rounded-full text-sm font-semibold ${badge.bg} ${badge.color}`}>
@@ -324,6 +345,20 @@ export default function DemandeExpressDetailClientPage() {
               )}
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">🧭 Type de travaux</p>
+                  <p className="text-[#2C3E50] font-medium text-sm">{typeTravauxLabel}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">🛠️ Catégorie</p>
+                  <p className="text-[#2C3E50] font-medium text-sm">{categorieLabel}</p>
+                </div>
+                {sousCategorieLabel && (
+                  <div>
+                    <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">🔎 Sous catégorie</p>
+                    <p className="text-[#2C3E50] font-medium text-sm">{sousCategorieLabel}</p>
+                  </div>
+                )}
                 <div>
                   <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">📍 Ville</p>
                   <p className="text-[#2C3E50] font-medium text-sm">{demande.ville} ({demande.codePostal})</p>
@@ -378,6 +413,42 @@ export default function DemandeExpressDetailClientPage() {
                     </p>
                   )}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Demande publiée : sélection de proposition ───────────── */}
+          {isPublished && openPropositions.length > 1 && (
+            <div className="bg-white rounded-2xl shadow-md p-6">
+              <h3 className="text-lg font-bold text-[#2C3E50] mb-3">📨 Propositions reçues</h3>
+              <p className="text-sm text-[#6C757D] mb-4">
+                Votre demande est publiée: comparez les propositions et sélectionnez celle à traiter.
+              </p>
+              <div className="space-y-2">
+                {openPropositions.map((p) => {
+                  const isSelected = selectedPropositionId === p.id;
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => setSelectedPropositionId(p.id)}
+                      className={`w-full text-left rounded-xl border-2 px-4 py-3 transition-all ${
+                        isSelected
+                          ? 'border-[#FF6B00] bg-orange-50'
+                          : 'border-[#E9ECEF] bg-white hover:border-[#FF6B00]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-[#2C3E50]">Proposition artisan</p>
+                          <p className="text-xs text-[#6C757D]">
+                            {p.createdAt ? format(p.createdAt.toDate(), 'dd MMM yyyy à HH:mm', { locale: fr }) : ''}
+                          </p>
+                        </div>
+                        <p className="text-lg font-extrabold text-[#FF6B00]">{p.montantPropose}€</p>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

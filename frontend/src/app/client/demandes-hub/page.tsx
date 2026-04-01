@@ -6,6 +6,7 @@ import { authService } from '@/lib/auth-service';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
 import { getDemandeById } from '@/lib/firebase/demande-service';
+import { getDemandeExpressById } from '@/lib/firebase/demande-express-service';
 import { getUserById } from '@/lib/firebase/user-service';
 import type { DemandeType, Notification } from '@/types/firestore';
 
@@ -36,6 +37,15 @@ function isExpressNotification(notification: Notification): boolean {
     notification.lien?.startsWith('/client/demandes-express') === true;
 }
 
+function extractExpressDemandeIdFromLink(link?: string): string | null {
+  if (!link || !link.startsWith('/client/demandes-express')) {
+    return null;
+  }
+
+  const match = link.match(/\/client\/demandes-express\/([^?/]+)/);
+  return match?.[1] ?? null;
+}
+
 function isClassicNotification(notification: Notification): boolean {
   return CLASSIC_NOTIFICATION_TYPES.has(notification.type) && !isExpressNotification(notification);
 }
@@ -47,12 +57,16 @@ export default function ClientDemandesHubPage() {
   const { notifications, markAsRead } = useNotifications(firebaseUser?.uid);
   const [directUnreadNotifications, setDirectUnreadNotifications] = useState<Notification[]>([]);
   const [publicUnreadNotifications, setPublicUnreadNotifications] = useState<Notification[]>([]);
-  const [expressUnreadNotifications, setExpressUnreadNotifications] = useState<Notification[]>([]);
+  const [expressDirectUnreadNotifications, setExpressDirectUnreadNotifications] = useState<Notification[]>([]);
+  const [expressPublishedUnreadNotifications, setExpressPublishedUnreadNotifications] = useState<Notification[]>([]);
+  const [unresolvedExpressCount, setUnresolvedExpressCount] = useState(0);
   const [unresolvedClassicCount, setUnresolvedClassicCount] = useState(0);
 
   const nbDemandesDirectes = directUnreadNotifications.length;
   const nbDemandesPubliees = publicUnreadNotifications.length;
-  const nbExpress = expressUnreadNotifications.length;
+  const nbExpressDirectes = expressDirectUnreadNotifications.length;
+  const nbExpressPubliees = expressPublishedUnreadNotifications.length;
+  const nbExpress = nbExpressDirectes + nbExpressPubliees + unresolvedExpressCount;
   const nbClassiques = nbDemandesDirectes + nbDemandesPubliees + unresolvedClassicCount;
 
   useEffect(() => {
@@ -69,6 +83,7 @@ export default function ClientDemandesHubPage() {
       ));
 
       const typeMap = new Map<string, DemandeType>();
+      const expressTypeMap = new Map<string, 'directe' | 'publiee'>();
       await Promise.all(
         demandeIds.map(async demandeId => {
           try {
@@ -82,13 +97,35 @@ export default function ClientDemandesHubPage() {
         })
       );
 
+      const expressDemandeIds = Array.from(new Set(
+        expressNotifications
+          .map(notification => extractExpressDemandeIdFromLink(notification.lien))
+          .filter((demandeId): demandeId is string => Boolean(demandeId))
+      ));
+
+      await Promise.all(
+        expressDemandeIds.map(async demandeId => {
+          try {
+            const demandeExpress = await getDemandeExpressById(demandeId);
+            if (demandeExpress) {
+              expressTypeMap.set(demandeId, demandeExpress.artisanId ? 'directe' : 'publiee');
+            }
+          } catch (error) {
+            console.error('Erreur résolution type demande express hub:', demandeId, error);
+          }
+        })
+      );
+
       if (isCancelled) {
         return;
       }
 
       const nextDirectNotifications: Notification[] = [];
       const nextPublicNotifications: Notification[] = [];
+      const nextExpressDirectNotifications: Notification[] = [];
+      const nextExpressPublishedNotifications: Notification[] = [];
       let nextUnresolvedClassicCount = 0;
+      let nextUnresolvedExpressCount = 0;
 
       classicNotifications.forEach(notification => {
         const demandeId = extractDemandeIdFromLink(notification.lien);
@@ -107,9 +144,35 @@ export default function ClientDemandesHubPage() {
         nextUnresolvedClassicCount += 1;
       });
 
+      expressNotifications.forEach(notification => {
+        const demandeId = extractExpressDemandeIdFromLink(notification.lien);
+        const expressType = demandeId ? expressTypeMap.get(demandeId) : undefined;
+
+        if (expressType === 'directe') {
+          nextExpressDirectNotifications.push(notification);
+          return;
+        }
+
+        if (expressType === 'publiee') {
+          nextExpressPublishedNotifications.push(notification);
+          return;
+        }
+
+        // Si on ne peut pas classifier, on garde côté "publiées" par défaut.
+        // Cela couvre les anciennes notifications sans lien détaillé.
+        if (!demandeId) {
+          nextExpressPublishedNotifications.push(notification);
+          return;
+        }
+
+        nextUnresolvedExpressCount += 1;
+      });
+
       setDirectUnreadNotifications(nextDirectNotifications);
       setPublicUnreadNotifications(nextPublicNotifications);
-      setExpressUnreadNotifications(expressNotifications);
+      setExpressDirectUnreadNotifications(nextExpressDirectNotifications);
+      setExpressPublishedUnreadNotifications(nextExpressPublishedNotifications);
+      setUnresolvedExpressCount(nextUnresolvedExpressCount);
       setUnresolvedClassicCount(nextUnresolvedClassicCount);
     }
 
@@ -140,10 +203,16 @@ export default function ClientDemandesHubPage() {
     router.push(latestNotification?.lien || '/client/demandes?section=publiees');
   }
 
-  async function openDemandesExpress() {
-    const latestNotification = expressUnreadNotifications[0];
-    await markNotificationsRead(expressUnreadNotifications);
-    router.push(latestNotification?.lien || '/client/demandes-express');
+  async function openDemandesExpressDirectes() {
+    const latestNotification = expressDirectUnreadNotifications[0];
+    await markNotificationsRead(expressDirectUnreadNotifications);
+    router.push(latestNotification?.lien || '/client/demandes-express?source=directes');
+  }
+
+  async function openDemandesExpressPubliees() {
+    const latestNotification = expressPublishedUnreadNotifications[0];
+    await markNotificationsRead(expressPublishedUnreadNotifications);
+    router.push(latestNotification?.lien || '/client/demandes-express?source=publiees');
   }
 
   useEffect(() => {
@@ -274,30 +343,48 @@ export default function ClientDemandesHubPage() {
             {/* Corps */}
             <div className="bg-white px-6 py-5 space-y-4 flex-1">
               <button
-                onClick={openDemandesExpress}
+                onClick={openDemandesExpressDirectes}
                 className="w-full flex items-center gap-4 p-3 rounded-xl bg-orange-50 border border-orange-200 hover:border-[#FF6B00] hover:bg-orange-100 transition"
               >
                 <span className="text-2xl">⚡</span>
                 <div className="flex-1 text-left">
-                  <div className="font-semibold text-[#2C3E50] text-sm">Demandes express</div>
+                  <div className="font-semibold text-[#2C3E50] text-sm">⚡ Mes demandes express directes</div>
                   <div className="text-xs text-gray-500 mt-0.5">
-                    {nbExpress > 0
-                      ? `${nbExpress} notification${nbExpress > 1 ? 's' : ''} concernent vos demandes express.`
-                      : 'Petits travaux &lt; 150€.'}
+                    {nbExpressDirectes > 0
+                      ? `${nbExpressDirectes} notification${nbExpressDirectes > 1 ? 's' : ''} concernent vos demandes express directes.`
+                      : 'Demandes envoyées à un artisan précis.'}
                   </div>
                 </div>
-                {nbExpress > 0 && (
+                {nbExpressDirectes > 0 && (
                   <span className="bg-[#FF6B00] text-white text-xs font-bold px-2.5 py-1 rounded-full min-w-[28px] text-center">
-                    {nbExpress}
+                    {nbExpressDirectes}
                   </span>
                 )}
               </button>
-              <div className="p-3 rounded-xl bg-gray-50 border border-gray-200">
-                <div className="text-xs text-gray-500 leading-relaxed">Interventions rapides à prix fixe, artisans disponibles immédiatement.</div>
-              </div>
-              <div className="flex items-center justify-end pt-1 text-sm font-semibold text-[#FF6B00]">
-                <span>Accéder →</span>
-              </div>
+              <button
+                onClick={openDemandesExpressPubliees}
+                className="w-full flex items-center gap-4 p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-[#2C3E50] hover:bg-slate-100 transition"
+              >
+                <span className="text-2xl">📢</span>
+                <div className="flex-1 text-left">
+                  <div className="font-semibold text-[#2C3E50] text-sm">📢 Mes demandes express publiées</div>
+                  <div className="text-xs text-gray-500 mt-0.5">
+                    {nbExpressPubliees > 0
+                      ? `${nbExpressPubliees} notification${nbExpressPubliees > 1 ? 's' : ''} concernent vos demandes express publiées.`
+                      : 'Demandes visibles par tous les artisans qualifiés.'}
+                  </div>
+                </div>
+                {nbExpressPubliees > 0 && (
+                  <span className="bg-[#2C3E50] text-white text-xs font-bold px-2.5 py-1 rounded-full min-w-[28px] text-center">
+                    {nbExpressPubliees}
+                  </span>
+                )}
+              </button>
+              {unresolvedExpressCount > 0 && (
+                <div className="rounded-xl border border-[#FFC107] bg-amber-50 px-4 py-3 text-xs text-[#2C3E50]">
+                  {unresolvedExpressCount} notification{unresolvedExpressCount > 1 ? 's' : ''} express sans rattachement clair sont conservées dans le total.
+                </div>
+              )}
             </div>
           </div>
 

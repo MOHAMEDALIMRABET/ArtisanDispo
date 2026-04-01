@@ -106,6 +106,7 @@ export type NotificationType =
   | 'contrat_signe'
   | 'travaux_demarres'            // ✅ Artisan a démarré les travaux (niveau devis)
   | 'travaux_demarres_demande'    // ✅ Artisan a démarré les travaux (niveau demande)
+  | 'intervention_demarree'       // ✅ Demande express : intervention démarrée
   | 'travaux_termines'            // ✅ Artisan a déclaré la fin des travaux (niveau devis)
   | 'travaux_termines_demande'   // ✅ Artisan a déclaré la fin des travaux (niveau demande)
   | 'travaux_valides'             // ✅ Client a validé les travaux
@@ -948,6 +949,7 @@ export type DemandeExpressStatut =
 export interface DemandeExpress {
   id: string;
   typeProjet: 'express';
+  typeTravauxExpress?: 'depannage-urgence' | 'petits-travaux-maintenance';
   
   // Participants
   clientId: string;
@@ -955,7 +957,9 @@ export interface DemandeExpress {
   
   // Détails travaux
   categorie: Categorie;
+  categorieLabel?: string;
   sousCategorie?: string;
+  sousCategorieLabel?: string;
   description: string;
   photos?: string[]; // URLs Firebase Storage
   budgetPropose?: number; // Optionnel, max 150€
