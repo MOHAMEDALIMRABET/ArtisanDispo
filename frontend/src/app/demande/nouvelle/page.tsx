@@ -277,13 +277,13 @@ function NouvelleDemandeContent() {
         });
       }
 
-      // Rediriger vers tableau de bord
+      // Rediriger vers la page demandes, onglet "Envoyés", en surlignant la demande créée
       const successMessage = isEditingBrouillon
         ? `✅ Votre brouillon "${formData.titre}" a été complété et publié avec succès !\n\n${artisan ? `${artisan.raisonSociale} a reçu une notification.` : 'Les artisans correspondants vont recevoir une notification.'}\n\nVous pouvez suivre l'état de votre demande depuis votre tableau de bord.`
         : `✅ Votre demande "${formData.titre}" a été créée avec succès !\n\n${artisan ? `${artisan.raisonSociale} a reçu une notification.` : 'Les artisans correspondants vont recevoir une notification.'}\n\nVous pouvez suivre l'état de votre demande depuis votre tableau de bord.`;
       
       alert(successMessage);
-      router.push('/dashboard');
+      router.push(`/client/demandes?success=demande_envoyee&demandeId=${demandeId}`);
 
     } catch (error) {
       console.error('❌ Erreur création demande:', error);

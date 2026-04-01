@@ -1926,6 +1926,8 @@
       "createdOn": "Créée le",
       "startDate": "Début:",
       "endDate": "Fin prévu",
+      "workEndDate": "Date de fin des travaux",
+      "validationDate": "Date de validation",
       "delay": "Délai :",
       "days": "jour(s)",
       "description": "Description :",
@@ -1982,7 +1984,8 @@
       "noRequestsYet": "Vous n'avez pas encore créé de demande"
     },
     "success": {
-      "published": "✅ Votre demande a été publiée ! Les artisans qualifiés de votre région peuvent maintenant la consulter et vous envoyer des devis."
+      "published": "✅ Votre demande a été publiée ! Les artisans qualifiés de votre région peuvent maintenant la consulter et vous envoyer des devis.",
+      "sent": "✅ Votre demande a été envoyée à l'artisan. Vous pouvez suivre son évolution dans la section \"🎯 Envoyés\"."
     },
     "dialogs": {
       "deleteConfirm": "Êtes-vous sûr de vouloir supprimer la demande \"{title}\" ?\n\nCette action est irréversible.",

@@ -633,20 +633,10 @@ export default function ClientDevisPage() {
 
                   {/* Boutons d'action */}
                   <div className="pt-4 border-t">
-                    {/* Devis envoyé : Voir détail + Accepter + Refuser */}
+                    {/* Devis envoyé : Accepter + Refuser */}
                     {d.statut === 'envoye' && (
                       <>
                         <div className="flex gap-3 mb-3">
-                          <div
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              naviguerVersDevis(d.id, `returnFilter=${filter}`);
-                            }}
-                            className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
-                          >
-                            📄 {t('quotes.viewDetails')}
-                          </div>
                           <div
                             onClick={(e) => {
                               e.stopPropagation();
@@ -692,7 +682,9 @@ export default function ClientDevisPage() {
                           {d.demandeId && (
                             <div
                               onClick={(e) => {
-                                e.stopPropagation();                                e.preventDefault();                                router.push(`/client/demandes?demandeId=${d.demandeId}`);
+                                e.stopPropagation();
+                                e.preventDefault();
+                                router.push(`/client/demandes?demandeId=${d.demandeId}`);
                               }}
                               className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
                             >

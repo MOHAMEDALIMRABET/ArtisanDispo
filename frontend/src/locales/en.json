@@ -1926,6 +1926,8 @@
       "createdOn": "Created on",
       "startDate": "Start:",
       "endDate": "Expected end",
+      "workEndDate": "Work end date",
+      "validationDate": "Validation date",
       "delay": "Delay:",
       "days": "day(s)",
       "description": "Description:",
@@ -1982,7 +1984,8 @@
       "noRequestsYet": "You haven't created any requests yet"
     },
     "success": {
-      "published": "Your request has been published! Qualified tradespeople in your area can now view it and send you quotes."
+      "published": "Your request has been published! Qualified tradespeople in your area can now view it and send you quotes.",
+      "sent": "Your request has been sent to the tradesperson. You can track it in the \"🎯 Sent\" section."
     },
     "dialogs": {
       "deleteConfirm": "Are you sure you want to delete the request \"{title}\"?\n\nThis action is irreversible.",

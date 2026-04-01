@@ -37,6 +37,11 @@ export default function DashboardPage() {
     n.type === 'travaux_demarres' ||
     n.type === 'travaux_termines'
   )).length;
+  const demandesNouvelles = notifications.filter(n => !n.lue && (
+    n.type === 'nouvelle_demande' ||
+    n.type === 'demande_refusee' ||
+    n.type === 'proposition_express_recue'
+  )).length;
   const reponseAvisNouveaux = notifications.filter(n => !n.lue && n.type === 'reponse_avis').length;
 
   useEffect(() => {
@@ -295,16 +300,28 @@ export default function DashboardPage() {
               </div>
             </Link>
 
-            <Link href="/client/demandes-hub">
+            <Link href="/client/demandes-hub" onClick={() => markTypeAsRead && markTypeAsRead(['nouvelle_demande', 'demande_refusee', 'proposition_express_recue'])}>
               <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-[#FF6B00]">
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center relative">
                     <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
+                    {demandesNouvelles > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-[#FF6B00] text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        {demandesNouvelles}
+                      </span>
+                    )}
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-gray-800">{t('common.myRequests')}</h2>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-xl font-bold text-gray-800">{t('common.myRequests')}</h2>
+                      {demandesNouvelles > 0 && (
+                        <span className="bg-[#FF6B00] text-white text-xs px-2 py-1 rounded-full font-semibold">
+                          {demandesNouvelles} nouveau{demandesNouvelles > 1 ? 'x' : ''}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-600">{t('dashboard.trackRequests')}</p>
                   </div>
                 </div>

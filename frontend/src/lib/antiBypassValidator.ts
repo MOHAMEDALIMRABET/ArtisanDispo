@@ -728,17 +728,28 @@ export function validateMessageWithHistory(
   const historyCumulatedDigits = allWindowDigits;
   const newContentDigits = extractFn(newContent);
 
+  // Ne déclencher les contrôles cross-messages agressifs que si le nouveau message
+  // contient un signal numérique (digits ou mots-chiffres).
+  // Cela évite de bloquer des messages texte normaux après une tentative précédente.
+  const newContentSigWords = sigWordsOf(newContent);
+  const hasNumericSignalInNew =
+    newContentDigits.length > 0 ||
+    newContentSigWords > 0 ||
+    isMessagePureNumberWord(newContent);
+
   // L6b — Digits par concaténation (technique "mot coupé cross-messages")
   // ⚠️ Calculé AVANT le guard de sortie anticipée pour détecter le cas :
   //    msg1 = "0667 52 52" (8 digits) + msg2 = "vingt" (mot = 20) → concat → "0667525220" = 10 digits valide
   //    Sans ce check précoce, la garde ci-dessous court-circuiterait la détection.
   const concatDigits = extractDigitRunsAlways(allConcat);
-  if (checkPhoneInDigits(concatDigits)) return BLOCKED_PHONE;
   // L6b-plain : même vérification avec la jointure espace simple
   // Capture : msg1="06 63 21 23" + msg2="quat" + msg3="re" + msg4="unn"
   // → "06 63 21 23 quat re unn" → syllabe-joiner → "06 63 21 23 quatre un" → 0663212341 ✓
   const concatDigitsPlain = extractDigitRunsAlways(allConcatPlain);
-  if (checkPhoneInDigits(concatDigitsPlain)) return BLOCKED_PHONE;
+  if (hasNumericSignalInNew) {
+    if (checkPhoneInDigits(concatDigits)) return BLOCKED_PHONE;
+    if (checkPhoneInDigits(concatDigitsPlain)) return BLOCKED_PHONE;
+  }
 
   // Guard : safe seulement si effectivement pas d'intention détectée
   if (!newContentDigits && effectiveSigWords < 3) {
@@ -771,9 +782,11 @@ export function validateMessageWithHistory(
     return false;
   }
 
-  if (checkPhoneInDigits(combinedDigits)) return BLOCKED_PHONE;
-  if (checkPhoneInDigits(concatDigits)) return BLOCKED_PHONE;
-  if (checkPhoneInDigits(concatDigitsPlain)) return BLOCKED_PHONE;
+  if (hasNumericSignalInNew) {
+    if (checkPhoneInDigits(combinedDigits)) return BLOCKED_PHONE;
+    if (checkPhoneInDigits(concatDigits)) return BLOCKED_PHONE;
+    if (checkPhoneInDigits(concatDigitsPlain)) return BLOCKED_PHONE;
+  }
 
   return { isValid: true, blockedPatterns: [] };
 }

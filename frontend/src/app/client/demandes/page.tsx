@@ -106,6 +106,10 @@ export default function MesDemandesPage() {
           // Demande avec devis envoyés → Section "En traitement"
           console.log('📬 Demande en traitement (devis reçus)');
           setFiltreSection('en_traitement');
+        } else if (demande.type === 'directe' || demande.statut === 'matchee') {
+          // Demande directe envoyée à un artisan → Section "Envoyés"
+          console.log('🎯 Demande envoyée à un artisan');
+          setFiltreSection('envoyes');
         } else if (demande.statut === 'publiee') {
           // Demande publiée → Section "Publiées"
           console.log('📢 Demande publiée');
@@ -176,6 +180,16 @@ export default function MesDemandesPage() {
     if (success === 'demande_publiee' && demandeId) {
       setSuccessMessage(t('clientDemandes.success.published'));
       setFiltreSection('publiees'); // Basculer automatiquement sur l'onglet "Demandes publiées"
+      
+      // Masquer le message après 8 secondes
+      setTimeout(() => {
+        setSuccessMessage(null);
+        // Nettoyer l'URL
+        router.replace('/client/demandes');
+      }, 8000);
+    } else if (success === 'demande_envoyee' && demandeId) {
+      setSuccessMessage(t('clientDemandes.success.sent'));
+      setFiltreSection('envoyes'); // Basculer automatiquement sur l'onglet "Envoyés"
       
       // Masquer le message après 8 secondes
       setTimeout(() => {
@@ -1151,7 +1165,7 @@ export default function MesDemandesPage() {
                     <h2 className="text-2xl font-extrabold text-[#2C3E50] mb-3 tracking-tight">
                       {demande.titre}
                     </h2>
-                    <div className="flex items-center gap-3 text-sm overflow-x-auto">
+                    <div className="flex flex-wrap items-start gap-3 text-sm">
                       <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-lg whitespace-nowrap">
                         <span className="text-blue-600">🏷️</span>
                         <span className="font-semibold text-blue-900">{demande.categorie}</span>
@@ -1201,6 +1215,33 @@ export default function MesDemandesPage() {
                           );
                         }
                         return null;
+                      })()}
+                      {(() => {
+                        const devisForDemande = devisMap.get(demande.id) || [];
+                        const devisPaye = devisForDemande.find(d => ['termine_valide', 'termine_auto_valide'].includes(d.statut));
+                        if (!devisPaye) return null;
+
+                        const dateFinTravaux = devisPaye.travaux?.dateFin;
+                        const dateValidation = devisPaye.statut === 'termine_auto_valide'
+                          ? devisPaye.travaux?.dateValidationAuto
+                          : devisPaye.travaux?.dateValidationClient;
+
+                        return (
+                          <>
+                            {dateFinTravaux && (
+                              <div className="flex items-start gap-2 bg-green-50 px-3 py-1.5 rounded-lg max-w-full break-words">
+                                <span className="text-green-600">📅</span>
+                                <span className="font-semibold text-green-900">{(t('clientDemandes.card.workEndDate') === 'clientDemandes.card.workEndDate' ? 'Date de fin des travaux' : t('clientDemandes.card.workEndDate'))}: {dateFinTravaux.toDate().toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                              </div>
+                            )}
+                            {dateValidation && (
+                              <div className="flex items-start gap-2 bg-gray-100 px-3 py-1.5 rounded-lg max-w-full break-words">
+                                <span className="text-gray-700">📅</span>
+                                <span className="font-semibold text-gray-900">{(t('clientDemandes.card.validationDate') === 'clientDemandes.card.validationDate' ? 'Date de validation' : t('clientDemandes.card.validationDate'))}: {dateValidation.toDate().toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                              </div>
+                            )}
+                          </>
+                        );
                       })()}
                       {demande.localisation?.codePostal && demande.localisation?.ville && (
                         <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-lg whitespace-nowrap">
@@ -1607,7 +1648,7 @@ export default function MesDemandesPage() {
                           {/* Bouton Donner mon avis : affiché UNIQUEMENT si travaux validés */}
                           {['termine_valide', 'termine_auto_valide'].includes(st || '') ? (
                             (() => {
-                              const avisDejaPublie = devisPaye?.id && avisMap.get(devisPaye.id) === true;
+                              const avisDejaPublie = !!devisPaye?.id && avisMap.get(devisPaye.id) === true;
                               
                               return (
                                 <button

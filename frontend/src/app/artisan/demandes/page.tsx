@@ -577,7 +577,7 @@ export default function ArtisanDemandesPage() {
         type: 'demande_refusee',
         titre: 'Votre demande a été refusée',
         message: `L'artisan a décliné votre demande "${demande.categorie}" à ${demande.localisation?.ville || 'votre localisation'}. Vous pouvez relancer une recherche avec les mêmes critères.`,
-        lien: `/client/demandes`,
+        lien: `/client/demandes?demandeId=${demande.id}`,
       });
 
       console.log('✅ Notification envoyée au client');
