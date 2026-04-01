@@ -1484,7 +1484,9 @@ export default function MesDemandesPage() {
                                       <div className="flex items-center gap-3 text-sm flex-wrap">
                                         <span className="font-bold text-[#FF6B00]">{devis.totaux?.totalTTC?.toFixed(2)} € TTC</span>
                                         {devis.delaiRealisation && (
-                                          <span className="text-gray-600">⏱️ {devis.delaiRealisation}</span>
+                                          <span className="text-gray-600">
+                                            ⏱️ {t('clientDemandes.card.delay')} {devis.delaiRealisation} {t('clientDemandes.card.days')}
+                                          </span>
                                         )}
                                       </div>
                                     </div>
