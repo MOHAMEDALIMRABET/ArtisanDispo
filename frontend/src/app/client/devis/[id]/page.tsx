@@ -1392,7 +1392,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                     </>
                   ) : (
                     <p className="text-xs text-gray-500 italic">
-                      🖊️ Zone de signatures — votre signature sera apposée lors du paiement
+                      🖊️ Zone de signatures — vous signerez lors du paiement
                     </p>
                   )}
                 </div>
