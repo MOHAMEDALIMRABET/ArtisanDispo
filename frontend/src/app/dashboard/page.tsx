@@ -96,9 +96,9 @@ export default function DashboardPage() {
       }
 
       setUser(userData);      
-      // Charger les avis donnés par le client (3 derniers)
+      // Charger tous les avis donnés par le client (pour afficher le vrai total)
       const avis = await getAvisByClientId(currentUser.uid);
-      setAvisClient(avis.slice(0, 3));
+      setAvisClient(avis);
 
       // Charger les contrats terminés sans avis
       const contratsData = await getContratsTerminesSansAvis(currentUser.uid);
