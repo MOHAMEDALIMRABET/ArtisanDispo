@@ -1196,7 +1196,7 @@ export default function MesDemandesPage() {
                           return (
                             <div className="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-lg whitespace-nowrap">
                               <span className="text-green-600">📅</span>
-                              <span className="font-semibold text-green-900">{t('clientDemandes.endDate')}: {dateFin.toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric' })}</span>
+                              <span className="font-semibold text-green-900">{t('clientDemandes.card.endDate')}: {dateFin.toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric' })}</span>
                             </div>
                           );
                         }

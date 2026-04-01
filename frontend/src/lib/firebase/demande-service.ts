@@ -199,10 +199,11 @@ export async function getDemandesForArtisan(artisanId: string): Promise<Demande[
   // Filtrage et tri côté client
   return demandes
     .filter(d => {
-      // ✅ Inclure TOUTES les demandes actives et en cours de réalisation
+      // ✅ Inclure TOUTES les demandes utiles à l'artisan
       // - Demandes en attente : publiee, matchee, attribuee, quota_atteint
       // - Demandes avec contrats actifs : en_cours, travaux_termines, termine_valide, termine_auto_valide
-      return ['publiee', 'matchee', 'attribuee', 'quota_atteint', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(d.statut);
+      // - Demandes clôturées après validation client : terminee
+      return ['publiee', 'matchee', 'attribuee', 'quota_atteint', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide', 'terminee'].includes(d.statut);
     })
     .sort((a, b) => {
       const dateA = a.dateCreation?.toMillis() || 0;

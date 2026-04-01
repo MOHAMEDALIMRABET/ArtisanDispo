@@ -942,22 +942,38 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
         {/* Header - masqué à l'impression */}
         <div className="bg-[#2C3E50] text-white py-6 print:hidden">
           <div className="container mx-auto px-4">
-            <button
-              onClick={() => {
-                const returnFilter = searchParams.get('returnFilter');
-                if (returnFilter) {
-                  router.push(`/client/devis?returnFilter=${returnFilter}`);
-                } else {
-                  router.back();
-                }
-              }}
-              className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Retour à mes devis
-            </button>
+            <div className="flex items-center gap-4 mb-4">
+              <button
+                onClick={() => {
+                  const returnFilter = searchParams.get('returnFilter');
+                  if (returnFilter) {
+                    router.push(`/client/devis?returnFilter=${returnFilter}`);
+                  } else {
+                    router.back();
+                  }
+                }}
+                className="flex items-center gap-2 text-white hover:text-[#FF6B00]"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Retour à mes devis
+              </button>
+              {devis.demandeId && (
+                <>
+                  <span className="text-gray-400">|</span>
+                  <button
+                    onClick={() => router.push(`/client/demandes?demandeId=${devis.demandeId}`)}
+                    className="flex items-center gap-2 text-white hover:text-[#FF6B00]"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Voir la demande associée
+                  </button>
+                </>
+              )}
+            </div>
             <div className="flex justify-between items-center">
               <div>
                 <h1 className="text-2xl font-bold">Devis N° {devis.numeroDevis}</h1>
@@ -1575,8 +1591,6 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                 <div className="p-3 bg-blue-50 rounded border border-blue-200 mb-3">
                   <p className="text-sm text-blue-800">
                     💡 <strong>Merci d'avoir utilisé ArtisanDispo !</strong>
-                    <br />
-                    Vous pouvez laisser un avis depuis votre liste de demandes.
                   </p>
                 </div>
               </div>
