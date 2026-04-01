@@ -14,7 +14,7 @@ import { db } from '@/lib/firebase/config';
 import type { Devis } from '@/types/devis';
 import type { Demande } from '@/types/firestore';
 import { supprimerDevisAnulesExpires } from '@/lib/firebase/devis-service';
-import { markNotificationsByTypeAsRead } from '@/lib/firebase/notification-service';
+import { markNotificationsByTypeAsRead, markNotificationsByLienAsRead } from '@/lib/firebase/notification-service';
 
 type TabType = 'devis' | 'factures';
 type DevisFilter = 'tous' | 'genere' | 'envoye' | 'en_attente_paiement' | 'paye' | 'revision' | 'refuse';
@@ -43,6 +43,8 @@ export default function MesDevisPage() {
   const [actionEnCours, setActionEnCours] = useState<string | null>(null);
   const [showInfoGestion, setShowInfoGestion] = useState(false);
   const devisRefs = useRef<{[key: string]: HTMLTableRowElement | null}>({});
+  // Snapshot Firestore au chargement — pour badge 🔔 persistant sur la ligne de devis
+  const [devisNotifsInitialIds, setDevisNotifsInitialIds] = useState<Set<string>>(new Set());
 
   // IDs des devis déjà consultés (persiste dans localStorage)
   const [devisVusSet, setDevisVusSet] = useState<Set<string>>(() => {
@@ -106,10 +108,6 @@ export default function MesDevisPage() {
     }
     
     loadDevis();
-
-    // Marquer les notifications devis comme lues dès l'arrivée sur la page
-    // → efface le badge sur le dashboard et le menu utilisateur
-    markNotificationsByTypeAsRead(user.uid, ['devis_accepte', 'devis_refuse', 'devis_revision']);
   }, [user, authLoading, router]);
 
   // Scroller vers le devis mis en évidence
@@ -273,6 +271,46 @@ export default function MesDevisPage() {
       }
       
       setDemandesInfo(demandesInfoTemp);
+
+      // 🔔 SNAPSHOT NOTIFICATIONS : Charger les notifications non lues liées à un devis
+      // Même logique que client/devis/page.tsx — snapshot capturé une fois au chargement
+      try {
+        const notifsQ = query(
+          collection(db, 'notifications'),
+          where('userId', '==', user.uid),
+          where('lue', '==', false)
+        );
+        const notifsSnap = await getDocs(notifsQ);
+        const notifIds = new Set<string>();
+        notifsSnap.docs.forEach(notifDoc => {
+          const data = notifDoc.data();
+          if (
+            data.type === 'devis_accepte' ||
+            data.type === 'devis_refuse' ||
+            data.type === 'devis_revision'
+          ) {
+            // Extraire devisId depuis lien ex: /artisan/devis?devisId=abc123
+            if (data.lien && typeof data.lien === 'string') {
+              const matchDevis = data.lien.match(/[?&]devisId=([^&]+)/);
+              if (matchDevis) notifIds.add(matchDevis[1]);
+            }
+          }
+        });
+        setDevisNotifsInitialIds(new Set(notifIds));
+        // Après affichage (1.5s), marquer notifications comme lues
+        if (notifIds.size > 0) {
+          const uid = user.uid;
+          setTimeout(async () => {
+            await markNotificationsByTypeAsRead(uid, ['devis_accepte', 'devis_refuse', 'devis_revision']);
+          }, 1500);
+        } else {
+          // Pas de notif non lues à afficher → marquer immédiatement
+          markNotificationsByTypeAsRead(user.uid, ['devis_accepte', 'devis_refuse', 'devis_revision']);
+        }
+      } catch (e) {
+        // Non bloquant
+        markNotificationsByTypeAsRead(user.uid, ['devis_accepte', 'devis_refuse', 'devis_revision']);
+      }
     } catch (error) {
       console.error('Erreur chargement devis:', error);
     } finally {
@@ -980,7 +1018,14 @@ export default function MesDevisPage() {
                         `}
                       >
                         <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-[#2C3E50]">
-                          <span className="numero-devis">{d.numeroDevis}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="numero-devis">{d.numeroDevis}</span>
+                            {devisNotifsInitialIds.has(d.id) && (
+                              <span className="inline-flex items-center bg-[#FF6B00] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
+                                🔔
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-2 py-4 text-sm">
                         {d.demandeId && demandesInfo[d.demandeId] ? (
