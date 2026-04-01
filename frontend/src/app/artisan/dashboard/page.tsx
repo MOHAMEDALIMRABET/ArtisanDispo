@@ -64,8 +64,13 @@ export default function ArtisanDashboardPage() {
     n => n.type === 'nouvelle_demande_express' && !n.lue
   ).length;
 
-  // Total demandes (régulières + express non lues)
-  const totalNouvellesDemandes = nouvellesDemandes + expressDemandeNotifications;
+  // Compter les validations client NON LUES (lié au flux demandes)
+  const travauxValidesNotifications = notifications.filter(
+    n => n.type === 'travaux_valides' && !n.lue
+  ).length;
+
+  // Total demandes (régulières + express + validations client non lues)
+  const totalNouvellesDemandes = nouvellesDemandes + expressDemandeNotifications + travauxValidesNotifications;
 
   // Calculer si le profil est complètement vérifié (SANS la décennale)
   // La décennale est un document additionnel qui ne bloque pas l'accès au profil
@@ -754,7 +759,7 @@ export default function ArtisanDashboardPage() {
             </Link>
 
           {/* Demandes - Position 6 */}
-          <Link href="/artisan/demandes" className="h-full">
+          <Link href="/artisan/demandes" className="h-full" onClick={() => markNotificationsByTypeAsRead(user?.uid || '', ['nouvelle_demande_express', 'travaux_valides'])}>
             <div className="h-full flex flex-col bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-[#FF6B00] relative">
               {/* Badge notification */}
               {totalNouvellesDemandes > 0 && (
@@ -874,7 +879,7 @@ export default function ArtisanDashboardPage() {
                   <svg className="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
-                  {avisNotifications > 0 && statsAvis.total > 0 && (
+                  {avisNotifications > 0 && (
                     <span className="absolute -top-1 -right-1 bg-[#FF6B00] text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none">
                       {avisNotifications}
                     </span>

@@ -21,7 +21,7 @@ import type { Avis } from '@/types/firestore';
 import type { Devis } from '@/types/devis';
 import { updateNotation } from './artisan-service';
 import { updateNoteGlobale } from './artisan-stats-service';
-import { createNotification } from './notification-service';
+import { createNotification, markNotificationsByTypeAsRead } from './notification-service';
 
 /**
  * Créer un nouvel avis après fin d'intervention
@@ -104,6 +104,14 @@ export async function createAvis(data: {
       });
     } catch (notifError) {
       console.warn('⚠️ Notification avis artisan échouée (non bloquant):', notifError);
+    }
+
+    // Marquer la notification "Donnez votre avis" comme lue (elle n'est plus pertinente)
+    try {
+      await markNotificationsByTypeAsRead(data.clientId, ['demande_avis_express']);
+      console.log('✅ Notification "demande_avis_express" marquée comme lue');
+    } catch (notifError) {
+      console.warn('⚠️ Marquage notification demande_avis_express échoué (non bloquant):', notifError);
     }
 
     return avisRef.id;

@@ -140,7 +140,8 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
     n => !n.lue && (
       n.type === 'nouvelle_demande' ||
       n.type === 'demande_refusee' ||
-      n.type === 'proposition_express_recue'
+      n.type === 'proposition_express_recue' ||
+      n.type === 'travaux_valides'
     )
   ).length;
 
@@ -465,7 +466,7 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
 
                 {/* Mes Demandes Clients (classiques + express fusionnées) */}
                 <button
-                  onClick={() => handleNavigationWithMarkRead('/artisan/demandes', ['nouvelle_demande', 'demande_refusee', 'nouvelle_demande_express'])}
+                  onClick={() => handleNavigationWithMarkRead('/artisan/demandes', ['nouvelle_demande', 'demande_refusee', 'nouvelle_demande_express', 'travaux_valides'])}
                   className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
                 >
                   <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
