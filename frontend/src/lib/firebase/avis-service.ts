@@ -46,6 +46,23 @@ export async function createAvis(data: {
       throw new Error('Le commentaire doit contenir au moins 10 caractères');
     }
 
+    // Sécuriser la cohérence des IDs à partir du devis source
+    let artisanIdForAvis = data.artisanId;
+    try {
+      const devisSnap = await getDoc(doc(db, 'devis', data.contratId));
+      if (devisSnap.exists()) {
+        const devisData = devisSnap.data() as Partial<Devis>;
+        if (devisData.clientId && devisData.clientId !== data.clientId) {
+          throw new Error('Ce devis n\'appartient pas à ce client');
+        }
+        if (devisData.artisanId) {
+          artisanIdForAvis = devisData.artisanId;
+        }
+      }
+    } catch (idCheckError) {
+      console.warn('⚠️ Vérification devis pour cohérence artisanId échouée:', idCheckError);
+    }
+
     // Vérifier qu'un avis n'existe pas déjà pour ce contrat
     const existingAvis = await getAvisByContratId(data.contratId);
     if (existingAvis) {
@@ -55,7 +72,7 @@ export async function createAvis(data: {
     // Créer l'avis
     const avisRef = await addDoc(collection(db, 'avis'), {
       contratId: data.contratId,
-      artisanId: data.artisanId,
+      artisanId: artisanIdForAvis,
       clientId: data.clientId,
       note: data.note,
       commentaire: data.commentaire.trim(),
@@ -73,14 +90,14 @@ export async function createAvis(data: {
     // ⚠️ Try/catch séparé : si la mise à jour notation échoue (règles Firestore),
     // l'avis est quand même créé - la notation sera recalculée à la prochaine occasion
     try {
-      await updateNotation(data.artisanId, data.note);
+      await updateNotation(artisanIdForAvis, data.note);
     } catch (notationError) {
       console.warn('⚠️ Mise à jour notation artisan échouée (non bloquant):', notationError);
     }
 
     // Mettre à jour les stats de l'artisan
     try {
-      await updateNoteGlobale(data.artisanId, data.note);
+      await updateNoteGlobale(artisanIdForAvis, data.note);
     } catch (statsError) {
       console.warn('⚠️ Mise à jour stats artisan échouée (non bloquant):', statsError);
     }
@@ -96,7 +113,7 @@ export async function createAvis(data: {
 
     // Notifier l'artisan qu'il a reçu un nouvel avis
     try {
-      await createNotification(data.artisanId, {
+      await createNotification(artisanIdForAvis, {
         type: 'nouvel_avis',
         titre: '⭐ Nouvel avis reçu',
         message: `Un client vous a laissé un avis ${data.note}/5 étoiles.`,

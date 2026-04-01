@@ -74,12 +74,14 @@ export default function AvisArtisanPage() {
 
       setArtisan(artisanData);
 
+      const artisanUid = currentUser.uid;
+
       // Charger les avis
-      const avisData = await getAvisByArtisanId(artisanData.userId);
+      const avisData = await getAvisByArtisanId(artisanUid);
       setAvis(avisData);
 
       // Calculer statistiques
-      const statsData = await calculateAverageRating(artisanData.userId);
+      const statsData = await calculateAverageRating(artisanUid);
       setStats(statsData);
 
       // Charger les noms des clients
@@ -152,11 +154,12 @@ export default function AvisArtisanPage() {
   }
 
   async function handleRepondre(avisId: string) {
-    if (!artisan) return;
+    const artisanUid = authUser?.uid || artisan?.userId;
+    if (!artisanUid) return;
 
     setSubmitting(true);
     try {
-      await addReponseArtisan(avisId, artisan.userId, reponseTexte);
+      await addReponseArtisan(avisId, artisanUid, reponseTexte);
       alert(t('artisanReviews.alerts.responsePublished'));
       setReponseEnCours(null);
       setReponseTexte('');
