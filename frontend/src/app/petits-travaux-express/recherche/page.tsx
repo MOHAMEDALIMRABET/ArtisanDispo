@@ -350,15 +350,15 @@ export default function RechercheExpressPage() {
               </svg>
             </Link>
             <span className="text-[#6C757D]">&gt;</span>
-            <Link href="/petits-travaux-express" className="text-[#2C3E50] hover:text-[#FF6B00] transition-colors">
-              Travaux express
+            <Link href="/petits-travaux-express/recherche" className="text-[#2C3E50] hover:text-[#FF6B00] transition-colors">
+              Travaux urgents
             </Link>
             <span className="text-[#6C757D]">&gt;</span>
             <span className="text-[#2C3E50] font-semibold">Recherche d'artisan</span>
           </nav>
 
           <h1 className="text-2xl md:text-3xl font-bold text-[#2C3E50]">
-            🚀 Trouvez un artisan pour vos travaux express
+            🚀 Trouvez un artisan pour vos travaux urgents
           </h1>
           <p className="text-[#6C757D] mt-2">
             Intervention rapide • Moins de 150€ • Sans devis formel

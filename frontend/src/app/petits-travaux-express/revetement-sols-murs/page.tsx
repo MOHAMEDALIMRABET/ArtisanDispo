@@ -46,7 +46,7 @@ export default function RevetementPage() {
               </svg>
             </Link>
             <span className="text-[#6C757D]">&gt;</span>
-            <Link href="/petits-travaux-express" className="text-[#2C3E50] hover:text-[#FF6B00] transition-colors">
+            <Link href="/petits-travaux-express/recherche" className="text-[#2C3E50] hover:text-[#FF6B00] transition-colors">
               Travaux express
             </Link>
             <span className="text-[#6C757D]">&gt;</span>
@@ -106,7 +106,7 @@ export default function RevetementPage() {
           {/* Bouton retour */}
           <div className="mt-12 text-center">
             <Link 
-              href="/petits-travaux-express"
+              href="/petits-travaux-express/recherche"
               className="inline-flex items-center gap-2 text-[#2C3E50] hover:text-[#FF6B00] font-medium transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

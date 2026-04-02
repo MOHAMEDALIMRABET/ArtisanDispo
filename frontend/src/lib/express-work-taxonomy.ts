@@ -24,7 +24,7 @@ interface ExpressTypeConfig {
 export const EXPRESS_WORK_TAXONOMY: Record<TypeTravauxExpress, ExpressTypeConfig> = {
   'depannage-urgence': {
     label: 'Depannage en urgence',
-    urgenceLabel: 'Urgence (30 min et 1H)',
+    urgenceLabel: 'Urgence (30 min et 1h)',
     urgenceValue: 'immediat',
     categories: [
       {

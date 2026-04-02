@@ -209,7 +209,7 @@ export default function NouvelleDemandeExpressPage() {
               Accueil
             </Link>
             <span className="text-[#6C757D]">&gt;</span>
-            <Link href="/petits-travaux-express" className="text-[#2C3E50] hover:text-[#FF6B00]">
+            <Link href="/petits-travaux-express/recherche" className="text-[#2C3E50] hover:text-[#FF6B00]">
               Travaux express
             </Link>
             <span className="text-[#6C757D]">&gt;</span>

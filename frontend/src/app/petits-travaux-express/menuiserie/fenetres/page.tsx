@@ -46,7 +46,7 @@ export default function FenetresPage() {
               </svg>
             </Link>
             <span className="text-[#6C757D]">&gt;</span>
-            <Link href="/petits-travaux-express" className="text-[#2C3E50] hover:text-[#FF6B00] transition-colors">
+            <Link href="/petits-travaux-express/recherche" className="text-[#2C3E50] hover:text-[#FF6B00] transition-colors">
               Travaux express
             </Link>
             <span className="text-[#6C757D]">&gt;</span>
