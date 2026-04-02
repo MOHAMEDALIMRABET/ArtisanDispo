@@ -10,6 +10,7 @@ import { Button, Input, Logo } from '@/components/ui';
 import { AddressAutocomplete } from '@/components/AddressAutocomplete';
 import { METIERS_MAP, METIERS_DISPONIBLES } from '@/lib/constants/metiers';
 import { artisanDoitDecennale } from '@/lib/decennale-helper';
+import { EXPRESS_WORK_TAXONOMY } from '@/lib/express-work-taxonomy';
 import type { Categorie, Artisan, ZoneIntervention } from '@/types/firestore';
 
 interface VilleSuggestion {
@@ -36,6 +37,8 @@ export default function ProfilArtisanPage() {
   const [raisonSociale, setRaisonSociale] = useState('');
   const [adresse, setAdresse] = useState('');
   const [metiers, setMetiers] = useState<Categorie[]>([]);
+  const [specialitesDepannage, setSpecialitesDepannage] = useState<string[]>([]);
+  const [specialitesPetitsTravaux, setSpecialitesPetitsTravaux] = useState<string[]>([]);
   const [ville, setVille] = useState('');
   const [codePostal, setCodePostal] = useState('');
   const [rayonKm, setRayonKm] = useState(30);
@@ -84,6 +87,8 @@ export default function ProfilArtisanPage() {
       
       console.log('Métiers après conversion:', metiersArray);
       setMetiers(metiersArray);
+      setSpecialitesDepannage(artisanData.specialitesExpress?.depannageUrgence ?? []);
+      setSpecialitesPetitsTravaux(artisanData.specialitesExpress?.petitsTravauxMaintenance ?? []);
       setPresentation(artisanData.presentation || '');
       
       if (artisanData.zonesIntervention && artisanData.zonesIntervention.length > 0) {
@@ -142,6 +147,18 @@ export default function ProfilArtisanPage() {
     } else {
       setMetiers([...metiers, metier]);
     }
+  }
+
+  function toggleSpecialiteDepannage(cat: string) {
+    setSpecialitesDepannage(prev =>
+      prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
+    );
+  }
+
+  function toggleSpecialitePetitsTravaux(cat: string) {
+    setSpecialitesPetitsTravaux(prev =>
+      prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
+    );
   }
 
   function validateSiret(value: string): boolean {
@@ -206,7 +223,11 @@ export default function ProfilArtisanPage() {
         adresse: adresse.trim(),
         metiers,
         zonesIntervention,
-        presentation: presentation.trim() || undefined
+        presentation: presentation.trim() || undefined,
+        specialitesExpress: {
+          depannageUrgence: specialitesDepannage,
+          petitsTravauxMaintenance: specialitesPetitsTravaux,
+        },
       });
 
       setSuccess(t('profile.messages.updateSuccess'));
@@ -328,9 +349,10 @@ export default function ProfilArtisanPage() {
 
           {/* Métiers */}
           <div className="border-b border-gray-200 pb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">
-              {t('profile.trades.title')} <span className="text-sm text-gray-500 font-normal">{t('profile.trades.selectAtLeastOne')}</span>
-            </h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-1">� Travaux classiques</h2>
+            <p className="text-sm text-gray-500 mb-4">
+              {t('profile.trades.title')} <span className="font-normal">{t('profile.trades.selectAtLeastOne')}</span>
+            </p>
 
             {/* Avertissement blocage si décennale en cours */}
             {decennaleEnCoursVerification && (
@@ -387,6 +409,88 @@ export default function ProfilArtisanPage() {
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Dépannages rapides */}
+          <div className="border-b border-gray-200 pb-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-1">🚀 Dépannages rapides</h2>
+            <p className="text-sm text-gray-500 mb-5">Sélectionnez les domaines dans lesquels vous intervenez en urgence ou pour de petits travaux.</p>
+
+            {/* 🚨 Dépannage en urgence */}
+            <div className="mb-5">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-lg">🚨</span>
+                <h3 className="font-semibold text-gray-800">Dépannage en urgence</h3>
+                <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Urgent (30 min – 1h)</span>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {EXPRESS_WORK_TAXONOMY['depannage-urgence'].categories.map((cat) => {
+                  const selected = specialitesDepannage.includes(cat.value);
+                  return (
+                    <div key={cat.value}>
+                      <button
+                        type="button"
+                        onClick={() => toggleSpecialiteDepannage(cat.value)}
+                        className={`w-full p-3 rounded-lg border-2 text-sm font-medium transition-all text-left ${
+                          selected
+                            ? 'border-red-500 bg-red-50 text-red-700'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        {cat.label}
+                      </button>
+                      {selected && (
+                        <div className="mt-1 flex flex-wrap gap-1 px-1">
+                          {cat.sousCategories.map((sc) => (
+                            <span key={sc.value} className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">
+                              {sc.label}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 🛠️ Petits travaux & maintenance */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-lg">🛠️</span>
+                <h3 className="font-semibold text-gray-800">Petits travaux &amp; maintenance</h3>
+                <span className="text-xs bg-orange-100 text-[#FF6B00] px-2 py-0.5 rounded-full">Immédiat (2h)</span>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {EXPRESS_WORK_TAXONOMY['petits-travaux-maintenance'].categories.map((cat) => {
+                  const selected = specialitesPetitsTravaux.includes(cat.value);
+                  return (
+                    <div key={cat.value}>
+                      <button
+                        type="button"
+                        onClick={() => toggleSpecialitePetitsTravaux(cat.value)}
+                        className={`w-full p-3 rounded-lg border-2 text-sm font-medium transition-all text-left ${
+                          selected
+                            ? 'border-[#FF6B00] bg-orange-50 text-[#FF6B00]'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        {cat.label}
+                      </button>
+                      {selected && (
+                        <div className="mt-1 flex flex-wrap gap-1 px-1">
+                          {cat.sousCategories.map((sc) => (
+                            <span key={sc.value} className="text-xs bg-orange-100 text-[#FF6B00] px-2 py-0.5 rounded-full">
+                              {sc.label}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
           {/* Zone d'intervention */}

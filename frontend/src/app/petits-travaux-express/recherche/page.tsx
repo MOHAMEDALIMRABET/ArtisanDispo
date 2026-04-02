@@ -31,6 +31,15 @@ export default function RechercheExpressPage() {
 
   // Paramètres URL
   const typeTravauxParam = (searchParams.get('typeTravaux') as TypeTravauxExpress) || 'depannage-urgence';
+  // Verrouiller le type si passé explicitement en URL (depuis la landing page)
+  const isTypeLocked = !!searchParams.get('typeTravaux');
+
+  // Rediriger vers la landing si aucun typeTravaux en URL
+  useEffect(() => {
+    if (!searchParams.get('typeTravaux')) {
+      router.replace('/petits-travaux-express');
+    }
+  }, []);
   const categorieParam = searchParams.get('categorie') || '';
   const sousCategorieParam = searchParams.get('sousCategorie') || '';
   const villeParam = searchParams.get('ville') || '';
@@ -340,76 +349,39 @@ export default function RechercheExpressPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#F8F9FA] to-white">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-[#E9ECEF]">
-        <div className="container mx-auto px-4 py-6">
-          {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-sm mb-4">
-            <Link href="/" className="text-[#2C3E50] hover:text-[#FF6B00] transition-colors flex items-center gap-1">
+      {/* ── Breadcrumb ── */}
+      <div className="bg-white border-b border-[#E9ECEF]">
+        <div className="container mx-auto px-4 py-3">
+          <nav className="flex items-center gap-2 text-sm text-[#6C757D]">
+            <Link href="/" className="hover:text-[#FF6B00] transition-colors flex items-center gap-1">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
               </svg>
+              Accueil
             </Link>
-            <span className="text-[#6C757D]">&gt;</span>
-            <Link href="/petits-travaux-express/recherche" className="text-[#2C3E50] hover:text-[#FF6B00] transition-colors">
+            <span>&gt;</span>
+            <Link href="/petits-travaux-express" className="text-[#2C3E50] hover:text-[#FF6B00] transition-colors">
               Travaux en urgence
             </Link>
-            <span className="text-[#6C757D]">&gt;</span>
+            <span>&gt;</span>
             <span className="text-[#2C3E50] font-semibold">Recherche d'artisan</span>
           </nav>
-
-          <h1 className="text-2xl md:text-3xl font-bold text-[#2C3E50]">
-            🚀 Trouvez un artisan pour vos travaux urgents
-          </h1>
-          <p className="text-[#6C757D] mt-2">
-            Intervention rapide • Moins de 150€ • Sans devis formel
-          </p>
-          
-          {/* Badge info travaux express */}
-          <div className="mt-4 inline-flex items-center gap-2 bg-orange-50 border border-orange-200 text-orange-700 px-4 py-2 rounded-lg text-sm font-medium">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>Recherche spécialisée petits travaux express uniquement</span>
-          </div>
-
-          <div className="mt-5 bg-white border border-[#E9ECEF] rounded-xl p-5 shadow-sm">
-            <p className="text-[#2C3E50] font-semibold">
-              Des artisans disponibles pour vos petits travaux du quotidien
-            </p>
-            <p className="text-[#6C757D] text-sm mt-1">
-              2500 artisans près de chez vous pour vos dépannages express (moins de 150€)
-            </p>
-
-            <div className="mt-4">
-              <button
-                type="button"
-                onClick={() => setShowHowItWorks(!showHowItWorks)}
-                className="inline-flex items-center gap-2 bg-[#2C3E50] text-white hover:bg-[#1A3A5C] px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
-              >
-                {showHowItWorks ? 'Masquer' : 'Comment ça marche ?'}
-                <span>{showHowItWorks ? '▲' : '▼'}</span>
-              </button>
-
-              {showHowItWorks && (
-                <ol className="mt-3 space-y-2 text-sm text-[#2C3E50]">
-                  <li>
-                    <span className="font-bold text-[#FF6B00] mr-2">1.</span>
-                    Vous décrivez votre projet
-                  </li>
-                  <li>
-                    <span className="font-bold text-[#FF6B00] mr-2">2.</span>
-                    Nous vous mettons en relation avec des artisans de notre réseau proches de chez vous
-                  </li>
-                  <li>
-                    <span className="font-bold text-[#FF6B00] mr-2">3.</span>
-                    L'artisan intervient rapidement (moins de 150€, sans devis formel)
-                  </li>
-                </ol>
-              )}
-            </div>
-          </div>
         </div>
       </div>
+
+      {/* ── Bannière ── */}
+      <section className={`text-white py-3 md:py-4 ${typeTravaux === 'depannage-urgence' ? 'bg-[#DC3545]' : 'bg-[#FF6B00]'}`}>
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-2xl md:text-3xl font-bold leading-tight">
+            {typeTravaux === 'depannage-urgence'
+              ? '🚨 Dépannage en urgence — Artisan disponible sous 30 min – 1h'
+              : '🛠️ Petits travaux & maintenance — Artisan disponible sous 2h'}
+          </h1>
+          <p className={`text-sm md:text-base mt-1 ${typeTravaux === 'depannage-urgence' ? 'text-red-100' : 'text-[#4A4A4A]'}`}>
+            Intervention rapide&nbsp;•&nbsp;Moins de 150&nbsp;€&nbsp;•&nbsp;Sans devis formel
+          </p>
+        </div>
+      </section>
 
       {/* Formulaire de recherche */}
       <div className="container mx-auto px-4 py-8">
@@ -421,19 +393,25 @@ export default function RechercheExpressPage() {
               <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
                 Type de travaux <span className="text-red-500">*</span>
               </label>
-              <select
-                value={typeTravaux}
-                onChange={(e) => {
-                  setTypeTravaux(e.target.value as TypeTravauxExpress);
-                  setCategorie('');
-                  setSousCategorie('');
-                }}
-                required
-                className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
-              >
-                <option value="depannage-urgence">🚨 Dépannage en urgence</option>
-                <option value="petits-travaux-maintenance">🛠️ Petits travaux &amp; maintenance</option>
-              </select>
+              {isTypeLocked ? (
+                <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
+                  {typeTravaux === 'depannage-urgence' ? '🚨 Dépannage en urgence' : '🛠️ Petits travaux & maintenance'}
+                </div>
+              ) : (
+                <select
+                  value={typeTravaux}
+                  onChange={(e) => {
+                    setTypeTravaux(e.target.value as TypeTravauxExpress);
+                    setCategorie('');
+                    setSousCategorie('');
+                  }}
+                  required
+                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
+                >
+                  <option value="depannage-urgence">🚨 Dépannage en urgence</option>
+                  <option value="petits-travaux-maintenance">🛠️ Petits travaux &amp; maintenance</option>
+                </select>
+              )}
             </div>
 
             <div>
@@ -565,7 +543,7 @@ export default function RechercheExpressPage() {
                 Urgence
               </label>
               <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
-                {typeTravaux === 'depannage-urgence' ? '🚨' : '⚡'} {EXPRESS_WORK_TAXONOMY[typeTravaux].urgenceLabel}
+                {EXPRESS_WORK_TAXONOMY[typeTravaux].urgenceLabel}
               </div>
             </div>
 

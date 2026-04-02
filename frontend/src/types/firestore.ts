@@ -485,6 +485,12 @@ export interface Artisan {
   tarifHoraire?: number; // Tarif horaire en € (pour interventions rapides < 150€)
   disponiblePetitsTravaux?: boolean; // Accepte les petits travaux sans devis
   delaiInterventionRapide?: number; // Délai en heures pour intervention rapide (ex: 2h, 4h, 24h)
+
+  // Spécialités dépannages rapides (express)
+  specialitesExpress?: {
+    depannageUrgence?: string[];         // valeurs de catégories sélectionnées
+    petitsTravauxMaintenance?: string[]; // valeurs de catégories sélectionnées
+  };
 }
 
 // ============================================
