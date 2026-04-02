@@ -351,7 +351,7 @@ export default function RechercheExpressPage() {
             </Link>
             <span className="text-[#6C757D]">&gt;</span>
             <Link href="/petits-travaux-express/recherche" className="text-[#2C3E50] hover:text-[#FF6B00] transition-colors">
-              Travaux urgents
+              Travaux en urgence
             </Link>
             <span className="text-[#6C757D]">&gt;</span>
             <span className="text-[#2C3E50] font-semibold">Recherche d'artisan</span>

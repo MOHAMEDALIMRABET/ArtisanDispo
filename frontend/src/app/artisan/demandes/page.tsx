@@ -1050,7 +1050,7 @@ export default function ArtisanDemandesPage() {
               <div className="bg-[#FF6B00] px-6 py-4 flex items-center gap-3">
                 <span className="text-3xl">⚡</span>
                 <div className="flex-1">
-                  <div className="text-white font-bold text-xl">Demandes Express</div>
+                  <div className="text-white font-bold text-xl">Demandes en urgence</div>
                   <div className="text-orange-100 text-sm">Petits travaux rapides</div>
                 </div>
                 {nbNouvellesExpress > 0 && (

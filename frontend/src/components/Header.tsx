@@ -27,9 +27,9 @@ export default function Header() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Helper : Tous les CTA travaux express/urgents pointent vers la recherche
+  // Helper : CTA travaux urgents → page d'atterrissage
   const getExpressWorksUrl = () => {
-    return '/petits-travaux-express/recherche';
+    return '/petits-travaux-express';
   };
 
   // Helper : Navigation logo - Toujours vers page d'accueil
