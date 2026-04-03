@@ -13,7 +13,9 @@ import type { PropositionExpress, DemandeExpress, Artisan } from '@/types/firest
 import { Button } from '@/components/ui/Button';
 import CheckoutForm from './CheckoutForm';
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+  ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
+  : null;
 
 function SimulationPayForm({
   montant,

@@ -1084,7 +1084,6 @@ export default function ArtisanDemandesPage() {
                   )}
                 </div>
                 <div className="p-3 rounded-xl bg-gray-50 border border-gray-200">
-                  <div className="text-xs text-gray-500 leading-relaxed">Interventions rapides à prix fixe, directement proposées aux artisans disponibles.</div>
                 </div>
                 {nbNouvellesExpress > 0 && (
                   <div className="flex items-center gap-2 text-[#FF6B00] text-sm font-semibold">

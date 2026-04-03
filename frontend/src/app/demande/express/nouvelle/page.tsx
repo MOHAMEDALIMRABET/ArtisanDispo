@@ -234,39 +234,51 @@ export default function NouvelleDemandeExpressPage() {
               <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
                 Type de travaux <span className="text-red-500">*</span>
               </label>
-              <select
-                value={typeTravaux}
-                onChange={(e) => {
-                  setTypeTravaux(e.target.value as TypeTravauxExpress);
-                  setCategorieExpress('');
-                  setSousCategorie('');
-                }}
-                required
-                className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
-              >
-                <option value="depannage-urgence">🚨 Dépannage en urgence</option>
-                <option value="petits-travaux-maintenance">🛠️ Petits travaux & maintenance</option>
-              </select>
+              {typeTravauxParam ? (
+                <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
+                  {typeTravaux === 'depannage-urgence' ? '🚨 Dépannage en urgence' : '🛠️ Petits travaux & maintenance'}
+                </div>
+              ) : (
+                <select
+                  value={typeTravaux}
+                  onChange={(e) => {
+                    setTypeTravaux(e.target.value as TypeTravauxExpress);
+                    setCategorieExpress('');
+                    setSousCategorie('');
+                  }}
+                  required
+                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
+                >
+                  <option value="depannage-urgence">🚨 Dépannage en urgence</option>
+                  <option value="petits-travaux-maintenance">🛠️ Petits travaux & maintenance</option>
+                </select>
+              )}
             </div>
 
             <div>
               <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
                 Catégorie <span className="text-red-500">*</span>
               </label>
-              <select
-                value={categorieExpress}
-                onChange={(e) => {
-                  setCategorieExpress(e.target.value);
-                  setSousCategorie('');
-                }}
-                required
-                className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
-              >
-                <option value="">Sélectionnez une catégorie</option>
-                {categorieOptions.map((cat) => (
-                  <option key={cat.value} value={cat.value}>{cat.label}</option>
-                ))}
-              </select>
+              {categorieExpressParam ? (
+                <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
+                  {selectedCategorie?.label ?? categorieExpress}
+                </div>
+              ) : (
+                <select
+                  value={categorieExpress}
+                  onChange={(e) => {
+                    setCategorieExpress(e.target.value);
+                    setSousCategorie('');
+                  }}
+                  required
+                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
+                >
+                  <option value="">Sélectionnez une catégorie</option>
+                  {categorieOptions.map((cat) => (
+                    <option key={cat.value} value={cat.value}>{cat.label}</option>
+                  ))}
+                </select>
+              )}
             </div>
 
             {/* Sous-catégorie */}
@@ -275,18 +287,24 @@ export default function NouvelleDemandeExpressPage() {
                 <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
                   Sous catégorie
                 </label>
-                <select
-                  value={sousCategorie}
-                  onChange={(e) => setSousCategorie(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
-                >
-                  <option value="">Toutes</option>
-                  {selectedCategorie.sousCategories.map((sc) => (
-                    <option key={sc.value} value={sc.value}>
-                      {sc.label}
-                    </option>
-                  ))}
-                </select>
+                {sousCategorieParam ? (
+                  <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
+                    {selectedCategorie.sousCategories.find(sc => sc.value === sousCategorie)?.label ?? sousCategorie}
+                  </div>
+                ) : (
+                  <select
+                    value={sousCategorie}
+                    onChange={(e) => setSousCategorie(e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
+                  >
+                    <option value="">Toutes</option>
+                    {selectedCategorie.sousCategories.map((sc) => (
+                      <option key={sc.value} value={sc.value}>
+                        {sc.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
             )}
 
@@ -381,29 +399,41 @@ export default function NouvelleDemandeExpressPage() {
                 <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
                   Ville <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  value={ville}
-                  onChange={(e) => setVille(e.target.value)}
-                  required
-                  placeholder="Ex: Paris"
-                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
-                />
+                {villeParam ? (
+                  <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
+                    {ville}
+                  </div>
+                ) : (
+                  <input
+                    type="text"
+                    value={ville}
+                    onChange={(e) => setVille(e.target.value)}
+                    required
+                    placeholder="Ex: Paris"
+                    className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
+                  />
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
                   Code postal <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  value={codePostal}
-                  onChange={(e) => setCodePostal(e.target.value)}
-                  required
-                  pattern="[0-9]{5}"
-                  placeholder="Ex: 75001"
-                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
-                />
+                {codePostalParam ? (
+                  <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
+                    {codePostal}
+                  </div>
+                ) : (
+                  <input
+                    type="text"
+                    value={codePostal}
+                    onChange={(e) => setCodePostal(e.target.value)}
+                    required
+                    pattern="[0-9]{5}"
+                    placeholder="Ex: 75001"
+                    className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
+                  />
+                )}
               </div>
             </div>
 

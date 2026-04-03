@@ -87,9 +87,6 @@ app.use('/api/v1/webhooks', express.raw({ type: 'application/json' }), webhooksR
 // Webhook Stripe Connect (raw body requis)
 app.use('/api/v1/stripe/webhook', express.raw({ type: 'application/json' }));
 
-// Routes Stripe Express (inclut son propre webhook avec raw body)
-app.use('/api/v1/stripe-express', stripeExpressRoutes);
-
 // Middleware JSON (pour toutes les autres routes)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -126,6 +123,9 @@ app.use('/api/v1/sirene', sireneRoutes);
 
 // Routes Paiements (Stripe escrow)
 app.use('/api/v1/payments', paymentsRoutes);
+
+// Routes Stripe Express (webhook inclut son propre raw body middleware)
+app.use('/api/v1/stripe-express', stripeExpressRoutes);
 
 // Routes Stripe Connect (onboarding artisans)
 app.use('/api/v1/stripe', stripeRoutes);
