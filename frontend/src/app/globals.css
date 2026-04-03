@@ -373,7 +373,7 @@ body {
 /* Masquer les éléments non imprimables */
 @media print {
   .no-print,
-  .print\\:hidden {
+  .print-hidden {
     display: none !important;
   }
   

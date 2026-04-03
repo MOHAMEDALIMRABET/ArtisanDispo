@@ -38,7 +38,10 @@ export default function ProfilArtisanPage() {
   const [adresse, setAdresse] = useState('');
   const [metiers, setMetiers] = useState<Categorie[]>([]);
   const [specialitesDepannage, setSpecialitesDepannage] = useState<string[]>([]);
+  const [sousCatsDepannage, setSousCatsDepannage] = useState<string[]>([]);
   const [specialitesPetitsTravaux, setSpecialitesPetitsTravaux] = useState<string[]>([]);
+  const [sousCatsPetitsTravaux, setSousCatsPetitsTravaux] = useState<string[]>([]);
+  const [typesTravauxChoisis, setTypesTravauxChoisis] = useState<('travaux-classiques' | 'depannages-rapides')[]>([]);
   const [ville, setVille] = useState('');
   const [codePostal, setCodePostal] = useState('');
   const [rayonKm, setRayonKm] = useState(30);
@@ -70,11 +73,6 @@ export default function ProfilArtisanPage() {
 
       setArtisan(artisanData);
       
-      // DEBUG: Voir les métiers dans Firestore
-      console.log('Métiers chargés depuis Firestore:', artisanData.metiers);
-      console.log('Type des métiers:', typeof artisanData.metiers, Array.isArray(artisanData.metiers));
-      console.log('Métiers détaillés:', JSON.stringify(artisanData.metiers));
-      
       // Pré-remplir le formulaire
       setSiret(artisanData.siret || '');
       setRaisonSociale(artisanData.raisonSociale || '');
@@ -85,10 +83,22 @@ export default function ProfilArtisanPage() {
         ? artisanData.metiers 
         : (artisanData.metiers ? Object.values(artisanData.metiers) : []);
       
-      console.log('Métiers après conversion:', metiersArray);
       setMetiers(metiersArray);
       setSpecialitesDepannage(artisanData.specialitesExpress?.depannageUrgence ?? []);
+      setSousCatsDepannage(artisanData.specialitesExpress?.depannageUrgenceSousCategories ?? []);
       setSpecialitesPetitsTravaux(artisanData.specialitesExpress?.petitsTravauxMaintenance ?? []);
+      setSousCatsPetitsTravaux(artisanData.specialitesExpress?.petitsTravauxSousCategories ?? []);
+
+      // Initialiser typesTravauxChoisis avec backward compat
+      const typesTravaux: ('travaux-classiques' | 'depannages-rapides')[] = [...(artisanData.typesTravauxChoisis ?? [])];
+      if (!typesTravaux.includes('travaux-classiques') && metiersArray.length > 0) typesTravaux.push('travaux-classiques');
+      if (!typesTravaux.includes('depannages-rapides') &&
+        ((artisanData.specialitesExpress?.depannageUrgence?.length ?? 0) > 0 ||
+         (artisanData.specialitesExpress?.petitsTravauxMaintenance?.length ?? 0) > 0)) {
+        typesTravaux.push('depannages-rapides');
+      }
+      setTypesTravauxChoisis(typesTravaux);
+
       setPresentation(artisanData.presentation || '');
       
       if (artisanData.zonesIntervention && artisanData.zonesIntervention.length > 0) {
@@ -149,15 +159,77 @@ export default function ProfilArtisanPage() {
     }
   }
 
-  function toggleSpecialiteDepannage(cat: string) {
+  function toggleSpecialiteDepannage(catValue: string) {
+    const isSelected = specialitesDepannage.includes(catValue);
     setSpecialitesDepannage(prev =>
-      prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
+      isSelected ? prev.filter(c => c !== catValue) : [...prev, catValue]
     );
+    const catDef = EXPRESS_WORK_TAXONOMY['depannage-urgence'].categories.find(c => c.value === catValue);
+    if (catDef) {
+      const scValues = catDef.sousCategories.map(sc => sc.value);
+      if (isSelected) {
+        // Désélectionner toutes les sous-catégories de cette catégorie
+        setSousCatsDepannage(prev => prev.filter(sc => !scValues.includes(sc)));
+      } else {
+        // Sélectionner automatiquement toutes les sous-catégories
+        setSousCatsDepannage(prev => [...new Set([...prev, ...scValues])]);
+      }
+    }
   }
 
-  function toggleSpecialitePetitsTravaux(cat: string) {
+  function toggleSousCatDepannage(scValue: string, catValue: string) {
+    setSousCatsDepannage(prev => {
+      const updated = prev.includes(scValue) ? prev.filter(s => s !== scValue) : [...prev, scValue];
+      // Si toutes les sous-catégories de la catégorie sont désélectionnées, désélectionner la catégorie
+      const catDef = EXPRESS_WORK_TAXONOMY['depannage-urgence'].categories.find(c => c.value === catValue);
+      if (catDef) {
+        const scValues = catDef.sousCategories.map(sc => sc.value);
+        const anyRemaining = scValues.some(sc => updated.includes(sc));
+        if (!anyRemaining) {
+          setSpecialitesDepannage(p => p.filter(c => c !== catValue));
+        }
+      }
+      return updated;
+    });
+  }
+
+  function toggleSpecialitePetitsTravaux(catValue: string) {
+    const isSelected = specialitesPetitsTravaux.includes(catValue);
     setSpecialitesPetitsTravaux(prev =>
-      prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
+      isSelected ? prev.filter(c => c !== catValue) : [...prev, catValue]
+    );
+    const catDef = EXPRESS_WORK_TAXONOMY['petits-travaux-maintenance'].categories.find(c => c.value === catValue);
+    if (catDef) {
+      const scValues = catDef.sousCategories.map(sc => sc.value);
+      if (isSelected) {
+        // Désélectionner toutes les sous-catégories de cette catégorie
+        setSousCatsPetitsTravaux(prev => prev.filter(sc => !scValues.includes(sc)));
+      } else {
+        // Sélectionner automatiquement toutes les sous-catégories
+        setSousCatsPetitsTravaux(prev => [...new Set([...prev, ...scValues])]);
+      }
+    }
+  }
+
+  function toggleSousCatPetitsTravaux(scValue: string, catValue: string) {
+    setSousCatsPetitsTravaux(prev => {
+      const updated = prev.includes(scValue) ? prev.filter(s => s !== scValue) : [...prev, scValue];
+      // Si toutes les sous-catégories de la catégorie sont désélectionnées, désélectionner la catégorie
+      const catDef = EXPRESS_WORK_TAXONOMY['petits-travaux-maintenance'].categories.find(c => c.value === catValue);
+      if (catDef) {
+        const scValues = catDef.sousCategories.map(sc => sc.value);
+        const anyRemaining = scValues.some(sc => updated.includes(sc));
+        if (!anyRemaining) {
+          setSpecialitesPetitsTravaux(p => p.filter(c => c !== catValue));
+        }
+      }
+      return updated;
+    });
+  }
+
+  function toggleTypesTravaux(type: 'travaux-classiques' | 'depannages-rapides') {
+    setTypesTravauxChoisis(prev =>
+      prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
     );
   }
 
@@ -187,8 +259,19 @@ export default function ProfilArtisanPage() {
       return;
     }
 
-    if (metiers.length === 0) {
-      setError(t('profile.messages.tradesRequired'));
+    if (typesTravauxChoisis.length === 0) {
+      setError('Veuillez sélectionner au moins un type de travaux : 🏗️ Travaux classiques et/ou 🚀 Dépannages rapides.');
+      return;
+    }
+
+    if (typesTravauxChoisis.includes('travaux-classiques') && metiers.length === 0) {
+      setError('Vous avez sélectionné 🏗️ Travaux classiques — veuillez choisir au moins un métier (Plomberie, Électricité, Maçonnerie…).');
+      return;
+    }
+
+    if (typesTravauxChoisis.includes('depannages-rapides') &&
+        specialitesDepannage.length === 0 && specialitesPetitsTravaux.length === 0) {
+      setError('Vous avez sélectionné 🚀 Dépannages rapides — veuillez choisir au moins une catégorie dans 🚨 Dépannage en urgence ou 🛠️ Petits travaux & maintenance.');
       return;
     }
 
@@ -211,22 +294,22 @@ export default function ProfilArtisanPage() {
         ville: ville.trim(),
         codePostal: codePostal.trim(),
         rayonKm,
-        departements: [] // À implémenter plus tard
+        departements: []
       }];
 
-      // DEBUG: Voir les métiers avant sauvegarde
-      console.log('Métiers à sauvegarder:', metiers);
-      
       await updateArtisan(artisan.userId, {
         siret: siret.replace(/\s/g, ''),
         raisonSociale: raisonSociale.trim(),
         adresse: adresse.trim(),
         metiers,
+        typesTravauxChoisis,
         zonesIntervention,
         presentation: presentation.trim() || undefined,
         specialitesExpress: {
           depannageUrgence: specialitesDepannage,
+          depannageUrgenceSousCategories: sousCatsDepannage,
           petitsTravauxMaintenance: specialitesPetitsTravaux,
+          petitsTravauxSousCategories: sousCatsPetitsTravaux,
         },
       });
 
@@ -347,9 +430,44 @@ export default function ProfilArtisanPage() {
             </div>
           </div>
 
-          {/* Métiers */}
+          {/* Type de travaux */}
           <div className="border-b border-gray-200 pb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-1">� Travaux classiques</h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-2">Type de travaux</h2>
+            <p className="text-sm text-gray-500 mb-4">Sélectionnez au moins un type de travaux que vous proposez.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => toggleTypesTravaux('travaux-classiques')}
+                className={`p-4 rounded-lg border-2 text-left transition-all ${
+                  typesTravauxChoisis.includes('travaux-classiques')
+                    ? 'border-[#FF6B00] bg-orange-50'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                }`}
+              >
+                <div className="text-3xl mb-1">🏗️</div>
+                <div className="font-semibold text-gray-800">Travaux classiques</div>
+                <div className="text-sm text-gray-500 mt-1">Plomberie, électricité, maçonnerie, peinture…</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => toggleTypesTravaux('depannages-rapides')}
+                className={`p-4 rounded-lg border-2 text-left transition-all ${
+                  typesTravauxChoisis.includes('depannages-rapides')
+                    ? 'border-[#FF6B00] bg-orange-50'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                }`}
+              >
+                <div className="text-3xl mb-1">🚀</div>
+                <div className="font-semibold text-gray-800">Dépannages rapides</div>
+                <div className="text-sm text-gray-500 mt-1">Urgences, petits travaux &amp; maintenance</div>
+              </button>
+            </div>
+          </div>
+
+          {/* Métiers */}
+          {typesTravauxChoisis.includes('travaux-classiques') && (
+          <div className="border-b border-gray-200 pb-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-1">🏗️ Travaux classiques</h2>
             <p className="text-sm text-gray-500 mb-4">
               {t('profile.trades.title')} <span className="font-normal">{t('profile.trades.selectAtLeastOne')}</span>
             </p>
@@ -410,11 +528,13 @@ export default function ProfilArtisanPage() {
               </div>
             )}
           </div>
+          )}
 
           {/* Dépannages rapides */}
+          {typesTravauxChoisis.includes('depannages-rapides') && (
           <div className="border-b border-gray-200 pb-6">
             <h2 className="text-xl font-bold text-gray-800 mb-1">🚀 Dépannages rapides</h2>
-            <p className="text-sm text-gray-500 mb-5">Sélectionnez les domaines dans lesquels vous intervenez en urgence ou pour de petits travaux.</p>
+            <p className="text-sm text-gray-500 mb-5">Sélectionnez au moins un domaine dans lesquels vous intervenez en urgence ou pour de petits travaux.</p>
 
             {/* 🚨 Dépannage en urgence */}
             <div className="mb-5">
@@ -423,6 +543,7 @@ export default function ProfilArtisanPage() {
                 <h3 className="font-semibold text-gray-800">Dépannage en urgence</h3>
                 <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Urgent (30 min – 1h)</span>
               </div>
+              <p className="text-xs text-gray-400 mb-3 italic">En sélectionnant une catégorie, toutes ses sous-catégories sont sélectionnées automatiquement. Vous pouvez en désélectionner certaines selon vos compétences.</p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {EXPRESS_WORK_TAXONOMY['depannage-urgence'].categories.map((cat) => {
                   const selected = specialitesDepannage.includes(cat.value);
@@ -440,11 +561,20 @@ export default function ProfilArtisanPage() {
                         {cat.label}
                       </button>
                       {selected && (
-                        <div className="mt-1 flex flex-wrap gap-1 px-1">
+                        <div className="mt-2 flex flex-wrap gap-1 px-1">
                           {cat.sousCategories.map((sc) => (
-                            <span key={sc.value} className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">
+                            <button
+                              key={sc.value}
+                              type="button"
+                              onClick={() => toggleSousCatDepannage(sc.value, cat.value)}
+                              className={`text-xs px-2 py-1 rounded-full border transition-all ${
+                                sousCatsDepannage.includes(sc.value)
+                                  ? 'bg-red-500 text-white border-red-500'
+                                  : 'bg-white text-red-600 border-red-200 hover:bg-red-50'
+                              }`}
+                            >
                               {sc.label}
-                            </span>
+                            </button>
                           ))}
                         </div>
                       )}
@@ -461,6 +591,7 @@ export default function ProfilArtisanPage() {
                 <h3 className="font-semibold text-gray-800">Petits travaux &amp; maintenance</h3>
                 <span className="text-xs bg-orange-100 text-[#FF6B00] px-2 py-0.5 rounded-full">Immédiat (2h)</span>
               </div>
+              <p className="text-xs text-gray-400 mb-3 italic">En sélectionnant une catégorie, toutes ses sous-catégories sont sélectionnées automatiquement. Vous pouvez en désélectionner certaines selon vos compétences.</p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {EXPRESS_WORK_TAXONOMY['petits-travaux-maintenance'].categories.map((cat) => {
                   const selected = specialitesPetitsTravaux.includes(cat.value);
@@ -478,11 +609,20 @@ export default function ProfilArtisanPage() {
                         {cat.label}
                       </button>
                       {selected && (
-                        <div className="mt-1 flex flex-wrap gap-1 px-1">
+                        <div className="mt-2 flex flex-wrap gap-1 px-1">
                           {cat.sousCategories.map((sc) => (
-                            <span key={sc.value} className="text-xs bg-orange-100 text-[#FF6B00] px-2 py-0.5 rounded-full">
+                            <button
+                              key={sc.value}
+                              type="button"
+                              onClick={() => toggleSousCatPetitsTravaux(sc.value, cat.value)}
+                              className={`text-xs px-2 py-1 rounded-full border transition-all ${
+                                sousCatsPetitsTravaux.includes(sc.value)
+                                  ? 'bg-[#FF6B00] text-white border-[#FF6B00]'
+                                  : 'bg-white text-[#FF6B00] border-orange-200 hover:bg-orange-50'
+                              }`}
+                            >
                               {sc.label}
-                            </span>
+                            </button>
                           ))}
                         </div>
                       )}
@@ -492,6 +632,7 @@ export default function ProfilArtisanPage() {
               </div>
             </div>
           </div>
+          )}
 
           {/* Zone d'intervention */}
           <div className="border-b border-gray-200 pb-6">

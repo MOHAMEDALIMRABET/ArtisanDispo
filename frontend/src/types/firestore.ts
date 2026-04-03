@@ -486,10 +486,15 @@ export interface Artisan {
   disponiblePetitsTravaux?: boolean; // Accepte les petits travaux sans devis
   delaiInterventionRapide?: number; // Délai en heures pour intervention rapide (ex: 2h, 4h, 24h)
 
+  // Types de travaux proposés
+  typesTravauxChoisis?: ('travaux-classiques' | 'depannages-rapides')[];
+
   // Spécialités dépannages rapides (express)
   specialitesExpress?: {
-    depannageUrgence?: string[];         // valeurs de catégories sélectionnées
-    petitsTravauxMaintenance?: string[]; // valeurs de catégories sélectionnées
+    depannageUrgence?: string[];                  // catégories sélectionnées
+    depannageUrgenceSousCategories?: string[];     // sous-catégories sélectionnées
+    petitsTravauxMaintenance?: string[];           // catégories sélectionnées
+    petitsTravauxSousCategories?: string[];        // sous-catégories sélectionnées
   };
 }
 
