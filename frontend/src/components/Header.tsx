@@ -117,7 +117,8 @@ export default function Header() {
                 </Link>
               )}
               
-              {/* CTA "Petits travaux express" - TOUJOURS visible, routing adapté */}
+              {/* CTA "Petits travaux express" - visible pour clients et visiteurs, masqué pour artisans */}
+              {user?.role !== 'artisan' && (
               <Link href={getExpressWorksUrl()}>
                 <button className="shine-border hidden xl:flex items-center gap-2 bg-white border-2 border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-sm group relative overflow-hidden">
                   <svg className="w-4 h-4 animate-spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,10 +126,11 @@ export default function Header() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <span className="whitespace-nowrap">
-                    {user?.role === 'artisan' ? t('nav.expressRequests') : t('nav.expressWorks')}
+                    {t('nav.expressWorks')}
                   </span>
                 </button>
               </Link>
+              )}
             </div>
           )}
 

@@ -12,6 +12,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { markNotificationsByTypeAsRead } from '@/lib/firebase/notification-service';
 import { getWalletByArtisanId, getSequestreTransactions, requestManualVirement } from '@/lib/firebase/wallet-service';
 import { artisanDoitDecennale } from '@/lib/decennale-helper';
+import { EXPRESS_WORK_TAXONOMY } from '@/lib/express-work-taxonomy';
 import { db } from '@/lib/firebase/config';
 import { collection, query, where, or, onSnapshot, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -569,9 +570,27 @@ export default function ArtisanDashboardPage() {
                   </div>
                 </div>
                 {artisan && (
-                  <div className="text-sm text-gray-500">
-                    <p>📍 {artisan.zonesIntervention?.length || 0} {t('dashboard.artisan.zones')}</p>
-                    <p>🔧 {artisan.metiers?.length || 0} {t('dashboard.artisan.trades')}</p>
+                  <div className="text-sm text-gray-500 space-y-1 mt-1">
+                    {/* Travaux classiques */}
+                    {artisan.metiers && artisan.metiers.length > 0 && (
+                      <p>🏗️ <span className="font-medium text-gray-600">Travaux classiques :</span> {artisan.metiers.join(', ')}</p>
+                    )}
+                    {/* Dépannages rapides */}
+                    {artisan.typesTravauxChoisis?.includes('depannages-rapides') && (
+                      <div className="space-y-0.5">
+                        <p>🚀 <span className="font-medium text-gray-600">Dépannages rapides :</span></p>
+                        {artisan.specialitesExpress?.depannageUrgence && artisan.specialitesExpress.depannageUrgence.length > 0 && (
+                          <p className="pl-4">🚨 {artisan.specialitesExpress.depannageUrgence.map(code =>
+                            EXPRESS_WORK_TAXONOMY['depannage-urgence'].categories.find(c => c.value === code)?.label ?? code
+                          ).join(', ')}</p>
+                        )}
+                        {artisan.specialitesExpress?.petitsTravauxMaintenance && artisan.specialitesExpress.petitsTravauxMaintenance.length > 0 && (
+                          <p className="pl-4">🛠️ {artisan.specialitesExpress.petitsTravauxMaintenance.map(code =>
+                            EXPRESS_WORK_TAXONOMY['petits-travaux-maintenance'].categories.find(c => c.value === code)?.label ?? code
+                          ).join(', ')}</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

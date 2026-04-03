@@ -638,12 +638,11 @@ export async function matchArtisansExpress(criteria: ExpressMatchingCriteria): P
     });
   }
 
-  // Trier par distance (plus proche en premier), puis par score
+  // Trier par distance croissante uniquement (plus proche en premier)
   results.sort((a, b) => {
     const dA = a.distance ?? 999999;
     const dB = b.distance ?? 999999;
-    if (dA !== dB) return dA - dB;
-    return b.score - a.score;
+    return dA - dB;
   });
 
   console.log(`🎯 ${results.length} artisan(s) express matchés`);
