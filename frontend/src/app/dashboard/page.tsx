@@ -10,7 +10,7 @@ import { getAvisByClientId, getContratsTerminesSansAvis } from '@/lib/firebase/a
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { collection, query, where, onSnapshot, or } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, or, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { User, Avis } from '@/types/firestore';
 
@@ -29,6 +29,21 @@ export default function DashboardPage() {
   const [contratsANoter, setContratsANoter] = useState<any[]>([]);
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
   const { notifications, markTypeAsRead } = useNotifications(firebaseUser?.uid);
+
+  // Marquer tous les messages comme lus
+  const markAllConversationsAsRead = async (uid: string) => {
+    try {
+      const q = query(collection(db, 'conversations'), where('participants', 'array-contains', uid));
+      const snapshot = await getDocs(q);
+      await Promise.all(
+        snapshot.docs
+          .filter(d => (d.data().unreadCount?.[uid] || 0) > 0)
+          .map(d => updateDoc(doc(db, 'conversations', d.id), { [`unreadCount.${uid}`]: 0 }))
+      );
+    } catch (e) {
+      // silently ignore
+    }
+  };
   const devisNouveaux = notifications.filter(n => !n.lue && (
     n.type === 'devis_recu' ||
     n.type === 'devis_accepte' ||
@@ -390,7 +405,7 @@ export default function DashboardPage() {
               </div>
             </Link>
 
-            <Link href="/messages">
+            <Link href="/messages" onClick={() => firebaseUser?.uid && markAllConversationsAsRead(firebaseUser.uid)}>
               <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-[#FF6B00]">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center relative">

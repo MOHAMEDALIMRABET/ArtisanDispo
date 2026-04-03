@@ -495,6 +495,162 @@ export async function matchArtisans(criteria: MatchingCriteria): Promise<Matchin
 }
 
 /**
+ * Critères de recherche pour le matching express (catégorie + sous-catégorie + rayon)
+ */
+export interface ExpressMatchingCriteria {
+  typeTravaux: 'depannage-urgence' | 'petits-travaux-maintenance';
+  categorie: string;          // ex: 'serrurerie', 'plomberie', 'installation-simple'
+  sousCategorie?: string;     // ex: 'porte-claquee', 'pose-etageres'
+  categorieMetier: string;    // metier Firestore traditionnel (fallback)
+  ville: string;
+  codePostal: string;
+  coordonneesGPS: { latitude: number; longitude: number };
+  rayonMax: number;           // km
+}
+
+/**
+ * Matching pour les travaux express (dépannage urgence + petits travaux)
+ * Filtre par spécialitesExpress.depannageUrgence / petitsTravauxMaintenance (+ sous-catégorie)
+ * puis applique le filtre de rayon GPS.
+ */
+export async function matchArtisansExpress(criteria: ExpressMatchingCriteria): Promise<MatchingResult[]> {
+  console.log('🚀 Matching express avec critères:', criteria);
+
+  const snapshot = await getDocs(
+    query(collection(db, 'artisans'), where('verified', '==', true))
+  );
+  console.log(`📊 ${snapshot.docs.length} artisan(s) vérifié(s) total`);
+
+  // Demande temporaire pour réutiliser les helpers de scoring
+  const tempDemande: Partial<Demande> = {
+    categorie: criteria.categorieMetier as any,
+    localisation: {
+      adresse: '',
+      ville: criteria.ville,
+      codePostal: criteria.codePostal,
+      coordonneesGPS: criteria.coordonneesGPS,
+    },
+    datesSouhaitees: {
+      dateDebut: new Date().toISOString().slice(0, 10),
+      dates: [Timestamp.fromDate(new Date())],
+      flexible: false,
+      urgence: criteria.typeTravaux === 'depannage-urgence' ? 'urgent' : 'normale',
+    },
+    urgence: criteria.typeTravaux === 'depannage-urgence' ? 'urgent' : 'normale',
+  };
+
+  const isDepannage = criteria.typeTravaux === 'depannage-urgence';
+  const results: MatchingResult[] = [];
+
+  for (const docSnap of snapshot.docs) {
+    const artisan = { id: docSnap.id, userId: docSnap.id, ...docSnap.data() } as Artisan;
+
+    // ──────────────────────────────────────────────────────────────────────
+    // 1. Filtrer par catégorie express (avec fallback métier traditionnel)
+    // ──────────────────────────────────────────────────────────────────────
+    const express = artisan.specialitesExpress;
+    const cats: string[] = isDepannage
+      ? (express?.depannageUrgence ?? [])
+      : (express?.petitsTravauxMaintenance ?? []);
+
+    let categoryMatch = false;
+
+    if (cats.length > 0) {
+      // Artisan a renseigné ses spécialités express → filtrer dessus
+      if (!cats.includes(criteria.categorie)) {
+        // Ne propose pas cette catégorie express
+        continue;
+      }
+
+      // Vérifier la sous-catégorie si fournie
+      if (criteria.sousCategorie) {
+        const sousCats: string[] = isDepannage
+          ? (express?.depannageUrgenceSousCategories ?? [])
+          : (express?.petitsTravauxSousCategories ?? []);
+        if (!sousCats.includes(criteria.sousCategorie)) {
+          console.log(`⏭️  ${artisan.raisonSociale}: sous-catégorie "${criteria.sousCategorie}" non couverte`);
+          continue;
+        }
+      }
+      categoryMatch = true;
+    } else {
+      // Fallback : artisan n'a pas renseigné ses spécialités express
+      // → accepter s'il a le métier traditionnel correspondant
+      categoryMatch = artisan.metiers?.includes(criteria.categorieMetier as any) ?? false;
+      if (!categoryMatch) continue;
+      console.log(`⚠️  ${artisan.raisonSociale}: pas de spécialités express, fallback métier "${criteria.categorieMetier}"`);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    // 2. Filtrer par rayon géographique
+    // ──────────────────────────────────────────────────────────────────────
+    if (!isInZone(artisan, tempDemande as Demande)) {
+      console.log(`❌ ${artisan.raisonSociale}: hors zone`);
+      continue;
+    }
+
+    if (criteria.rayonMax > 0) {
+      const minDist = getMinDistanceToClient(artisan, tempDemande as Demande);
+      if (minDist !== null && minDist > criteria.rayonMax) {
+        console.log(`❌ ${artisan.raisonSociale}: hors rayon (${minDist.toFixed(1)}km > ${criteria.rayonMax}km)`);
+        continue;
+      }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    // 3. Calcul des scores
+    // ──────────────────────────────────────────────────────────────────────
+    const distanceScore    = calculateDistanceScore(artisan, tempDemande as Demande);
+    const disponibiliteScore = calculateDisponibiliteScore(artisan, tempDemande as Demande);
+    const notationScore    = calculateNotationScore(artisan);
+    const urgenceScore     = isDepannage ? 20 : 10;
+
+    let reactiviteScore = 0;
+    try {
+      const stats = await getArtisanStats(artisan.userId);
+      reactiviteScore = calculateScoreReactivite(stats);
+    } catch {
+      reactiviteScore = 0;
+    }
+
+    const scoreTotal = 100 + distanceScore + disponibiliteScore + notationScore + reactiviteScore + urgenceScore;
+
+    const details = {
+      metierMatch: 100,
+      distanceScore,
+      disponibiliteScore,
+      notationScore,
+      reactiviteScore,
+      urgenceMatch: urgenceScore,
+    };
+
+    const distance = getMinDistanceToClient(artisan, tempDemande as Demande) ?? undefined;
+
+    console.log(`✅ ${artisan.raisonSociale}: score=${scoreTotal}, dist=${distance?.toFixed(1) ?? '?'}km`);
+
+    results.push({
+      artisanId: artisan.userId,
+      artisan,
+      score: scoreTotal,
+      breakdown: details,
+      details,
+      distance,
+    });
+  }
+
+  // Trier par distance (plus proche en premier), puis par score
+  results.sort((a, b) => {
+    const dA = a.distance ?? 999999;
+    const dB = b.distance ?? 999999;
+    if (dA !== dB) return dA - dB;
+    return b.score - a.score;
+  });
+
+  console.log(`🎯 ${results.length} artisan(s) express matchés`);
+  return results;
+}
+
+/**
  * Récupère les artisans disponibles pour une date spécifique
  * @param categorie Catégorie de métier
  * @param date Date souhaitée

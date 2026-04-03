@@ -11,7 +11,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { authService } from '@/lib/auth-service';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useContratsANoter } from '@/hooks/useContratsANoter';
-import { collection, query, where, onSnapshot, or } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, or, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { getDemandesForArtisan, getDemandesPubliquesForArtisan } from '@/lib/firebase/demande-service';
 import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
@@ -202,6 +202,23 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
     setIsOpen(false);
   };
 
+  const handleMessagesNavigation = async () => {
+    // Marquer tous les messages comme lus
+    try {
+      const q = query(collection(db, 'conversations'), where('participants', 'array-contains', user.uid));
+      const snapshot = await getDocs(q);
+      await Promise.all(
+        snapshot.docs
+          .filter(d => (d.data().unreadCount?.[user.uid] || 0) > 0)
+          .map(d => updateDoc(doc(db, 'conversations', d.id), { [`unreadCount.${user.uid}`]: 0 }))
+      );
+    } catch (e) {
+      // silently ignore
+    }
+    router.push('/messages');
+    setIsOpen(false);
+  };
+
   // Initiales pour l'avatar
   const initials = user.nom && user.prenom
     ? `${user.prenom[0]}${user.nom[0]}`.toUpperCase()
@@ -365,7 +382,7 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
 
                 {/* Messages Client */}
                 <button
-                  onClick={() => handleNavigation('/messages')}
+                  onClick={handleMessagesNavigation}
                   className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
                 >
                   <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -491,7 +508,7 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
 
                 {/* Messages Artisan */}
                 <button
-                  onClick={() => handleNavigation('/messages')}
+                  onClick={handleMessagesNavigation}
                   className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
                 >
                   <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

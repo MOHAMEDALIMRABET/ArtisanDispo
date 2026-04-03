@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
-import { matchArtisans } from '@/lib/firebase/matching-service';
+import { matchArtisansExpress } from '@/lib/firebase/matching-service';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getUserById } from '@/lib/firebase/user-service';
@@ -57,8 +57,6 @@ export default function RechercheExpressPage() {
 
   const categorieOptions = getExpressCategories(typeTravaux);
   const selectedCategorie = categorieOptions.find((cat) => cat.value === categorie);
-  const urgence = EXPRESS_WORK_TAXONOMY[typeTravaux].urgenceValue;
-  const dateReference = new Date().toISOString().slice(0, 10);
 
   // Recherche de villes
   const [villeSuggestions, setVilleSuggestions] = useState<VilleSuggestion[]>([]);
@@ -202,7 +200,7 @@ export default function RechercheExpressPage() {
 
     const selectedCat = getExpressCategorieOption(params.typeTravaux, params.categorie);
     if (!selectedCat) {
-      alert('Veuillez sélectionner une catégorie valide.');
+      alert(t('expressPages.recherche.selectCategoryAlert'));
       setLoading(false);
       return;
     }
@@ -219,7 +217,7 @@ export default function RechercheExpressPage() {
     router.replace(`/petits-travaux-express/recherche?${urlParams.toString()}`);
 
     try {
-      // Géocodage de la ville
+      // Géocodage de la ville (GeoJSON: coordinates = [longitude, latitude])
       const geoResponse = await fetch(
         `https://geo.api.gouv.fr/communes?codePostal=${params.codePostal}&fields=centre&limit=1`
       );
@@ -231,26 +229,18 @@ export default function RechercheExpressPage() {
         return;
       }
 
-      const { lat, lon } = geoData[0].centre.coordinates;
+      // GeoJSON coordinates = [longitude, latitude]
+      const [longitude, latitude] = geoData[0].centre.coordinates as [number, number];
 
-      // Mapping urgence vers le format attendu par MatchingCriteria
-      const urgenceMapping: Record<string, 'faible' | 'normale' | 'urgent'> = {
-        immediat: 'urgent',
-        urgent: 'urgent',
-      };
-
-      // Matching artisans
-      const matchResults = await matchArtisans({
-        categorie: selectedCat.metier,
+      // Matching artisans express (catégorie + sous-catégorie + rayon)
+      const matchResults = await matchArtisansExpress({
+        typeTravaux: params.typeTravaux,
+        categorie: params.categorie,
+        sousCategorie: params.sousCategorie || undefined,
+        categorieMetier: selectedCat.metier,
         ville: params.ville,
         codePostal: params.codePostal,
-        coordonneesGPS: {
-          latitude: lon,
-          longitude: lat,
-        },
-        dates: [dateReference],
-        flexible: false,
-        urgence: urgenceMapping[EXPRESS_WORK_TAXONOMY[params.typeTravaux].urgenceValue] || 'normale',
+        coordonneesGPS: { latitude, longitude },
         rayonMax: params.rayonMax,
       });
 
@@ -357,14 +347,14 @@ export default function RechercheExpressPage() {
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
               </svg>
-              Accueil
+              {t('expressPages.landing.breadcrumbHome')}
             </Link>
             <span>&gt;</span>
             <Link href="/petits-travaux-express" className="text-[#2C3E50] hover:text-[#FF6B00] transition-colors">
-              Travaux en urgence
+              {t('expressPages.landing.breadcrumb')}
             </Link>
             <span>&gt;</span>
-            <span className="text-[#2C3E50] font-semibold">Recherche d'artisan</span>
+            <span className="text-[#2C3E50] font-semibold">{t('expressPages.recherche.breadcrumb')}</span>
           </nav>
         </div>
       </div>
@@ -374,11 +364,11 @@ export default function RechercheExpressPage() {
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-2xl md:text-3xl font-bold leading-tight">
             {typeTravaux === 'depannage-urgence'
-              ? '🚨 Dépannage en urgence — Artisan disponible sous 30 min – 1h'
-              : '🛠️ Petits travaux & maintenance — Artisan disponible sous 2h'}
+              ? t('expressPages.recherche.bannerDepannage')
+              : t('expressPages.recherche.bannerPetitsTravaux')}
           </h1>
           <p className={`text-sm md:text-base mt-1 ${typeTravaux === 'depannage-urgence' ? 'text-red-100' : 'text-[#4A4A4A]'}`}>
-            Intervention rapide&nbsp;•&nbsp;Moins de 150&nbsp;€&nbsp;•&nbsp;Sans devis formel
+            {t('expressPages.recherche.bannerSubtitle')}
           </p>
         </div>
       </section>
@@ -391,11 +381,11 @@ export default function RechercheExpressPage() {
             {/* Type de travaux */}
             <div>
               <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                Type de travaux <span className="text-red-500">*</span>
+                {t('expressPages.recherche.typeLabel')} <span className="text-red-500">*</span>
               </label>
               {isTypeLocked ? (
                 <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
-                  {typeTravaux === 'depannage-urgence' ? '🚨 Dépannage en urgence' : '🛠️ Petits travaux & maintenance'}
+                  {typeTravaux === 'depannage-urgence' ? t('expressPages.recherche.depannageOption') : t('expressPages.recherche.petitsTravauxOption')}
                 </div>
               ) : (
                 <select
@@ -408,15 +398,15 @@ export default function RechercheExpressPage() {
                   required
                   className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
                 >
-                  <option value="depannage-urgence">🚨 Dépannage en urgence</option>
-                  <option value="petits-travaux-maintenance">🛠️ Petits travaux &amp; maintenance</option>
+                  <option value="depannage-urgence">{t('expressPages.recherche.depannageOption')}</option>
+                  <option value="petits-travaux-maintenance">{t('expressPages.recherche.petitsTravauxOption')}</option>
                 </select>
               )}
             </div>
 
             <div>
               <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                Catégorie <span className="text-red-500">*</span>
+                {t('expressPages.recherche.categorieLabel')} <span className="text-red-500">*</span>
               </label>
               <select
                 value={categorie}
@@ -427,7 +417,7 @@ export default function RechercheExpressPage() {
                 required
                 className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
               >
-                <option value="">Sélectionnez une catégorie</option>
+                <option value="">{t('expressPages.recherche.selectCategorie')}</option>
                 {categorieOptions.map((cat) => (
                   <option key={cat.value} value={cat.value}>{cat.label}</option>
                 ))}
@@ -438,14 +428,14 @@ export default function RechercheExpressPage() {
             {selectedCategorie && (
               <div>
                 <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                  Sous catégorie
+                  {t('expressPages.recherche.sousCategorieLabel')}
                 </label>
                 <select
                   value={sousCategorie}
                   onChange={(e) => setSousCategorie(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
                 >
-                  <option value="">Toutes les sous-catégories</option>
+                  <option value="">{t('expressPages.recherche.allSubCategories')}</option>
                   {selectedCategorie.sousCategories.map((sc) => (
                     <option key={sc.value} value={sc.value}>
                       {sc.label}
@@ -459,7 +449,7 @@ export default function RechercheExpressPage() {
             <div className="grid grid-cols-1 gap-4">
               <div className="relative">
                 <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                  Ville <span className="text-red-500">*</span>
+                  {t('expressPages.recherche.villeLabel')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -472,7 +462,7 @@ export default function RechercheExpressPage() {
                   }}
                   onBlur={() => setTimeout(() => setActiveField(null), 200)}
                   required
-                  placeholder="Ex: Paris"
+                  placeholder={t('expressPages.recherche.villePlaceholder')}
                   className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
                 />
                 
@@ -498,7 +488,7 @@ export default function RechercheExpressPage() {
 
               <div className="relative">
                 <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                  Code postal <span className="text-red-500">*</span>
+                  {t('expressPages.recherche.codePostalLabel')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -511,7 +501,7 @@ export default function RechercheExpressPage() {
                   }}
                   onBlur={() => setTimeout(() => setActiveField(null), 200)}
                   required
-                  placeholder="Ex: 75001"
+                  placeholder={t('expressPages.recherche.codePostalPlaceholder')}
                   pattern="[0-9]{5}"
                   className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
                 />
@@ -540,7 +530,7 @@ export default function RechercheExpressPage() {
             {/* Urgence auto */}
             <div>
               <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                Urgence
+                {t('expressPages.recherche.urgenceLabel')}
               </label>
               <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
                 {EXPRESS_WORK_TAXONOMY[typeTravaux].urgenceLabel}
@@ -550,7 +540,7 @@ export default function RechercheExpressPage() {
             {/* Rayon de recherche */}
             <div>
               <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                Rayon de recherche : {rayonMax} km
+                {t('expressPages.recherche.rayonLabel')} : {rayonMax} {t('expressPages.recherche.km')}
               </label>
               <input
                 type="range"
@@ -561,8 +551,8 @@ export default function RechercheExpressPage() {
                 className="w-full h-2 bg-[#E9ECEF] rounded-lg appearance-none cursor-pointer accent-[#FF6B00]"
               />
               <div className="flex justify-between text-xs text-[#6C757D] mt-1">
-                <span>5 km</span>
-                <span>50 km</span>
+                <span>5 {t('expressPages.recherche.km')}</span>
+                <span>50 {t('expressPages.recherche.km')}</span>
               </div>
             </div>
 
@@ -572,7 +562,7 @@ export default function RechercheExpressPage() {
               disabled={loading}
               className="w-full bg-[#FF6B00] hover:bg-[#E56100] text-white py-4 text-lg font-bold rounded-lg transition-colors"
             >
-              {loading ? '🔍 Recherche en cours...' : '🔍 Rechercher des artisans'}
+              {loading ? t('expressPages.recherche.searching') : t('expressPages.recherche.searchButton')}
             </Button>
           </form>
           </div>
@@ -583,8 +573,8 @@ export default function RechercheExpressPage() {
               {loading ? (
                 <div className="bg-white rounded-xl shadow-lg p-10 flex flex-col items-center justify-center gap-4">
                   <div className="w-12 h-12 border-4 border-[#FF6B00] border-t-transparent rounded-full animate-spin" />
-                  <p className="text-[#2C3E50] font-semibold text-lg">Recherche en cours...</p>
-                  <p className="text-[#6C757D] text-sm">Nous cherchons les artisans disponibles près de vous</p>
+                  <p className="text-[#2C3E50] font-semibold text-lg">{t('expressPages.recherche.searchingTitle')}</p>
+                  <p className="text-[#6C757D] text-sm">{t('expressPages.recherche.searchingDesc')}</p>
                 </div>
               ) : (
               results.length > 0 ? (
@@ -596,7 +586,7 @@ export default function RechercheExpressPage() {
                     
                     {totalPages > 1 && (
                       <p className="text-sm text-[#6C757D]">
-                        Page {currentPage} sur {totalPages}
+                        Page {currentPage} {t('expressPages.recherche.pageSur')} {totalPages}
                       </p>
                     )}
                   </div>
@@ -633,7 +623,7 @@ export default function RechercheExpressPage() {
                                   <svg className="w-5 h-5 text-[#FF6B00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                                   </svg>
-                                  <span>À {result.distance.toFixed(1)} km de vous</span>
+                              <span>À {result.distance.toFixed(1)} {t('expressPages.recherche.kmAway')}</span>
                                 </div>
                               )}
                               
@@ -649,7 +639,7 @@ export default function RechercheExpressPage() {
                                     {result.artisan.notation.toFixed(1)}/5
                                   </span>
                                   <span className="text-[#6C757D] group-hover:text-[#FF6B00]">
-                                    ({result.artisan.nombreAvis} avis) — Voir les avis →
+                                    ({result.artisan.nombreAvis} {t('expressPages.recherche.reviewsCount')}) — {t('expressPages.recherche.seeReviews')}
                                   </span>
                                 </a>
                               ) : (
@@ -660,7 +650,7 @@ export default function RechercheExpressPage() {
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                   </svg>
-                                  <span>Voir le profil</span>
+                                  <span>{t('expressPages.recherche.seeProfile')}</span>
                                 </a>
                               )}
                             </div>
@@ -671,7 +661,7 @@ export default function RechercheExpressPage() {
                               onClick={() => handleDemanderDevis(result.artisanId)}
                               className="bg-[#FF6B00] hover:bg-[#E56100] text-white px-6 py-3 rounded-lg font-semibold transition-colors whitespace-nowrap"
                             >
-                              🚀 Demander une intervention
+                              {t('expressPages.recherche.requestIntervention')}
                             </Button>
                           </div>
                         </div>
@@ -691,7 +681,7 @@ export default function RechercheExpressPage() {
                         disabled={currentPage === 1}
                         className="px-4 py-2 rounded-lg border-2 border-[#E9ECEF] text-[#2C3E50] hover:border-[#FF6B00] hover:bg-[#FF6B00] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-[#E9ECEF] disabled:hover:bg-transparent disabled:hover:text-[#2C3E50]"
                       >
-                        ← Précédent
+                        {t('expressPages.recherche.prev')}
                       </button>
 
                       {/* Numéros de pages */}
@@ -741,7 +731,7 @@ export default function RechercheExpressPage() {
                         disabled={currentPage === totalPages}
                         className="px-4 py-2 rounded-lg border-2 border-[#E9ECEF] text-[#2C3E50] hover:border-[#FF6B00] hover:bg-[#FF6B00] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-[#E9ECEF] disabled:hover:bg-transparent disabled:hover:text-[#2C3E50]"
                       >
-                        Suivant →
+                        {t('expressPages.recherche.next')}
                       </button>
                     </div>
                   )}
@@ -750,18 +740,18 @@ export default function RechercheExpressPage() {
                 <div className="bg-white rounded-xl shadow-lg p-8 text-center">
                   <div className="text-6xl mb-4">😔</div>
                   <h2 className="text-2xl font-bold text-[#2C3E50] mb-4">
-                    Aucun artisan disponible
+                    {t('expressPages.recherche.noResults')}
                   </h2>
                   <p className="text-[#6C757D] mb-6">
-                    Nous n'avons pas trouvé d'artisan disponible pour ces critères.
+                    {t('expressPages.recherche.noResultsDesc1')}
                     <br />
-                    Publiez votre demande et les artisans proches de vous vous contacteront !
+                    {t('expressPages.recherche.noResultsDesc2')}
                   </p>
                   <button
                     onClick={handlePublierDemande}
                     className="bg-[#FF6B00] text-white hover:bg-[#E56100] px-6 py-3 rounded-lg font-semibold transition-colors"
                   >
-                    📢 Publier ma demande express
+                    {t('expressPages.recherche.publishDemande')}
                   </button>
                 </div>
               )

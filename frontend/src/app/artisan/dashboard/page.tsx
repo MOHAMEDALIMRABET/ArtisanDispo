@@ -13,7 +13,7 @@ import { markNotificationsByTypeAsRead } from '@/lib/firebase/notification-servi
 import { getWalletByArtisanId, getSequestreTransactions, requestManualVirement } from '@/lib/firebase/wallet-service';
 import { artisanDoitDecennale } from '@/lib/decennale-helper';
 import { db } from '@/lib/firebase/config';
-import { collection, query, where, or, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, or, onSnapshot, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { User, Artisan, Avis } from '@/types/firestore';
 
@@ -45,6 +45,21 @@ export default function ArtisanDashboardPage() {
   const [isTransferring, setIsTransferring] = useState(false);
   const [transferError, setTransferError] = useState('');
   const [transferSuccess, setTransferSuccess] = useState('');
+
+  // Marquer tous les messages comme lus
+  const markAllConversationsAsRead = async (uid: string) => {
+    try {
+      const q = query(collection(db, 'conversations'), where('participants', 'array-contains', uid));
+      const snapshot = await getDocs(q);
+      await Promise.all(
+        snapshot.docs
+          .filter(d => (d.data().unreadCount?.[uid] || 0) > 0)
+          .map(d => updateDoc(doc(db, 'conversations', d.id), { [`unreadCount.${uid}`]: 0 }))
+      );
+    } catch (e) {
+      // silently ignore
+    }
+  };
 
   // Hook pour les notifications
   const { notifications, unreadCount } = useNotifications(user?.uid);
@@ -825,7 +840,7 @@ export default function ArtisanDashboardPage() {
           </Link>
 
           {/* Messages - Position 8 */}
-          <Link href="/messages" className="h-full">
+          <Link href="/messages" className="h-full" onClick={() => user?.uid && markAllConversationsAsRead(user.uid)}>
             <div className="h-full flex flex-col bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-[#FF6B00] relative">
               {/* Badge notification */}
               {unreadMessagesCount > 0 && (
