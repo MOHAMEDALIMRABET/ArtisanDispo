@@ -833,7 +833,7 @@ export default function GuidesPrixPage() {
                   💰 Commission transparente
                 </h3>
                 <p className="text-[#6C757D] text-sm">
-                  ArtisanDispo prend seulement 8% de commission (la plus basse du marché).
+                  ArtisanDispo prend 8% de commission sur les devis classiques et 10% sur les demandes express (la plus basse du marché).
                   Les prix ne sont jamais gonflés - vous payez le juste prix.
                 </p>
               </Card>

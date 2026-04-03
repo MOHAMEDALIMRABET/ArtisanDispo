@@ -122,10 +122,11 @@ export default function CommentCaMarchePage() {
               <Card className="relative p-8 text-center hover:shadow-2xl transition-all transform group-hover:-translate-y-2">
                 <div className="text-6xl mb-4">💰</div>
                 <h3 className="text-2xl font-bold text-[#2C3E50] mb-3">
-                  Commission 8% seulement
+                  Commission dès 8%
                 </h3>
                 <p className="text-[#6C757D] mb-4">
-                  La commission la plus basse du marché. Pas d'abonnement caché.
+                  La commission la plus basse du marché. Pas d'abonnement caché.<br/>
+                  <span className="text-sm">8% sur devis classiques · 10% sur express</span>
                 </p>
                 <div className="text-sm text-[#28A745] font-semibold">
                   vs 15% chez les concurrents
@@ -421,10 +422,10 @@ export default function CommentCaMarchePage() {
                 </ul>
                 <div className="mt-6 bg-green-50 p-4 rounded-lg">
                   <p className="text-sm font-semibold text-[#28A745] mb-1">
-                    💰 Commission 8% uniquement
+                    💰 Commission dès 8%
                   </p>
                   <p className="text-xs text-[#6C757D]">
-                    La plus basse du marché • Facturation transparente
+                    8% devis classiques · 10% express • La plus basse du marché
                   </p>
                 </div>
               </div>
@@ -439,7 +440,7 @@ export default function CommentCaMarchePage() {
               Professionnels, inscrivez-vous gratuitement
             </Button>
             <p className="text-sm text-[#6C757D] mt-4">
-              Gratuit • Sans abonnement • Commission 8% uniquement
+              Gratuit • Sans abonnement • Commission dès 8%
             </p>
           </div>
         </section>
@@ -504,7 +505,7 @@ export default function CommentCaMarchePage() {
               </h3>
               <p className="text-[#6C757D]">
                 <strong className="text-[#28A745]">Particuliers : 0€</strong> - Mise en relation gratuite<br/>
-                <strong className="text-[#FF6B00]">Artisans : 8%</strong> - Commission uniquement sur chantiers réalisés
+                <strong className="text-[#FF6B00]">Artisans : dès 8%</strong> - 8% sur devis classiques, 10% sur demandes express
               </p>
             </Card>
 

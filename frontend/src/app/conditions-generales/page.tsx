@@ -248,16 +248,46 @@ export default function ConditionsGeneralesPage() {
             </p>
 
             <h3 className="text-lg font-semibold text-[#2C3E50] mb-2 mt-5">6.2 Commission ArtisanDispo</h3>
-            <div className="bg-[#F8F9FA] border border-[#E9ECEF] rounded-xl p-5 mt-3">
-              <p className="text-[#6C757D] leading-relaxed">
-                ArtisanDispo prélève une commission de{' '}
-                <strong className="text-[#FF6B00] text-xl">10 %</strong>{' '}
-                sur chaque transaction aboutie entre un Client et un Artisan. Cette commission est automatiquement déduite du montant versé à l'Artisan lors de la libération des fonds.
-              </p>
-              <p className="text-sm text-[#6C757D] mt-2">
-                Exemple : pour une prestation express à 100 € TTC, l'Artisan perçoit 90 €. La commission de 10 € couvre les services de la plateforme (mise en relation, paiement sécurisé, support, assurance).
-              </p>
+            <p className="text-[#6C757D] leading-relaxed mt-2">
+              La commission ArtisanDispo varie selon le type de service. Elle est automatiquement déduite du montant versé à l'Artisan lors de la libération des fonds.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              {/* Travaux classiques */}
+              <div className="bg-[#F8F9FA] border-2 border-[#E9ECEF] rounded-xl p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-2xl">🏗️</span>
+                  <h4 className="font-bold text-[#2C3E50]">Travaux classiques (devis)</h4>
+                </div>
+                <div className="text-center my-3">
+                  <span className="text-4xl font-extrabold text-[#2C3E50]">8 %</span>
+                </div>
+                <p className="text-sm text-[#6C757D] leading-relaxed">
+                  Commission prélevée sur chaque devis accepté et payé via la plateforme (séquestre).
+                </p>
+                <p className="text-xs text-[#6C757D] mt-2 bg-white rounded-lg p-2 border border-[#E9ECEF]">
+                  Exemple : devis de 1 000 € TTC → l'Artisan perçoit <strong>920 €</strong>, ArtisanDispo retient 80 €.
+                </p>
+              </div>
+              {/* Demandes express */}
+              <div className="bg-orange-50 border-2 border-orange-100 rounded-xl p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-2xl">🚀</span>
+                  <h4 className="font-bold text-[#2C3E50]">Demandes express</h4>
+                </div>
+                <div className="text-center my-3">
+                  <span className="text-4xl font-extrabold text-[#FF6B00]">10 %</span>
+                </div>
+                <p className="text-sm text-[#6C757D] leading-relaxed">
+                  Commission prélevée sur chaque intervention express (dépannage urgence ou petits travaux), déduite du wallet artisan à la validation.
+                </p>
+                <p className="text-xs text-[#6C757D] mt-2 bg-white rounded-lg p-2 border border-orange-100">
+                  Exemple : intervention express à 100 € TTC → l'Artisan perçoit <strong>90 €</strong>, ArtisanDispo retient 10 €.
+                </p>
+              </div>
             </div>
+            <p className="text-sm text-[#6C757D] mt-3 italic">
+              Ces commissions couvrent les services de la plateforme : mise en relation, paiement sécurisé, médiation, support client et assurance qualité.
+            </p>
 
             <h3 className="text-lg font-semibold text-[#2C3E50] mb-2 mt-5">6.3 Prestataire de paiement</h3>
             <p className="text-[#6C757D] leading-relaxed">
