@@ -13,7 +13,6 @@ import { getDevisByDemande, declarerDebutTravaux, declarerFinTravaux } from '@/l
 import { createNotification } from '@/lib/firebase/notification-service';
 import { getFileMetadata } from '@/lib/firebase/storage-service';
 import { isDemandeExpired } from '@/lib/dateExpirationUtils';
-import { getExpressArtisanWindowMs } from '@/lib/express-work-taxonomy';
 import { collection, query, where, getDocs, getDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { User, Demande, DemandeExpress, PropositionExpress, DemandeExpressStatut } from '@/types/firestore';
@@ -2430,9 +2429,12 @@ export default function ArtisanDemandesPage() {
                           <span>🕐 Créée le {demande.createdAt.toDate().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                         )}
                         {demande.statut === 'travaux_termines' && demande.createdAt && (() => {
+                          const windowMs = demande.typeTravauxExpress === 'petits-travaux-maintenance'
+                            ? 2 * 60 * 60 * 1000  // 2h
+                            : 1 * 60 * 60 * 1000; // 1h (dépannage-urgence ou immédiat)
                           const finDate = demande.travauxTerminesAt
                             ? demande.travauxTerminesAt.toDate()
-                            : new Date(demande.createdAt!.toDate().getTime() + getExpressArtisanWindowMs(demande));
+                            : new Date(demande.createdAt!.toDate().getTime() + windowMs);
                           return (
                             <span className="text-green-600 font-semibold">
                               🏁 Fini le {finDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
@@ -2526,9 +2528,12 @@ export default function ArtisanDemandesPage() {
                             <p className="font-semibold text-[#2C3E50]">{demande.ville} ({demande.codePostal})</p>
                           </div>
                           {demande.statut === 'travaux_termines' && demande.createdAt && (() => {
+                            const windowMs = demande.typeTravauxExpress === 'petits-travaux-maintenance'
+                              ? 2 * 60 * 60 * 1000  // 2h
+                              : 1 * 60 * 60 * 1000; // 1h (dépannage-urgence ou immédiat)
                             const finDate = demande.travauxTerminesAt
                               ? demande.travauxTerminesAt.toDate()
-                              : new Date(demande.createdAt!.toDate().getTime() + getExpressArtisanWindowMs(demande));
+                              : new Date(demande.createdAt!.toDate().getTime() + windowMs);
                             return (
                               <div className="bg-green-50 rounded-lg p-3 border border-green-200">
                                 <p className="text-xs text-green-600 font-semibold uppercase tracking-wide mb-1">🏁 Fini le</p>
