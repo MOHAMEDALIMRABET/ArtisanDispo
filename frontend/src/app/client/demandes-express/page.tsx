@@ -20,12 +20,23 @@ import {
 } from '@/lib/firebase/demande-express-service';
 import { getUserById } from '@/lib/firebase/user-service';
 import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
+import { createAvis } from '@/lib/firebase/avis-service';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import type { DemandeExpress, PropositionExpress, User, DemandeExpressStatut } from '@/types/firestore';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { getExpressArtisanWindowLabel } from '@/lib/express-work-taxonomy';
+
+/* Listes de tags pour le popup d'avis (identiques aux demandes classiques) */
+const AVIS_POINTS_FORTS = [
+  'Ponctuel', 'Soigneux', 'Professionnel', 'Rapide',
+  'Bon rapport qualité/prix', 'À l\'écoute', 'Travail de qualité',
+];
+const AVIS_POINTS_AMELIORATION = [
+  'Délais trop longs', 'Communication insuffisante', 'Propreté du chantier',
+  'Prix élevé', 'Manque de professionnalisme',
+];
 
 export default function MesDemandesExpressPage() {
   const router = useRouter();
@@ -36,6 +47,8 @@ export default function MesDemandesExpressPage() {
   const [demandes, setDemandes] = useState<DemandeExpress[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtreStatut, setFiltreStatut] = useState<'toutes' | DemandeExpressStatut>('toutes');
+  // Sous-filtre pour le menu "En traitement" (payee / en_cours / travaux_termines)
+  const [filtreEnTraitement, setFiltreEnTraitement] = useState<'toutes' | 'payee' | 'en_cours' | 'travaux_termines'>('toutes');
   const [sourceFilter, setSourceFilter] = useState<'toutes' | 'directes' | 'publiees'>('toutes');
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [showHowItWorks, setShowHowItWorks] = useState(false);
@@ -57,6 +70,17 @@ export default function MesDemandesExpressPage() {
   const [submitting, setSubmitting] = useState(false);
   const [validatingId, setValidatingId] = useState<string | null>(null);
   const [artisanNomMap, setArtisanNomMap] = useState<Map<string, string>>(new Map());
+
+  // Popup avis post-validation (demandes express)
+  const [showAvisPopup, setShowAvisPopup] = useState(false);
+  const [avisDemandeId, setAvisDemandeId] = useState<string | null>(null);
+  const [avisArtisanId, setAvisArtisanId] = useState<string | null>(null);
+  const [avisNote, setAvisNote] = useState(0);
+  const [avisNoteHover, setAvisNoteHover] = useState(0);
+  const [avisCommentaire, setAvisCommentaire] = useState('');
+  const [avisPointsForts, setAvisPointsForts] = useState<string[]>([]);
+  const [avisPointsAmelioration, setAvisPointsAmelioration] = useState<string[]>([]);
+  const [avisSubmitting, setAvisSubmitting] = useState(false);
 
   // Modale contestation
   const [showDisputeModal, setShowDisputeModal] = useState(false);
@@ -208,11 +232,53 @@ export default function MesDemandesExpressPage() {
         throw new Error(err.error || 'Erreur lors de la libération du paiement');
       }
       await markTravauxValides(demandeId);
+      // Mettre à jour le statut localement
       setDemandes(prev => prev.map(d => d.id === demandeId ? { ...d, statut: 'terminee' as DemandeExpressStatut } : d));
+      // Récupérer l'artisanId depuis la demande pour l'avis
+      const demande = demandes.find(d => d.id === demandeId);
+      const artisanId = demande?.artisanId ?? null;
+      // Ouvrir le popup d'avis
+      setAvisDemandeId(demandeId);
+      setAvisArtisanId(artisanId);
+      setAvisNote(0);
+      setAvisNoteHover(0);
+      setAvisCommentaire('');
+      setAvisPointsForts([]);
+      setAvisPointsAmelioration([]);
+      setShowAvisPopup(true);
     } catch (err: any) {
       alert(err.message || 'Erreur lors de la validation des travaux');
     } finally {
       setValidatingId(null);
+    }
+  }
+
+  /**
+   * Soumettre l'avis client pour une demande express validée
+   */
+  async function handleSubmitAvisExpress() {
+    if (!firebaseUser || !avisDemandeId || !avisArtisanId) return;
+    if (avisNote === 0) { alert('Veuillez sélectionner une note.'); return; }
+    if (avisCommentaire.trim().length < 10) { alert('Le commentaire doit contenir au moins 10 caractères.'); return; }
+
+    try {
+      setAvisSubmitting(true);
+      // contratId = demandeId (identifiant unique de l'intervention express)
+      await createAvis({
+        contratId: avisDemandeId,
+        artisanId: avisArtisanId,
+        clientId: firebaseUser.uid,
+        note: avisNote,
+        commentaire: avisCommentaire.trim(),
+        points_forts: avisPointsForts,
+        points_amelioration: avisPointsAmelioration,
+      });
+      setShowAvisPopup(false);
+      alert('⭐ Merci pour votre avis ! Il a été publié avec succès.');
+    } catch (error: any) {
+      alert(error.message || 'Erreur lors de la publication de l\'avis.');
+    } finally {
+      setAvisSubmitting(false);
     }
   }
 
@@ -399,7 +465,13 @@ export default function MesDemandesExpressPage() {
 
     if (filtreStatut === 'toutes') return !isExpireeOuRefusee(d.statut);
     if (filtreStatut === 'expiree') return isExpireeOuRefusee(d.statut);
-    if (filtreStatut === 'en_cours') return ['payee', 'en_cours', 'travaux_termines'].includes(d.statut);
+    if (filtreStatut === 'en_cours') {
+      // Application du sous-filtre "En traitement"
+      if (filtreEnTraitement === 'payee') return d.statut === 'payee';
+      if (filtreEnTraitement === 'en_cours') return d.statut === 'en_cours';
+      if (filtreEnTraitement === 'travaux_termines') return d.statut === 'travaux_termines';
+      return ['payee', 'en_cours', 'travaux_termines'].includes(d.statut);
+    }
     return d.statut === filtreStatut;
   });
 
@@ -539,7 +611,7 @@ export default function MesDemandesExpressPage() {
 
         <div className="mb-6 flex flex-wrap gap-3">
           <button
-            onClick={() => setFiltreStatut('toutes')}
+            onClick={() => { setFiltreStatut('toutes'); setFiltreEnTraitement('toutes'); }}
             className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
               filtreStatut === 'toutes'
                 ? 'bg-[#FF6B00] text-white'
@@ -550,7 +622,7 @@ export default function MesDemandesExpressPage() {
             {showToutsBell && <span className="ml-1.5 animate-bounce">🔔</span>}
           </button>
           <button
-            onClick={() => setFiltreStatut('en_attente_proposition')}
+            onClick={() => { setFiltreStatut('en_attente_proposition'); setFiltreEnTraitement('toutes'); }}
             className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
               filtreStatut === 'en_attente_proposition'
                 ? 'bg-[#FF6B00] text-white'
@@ -560,7 +632,7 @@ export default function MesDemandesExpressPage() {
             <span className="mr-2">⏳</span>{t('clientExpressRequests.filters.waiting')} ({demandes.filter(d => d.statut === 'en_attente_proposition').length})
           </button>
           <button
-            onClick={() => setFiltreStatut('proposition_recue')}
+            onClick={() => { setFiltreStatut('proposition_recue'); setFiltreEnTraitement('toutes'); }}
             className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
               filtreStatut === 'proposition_recue'
                 ? 'bg-[#FF6B00] text-white'
@@ -570,27 +642,27 @@ export default function MesDemandesExpressPage() {
             <span className="mr-2">📋</span>{t('clientExpressRequests.filters.proposals')} ({demandes.filter(d => d.statut === 'proposition_recue').length})
           </button>
           <button
-            onClick={() => setFiltreStatut('en_cours')}
+            onClick={() => { setFiltreStatut('en_cours'); setFiltreEnTraitement('toutes'); }}
             className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
               filtreStatut === 'en_cours'
                 ? 'bg-[#FF6B00] text-white'
                 : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
             }`}
           >
-            <span className="mr-2">🔧</span>{t('clientExpressRequests.filters.inProgress')} ({demandes.filter(d => ['payee', 'en_cours', 'travaux_termines'].includes(d.statut)).length})
+            <span className="mr-2">🔧</span>En traitement ({demandes.filter(d => ['payee', 'en_cours', 'travaux_termines'].includes(d.statut)).length})
           </button>
           <button
-            onClick={() => setFiltreStatut('terminee')}
+            onClick={() => { setFiltreStatut('terminee'); setFiltreEnTraitement('toutes'); }}
             className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
               filtreStatut === 'terminee'
                 ? 'bg-[#FF6B00] text-white'
                 : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
             }`}
           >
-            <span className="mr-2">✅</span>{t('clientExpressRequests.filters.completed')} ({demandes.filter(d => d.statut === 'terminee').length})
+            <span className="mr-2">✅</span>Validées ({demandes.filter(d => d.statut === 'terminee').length})
           </button>
           <button
-            onClick={() => setFiltreStatut('expiree')}
+            onClick={() => { setFiltreStatut('expiree'); setFiltreEnTraitement('toutes'); }}
             className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
               filtreStatut === 'expiree'
                 ? 'bg-gray-600 text-white'
@@ -600,6 +672,53 @@ export default function MesDemandesExpressPage() {
             🚫 Refusées/Expirées ({demandesExpirees.length})
           </button>
         </div>
+
+        {/* Sous-menu "En traitement" : affiché uniquement quand ce filtre est actif */}
+        {filtreStatut === 'en_cours' && (
+          <div className="mb-6 flex flex-wrap gap-2 pl-4 border-l-4 border-[#FF6B00]">
+            <span className="text-sm font-semibold text-[#6C757D] self-center mr-1">Sous-filtre :</span>
+            <button
+              onClick={() => setFiltreEnTraitement('toutes')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                filtreEnTraitement === 'toutes'
+                  ? 'bg-[#FF6B00] text-white'
+                  : 'bg-white text-[#2C3E50] border border-gray-200 hover:bg-[#FFF3EA]'
+              }`}
+            >
+              Tous ({demandes.filter(d => ['payee', 'en_cours', 'travaux_termines'].includes(d.statut)).length})
+            </button>
+            <button
+              onClick={() => setFiltreEnTraitement('payee')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                filtreEnTraitement === 'payee'
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-white text-purple-700 border border-purple-200 hover:bg-purple-50'
+              }`}
+            >
+              💳 Payé - Attente début Travaux ({demandes.filter(d => d.statut === 'payee').length})
+            </button>
+            <button
+              onClick={() => setFiltreEnTraitement('en_cours')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                filtreEnTraitement === 'en_cours'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-white text-indigo-700 border border-indigo-200 hover:bg-indigo-50'
+              }`}
+            >
+              🔧 En cours ({demandes.filter(d => d.statut === 'en_cours').length})
+            </button>
+            <button
+              onClick={() => setFiltreEnTraitement('travaux_termines')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                filtreEnTraitement === 'travaux_termines'
+                  ? 'bg-amber-500 text-white'
+                  : 'bg-white text-amber-700 border border-amber-200 hover:bg-amber-50'
+              }`}
+            >
+              ⏳ Terminée - Attente Validation ({demandes.filter(d => d.statut === 'travaux_termines').length})
+            </button>
+          </div>
+        )}
 
         {/* Liste des demandes */}
         {demandesFiltrees.length === 0 ? (
@@ -1079,6 +1198,157 @@ export default function MesDemandesExpressPage() {
               className="flex-1 px-4 py-2.5 bg-[#FF6B00] text-white rounded-xl hover:bg-[#E56100] font-semibold text-sm disabled:opacity-50"
             >
               {submitting ? '⏳ Envoi…' : 'Envoyer'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* ===== POPUP AVIS POST-VALIDATION EXPRESS ===== */}
+    {showAvisPopup && (
+      <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg my-4">
+          {/* En-tête */}
+          <div className="bg-[#2C3E50] text-white rounded-t-2xl px-6 py-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold">⭐ Donner un avis</h2>
+                <p className="text-sm text-gray-300 mt-0.5">
+                  Partagez votre expérience avec{' '}
+                  <span className="text-[#FF6B00] font-semibold">
+                    {avisDemandeId ? (artisanNomMap.get(avisDemandeId) ?? 'l\'artisan') : 'l\'artisan'}
+                  </span>
+                </p>
+              </div>
+              <button
+                onClick={() => setShowAvisPopup(false)}
+                className="text-gray-300 hover:text-white text-2xl leading-none"
+                title="Plus tard"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+
+          {/* Corps scrollable */}
+          <div className="px-6 py-5 space-y-5 max-h-[75vh] overflow-y-auto">
+            {/* Sélection de la note */}
+            <div>
+              <label className="block text-sm font-semibold text-[#2C3E50] mb-3">
+                Note globale <span className="text-red-500">*</span>
+              </label>
+              <div className="flex gap-2 justify-center">
+                {[1, 2, 3, 4, 5].map(star => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setAvisNote(star)}
+                    onMouseEnter={() => setAvisNoteHover(star)}
+                    onMouseLeave={() => setAvisNoteHover(0)}
+                    className="transition-transform hover:scale-110"
+                  >
+                    <svg
+                      className={`w-10 h-10 ${
+                        star <= (avisNoteHover || avisNote)
+                          ? 'text-yellow-400 fill-current'
+                          : 'text-gray-300'
+                      }`}
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                  </button>
+                ))}
+                {avisNote > 0 && (
+                  <span className="ml-2 text-2xl font-bold text-[#FF6B00] self-center">
+                    {avisNote}/5
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Commentaire */}
+            <div>
+              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                Votre commentaire <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                value={avisCommentaire}
+                onChange={e => setAvisCommentaire(e.target.value)}
+                placeholder="Décrivez votre expérience (minimum 10 caractères)..."
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00] resize-none text-sm"
+                rows={4}
+              />
+              <p className="text-xs text-gray-400 mt-1 text-right">{avisCommentaire.length}/500</p>
+            </div>
+
+            {/* Points forts */}
+            <div>
+              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                Points forts <span className="text-gray-400 font-normal">(optionnel)</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {AVIS_POINTS_FORTS.map(point => (
+                  <button
+                    key={point}
+                    type="button"
+                    onClick={() => setAvisPointsForts(prev =>
+                      prev.includes(point) ? prev.filter(p => p !== point) : [...prev, point]
+                    )}
+                    className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
+                      avisPointsForts.includes(point)
+                        ? 'bg-green-50 border-green-500 text-green-700'
+                        : 'border-gray-300 text-gray-600 hover:border-green-400'
+                    }`}
+                  >
+                    {avisPointsForts.includes(point) && '✓ '}{point}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Points à améliorer */}
+            <div>
+              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                Points à améliorer <span className="text-gray-400 font-normal">(optionnel)</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {AVIS_POINTS_AMELIORATION.map(point => (
+                  <button
+                    key={point}
+                    type="button"
+                    onClick={() => setAvisPointsAmelioration(prev =>
+                      prev.includes(point) ? prev.filter(p => p !== point) : [...prev, point]
+                    )}
+                    className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
+                      avisPointsAmelioration.includes(point)
+                        ? 'bg-orange-50 border-orange-500 text-orange-700'
+                        : 'border-gray-300 text-gray-600 hover:border-orange-400'
+                    }`}
+                  >
+                    {avisPointsAmelioration.includes(point) && '⚠ '}{point}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Boutons */}
+          <div className="px-6 py-4 border-t border-gray-200 flex gap-3">
+            <button
+              type="button"
+              onClick={() => setShowAvisPopup(false)}
+              className="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-600 rounded-lg font-medium hover:bg-gray-50 transition text-sm"
+            >
+              Plus tard
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmitAvisExpress}
+              disabled={avisSubmitting || avisNote === 0 || avisCommentaire.trim().length < 10}
+              className="flex-1 px-4 py-2.5 bg-[#FF6B00] text-white rounded-lg font-semibold hover:bg-[#E56100] disabled:bg-gray-300 disabled:cursor-not-allowed transition text-sm"
+            >
+              {avisSubmitting ? 'Publication...' : '⭐ Publier mon avis'}
             </button>
           </div>
         </div>
