@@ -116,8 +116,22 @@ export async function getDemandeExpressById(demandeId: string): Promise<DemandeE
 /**
  * Récupérer les demandes express d'un client
  */
+/**
+ * Récupérer le montant exact payé par le client depuis la collection paiements_express.
+ * Cette collection est alimentée par le webhook Stripe → montant = exact débit carte.
+ */
+export async function getPaiementExpressByDemande(demandeId: string): Promise<{ montant: number } | null> {
+  const q = query(
+    collection(db, 'paiements_express'),
+    where('demandeId', '==', demandeId)
+  );
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  const data = snap.docs[0].data();
+  return { montant: data.montant as number };
+}
+
 export async function getDemandesExpressByClient(clientId: string): Promise<DemandeExpress[]> {
-  // Pas d'orderBy → évite l'index composite Firestore, tri côté client
   const q = query(
     collection(db, 'demandes_express'),
     where('clientId', '==', clientId)
@@ -666,7 +680,7 @@ export async function markInterventionEnCours(demandeId: string): Promise<void> 
 
   // 🆕 Notifier le client que l'intervention a démarré
   await createNotification(demande.clientId, {
-    type: 'intervention_demarree' as any,
+    type: 'intervention_demarree',
     titre: '🚧 Intervention démarrée',
     message: 'L\'artisan a commencé votre intervention.',
     lien: `/client/demandes-express/${demandeId}`,

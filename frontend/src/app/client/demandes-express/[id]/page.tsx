@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import {
   getDemandeExpressById,
   getPropositionsByDemande,
+  getPaiementExpressByDemande,
   acceptPropositionExpress,
   refusePropositionExpress,
   sendContrePropositionExpress,
@@ -34,6 +35,7 @@ export default function DemandeExpressDetailClientPage() {
   const [allPropositions, setAllPropositions] = useState<PropositionExpress[]>([]);
   const [selectedPropositionId, setSelectedPropositionId] = useState<string | null>(null);
   const [artisanData, setArtisanData] = useState<Artisan | null>(null);
+  const [montantPaye, setMontantPaye] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -98,7 +100,18 @@ export default function DemandeExpressDetailClientPage() {
         setProposition(activeProposition);
         setSelectedPropositionId(activeProposition?.id || null);
 
-        // 4. Récupérer l'info artisan (non-bloquant)
+        // 4. Charger le montant exact payé (paiements_express) si statut final
+        const statutsPayes = ['payee', 'en_cours', 'travaux_termines', 'terminee'];
+        if (statutsPayes.includes(demandeData.statut)) {
+          try {
+            const paiement = await getPaiementExpressByDemande(demandeId);
+            if (paiement?.montant != null) setMontantPaye(paiement.montant);
+          } catch {
+            // non-bloquant
+          }
+        }
+
+        // 5. Récupérer l'info artisan (non-bloquant)
         if (activeProposition?.artisanId) {
           try {
             const artisan = await getArtisanByUserId(activeProposition.artisanId);
@@ -264,7 +277,7 @@ export default function DemandeExpressDetailClientPage() {
     en_attente_proposition: { bg: 'bg-yellow-100', color: 'text-yellow-800', label: '⏳ En attente' },
     proposition_recue:      { bg: 'bg-blue-100',   color: 'text-blue-800',   label: '💬 Proposition reçue' },
     acceptee:               { bg: 'bg-green-100',  color: 'text-green-800',  label: '✅ Acceptée' },
-    payee:                  { bg: 'bg-green-100',  color: 'text-green-800',  label: '💳 Payée' },
+    payee:                  { bg: 'bg-orange-100', color: 'text-orange-800', label: '💳 Payé - En attente de début des travaux' },
     en_cours:               { bg: 'bg-purple-100', color: 'text-purple-800', label: '🔧 En cours' },
     terminee:               { bg: 'bg-gray-100',   color: 'text-gray-700',   label: '🎉 Terminée' },
     annulee:                { bg: 'bg-red-100',    color: 'text-red-700',    label: '❌ Annulée' },
@@ -373,12 +386,17 @@ export default function DemandeExpressDetailClientPage() {
                   <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">📅 Date</p>
                   <p className="text-[#2C3E50] font-medium text-sm">{new Date(demande.date).toLocaleDateString('fr-FR')}</p>
                 </div>
-                {demande.budgetPropose && (
+                {['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut) && montantPaye != null ? (
+                  <div>
+                    <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">💳 Montant payé (séquestre)</p>
+                    <p className="text-[#28A745] font-bold text-lg">🔒 {montantPaye}€</p>
+                  </div>
+                ) : demande.budgetPropose ? (
                   <div>
                     <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">💰 Mon budget</p>
                     <p className="text-[#FF6B00] font-bold text-lg">{demande.budgetPropose}€</p>
                   </div>
-                )}
+                ) : null}
                 <div>
                   <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">🔥 Urgence</p>
                   <p className="text-[#2C3E50] font-medium text-sm">

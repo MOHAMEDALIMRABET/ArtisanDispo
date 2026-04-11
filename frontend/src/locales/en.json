@@ -1577,7 +1577,7 @@
       "en_attente_proposition": "⏳ Awaiting craftsman response",
       "proposition_recue": "📨 Proposal received",
       "acceptee": "✅ Accepted",
-      "payee": "💳 Paid",
+      "payee": "💳 Paid - Awaiting works start",
       "en_cours": "🔧 In progress",
       "travaux_termines": "🏁 Work completed",
       "litige": "⚠️ Issue reported",

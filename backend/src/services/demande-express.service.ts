@@ -71,10 +71,33 @@ export async function getDemandeExpressById(id: string): Promise<DemandeExpress 
 
 export async function markDemandePaid(demandeId: string) {
   try {
+    // Récupérer la demande pour obtenir artisanId et le montant
+    const demandeDoc = await db.collection('demandes_express').doc(demandeId).get();
+    const demande = demandeDoc.exists ? (demandeDoc.data() as any) : null;
+
+    // Marquer la demande comme payée
     await db.collection('demandes_express').doc(demandeId).update({
       statut: 'payee',
       updatedAt: Timestamp.now(),
     });
+
+    // Envoyer une notification à l'artisan pour l'informer que le paiement est confirmé
+    if (demande?.artisanId) {
+      const montant = demande.montantPropose ?? demande.montantAccepte ?? null;
+      const montantStr = montant ? ` (${montant}€ sécurisé)` : '';
+
+      await db.collection('notifications').add({
+        userId: demande.artisanId,
+        type: 'paiement_recu_express',
+        titre: '💰 Paiement client confirmé',
+        message: `Le client a effectué le paiement${montantStr}. Vous pouvez démarrer l'intervention.`,
+        lien: `/artisan/demandes-express/${demandeId}`,
+        lue: false,
+        dateCreation: Timestamp.now(),
+      });
+      console.log(`🔔 Notification envoyée à l'artisan ${demande.artisanId}`);
+    }
+
     console.log(`✅ Demande ${demandeId} marquée comme payée`);
   } catch (error) {
     console.error('Erreur markDemandePaid:', error);

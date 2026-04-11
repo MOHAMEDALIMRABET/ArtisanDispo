@@ -82,7 +82,12 @@ export default function NotificationBell() {
         return '📝';
       case 'paiement':
       case 'paiement_libere':
+      case 'paiement_recu_express':
         return '💰';
+      case 'intervention_demarree':
+        return '🚧';
+      case 'travaux_termines':
+        return '🔔';
       case 'avis':
       case 'nouvel_avis':
         return '⭐';

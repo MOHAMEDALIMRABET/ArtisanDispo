@@ -9,6 +9,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import {
   getDemandesExpressByClient,
   getPropositionsByDemande,
+  getPaiementExpressByDemande,
   acceptPropositionExpress,
   refusePropositionExpress,
   sendContrePropositionExpress,
@@ -38,6 +39,9 @@ export default function MesDemandesExpressPage() {
   const [sourceFilter, setSourceFilter] = useState<'toutes' | 'directes' | 'publiees'>('toutes');
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [showHowItWorks, setShowHowItWorks] = useState(false);
+
+  // Montants payés (depuis paiements_express) pour badge statuts finaux
+  const [montantsPaiementMap, setMontantsPaiementMap] = useState<Map<string, number>>(new Map());
 
   // Propositions chargées à la volée à l'ouverture d'une carte
   const [propositionsMap, setPropositionsMap] = useState<Map<string, PropositionExpress | null>>(new Map());
@@ -339,6 +343,27 @@ export default function MesDemandesExpressPage() {
 
       setDemandes(updatedList);
 
+      // Pré-charger le montant exact payé (depuis paiements_express)
+      const statutsAvecMontant: DemandeExpressStatut[] = ['payee', 'en_cours', 'travaux_termines', 'terminee'];
+      const demandesAvecMontant = updatedList.filter(d => statutsAvecMontant.includes(d.statut));
+      if (demandesAvecMontant.length > 0) {
+        const paiementEntries = await Promise.all(
+          demandesAvecMontant.map(async (d) => {
+            try {
+              const p = await getPaiementExpressByDemande(d.id);
+              return [d.id, p?.montant ?? null] as [string, number | null];
+            } catch {
+              return [d.id, null] as [string, number | null];
+            }
+          })
+        );
+        setMontantsPaiementMap(prev => {
+          const next = new Map(prev);
+          paiementEntries.forEach(([id, montant]) => { if (montant != null) next.set(id as string, montant as number); });
+          return next;
+        });
+      }
+
       // Charger les noms des artisans pour les demandes qui en ont
       const demandesAvecArtisan = updatedList.filter(d => d.artisanId);
       if (demandesAvecArtisan.length > 0) {
@@ -639,10 +664,18 @@ export default function MesDemandesExpressPage() {
                         ⏱️ Expire le {format(demande.expiresAt.toDate(), 'dd MMMM à HH:mm', { locale: fr })} ({getExpressArtisanWindowLabel(demande)})
                       </span>
                     )}
-                    {demande.budgetPropose && (
-                      <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
-                        {t('clientExpressRequests.card.budgetProposed').replace('{amount}', String(demande.budgetPropose))}
-                      </span>
+                    {['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut) ? (
+                      montantsPaiementMap.has(demande.id) && (
+                        <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                          🔒 {montantsPaiementMap.get(demande.id)}€ payé
+                        </span>
+                      )
+                    ) : (
+                      demande.budgetPropose && (
+                        <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                          {t('clientExpressRequests.card.budgetProposed').replace('{amount}', String(demande.budgetPropose))}
+                        </span>
+                      )
                     )}
                   </div>
 
@@ -672,11 +705,11 @@ export default function MesDemandesExpressPage() {
                           </span>
                         );
                       }
-                      // Sinon, afficher la date d'intervention prévue
+                      // Pour les demandes express en cours, afficher le délai d'urgence
                       if (['payee', 'en_cours', 'travaux_termines'].includes(demande.statut)) {
                         return (
                           <span className="text-blue-700 font-semibold">
-                            📅 {t('clientDemandes.card.endDate')}: {format(dateIntervention, 'dd MMMM yyyy à HH:mm', { locale: fr })}
+                            ⏱️ Intervention sous {getExpressArtisanWindowLabel(demande)}
                           </span>
                         );
                       }

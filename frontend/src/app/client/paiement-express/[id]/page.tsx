@@ -10,13 +10,17 @@ import { getPropositionExpressById, getDemandeExpressById } from '@/lib/firebase
 import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
 import { useAuth } from '@/hooks/useAuth';
 import type { PropositionExpress, DemandeExpress, Artisan } from '@/types/firestore';
-import { Button } from '@/components/ui/Button';
 import CheckoutForm from './CheckoutForm';
 
 const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
   ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
   : null;
 
+/**
+ * SimulationPayForm — Formulaire de paiement de test (mode simulation).
+ * Affiche les champs de saisie de carte bancaire et simule la confirmation côté serveur.
+ * Activé automatiquement quand STRIPE_SECRET_KEY est absent ou PAYMENT_SIMULATION_MODE=true.
+ */
 function SimulationPayForm({
   montant,
   demandeId,
@@ -29,10 +33,57 @@ function SimulationPayForm({
   simulationToken: string;
 }) {
   const router = useRouter();
-  const [paying, setPaying] = useState(false);
-  const [paid, setPaid] = useState(false);
 
-  async function handleSimulatePay() {
+  // ── États du formulaire de saisie carte ──────────────────────────────────────
+  const [paying, setPaying] = useState(false);   // Vrai pendant l'appel API
+  const [paid, setPaid] = useState(false);        // Vrai après confirmation serveur
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardName, setCardName] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [cvv, setCvv] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // ── Formate le numéro de carte en groupes de 4 chiffres (ex: 1234 5678 9012 3456) ──
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\s/g, '').replace(/\D/g, '').substring(0, 16);
+    setCardNumber(value.match(/.{1,4}/g)?.join(' ') || value);
+  };
+
+  // ── Formate la date d'expiration automatiquement au format MM/AA ─────────────
+  const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, '').substring(0, 4);
+    if (value.length >= 2) value = value.substring(0, 2) + '/' + value.substring(2);
+    setExpiryDate(value);
+  };
+
+  // ── Valide tous les champs — retourne vrai si le formulaire est complet et valide ──
+  const validate = (): boolean => {
+    const errs: Record<string, string> = {};
+    const num = cardNumber.replace(/\s/g, '');
+    if (!num) errs.cardNumber = 'Numéro de carte requis';
+    else if (num.length !== 16) errs.cardNumber = 'Numéro de carte invalide (16 chiffres)';
+    if (!cardName.trim()) errs.cardName = 'Nom du titulaire requis';
+    if (!expiryDate) {
+      errs.expiryDate = "Date d'expiration requise";
+    } else {
+      const [m, y] = expiryDate.split('/');
+      const month = parseInt(m);
+      const year = parseInt('20' + y);
+      const now = new Date();
+      if (month < 1 || month > 12) errs.expiryDate = 'Mois invalide';
+      else if (year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth() + 1))
+        errs.expiryDate = 'Carte expirée';
+    }
+    if (!cvv) errs.cvv = 'CVV requis';
+    else if (cvv.length < 3) errs.cvv = 'CVV invalide';
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  // ── Soumission : valide → appelle l'API de simulation → redirige vers la page succès ──
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!validate()) return;
     setPaying(true);
     try {
       const res = await fetch(
@@ -48,9 +99,10 @@ function SimulationPayForm({
         throw new Error(data.error || 'Erreur simulation');
       }
       setPaid(true);
+      // Affiche brièvement la confirmation avant de rediriger vers la page succès
       setTimeout(() => router.push(`/client/paiement-success?demandeId=${demandeId}`), 1500);
-    } catch (e: any) {
-      alert(e.message || 'Erreur simulation');
+    } catch (err: any) {
+      alert(err.message || 'Erreur lors du paiement');
     } finally {
       setPaying(false);
     }
@@ -60,33 +112,118 @@ function SimulationPayForm({
     return (
       <div className="text-center py-8">
         <p className="text-5xl mb-3">✅</p>
-        <p className="font-bold text-green-700 text-lg">Paiement simulé confirmé !</p>
+        <p className="font-bold text-green-700 text-lg">Paiement confirmé !</p>
         <p className="text-sm text-[#6C757D] mt-1">Redirection en cours...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-4">
-        <p className="text-sm font-bold text-yellow-800 mb-1">🎭 Mode simulation activé</p>
-        <p className="text-xs text-yellow-700">
-          Stripe n&apos;est pas configuré. Ce paiement est simulé et ne débite aucune carte réelle.
-          Les données Firestore sont réellement mises à jour.
-        </p>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3 flex items-start gap-2">
+        <span className="text-lg flex-shrink-0">🧪</span>
+        <div>
+          <p className="font-bold text-yellow-800 text-sm">Mode test — Paiement non réel</p>
+          <p className="text-yellow-700 text-xs mt-0.5">
+            Aucun débit ne sera effectué. Saisissez n&apos;importe quelle carte valide pour tester.
+          </p>
+        </div>
       </div>
-      <div className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">
-        <span className="text-[#6C757D] font-medium">Montant simulé</span>
-        <span className="text-2xl font-black text-[#FF6B00]">{montant}€</span>
+
+      <div className="bg-[#FF6B00] bg-opacity-10 border-2 border-[#FF6B00] rounded-xl p-4 flex justify-between items-center">
+        <span className="text-[#2C3E50] font-semibold">Montant à payer</span>
+        <span className="text-3xl font-black text-[#FF6B00]">{montant}€</span>
       </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-[#2C3E50] mb-1.5">
+          Numéro de carte <span className="text-red-500">*</span>
+        </label>
+        <div className="relative">
+          <input
+            type="text"
+            value={cardNumber}
+            onChange={handleCardNumberChange}
+            placeholder="1234 5678 9012 3456"
+            disabled={paying}
+            className={"w-full border-2 rounded-lg px-4 py-3 pr-12 focus:ring-2 focus:ring-[#FF6B00] focus:border-[#FF6B00] outline-none transition " + (errors.cardNumber ? 'border-red-500' : 'border-[#E9ECEF]')}
+          />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            <svg className="w-8 h-6 text-gray-400" fill="currentColor" viewBox="0 0 48 32">
+              <rect width="48" height="32" rx="4" fill="#1A1F71"/>
+              <circle cx="18" cy="16" r="8" fill="#EB001B"/>
+              <circle cx="30" cy="16" r="8" fill="#F79E1B"/>
+            </svg>
+          </div>
+        </div>
+        {errors.cardNumber && <p className="text-red-500 text-xs mt-1">{errors.cardNumber}</p>}
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-[#2C3E50] mb-1.5">
+          Nom du titulaire <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          value={cardName}
+          onChange={(e) => setCardName(e.target.value.toUpperCase())}
+          placeholder="JEAN DUPONT"
+          disabled={paying}
+          className={"w-full border-2 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#FF6B00] focus:border-[#FF6B00] outline-none transition " + (errors.cardName ? 'border-red-500' : 'border-[#E9ECEF]')}
+        />
+        {errors.cardName && <p className="text-red-500 text-xs mt-1">{errors.cardName}</p>}
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-semibold text-[#2C3E50] mb-1.5">
+            Date d&apos;expiration <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            value={expiryDate}
+            onChange={handleExpiryChange}
+            placeholder="MM/AA"
+            disabled={paying}
+            className={"w-full border-2 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#FF6B00] focus:border-[#FF6B00] outline-none transition " + (errors.expiryDate ? 'border-red-500' : 'border-[#E9ECEF]')}
+          />
+          {errors.expiryDate && <p className="text-red-500 text-xs mt-1">{errors.expiryDate}</p>}
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-[#2C3E50] mb-1.5">
+            CVV <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            value={cvv}
+            onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').substring(0, 4))}
+            placeholder="123"
+            disabled={paying}
+            className={"w-full border-2 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#FF6B00] focus:border-[#FF6B00] outline-none transition " + (errors.cvv ? 'border-red-500' : 'border-[#E9ECEF]')}
+          />
+          {errors.cvv && <p className="text-red-500 text-xs mt-1">{errors.cvv}</p>}
+        </div>
+      </div>
+
       <button
-        onClick={handleSimulatePay}
+        type="submit"
         disabled={paying}
-        className="w-full py-4 bg-[#FF6B00] hover:bg-[#E56100] text-white rounded-xl font-bold text-lg transition-all disabled:opacity-50 shadow-md"
+        className="w-full py-4 bg-[#FF6B00] hover:bg-[#E56100] text-white rounded-xl font-bold text-lg transition-all disabled:opacity-50 shadow-md flex items-center justify-center gap-2"
       >
-        {paying ? '⏳ Traitement...' : `💳 Simuler le paiement de ${montant}€`}
+        {paying ? (
+          <>
+            <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white inline-block" />
+            Traitement en cours...
+          </>
+        ) : (
+          <>💳 Payer {montant}€ en toute sécurité</>
+        )}
       </button>
-    </div>
+
+      <p className="text-xs text-center text-[#6C757D]">
+        🔒 Paiement sécurisé avec séquestre — L&apos;artisan ne reçoit le montant qu&apos;après la fin de l&apos;intervention.
+      </p>
+    </form>
   );
 }
 
@@ -280,8 +417,6 @@ export default function PaiementExpressPage() {
                     <li>✅ Votre argent est bloqué sur un compte séquestre</li>
                     <li>✅ L'artisan ne le reçoit qu'après la fin de l'intervention</li>
                     <li>✅ Vous pouvez demander un remboursement en cas de litige</li>
-                    <li>✅ Commission plateforme : {commission}€ (10%)</li>
-                    <li>✅ Montant reçu par l'artisan : {montantArtisan.toFixed(2)}€</li>
                   </ul>
                 </div>
               </div>

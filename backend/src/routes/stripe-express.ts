@@ -280,7 +280,6 @@ async function handlePaymentIntentAuthorized(paymentIntent: Stripe.PaymentIntent
 
   console.log(`💰 Commission plateforme: ${commission}€`);
   console.log(`💰 Montant artisan (libéré après validation travaux): ${montantArtisan}€`);
-  // TODO: Envoyer notification artisan "Paiement sécurisé reçu, vous pouvez intervenir"
 }
 
 // Handler: Capture effectuée (payment_intent.succeeded après capture manuelle)

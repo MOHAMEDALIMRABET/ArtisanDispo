@@ -4,76 +4,102 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useStripe } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, useStripe } from '@stripe/react-stripe-js';
 import { Button } from '@/components/ui/Button';
 
-export default function PaiementSuccessPage() {
-  const router = useRouter();
-  const { t } = useLanguage();
-  const searchParams = useSearchParams();
-  const stripe = useStripe();
-  const demandeId = searchParams.get('demandeId');
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [message, setMessage] = useState('');
+const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+  ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
+  : null;
 
+/**
+ * StripeStatusChecker — Composant sans rendu visuel (retourne null).
+ * Interroge Stripe pour connaître le statut du PaymentIntent via clientSecret
+ * et remonte success/error au parent via le callback onResult().
+ * DOIT être enveloppé dans un <Elements> provider (requis par useStripe).
+ */
+function StripeStatusChecker({
+  clientSecret,
+  onResult,
+}: {
+  clientSecret: string;
+  onResult: (status: 'success' | 'error', message: string) => void;
+}) {
+  const stripe = useStripe();
+  const { t } = useLanguage();
+
+  // ── Déclenché dès que le SDK Stripe est initialisé ───────────────────────────
   useEffect(() => {
     if (!stripe) return;
 
-    const clientSecret = new URLSearchParams(window.location.search).get(
-      'payment_intent_client_secret'
-    );
-
-    if (!clientSecret) {
-      setStatus('error');
-      setMessage(t('clientPaymentSuccess.error.messageMissing'));
-      return;
-    }
-
+    // Interroge Stripe pour récupérer le statut du PaymentIntent
     stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
       if (!paymentIntent) {
-        setStatus('error');
-        setMessage(t('clientPaymentSuccess.error.messageNotFound'));
+        onResult('error', t('clientPaymentSuccess.error.messageNotFound'));
         return;
       }
-
+      // Traduit le statut technique Stripe en résultat compréhensible par l'interface
       switch (paymentIntent.status) {
         case 'succeeded':
-          setStatus('success');
-          setMessage(t('clientPaymentSuccess.success.messageSuccess'));
+        case 'requires_capture':          // Paiement autorisé (capture différée pour le séquestre)
+          onResult('success', t('clientPaymentSuccess.success.messageSuccess'));
           break;
-        case 'requires_capture':
-          // Paiement autorisé avec capture manuelle (séquestre) — succès pour le client
-          setStatus('success');
-          setMessage(t('clientPaymentSuccess.success.messageSuccess'));
+        case 'processing':               // Virement en attente (ex: SEPA)
+          onResult('success', t('clientPaymentSuccess.success.messageProcessing'));
           break;
-        case 'processing':
-          setStatus('success');
-          setMessage(t('clientPaymentSuccess.success.messageProcessing'));
-          break;
-        case 'requires_payment_method':
-          setStatus('error');
-          setMessage(t('clientPaymentSuccess.error.messageFailed'));
+        case 'requires_payment_method':  // Échec (carte refusée, fonds insuffisants…)
+          onResult('error', t('clientPaymentSuccess.error.messageFailed'));
           break;
         default:
-          setStatus('error');
-          setMessage(t('clientPaymentSuccess.error.messageUnknown'));
+          onResult('error', t('clientPaymentSuccess.error.messageUnknown'));
           break;
       }
     });
   }, [stripe]);
 
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#F8F9FA] to-white">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#FF6B00] mx-auto mb-4"></div>
-          <p className="text-lg text-[#6C757D]">{t('clientPaymentSuccess.loading')}</p>
-        </div>
-      </div>
-    );
-  }
+  return null; // Composant purement logique, aucun rendu visuel
+}
+
+export default function PaiementSuccessPage() {
+  const router = useRouter();
+  const { t } = useLanguage();
+  const searchParams = useSearchParams();
+  const demandeId = searchParams.get('demandeId');
+  const clientSecret = searchParams.get('payment_intent_client_secret');
+
+  // En mode simulation, pas de clientSecret → succès direct
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>(
+    clientSecret ? 'loading' : 'success'
+  );
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    // Mode simulation : pas de clientSecret, paiement déjà confirmé côté serveur
+    if (!clientSecret) {
+      setMessage(t('clientPaymentSuccess.success.messageSuccess'));
+    }
+  }, [clientSecret]);
 
   return (
+    <>
+      {/* Vérification Stripe uniquement si paiement réel (clientSecret présent) */}
+      {clientSecret && stripePromise && (
+        <Elements stripe={stripePromise} options={{ clientSecret }}>
+          <StripeStatusChecker
+            clientSecret={clientSecret}
+            onResult={(s, m) => { setStatus(s); setMessage(m); }}
+          />
+        </Elements>
+      )}
+
+      {status === 'loading' ? (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#F8F9FA] to-white">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#FF6B00] mx-auto mb-4"></div>
+            <p className="text-lg text-[#6C757D]">{t('clientPaymentSuccess.loading')}</p>
+          </div>
+        </div>
+      ) : (
     <div className="min-h-screen bg-gradient-to-b from-[#F8F9FA] to-white">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto">
@@ -235,5 +261,7 @@ export default function PaiementSuccessPage() {
         </div>
       </div>
     </div>
+      )}
+    </>
   );
 }

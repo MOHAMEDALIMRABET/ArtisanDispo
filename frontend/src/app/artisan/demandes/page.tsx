@@ -1083,8 +1083,6 @@ export default function ArtisanDemandesPage() {
                     </span>
                   )}
                 </div>
-                <div className="p-3 rounded-xl bg-gray-50 border border-gray-200">
-                </div>
                 {nbNouvellesExpress > 0 && (
                   <div className="flex items-center gap-2 text-[#FF6B00] text-sm font-semibold">
                     <span>🔔</span>
@@ -2352,7 +2350,9 @@ export default function ArtisanDemandesPage() {
                           demande.statut === 'en_attente_proposition' ? 'bg-yellow-100 text-yellow-700' :
                           demande.statut === 'proposition_recue' ? 'bg-blue-100 text-blue-700' :
                           demande.statut === 'acceptee' ? 'bg-green-100 text-green-700' :
-                          demande.statut === 'en_cours' ? 'bg-orange-100 text-orange-700' :
+                          demande.statut === 'payee' ? 'bg-orange-100 text-orange-700' :
+                          demande.statut === 'en_cours' ? 'bg-purple-100 text-purple-700' :
+                          demande.statut === 'travaux_termines' ? 'bg-amber-100 text-amber-700' :
                           demande.statut === 'terminee' ? 'bg-gray-100 text-gray-600' :
                           demande.statut === 'annulee' ? 'bg-red-100 text-red-700' :
                           'bg-gray-100 text-gray-600'
@@ -2360,8 +2360,10 @@ export default function ArtisanDemandesPage() {
                           {demande.statut === 'en_attente_proposition' ? '⏳ En attente' :
                            demande.statut === 'proposition_recue' ? '📨 Proposition envoyée' :
                            demande.statut === 'acceptee' ? '✅ Acceptée' :
+                           demande.statut === 'payee' ? '💳 Payé - En attente des travaux' :
                            demande.statut === 'en_cours' ? '🔧 En cours' :
-                           demande.statut === 'terminee' ? '🏁 Terminée' :
+                           demande.statut === 'travaux_termines' ? '🏁 Travaux terminés' :
+                           demande.statut === 'terminee' ? '✔️ Terminée' :
                            demande.statut === 'annulee' ? '❌ Annulée' :
                            demande.statut}
                         </span>
@@ -2383,7 +2385,13 @@ export default function ArtisanDemandesPage() {
                         {demande.createdAt && (
                           <span>🕐 Créée le {demande.createdAt.toDate().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                         )}
-                        {demande.budgetPropose && <span>💰 {demande.budgetPropose}€</span>}
+                        {/* Si payé/en cours/terminé : afficher le montant payé (proposition), sinon le budget client */}
+                        {['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut) ? (
+                          expressPropositionsMap.get(demande.id)?.find(p => p.statut === 'acceptee') &&
+                            <span className="text-[#FF6B00] font-bold">💳 {expressPropositionsMap.get(demande.id)!.find(p => p.statut === 'acceptee')!.montantPropose}€ payé</span>
+                        ) : (
+                          demande.budgetPropose && <span>💰 {demande.budgetPropose}€</span>
+                        )}
                       </div>
                     </div>
 
@@ -2488,17 +2496,33 @@ export default function ArtisanDemandesPage() {
                           <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 space-y-3">
                             <h4 className="font-bold text-[#2C3E50]">✅ Votre proposition</h4>
                             
-                            {/* Comparaison budget client vs proposition artisan */}
+                            {/* Affichage montant : si payé, montrer uniquement le montant payé (sécurisé en séquestre) */}
                             <div className="grid grid-cols-2 gap-3">
-                              {demande.budgetPropose && (
+                              {!['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut) && demande.budgetPropose && (
                                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                                   <p className="text-xs text-blue-600 font-semibold mb-1">💰 Budget client</p>
                                   <p className="text-xl font-bold text-blue-700">{demande.budgetPropose}€</p>
                                 </div>
                               )}
-                              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                                <p className="text-xs text-orange-600 font-semibold mb-1">💰 Proposition artisan</p>
-                                <p className="text-xl font-bold text-[#FF6B00]">{maProposition.montantPropose}€</p>
+                              <div className={`border rounded-lg p-3 ${
+                                ['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut)
+                                  ? 'bg-green-50 border-green-200 col-span-2'
+                                  : 'bg-orange-50 border-orange-200'
+                              }`}>
+                                <p className={`text-xs font-semibold mb-1 ${
+                                  ['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut)
+                                    ? 'text-green-700'
+                                    : 'text-orange-600'
+                                }`}>
+                                  {['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut)
+                                    ? '🔒 Montant payé (en séquestre)'
+                                    : '💰 Proposition artisan'}
+                                </p>
+                                <p className={`text-xl font-bold ${
+                                  ['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut)
+                                    ? 'text-green-800'
+                                    : 'text-[#FF6B00]'
+                                }`}>{maProposition.montantPropose}€</p>
                               </div>
                             </div>
 
