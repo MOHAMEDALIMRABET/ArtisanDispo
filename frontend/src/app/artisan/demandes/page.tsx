@@ -62,6 +62,7 @@ export default function ArtisanDemandesPage() {
   const [expandedExpressIds, setExpandedExpressIds] = useState<Set<string>>(new Set());
   const [expressPropositionsMap, setExpressPropositionsMap] = useState<Map<string, PropositionExpress[]>>(new Map());
   const [expressFilter, setExpressFilter] = useState<'nouvelles' | 'propositions_envoyees' | 'acceptees' | 'refusees' | 'validees'>('nouvelles');
+  const [expressSubFilter, setExpressSubFilter] = useState<'tout' | 'payee' | 'en_cours' | 'travaux_termines'>('tout');
   const [expressSource, setExpressSource] = useState<'attribuees' | 'publiees'>('attribuees');
   const [bypassHighlight, setBypassHighlight] = useState(false); // Pour ignorer highlightedDemandeId après une action
   const demandeRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
@@ -2199,7 +2200,22 @@ export default function ArtisanDemandesPage() {
               validees: getFilteredList('validees').length,
               refusees: getFilteredList('refusees').length,
             };
-            const demandesExpressFiltrees = getFilteredList(expressFilter);
+
+            // Sous-filtrage pour l'onglet "En traitement"
+            const accepteesAll = getFilteredList('acceptees');
+            const subCounts = {
+              tout: accepteesAll.length,
+              payee: accepteesAll.filter(d => ['acceptee', 'payee'].includes(d.statut)).length,
+              en_cours: accepteesAll.filter(d => d.statut === 'en_cours').length,
+              travaux_termines: accepteesAll.filter(d => d.statut === 'travaux_termines').length,
+            };
+
+            const demandesExpressFiltrees = (() => {
+              const base = getFilteredList(expressFilter);
+              if (expressFilter !== 'acceptees' || expressSubFilter === 'tout') return base;
+              if (expressSubFilter === 'payee') return base.filter(d => ['acceptee', 'payee'].includes(d.statut));
+              return base.filter(d => d.statut === expressSubFilter);
+            })();
 
             return (
             <div className="space-y-4">
@@ -2238,13 +2254,13 @@ export default function ArtisanDemandesPage() {
                 {([
                   { key: 'nouvelles' as const, label: '🆕 Nouvelles', count: counts.nouvelles },
                   { key: 'propositions_envoyees' as const, label: '📨 Propositions envoyées', count: counts.propositions_envoyees },
-                  { key: 'acceptees' as const, label: '✅ Acceptées/Payées', count: counts.acceptees },
+                  { key: 'acceptees' as const, label: '🔧 En traitement', count: counts.acceptees },
                   { key: 'validees' as const, label: '🎉 Validées', count: counts.validees },
                   { key: 'refusees' as const, label: '❌ Refusées', count: counts.refusees },
                 ] as { key: typeof expressFilter; label: string; count: number }[]).map(tab => (
                   <button
                     key={tab.key}
-                    onClick={() => setExpressFilter(tab.key)}
+                    onClick={() => { setExpressFilter(tab.key); setExpressSubFilter('tout'); }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm transition-all border-2 ${
                       expressFilter === tab.key
                         ? 'bg-[#FF6B00] text-white border-[#FF6B00] shadow-md'
@@ -2259,18 +2275,45 @@ export default function ArtisanDemandesPage() {
                 ))}
               </div>
 
+              {/* Sous-menus pour "En traitement" */}
+              {expressFilter === 'acceptees' && (
+                <div className="flex gap-2 flex-wrap pl-2 border-l-4 border-[#FF6B00]">
+                  {([
+                    { key: 'tout' as const, label: '📋 Toutes', count: subCounts.tout },
+                    { key: 'payee' as const, label: '✅ Acceptées/Payées', count: subCounts.payee },
+                    { key: 'en_cours' as const, label: '🔧 En cours', count: subCounts.en_cours },
+                    { key: 'travaux_termines' as const, label: '🏁 Travaux terminés', count: subCounts.travaux_termines },
+                  ] as { key: typeof expressSubFilter; label: string; count: number }[]).map(sub => (
+                    <button
+                      key={sub.key}
+                      onClick={() => setExpressSubFilter(sub.key)}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-semibold text-xs transition-all border-2 ${
+                        expressSubFilter === sub.key
+                          ? 'bg-[#2C3E50] text-white border-[#2C3E50] shadow-sm'
+                          : 'bg-white text-[#2C3E50] border-gray-200 hover:border-[#2C3E50] hover:bg-gray-50'
+                      }`}
+                    >
+                      <span>{sub.label}</span>
+                      <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${
+                        expressSubFilter === sub.key ? 'bg-white text-[#2C3E50]' : 'bg-gray-100 text-gray-600'
+                      }`}>{sub.count}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {demandesExpressFiltrees.length === 0 ? (
                 <div className="bg-white rounded-xl shadow-sm p-10 text-center border border-gray-100">
                   <span className="text-5xl mb-3 block">
                     {expressFilter === 'nouvelles' ? '🔍' :
                      expressFilter === 'propositions_envoyees' ? '📭' :
-                     expressFilter === 'acceptees' ? '💳' :
+                     expressFilter === 'acceptees' ? '�' :
                      expressFilter === 'validees' ? '🎉' : '✌️'}
                   </span>
                   <p className="text-gray-500 font-medium">
                     {expressFilter === 'nouvelles' ? 'Aucune nouvelle demande pour le moment.' :
                      expressFilter === 'propositions_envoyees' ? 'Aucune proposition en attente de réponse.' :
-                     expressFilter === 'acceptees' ? 'Aucune demande acceptée/payée.' :
+                     expressFilter === 'acceptees' ? 'Aucune demande en traitement.' :
                      expressFilter === 'validees' ? 'Aucune demande validée par les clients.' :
                      'Aucune proposition refusée (ou disparues après 24h).'}
                   </p>
@@ -2496,7 +2539,7 @@ export default function ArtisanDemandesPage() {
                           <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 space-y-3">
                             <h4 className="font-bold text-[#2C3E50]">✅ Votre proposition</h4>
                             
-                            {/* Affichage montant : si payé, montrer uniquement le montant payé (sécurisé en séquestre) */}
+                            {/* Affichage montant : si payé, ne pas répéter le montant (déjà affiché en haut) */}
                             <div className="grid grid-cols-2 gap-3">
                               {!['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut) && demande.budgetPropose && (
                                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
@@ -2504,26 +2547,12 @@ export default function ArtisanDemandesPage() {
                                   <p className="text-xl font-bold text-blue-700">{demande.budgetPropose}€</p>
                                 </div>
                               )}
-                              <div className={`border rounded-lg p-3 ${
-                                ['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut)
-                                  ? 'bg-green-50 border-green-200 col-span-2'
-                                  : 'bg-orange-50 border-orange-200'
-                              }`}>
-                                <p className={`text-xs font-semibold mb-1 ${
-                                  ['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut)
-                                    ? 'text-green-700'
-                                    : 'text-orange-600'
-                                }`}>
-                                  {['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut)
-                                    ? '🔒 Montant payé (en séquestre)'
-                                    : '💰 Proposition artisan'}
-                                </p>
-                                <p className={`text-xl font-bold ${
-                                  ['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut)
-                                    ? 'text-green-800'
-                                    : 'text-[#FF6B00]'
-                                }`}>{maProposition.montantPropose}€</p>
-                              </div>
+                              {!['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut) && (
+                                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                                  <p className="text-xs text-orange-600 font-semibold mb-1">💰 Votre proposition</p>
+                                  <p className="text-xl font-bold text-[#FF6B00]">{maProposition.montantPropose}€</p>
+                                </div>
+                              )}
                             </div>
 
                             <div className="flex items-center gap-4">
