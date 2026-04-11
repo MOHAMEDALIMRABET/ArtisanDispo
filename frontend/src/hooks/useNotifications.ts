@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { collection, query, where, onSnapshot, orderBy, limit } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { markNotificationAsRead, markAllNotificationsAsRead, markNotificationsByTypeAsRead } from '@/lib/firebase/notification-service';
 import type { Notification } from '@/types/firestore';
@@ -25,21 +25,24 @@ export function useNotifications(userId: string | undefined, maxResults: number 
     setLoading(true);
 
     // Écoute en temps réel des notifications
+    // ⚠️ PAS d'orderBy ici : combine where+orderBy = index composite requis (risque d'échec)
+    // → Tri côté client avec .sort() pour respecter les conventions du projet
     const notificationsRef = collection(db, 'notifications');
     const q = query(
       notificationsRef,
       where('userId', '==', userId),
-      orderBy('dateCreation', 'desc'),
       limit(maxResults)
     );
 
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const notifsList = snapshot.docs.map(doc => ({
+        const notifsList = (snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
-        })) as Notification[];
+        })) as Notification[]).sort((a, b) =>
+          (b.dateCreation?.toMillis?.() || 0) - (a.dateCreation?.toMillis?.() || 0)
+        );
 
         setNotifications(notifsList);
         setUnreadCount(notifsList.filter(n => !n.lue).length);
