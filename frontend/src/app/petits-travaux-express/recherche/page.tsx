@@ -373,8 +373,19 @@ export default function RechercheExpressPage() {
         </div>
       </section>
 
-      {/* Formulaire de recherche */}
-      <div className="container mx-auto px-4 py-8">
+      {/* Formulaire de recherche — image de fond d'artisan au travail */}
+      <div
+        className="relative"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1920&q=80')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+        }}
+      >
+        {/* Overlay blanc semi-transparent pour garder le formulaire lisible */}
+        <div className="absolute inset-0 bg-white/80" />
+        <div className="relative z-10 container mx-auto px-4 py-8">
         <div className={searched ? 'md:flex md:gap-6 md:items-start' : 'max-w-4xl mx-auto'}>
           <div className={searched ? 'md:w-96 md:flex-shrink-0 md:sticky md:top-6' : ''}>
           <form onSubmit={handleSearch} className="bg-white rounded-xl shadow-lg p-6 md:p-8 space-y-6">
@@ -759,7 +770,8 @@ export default function RechercheExpressPage() {
             </div>
           )}
         </div>
-      </div>
+        </div>{/* fin z-10 container */}
+      </div>{/* fin background image */}
     </div>
   );
 }

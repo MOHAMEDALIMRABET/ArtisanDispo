@@ -4,6 +4,23 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 
+// ── Catégories ───────────────────────────────────────────────
+const URGENCE_ITEMS = [
+  { icon: '🔑', label: 'Serrurerie',   value: 'serrurerie'  },
+  { icon: '🚿', label: 'Plomberie',    value: 'plomberie'   },
+  { icon: '⚡',  label: 'Électricité',  value: 'electricite' },
+  { icon: '🔥', label: 'Chauffage',    value: 'chauffage'   },
+  { icon: '🪟', label: 'Vitrerie',     value: 'vitrerie'    },
+] as const;
+
+const TRAVAUX_ITEMS = [
+  { icon: '🔧', label: 'Réglage & réparation',  value: 'reglage-reparation'        },
+  { icon: '📦', label: 'Installation simple',    value: 'installation-simple'       },
+  { icon: '🏠', label: 'Amélioration',           value: 'amelioration-optimisation' },
+  { icon: '🔨', label: 'Petits travaux bois',    value: 'petits-travaux-bois'       },
+  { icon: '👷', label: 'Maintenance prévent.',   value: 'maintenance-preventive'    },
+] as const;
+
 export default function PetitsTravauxExpressPage() {
   const router = useRouter();
   const { t } = useLanguage();
@@ -91,20 +108,20 @@ export default function PetitsTravauxExpressPage() {
       </section>
 
       {/* ── Deux blocs types de travaux ── */}
-      <section className="container mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-2 gap-6">
+      <section className="container mx-auto px-4 py-6">
+        <div className="grid md:grid-cols-2 gap-4">
 
           {/* Bloc 1 : Dépannage en urgence */}
-          <div className="bg-white rounded-2xl border border-[#E9ECEF] shadow-sm overflow-hidden hover:border-red-400 hover:shadow-md transition-all duration-200">
+          <div className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm overflow-hidden hover:border-red-400 hover:shadow-md transition-all duration-200">
             {/* En-tête rouge */}
-            <div className="bg-[#DC3545] px-6 py-5 flex items-center gap-4">
-              <div className="bg-white/20 rounded-xl p-2.5">
-                <span className="text-3xl">🚨</span>
+            <div className="bg-[#DC3545] px-4 py-3 flex items-center gap-3">
+              <div className="bg-white/20 rounded-lg p-2">
+                <span className="text-2xl">🚨</span>
               </div>
               <div>
-                <h3 className="text-white font-bold text-xl leading-tight">{t('expressPages.landing.depannageTitle')}</h3>
-                <p className="text-red-100 text-sm mt-0.5 flex items-center gap-1">
-                  <svg className="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h3 className="text-white font-bold text-base leading-tight">{t('expressPages.landing.depannageTitle')}</h3>
+                <p className="text-red-100 text-xs mt-0.5 flex items-center gap-1">
+                  <svg className="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   {t('expressPages.landing.depannageSubtitle')}
@@ -113,29 +130,24 @@ export default function PetitsTravauxExpressPage() {
             </div>
 
             {/* Corps */}
-            <div className="px-6 py-5">
+            <div className="px-4 py-3">
               {/* Accroche */}
-              <p className="text-[#2C3E50] font-semibold text-base text-center mb-1">Un problème urgent ?</p>
-              <p className="text-[#6C757D] text-sm text-center mb-5">
+              <p className="text-[#2C3E50] font-semibold text-sm text-center mb-1">Un problème urgent ?</p>
+              <p className="text-[#6C757D] text-xs text-center mb-4">
                 Intervention rapide par un artisan qualifié, disponible près de chez vous.
               </p>
 
-              {/* Chips catégories (grille 2 colonnes) */}
-              <div className="grid grid-cols-2 gap-2 mb-6">
-                {[
-                  { icon: '🔑', label: 'Serrurerie',  value: 'serrurerie'  },
-                  { icon: '🚿', label: 'Plomberie',   value: 'plomberie'   },
-                  { icon: '⚡', label: 'Électricité', value: 'electricite' },
-                  { icon: '🔥', label: 'Chauffage',   value: 'chauffage'   },
-                  { icon: '🪟', label: 'Vitrerie',    value: 'vitrerie'    },
-                ].map((item) => (
+              {/* Grille de cartes icônes — Dépannage en urgence
+                  3 colonnes, icône grande + label, style image de référence */}
+              <div className="grid grid-cols-3 gap-3 mb-5">
+                {URGENCE_ITEMS.map((item) => (
                   <button
                     key={item.value}
                     onClick={() => router.push(`/petits-travaux-express/recherche?typeTravaux=depannage-urgence&categorie=${item.value}`)}
-                    className="flex items-center gap-2 px-3 py-2.5 bg-red-50 hover:bg-red-100 border border-red-100 hover:border-red-300 rounded-xl text-sm font-medium text-[#2C3E50] transition-all duration-150 text-left"
+                    className="flex flex-col items-center justify-center gap-1.5 bg-red-50 hover:bg-red-100 border border-red-100 hover:border-red-300 rounded-xl py-4 px-2 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm group"
                   >
-                    <span className="text-base shrink-0">{item.icon}</span>
-                    <span className="truncate">{item.label}</span>
+                    <span className="text-3xl group-hover:scale-110 transition-transform duration-150">{item.icon}</span>
+                    <span className="text-[11px] font-semibold text-[#2C3E50] text-center leading-tight">{item.label}</span>
                   </button>
                 ))}
               </div>
@@ -151,16 +163,16 @@ export default function PetitsTravauxExpressPage() {
           </div>
 
           {/* Bloc 2 : Petits travaux & maintenance */}
-          <div className="bg-white rounded-2xl border border-[#E9ECEF] shadow-sm overflow-hidden hover:border-[#FF6B00] hover:shadow-md transition-all duration-200">
+          <div className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm overflow-hidden hover:border-[#FF6B00] hover:shadow-md transition-all duration-200">
             {/* En-tête orange */}
-            <div className="bg-[#FF6B00] px-6 py-5 flex items-center gap-4">
-              <div className="bg-white/20 rounded-xl p-2.5">
-                <span className="text-3xl">🛠️</span>
+            <div className="bg-[#FF6B00] px-4 py-3 flex items-center gap-3">
+              <div className="bg-white/20 rounded-lg p-2">
+                <span className="text-2xl">🛠️</span>
               </div>
               <div>
-                <h3 className="text-white font-bold text-xl leading-tight">{t('expressPages.landing.petitsTravauxTitle')}</h3>
-                <p className="text-orange-100 text-sm mt-0.5 flex items-center gap-1">
-                  <svg className="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h3 className="text-white font-bold text-base leading-tight">{t('expressPages.landing.petitsTravauxTitle')}</h3>
+                <p className="text-orange-100 text-xs mt-0.5 flex items-center gap-1">
+                  <svg className="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   {t('expressPages.landing.petitsTravauxSubtitle')}
@@ -169,29 +181,23 @@ export default function PetitsTravauxExpressPage() {
             </div>
 
             {/* Corps */}
-            <div className="px-6 py-5">
+            <div className="px-4 py-3">
               {/* Accroche */}
-              <p className="text-[#2C3E50] font-semibold text-base text-center mb-1">Un projet ou des travaux à réaliser ?</p>
-              <p className="text-[#6C757D] text-sm text-center mb-5">
+              <p className="text-[#2C3E50] font-semibold text-sm text-center mb-1">Un projet ou des travaux à réaliser ?</p>
+              <p className="text-[#6C757D] text-xs text-center mb-4">
                 Trouvez un artisan disponible près de chez vous pour vos travaux du quotidien.
               </p>
 
-              {/* Chips catégories (grille 2 colonnes) */}
-              <div className="grid grid-cols-2 gap-2 mb-6">
-                {[
-                  { icon: '🚪', label: 'Réglage & réparation',    value: 'reglage-reparation'        },
-                  { icon: '📦', label: 'Installation simple',      value: 'installation-simple'       },
-                  { icon: '🏠', label: 'Amélioration',             value: 'amelioration-optimisation' },
-                  { icon: '🪵', label: 'Petits travaux bois',      value: 'petits-travaux-bois'       },
-                  { icon: '🔧', label: 'Maintenance préventive',   value: 'maintenance-preventive'    },
-                ].map((item) => (
+              {/* Grille de cartes icônes — Petits travaux & maintenance */}
+              <div className="grid grid-cols-3 gap-3 mb-5">
+                {TRAVAUX_ITEMS.map((item) => (
                   <button
                     key={item.value}
                     onClick={() => router.push(`/petits-travaux-express/recherche?typeTravaux=petits-travaux-maintenance&categorie=${item.value}`)}
-                    className="flex items-center gap-2 px-3 py-2.5 bg-orange-50 hover:bg-orange-100 border border-orange-100 hover:border-orange-300 rounded-xl text-sm font-medium text-[#2C3E50] transition-all duration-150 text-left"
+                    className="flex flex-col items-center justify-center gap-1.5 bg-orange-50 hover:bg-orange-100 border border-orange-100 hover:border-orange-300 rounded-xl py-4 px-2 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm group"
                   >
-                    <span className="text-base shrink-0">{item.icon}</span>
-                    <span className="truncate">{item.label}</span>
+                    <span className="text-3xl group-hover:scale-110 transition-transform duration-150">{item.icon}</span>
+                    <span className="text-[11px] font-semibold text-[#2C3E50] text-center leading-tight">{item.label}</span>
                   </button>
                 ))}
               </div>
