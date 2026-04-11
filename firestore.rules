@@ -310,18 +310,22 @@ service cloud.firestore {
     // ============================================
     // 9. COLLECTION: litiges
     // ============================================
-    // Client ou artisan peut créer litige sur son contrat
+    // Client ou artisan peut créer un litige sur son contrat/demande express
     // Admin gère la médiation
+    // Supporte les deux types : classique (devisId) et express (sourceId)
     
     match /litiges/{litigeId} {
+      // Lecture : déclarant, client concerné, artisan concerné, ou admin
       allow read: if isAdmin() ||
                      isOwner(resource.data.declarantId) ||
-                     (resource.data.get('contratId', '') != '' && 
-                      (isOwner(get(/databases/$(database)/documents/contrats/$(resource.data.contratId)).data.clientId) ||
-                       isOwner(get(/databases/$(database)/documents/contrats/$(resource.data.contratId)).data.artisanId)));
+                     isOwner(resource.data.clientId) ||
+                     isOwner(resource.data.artisanId);
       allow create: if isAuthenticated() && 
                        request.auth.uid == request.resource.data.declarantId;
-      allow update: if isOwner(resource.data.declarantId) || isAdmin();
+      allow update: if isOwner(resource.data.declarantId) || 
+                       isOwner(resource.data.clientId) || 
+                       isOwner(resource.data.artisanId) || 
+                       isAdmin();
       allow delete: if isAdmin();
       
       // Validation type et statut (cohérent avec types/litige.ts)

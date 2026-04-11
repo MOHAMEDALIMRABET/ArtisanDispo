@@ -267,7 +267,7 @@ export default function ArtisanDemandesPage() {
           console.log('   → Détails:', {
             titre: demandePresente.titre,
             statut: demandePresente.statut,
-            artisanId: demandePresente.artisanId,
+            artisanId: (demandePresente as any).artisanId,
             devisRecus: demandePresente.devisRecus
           });
         }
@@ -300,7 +300,7 @@ export default function ArtisanDemandesPage() {
             console.log('   → Détails:', {
               titre: demandePubliquePresente.titre,
               statut: demandePubliquePresente.statut,
-              metier: demandePubliquePresente.metier
+              metier: (demandePubliquePresente as any).metier
             });
           }
         }
@@ -1663,7 +1663,7 @@ export default function ArtisanDemandesPage() {
                       if (!devisPaye) return null;
                       
                       // Calculer la date de fin prévisionnelle
-                      const dateDebut = devisPaye.dateDebut || devisPaye.dateDebutPrevue;
+                      const dateDebut = devisPaye.travaux?.dateDebut || devisPaye.dateDebutPrevue;
                       const delai = devisPaye.delaiRealisation;
                       
                       if (!dateDebut || !delai) return null;

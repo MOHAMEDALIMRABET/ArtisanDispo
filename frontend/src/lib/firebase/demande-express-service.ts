@@ -675,6 +675,7 @@ export async function markInterventionEnCours(demandeId: string): Promise<void> 
 
   await updateDoc(doc(db, 'demandes_express', demandeId), {
     statut: 'en_cours',
+    travauxDebutAt: Timestamp.now(),  // Date et heure de début réelle des travaux
     updatedAt: Timestamp.now(),
   });
 
@@ -808,6 +809,7 @@ export async function markTravauxValides(demandeId: string): Promise<void> {
 /**
  * Client signale un problème sur travaux express
  * Statut: travaux_termines/en_cours/payee → litige
+ * Crée un document dans la collection `litiges` (parité avec les litiges classiques)
  * Bloque le paiement en attente de médiation admin (priorité haute)
  */
 export async function signalerProblemeExpress(
@@ -831,40 +833,38 @@ export async function signalerProblemeExpress(
     throw new Error(`Impossible de signaler un problème (statut actuel: ${demande.statut}). Le litige est possible uniquement après paiement.`);
   }
 
-  // Mettre à jour la demande
-  await updateDoc(doc(db, 'demandes_express', demandeId), {
-    statut: 'litige',
-    statutAvantLitige: demande.statut, // Mémoriser pour restauration si litige abandonné
-    litige: {
-      declarePar: 'client',
-      motif,
-      photos: photos || [],
-      date: Timestamp.now(),
-      statut: 'ouvert',
-    },
-    updatedAt: Timestamp.now(),
+  // Construire les pièces jointes si des photos sont fournies
+  const piecesJointes = photos && photos.length > 0
+    ? photos.map((url, index) => ({
+        url,
+        type: 'photo' as const,
+        nom: `Photo ${index + 1}`,
+        uploadedAt: Timestamp.now(),
+        uploadedBy: clientId,  // Client est l'auteur des photos
+      }))
+    : [];
+
+  // Créer le litige dans la collection unifiée `litiges`
+  const { createLitigeExpress } = await import('./litige-service');
+  const litigeId = await createLitigeExpress({
+    demandeExpressId: demandeId,
+    clientId: demande.clientId,
+    artisanId: demande.artisanId ?? '',
+    motif,
+    description: motif,
+    piecesJointes,
   });
 
-  // Notifier artisan
-  if (demande.artisanId) {
-    await createNotification(demande.artisanId, {
-      type: 'litige_ouvert',
-      titre: '⚠️ Problème signalé',
-      message: `Le client a signalé un problème. Un administrateur va vous contacter sous 12h.`,
-      lien: `/artisan/demandes-express/${demandeId}`,
-    });
-  }
+  // Note : createLitigeExpress met déjà à jour demandes_express.statut → 'litige'
+  // et stocke litigeId dans le document pour navigation rapide.
+  // On mémorise aussi le statut avant litige pour pouvoir le restaurer si abandon.
+  await updateDoc(doc(db, 'demandes_express', demandeId), {
+    statutAvantLitige: demande.statut,
+  });
 
-  // TODO: Notifier admin (priorité haute - intervention rapide 12h max)
-  // const admins = await getAdminUsers();
-  // for (const admin of admins) {
-  //   await createNotification(admin.uid, {
-  //     type: 'litige_express_admin',
-  //     titre: '🚨 URGENT - Litige Express',
-  //     message: `Problème signalé sur demande express ${demandeId}. Intervention requise sous 12h.`,
-  //     lien: `/admin/litiges-express/${demandeId}`,
-  //   });
-  // }
+  // Notification artisan déjà envoyée par createLitigeExpress → createLitige
+  // On laisse donc la notification artisan gérée par le service central.
+  console.log(`✅ Litige express créé : ${litigeId} pour demande ${demandeId}`);
 }
 
 /**

@@ -46,46 +46,70 @@ import type { Devis, DevisStatut } from '@/types/devis'; // Utiliser le type de 
 const LITIGES_COLLECTION = 'litiges';
 
 /**
- * Créer un litige
+ * Créer un litige (classique devis OU demande express)
+ *
+ * Pour les litiges classiques : fournir `devisId`
+ * Pour les litiges express    : fournir `sourceId` (demandeExpressId) + `typeSource: 'express'`
  */
 export async function createLitige(data: CreateLitigeData): Promise<string> {
   try {
-    // Vérifier que le devis existe
-    const devis = await getDevisById(data.devisId);
-    if (!devis) {
-      throw new Error('Devis introuvable');
-    }
+    // Détecter le type de source (défaut : classique)
+    const typeSource = data.typeSource ?? 'classique';
 
-    // Vérifier que le devis est dans un statut permettant l'ouverture d'un litige
-    const statutsAutorises: DevisStatut[] = [
-      'paye',                  // Contrat signé et payé (problème avant/pendant travaux)
-      'en_cours',              // Travaux en cours (abandon, retard, malfaçon)
-      'travaux_termines',      // Fin déclarée par artisan (client conteste)
-      'termine_valide',        // Validé par client (découverte malfaçon après validation)
-      'termine_auto_valide',   // Auto-validé (découverte malfaçon après 7 jours)
-    ];
+    // === Branche CLASSIQUE : validation devis ===
+    let contratId: string | undefined = undefined;
+    if (typeSource === 'classique') {
+      if (!data.devisId) {
+        throw new Error('devisId requis pour un litige classique');
+      }
 
-    if (!statutsAutorises.includes(devis.statut)) {
-      throw new Error(
-        `Impossible d'ouvrir un litige pour un devis en statut "${devis.statut}". ` +
-        `Un litige ne peut être ouvert que pour un devis payé ou en cours d'exécution.`
+      // Vérifier que le devis existe
+      const devis = await getDevisById(data.devisId);
+      if (!devis) {
+        throw new Error('Devis introuvable');
+      }
+
+      // Vérifier que le devis est dans un statut permettant l'ouverture d'un litige
+      const statutsAutorises: DevisStatut[] = [
+        'paye',                  // Contrat signé et payé (problème avant/pendant travaux)
+        'en_cours',              // Travaux en cours (abandon, retard, malfaçon)
+        'travaux_termines',      // Fin déclarée par artisan (client conteste)
+        'termine_valide',        // Validé par client (découverte malfaçon après validation)
+        'termine_auto_valide',   // Auto-validé (découverte malfaçon après 7 jours)
+      ];
+
+      if (!statutsAutorises.includes(devis.statut)) {
+        throw new Error(
+          `Impossible d'ouvrir un litige pour un devis en statut "${devis.statut}". ` +
+          `Un litige ne peut être ouvert que pour un devis payé ou en cours d'exécution.`
+        );
+      }
+
+      // Récupérer le contrat lié au devis (si existe)
+      const contratsQuery = query(
+        collection(db, 'contrats'),
+        where('devisId', '==', data.devisId)
       );
+      const contratsSnap = await getDocs(contratsQuery);
+      contratId = !contratsSnap.empty ? contratsSnap.docs[0].id : undefined;
     }
 
-    // Récupérer le contrat lié au devis (si existe)
-    const contratsQuery = query(
-      collection(db, 'contrats'),
-      where('devisId', '==', data.devisId)
-    );
-    const contratsSnap = await getDocs(contratsQuery);
-    const contratId = !contratsSnap.empty ? contratsSnap.docs[0].id : undefined;
+    // === Branche EXPRESS : validation demande ===
+    if (typeSource === 'express' && !data.sourceId) {
+      throw new Error('sourceId (demandeExpressId) requis pour un litige express');
+    }
 
     // Calculer priorité automatique selon type et montant
     const priorite = calculatePriorite(data.type, data.montantConteste);
 
-    // Créer le litige
+    // Identifiant de la source : devisId pour classique, sourceId pour express
+    const sourceId = typeSource === 'express' ? data.sourceId : data.devisId;
+
+    // Créer le document litige dans la collection unifiée
     const litige: Omit<Litige, 'id'> = {
-      devisId: data.devisId,
+      typeSource,                        // 'classique' | 'express'
+      sourceId,                          // ID source unifié
+      devisId: data.devisId,             // Conservé pour litiges classiques (retro-compat)
       contratId,
       clientId: data.clientId,
       artisanId: data.artisanId,
@@ -119,22 +143,37 @@ export async function createLitige(data: CreateLitigeData): Promise<string> {
       details: {
         type: data.type,
         montantConteste: data.montantConteste,
+        typeSource,
       },
     });
 
-    // Mettre à jour le statut du devis
-    const { updateDevisStatus } = await import('./devis-service');
-    await updateDevisStatus(data.devisId, 'litige');
+    // === Mettre à jour le document source selon le type ===
+    if (typeSource === 'classique' && data.devisId) {
+      // Classique : mettre à jour le statut du devis
+      const { updateDevisStatus } = await import('./devis-service');
+      await updateDevisStatus(data.devisId, 'litige');
+    } else if (typeSource === 'express' && data.sourceId) {
+      // Express : mettre à jour le statut de la demande express
+      // (le document embed 'litige' reste pour la migration progressive)
+      await updateDoc(doc(db, 'demandes_express', data.sourceId), {
+        statut: 'litige',
+        litigeId: docRef.id,   // Référence vers le document litige dans la collection
+        updatedAt: serverTimestamp(),
+      });
+    }
 
     // Notifier la partie adverse
     const recipientId = data.declarantRole === 'client' ? data.artisanId : data.clientId;
-    const recipientRole = data.declarantRole === 'client' ? 'artisan' : 'client';
-    
+    // Lien vers la page litige unifiée
+    const lienLitige = `/litiges/${docRef.id}`;
+
     await createNotification(recipientId, {
       type: 'litige_ouvert',
       titre: 'Litige déclaré',
-      message: `Un litige a été ouvert concernant le devis #${data.devisId.slice(0, 8)}`,
-      lien: `/litiges/${docRef.id}`,
+      message: typeSource === 'express'
+        ? `Un litige a été ouvert concernant la demande express #${(data.sourceId ?? '').slice(0, 8)}`
+        : `Un litige a été ouvert concernant le devis #${(data.devisId ?? '').slice(0, 8)}`,
+      lien: lienLitige,
     });
 
     // Notifier les admins
@@ -145,6 +184,34 @@ export async function createLitige(data: CreateLitigeData): Promise<string> {
     console.error('Erreur lors de la création du litige:', error);
     throw error;
   }
+}
+
+/**
+ * Helper dédié : créer un litige depuis une demande express
+ * Remplace l'ancien embed dans `demandes_express.litige`
+ */
+export async function createLitigeExpress(params: {
+  demandeExpressId: string;
+  clientId: string;
+  artisanId: string;
+  motif: string;
+  description?: string;
+  piecesJointes?: import('@/types/litige').LitigePieceJointe[];
+  montantConteste?: number;
+}): Promise<string> {
+  return createLitige({
+    typeSource: 'express',
+    sourceId: params.demandeExpressId,
+    clientId: params.clientId,
+    artisanId: params.artisanId,
+    declarantId: params.clientId, // Le client initie toujours le litige express
+    declarantRole: 'client',
+    type: 'autre',               // Le type précis peut être affiné plus tard par l'admin
+    motif: params.motif,
+    description: params.description ?? params.motif,
+    montantConteste: params.montantConteste,
+    piecesJointes: params.piecesJointes,
+  });
 }
 
 /**
@@ -552,6 +619,12 @@ export async function resolveLitige(
   resolution?: string
 ): Promise<void> {
   try {
+    // Récupérer le litige AVANT la mise à jour pour connaître typeSource et sourceId
+    const litige = await getLitigeById(litigeId);
+    if (!litige) {
+      throw new Error('Litige introuvable');
+    }
+
     await updateDoc(doc(db, LITIGES_COLLECTION, litigeId), {
       statut,
       dateResolution: serverTimestamp(),
@@ -567,29 +640,46 @@ export async function resolveLitige(
       details: { resolution },
     });
 
-    // Mettre à jour le statut du devis selon le type de résolution
-    const litige = await getLitigeById(litigeId);
+    // Mettre à jour le statut du document source selon le type
     if (!litige) return;
 
-    // resolu_accord / resolu_admin → travaux validés définitivement
-    // abandonne → litige retiré, on restaure le statut d'avant le litige
-    //             (paye | en_cours | travaux_termines selon quand le litige a été ouvert)
-    let nouveauStatutDevis: import('@/types/devis').DevisStatut = 'termine_valide';
-    if (statut === 'abandonne') {
-      // Récupérer le devis pour connaître le statut d'origine
-      const devisSnap = await getDoc(doc(db, 'devis', litige.devisId));
-      const devisData = devisSnap.data();
-      // Restaurer statutAvantLitige si présent, sinon fallback travaux_termines (anciens docs)
-      nouveauStatutDevis = (devisData?.statutAvantLitige as import('@/types/devis').DevisStatut) || 'travaux_termines';
-    }
+    if (litige.typeSource === 'express' && litige.sourceId) {
+      // === Branche EXPRESS : mettre à jour demandes_express ===
+      let nouveauStatutExpress: string = 'terminee'; // résolu → travaux validés
+      if (statut === 'abandonne') {
+        // Restaurer le statut avant litige (mémorisé dans demandes_express.statutAvantLitige)
+        const demandeSnap = await getDoc(doc(db, 'demandes_express', litige.sourceId));
+        const demandeData = demandeSnap.data();
+        nouveauStatutExpress = demandeData?.statutAvantLitige ?? 'travaux_termines';
+      }
 
-    await updateDoc(doc(db, 'devis', litige.devisId), {
-      statut: nouveauStatutDevis,
-      statutAvantLitige: null, // Réinitialiser maintenant que le litige est clos
-      dateModification: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      ...(statut !== 'abandonne' && { dateValidation: serverTimestamp() }),
-    });
+      await updateDoc(doc(db, 'demandes_express', litige.sourceId), {
+        statut: nouveauStatutExpress,
+        statutAvantLitige: null,       // Réinitialiser après clôture litige
+        updatedAt: serverTimestamp(),
+        ...(statut !== 'abandonne' && { dateValidation: serverTimestamp() }),
+      });
+    } else if (litige.devisId) {
+      // === Branche CLASSIQUE : mettre à jour le devis ===
+      // resolu_accord / resolu_admin → travaux validés définitivement
+      // abandonne → litige retiré, on restaure le statut d'avant le litige
+      let nouveauStatutDevis: import('@/types/devis').DevisStatut = 'termine_valide';
+      if (statut === 'abandonne') {
+        // Récupérer le devis pour connaître le statut d'origine
+        const devisSnap = await getDoc(doc(db, 'devis', litige.devisId));
+        const devisData = devisSnap.data();
+        // Restaurer statutAvantLitige si présent, sinon fallback travaux_termines (anciens docs)
+        nouveauStatutDevis = (devisData?.statutAvantLitige as import('@/types/devis').DevisStatut) || 'travaux_termines';
+      }
+
+      await updateDoc(doc(db, 'devis', litige.devisId), {
+        statut: nouveauStatutDevis,
+        statutAvantLitige: null, // Réinitialiser maintenant que le litige est clos
+        dateModification: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        ...(statut !== 'abandonne' && { dateValidation: serverTimestamp() }),
+      });
+    }
 
     // Notifier les parties
     const notifType = statut === 'abandonne' ? 'litige_abandonne' : 'litige_resolu';
@@ -815,8 +905,14 @@ export async function getDemandeFromLitige(litigeId: string): Promise<Demande | 
       return null;
     }
 
+    // Pour les litiges express, la demande est directement accessible via sourceId
+    if (litige.typeSource === 'express') {
+      console.warn('getDemandeFromLitige: litige express - pas de demande classique associée');
+      return null;
+    }
+
     // Récupérer le devis pour obtenir le demandeId
-    const devis = await getDevisById(litige.devisId);
+    const devis = litige.devisId ? await getDevisById(litige.devisId) : null;
     if (!devis || !devis.demandeId) {
       console.error('Devis ou demandeId introuvable pour litige:', litigeId);
       return null;
@@ -843,8 +939,13 @@ export async function getHistoriqueDevisFromLitige(litigeId: string): Promise<De
       return [];
     }
 
+    // Les litiges express n'ont pas d'historique de devis
+    if (litige.typeSource === 'express') {
+      return [];
+    }
+
     // Récupérer le devis pour obtenir le demandeId
-    const devis = await getDevisById(litige.devisId);
+    const devis = litige.devisId ? await getDevisById(litige.devisId) : null;
     if (!devis || !devis.demandeId) {
       console.error('Devis ou demandeId introuvable pour litige:', litigeId);
       return [];
@@ -888,19 +989,20 @@ export async function getContexteCompletLitige(litigeId: string): Promise<{
       return null;
     }
 
-    // Récupérer le devis concerné par le litige
-    const devisConcerne = await getDevisById(litige.devisId);
-    if (!devisConcerne) {
+    // Récupérer le devis concerné par le litige (classique uniquement)
+    // Pour les litiges express, retourner un contexte sans devis
+    const devisConcerne = litige.devisId ? await getDevisById(litige.devisId) : null;
+    if (!devisConcerne && litige.typeSource !== 'express') {
       return null;
     }
 
-    // Récupérer la demande initiale
-    const demande = devisConcerne.demandeId 
+    // Récupérer la demande initiale (via le devis si classique, null si express)
+    const demande = devisConcerne?.demandeId 
       ? await getDemandeById(devisConcerne.demandeId)
       : null;
 
-    // Récupérer l'historique complet des devis
-    const historiqueDevis = devisConcerne.demandeId
+    // Récupérer l'historique complet des devis (vide pour express)
+    const historiqueDevis = devisConcerne?.demandeId
       ? await getDevisByDemande(devisConcerne.demandeId)
       : [];
 

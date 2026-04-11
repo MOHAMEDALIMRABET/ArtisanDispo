@@ -48,9 +48,9 @@ export default function ProfilArtisanPage() {
   const [presentation, setPresentation] = useState('');
 
   // Vérifier si décennale en cours de vérification (bloquer modification métiers)
-  const decennaleEnCoursVerification = artisan?.verificationDocuments?.decennale?.url && 
+  const decennaleEnCoursVerification = !!(artisan?.verificationDocuments?.decennale?.url && 
                                         !artisan.verificationDocuments.decennale.verified && 
-                                        !artisan.verificationDocuments.decennale.rejected;
+                                        !artisan.verificationDocuments.decennale.rejected);
 
   useEffect(() => {
     loadArtisanProfile();
@@ -83,7 +83,7 @@ export default function ProfilArtisanPage() {
         ? artisanData.metiers 
         : (artisanData.metiers ? Object.values(artisanData.metiers) : []);
       
-      setMetiers(metiersArray);
+      setMetiers(metiersArray as Categorie[]);
       setSpecialitesDepannage(artisanData.specialitesExpress?.depannageUrgence ?? []);
       setSousCatsDepannage(artisanData.specialitesExpress?.depannageUrgenceSousCategories ?? []);
       setSpecialitesPetitsTravaux(artisanData.specialitesExpress?.petitsTravauxMaintenance ?? []);
@@ -401,7 +401,7 @@ export default function ProfilArtisanPage() {
                 }}
                 placeholder={t('profile.companyInfo.siretPlaceholder')}
                 required
-                helper={t('profile.companyInfo.siretHelper')}
+                helperText={t('profile.companyInfo.siretHelper')}
                 maxLength={14}
               />
               

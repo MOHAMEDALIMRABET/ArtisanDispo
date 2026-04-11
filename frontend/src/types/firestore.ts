@@ -997,6 +997,7 @@ export interface DemandeExpress {
   expiresAt?: Timestamp;          // Auto-expire si pas de réponse artisan sous 48h
   expireeAt?: Timestamp;          // Date expiration définitive (timeout paiement)
   travauxTerminesAt?: Timestamp;  // Quand l'artisan déclare la fin (24h auto-libération)
+  travauxDebutAt?: Timestamp;     // Quand l'artisan clique sur "Début des travaux"
   paymentDeadline?: Timestamp;    // Deadline pour payer après acceptation (15min immediat / 30min urgent)
 }
 

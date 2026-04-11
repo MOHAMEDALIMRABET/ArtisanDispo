@@ -59,11 +59,15 @@ export type ResolutionType =
 export interface Litige {
   id: string;
   
+  // === Source du litige (classique devis ou express) ===
+  typeSource?: 'classique' | 'express'; // Type de source — 'classique' par défaut
+  sourceId?: string;          // ID source : demandeExpressId (express) ou devisId (classique)
+
   // === Références ===
-  devisId: string;           // Devis concerné
-  contratId?: string;        // Contrat si créé
-  clientId: string;          // UID client
-  artisanId: string;         // UID artisan
+  devisId?: string;           // Devis concerné (classique uniquement — optionnel pour express)
+  contratId?: string;         // Contrat si créé
+  clientId: string;           // UID client
+  artisanId: string;          // UID artisan
   
   // === Déclaration ===
   declarantId: string;       // UID de celui qui déclare le litige
@@ -382,7 +386,11 @@ export interface LitigeAction {
  * Données pour créer un litige
  */
 export interface CreateLitigeData {
-  devisId: string;
+  // === Source : devis classique OU demande express ===
+  devisId?: string;              // Requis pour litiges classiques
+  sourceId?: string;             // Requis pour litiges express (demandeExpressId)
+  typeSource?: 'classique' | 'express'; // Défaut : 'classique'
+
   clientId: string;
   artisanId: string;
   declarantId: string;

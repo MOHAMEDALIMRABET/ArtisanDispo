@@ -20,7 +20,7 @@ import {
 } from '@/lib/firebase/demande-express-service';
 import { getUserById } from '@/lib/firebase/user-service';
 import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
-import { createAvis } from '@/lib/firebase/avis-service';
+import { createAvis, getAvisByContratId } from '@/lib/firebase/avis-service';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import type { DemandeExpress, PropositionExpress, User, DemandeExpressStatut } from '@/types/firestore';
@@ -55,6 +55,9 @@ export default function MesDemandesExpressPage() {
 
   // Montants payés (depuis paiements_express) pour badge statuts finaux
   const [montantsPaiementMap, setMontantsPaiementMap] = useState<Map<string, number>>(new Map());
+
+  // Avis existants : Map<demandeId, boolean> — true si l'avis a déjà été soumis
+  const [avisExistantsMap, setAvisExistantsMap] = useState<Map<string, boolean>>(new Map());
 
   // Propositions chargées à la volée à l'ouverture d'une carte
   const [propositionsMap, setPropositionsMap] = useState<Map<string, PropositionExpress | null>>(new Map());
@@ -273,6 +276,10 @@ export default function MesDemandesExpressPage() {
         points_forts: avisPointsForts,
         points_amelioration: avisPointsAmelioration,
       });
+      // Marquer cet avis comme existant dans la map locale
+      if (avisDemandeId) {
+        setAvisExistantsMap(prev => new Map(prev).set(avisDemandeId, true));
+      }
       setShowAvisPopup(false);
       alert('⭐ Merci pour votre avis ! Il a été publié avec succès.');
     } catch (error: any) {
@@ -426,6 +433,26 @@ export default function MesDemandesExpressPage() {
         setMontantsPaiementMap(prev => {
           const next = new Map(prev);
           paiementEntries.forEach(([id, montant]) => { if (montant != null) next.set(id as string, montant as number); });
+          return next;
+        });
+      }
+
+      // Charger le statut d'avis pour les demandes terminées
+      const demandesTerminees = updatedList.filter(d => d.statut === 'terminee');
+      if (demandesTerminees.length > 0) {
+        const avisEntries = await Promise.all(
+          demandesTerminees.map(async (d) => {
+            try {
+              const avis = await getAvisByContratId(d.id);
+              return [d.id, avis !== null] as [string, boolean];
+            } catch {
+              return [d.id, false] as [string, boolean];
+            }
+          })
+        );
+        setAvisExistantsMap(prev => {
+          const next = new Map(prev);
+          avisEntries.forEach(([id, hasAvis]) => next.set(id as string, hasAvis as boolean));
           return next;
         });
       }
@@ -723,14 +750,11 @@ export default function MesDemandesExpressPage() {
         {/* Liste des demandes */}
         {demandesFiltrees.length === 0 ? (
           <Card className="text-center py-12">
-            <p className="text-xl text-[#6C757D] mb-6">
+            <p className="text-xl text-[#6C757D]">
               {filtreStatut === 'toutes'
                 ? t('clientExpressRequests.empty.all')
                 : `${t('clientExpressRequests.empty.filtered')} "${filtreStatut}"`}
             </p>
-            <Button onClick={() => router.push('/petits-travaux-express/recherche')}>
-              {t('clientExpressRequests.empty.createFirst')}
-            </Button>
           </Card>
         ) : (
           <div className="grid gap-6">
@@ -785,8 +809,8 @@ export default function MesDemandesExpressPage() {
                     )}
                     {['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut) ? (
                       montantsPaiementMap.has(demande.id) && (
-                        <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
-                          🔒 {montantsPaiementMap.get(demande.id)}€ payé
+                        <span className="px-3 py-1 bg-[#FF6B00] text-white rounded-full text-sm font-bold">
+                          💰 {montantsPaiementMap.get(demande.id)}€
                         </span>
                       )
                     ) : (
@@ -813,27 +837,24 @@ export default function MesDemandesExpressPage() {
                   <div className="flex flex-wrap gap-4 text-sm text-[#6C757D]">
                     <span>📍 {demande.ville} ({demande.codePostal})</span>
                     <span>{t('clientExpressRequests.card.createdOn')} {format(demande.createdAt.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr })}</span>
-                    {(() => {
-                      // Calculer la date de fin basée sur la date d'intervention et le mode urgence
-                      const dateIntervention = new Date(demande.date);
-                      // Si travaux terminés, afficher la date réelle
-                      if (demande.travauxTerminesAt) {
-                        return (
-                          <span className="text-green-700 font-semibold">
-                            📅 Fin: {format(demande.travauxTerminesAt.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr })}
-                          </span>
-                        );
-                      }
-                      // Pour les demandes express en cours, afficher le délai d'urgence
-                      if (['payee', 'en_cours', 'travaux_termines'].includes(demande.statut)) {
-                        return (
-                          <span className="text-blue-700 font-semibold">
-                            ⏱️ Intervention sous {getExpressArtisanWindowLabel(demande)}
-                          </span>
-                        );
-                      }
-                      return null;
-                    })()}
+
+                    {/* Date de début des travaux (artisan a cliqué sur "Début des travaux") */}
+                    {demande.travauxDebutAt && (
+                      <span className="text-blue-700 font-semibold">
+                        🔧 Début Travaux : {format(demande.travauxDebutAt.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr })}
+                      </span>
+                    )}
+
+                    {/* Date de fin des travaux — réelle si déclarée, sinon délai estimé */}
+                    {demande.travauxTerminesAt ? (
+                      <span className="text-green-700 font-semibold">
+                        ✅ Fin Travaux : {format(demande.travauxTerminesAt.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr })}
+                      </span>
+                    ) : (['payee', 'en_cours', 'travaux_termines'].includes(demande.statut) && !demande.travauxDebutAt) ? (
+                      <span className="text-blue-700 font-semibold">
+                        ⏱️ Intervention sous {getExpressArtisanWindowLabel(demande)}
+                      </span>
+                    ) : null}
                   </div>
 
                   {demande.statut === 'en_attente_proposition' && !demande.artisanId && (
@@ -1099,13 +1120,41 @@ export default function MesDemandesExpressPage() {
                           </div>
                         )}
 
-                        {/* Terminée */}
-                        {demande.statut === 'terminee' && (
-                          <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl p-4">
-                            <span className="text-2xl">🎉</span>
-                            <p className="text-sm text-gray-700 font-medium">Intervention terminée. Merci d&apos;avoir utilisé ArtisanSafe !</p>
-                          </div>
-                        )}
+                        {/* Terminée — bouton avis conditionnel */}
+                        {demande.statut === 'terminee' && (() => {
+                          const dejaEvalue = avisExistantsMap.get(demande.id) === true;
+                          return (
+                            <div className="flex flex-col gap-3">
+                              <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl p-4">
+                                <span className="text-2xl">✅</span>
+                                <p className="text-sm text-green-800 font-medium">Intervention terminée avec succès.</p>
+                              </div>
+                              {dejaEvalue ? (
+                                <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-5 py-3">
+                                  <span className="text-lg">⭐</span>
+                                  <p className="text-sm text-gray-500 italic">Votre évaluation a bien été prise en compte. Merci pour votre retour.</p>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setAvisDemandeId(demande.id);
+                                    setAvisArtisanId(demande.artisanId ?? null);
+                                    setAvisNote(0);
+                                    setAvisNoteHover(0);
+                                    setAvisCommentaire('');
+                                    setAvisPointsForts([]);
+                                    setAvisPointsAmelioration([]);
+                                    setShowAvisPopup(true);
+                                  }}
+                                  className="flex items-center justify-center gap-2 w-full px-5 py-3 bg-[#FF6B00] hover:bg-[#E56100] text-white rounded-xl font-semibold transition-colors"
+                                >
+                                  ⭐ Évaluer cette intervention
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })()}
 
                       </div>
                     </div>
