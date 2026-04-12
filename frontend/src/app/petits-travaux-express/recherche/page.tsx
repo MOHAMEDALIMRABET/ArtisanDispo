@@ -373,20 +373,33 @@ export default function RechercheExpressPage() {
         </div>
       </section>
 
-      {/* Formulaire de recherche — image de fond d'artisan au travail */}
-      <div
-        className="relative"
-        style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1920&q=80')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed',
-        }}
-      >
-        {/* Overlay blanc semi-transparent pour garder le formulaire lisible */}
-        <div className="absolute inset-0 bg-white/80" />
-        <div className="relative z-10 container mx-auto px-4 py-8">
-        <div className={searched ? 'md:flex md:gap-6 md:items-start' : 'max-w-4xl mx-auto'}>
+      {/* Section formulaire — style hero pro */}
+      <div className="relative bg-[#f5f7fa] min-h-[620px] flex items-center overflow-hidden">
+
+        {/* Image plombier — droite, image complète visible */}
+        <div className="absolute right-0 top-0 w-[38%] pointer-events-none">
+          <img
+            src="/images/Plombier_urgence.png"
+            alt=""
+            aria-hidden="true"
+            className="w-full h-auto object-contain object-bottom"
+            style={{ filter: 'brightness(0.95)' }}
+          />
+          {/* Fondu bord gauche */}
+          <div className="absolute inset-y-0 left-0 w-1/4" style={{ background: 'linear-gradient(to right, #f5f7fa, transparent)' }} />
+          {/* Fondu bord haut */}
+          <div className="absolute inset-x-0 top-0 h-16" style={{ background: 'linear-gradient(to bottom, #f5f7fa, transparent)' }} />
+        </div>
+
+        {/* Overlay radial central pour intégration naturelle */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse at center, rgba(245,247,250,0.7) 0%, rgba(245,247,250,0.4) 50%, rgba(245,247,250,0.0) 100%)',
+          }}
+        />
+        <div className="relative z-10 w-full container mx-auto px-4 py-12">
+        <div className={searched ? 'md:flex md:gap-6 md:items-start' : 'max-w-xl mx-auto'}>
           <div className={searched ? 'md:w-96 md:flex-shrink-0 md:sticky md:top-6' : ''}>
           <form onSubmit={handleSearch} className="bg-white rounded-xl shadow-lg p-6 md:p-8 space-y-6">
             {/* Type de travaux */}
