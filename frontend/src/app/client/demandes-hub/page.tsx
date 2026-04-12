@@ -297,7 +297,7 @@ export default function ClientDemandesHubPage() {
                   <div className="text-sm text-gray-500 mt-1">
                     {nbDemandesDirectes > 0
                       ? `${nbDemandesDirectes} notification${nbDemandesDirectes > 1 ? 's' : ''} concernent vos demandes directes.`
-                      : 'Suivre vos demandes envoyées à un artisan précis.'}
+                      : 'Suivre vos demandes de devis envoyées à vos artisans.'}
                   </div>
                 </div>
                 {nbDemandesDirectes > 0 && (
@@ -360,7 +360,7 @@ export default function ClientDemandesHubPage() {
                   <div className="text-sm text-gray-500 mt-1">
                     {nbExpressDirectes > 0
                       ? `${nbExpressDirectes} notification${nbExpressDirectes > 1 ? 's' : ''} concernent vos demandes express directes.`
-                      : 'Demandes envoyées à un artisan précis.'}
+                      : 'Suivre vos demandes en urgence envoyées à vos artisans.'}
                   </div>
                 </div>
                 {nbExpressDirectes > 0 && (
