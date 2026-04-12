@@ -252,13 +252,13 @@ export default function ClientDemandesHubPage() {
       </svg>
       {/* En-tête */}
       <div className="relative z-10 bg-[#2C3E50] text-white py-6 px-4">
-        <div className="container mx-auto max-w-4xl">
+        <div className="container mx-auto max-w-5xl">
           <h1 className="text-2xl font-bold">📋 Mes Demandes</h1>
           <p className="text-gray-300 text-sm mt-1">Gérez vos demandes de travaux</p>
         </div>
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
+      <div className="relative z-10 container mx-auto px-4 py-8 max-w-5xl">
 
         {/* Fil d'Ariane */}
         <div className="flex items-center gap-2 mb-6 text-sm text-gray-500">
@@ -271,56 +271,56 @@ export default function ClientDemandesHubPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
           {/* ── CARTE Demandes Classiques ── */}
-          <div className="bg-[#2C3E50] rounded-2xl shadow-md overflow-hidden flex flex-col">
+          <div className="bg-[#2C3E50] rounded-2xl shadow-lg overflow-hidden flex flex-col">
             {/* Bandeau */}
-            <div className="bg-[#2C3E50] px-6 py-4 flex items-center gap-3">
-              <span className="text-3xl">🏗️</span>
+            <div className="bg-[#2C3E50] px-8 py-8 flex items-center gap-4">
+              <span className="text-5xl">🏗️</span>
               <div className="flex-1">
-                <div className="text-white font-bold text-xl">Demandes Classiques</div>
-                <div className="text-gray-300 text-sm">Demandes directes et publiées</div>
+                <div className="text-white font-bold text-2xl">Demandes Classiques</div>
+                <div className="text-gray-300 text-base mt-1">Demandes directes et publiées</div>
               </div>
               {nbClassiques > 0 && (
-                <span className="bg-white text-[#2C3E50] text-sm font-black px-2.5 py-0.5 rounded-full animate-bounce shadow">
+                <span className="bg-white text-[#2C3E50] text-base font-black px-3 py-1 rounded-full animate-bounce shadow">
                   🔔 {nbClassiques}
                 </span>
               )}
             </div>
             {/* Corps */}
-            <div className="bg-white px-6 py-5 space-y-4 flex-1">
+            <div className="bg-white px-8 py-7 space-y-5 flex-1">
               <button
                 onClick={openDemandesDirectes}
-                className="w-full flex items-center gap-4 p-3 rounded-xl bg-orange-50 border border-orange-200 hover:border-[#FF6B00] hover:bg-orange-100 transition"
+                className="w-full flex items-center gap-5 p-5 rounded-xl bg-orange-50 border border-orange-200 hover:border-[#FF6B00] hover:bg-orange-100 transition"
               >
-                <span className="text-2xl">🎯</span>
+                <span className="text-3xl">🎯</span>
                 <div className="flex-1 text-left">
-                  <div className="font-semibold text-[#2C3E50] text-sm">Mes demandes de devis directes</div>
-                  <div className="text-xs text-gray-500 mt-0.5">
+                  <div className="font-semibold text-[#2C3E50] text-base">Mes demandes de devis directes</div>
+                  <div className="text-sm text-gray-500 mt-1">
                     {nbDemandesDirectes > 0
                       ? `${nbDemandesDirectes} notification${nbDemandesDirectes > 1 ? 's' : ''} concernent vos demandes directes.`
                       : 'Suivre vos demandes envoyées à un artisan précis.'}
                   </div>
                 </div>
                 {nbDemandesDirectes > 0 && (
-                  <span className="bg-[#FF6B00] text-white text-xs font-bold px-2.5 py-1 rounded-full min-w-[28px] text-center">
+                  <span className="bg-[#FF6B00] text-white text-sm font-bold px-3 py-1.5 rounded-full min-w-[32px] text-center">
                     {nbDemandesDirectes}
                   </span>
                 )}
               </button>
               <button
                 onClick={openDemandesPubliees}
-                className="w-full flex items-center gap-4 p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-[#2C3E50] hover:bg-slate-100 transition"
+                className="w-full flex items-center gap-5 p-5 rounded-xl bg-slate-50 border border-slate-200 hover:border-[#2C3E50] hover:bg-slate-100 transition"
               >
-                <span className="text-2xl">📢</span>
+                <span className="text-3xl">📢</span>
                 <div className="flex-1 text-left">
-                  <div className="font-semibold text-[#2C3E50] text-sm">Mes demandes de devis publiées</div>
-                  <div className="text-xs text-gray-500 mt-0.5">
+                  <div className="font-semibold text-[#2C3E50] text-base">Mes demandes de devis publiées</div>
+                  <div className="text-sm text-gray-500 mt-1">
                     {nbDemandesPubliees > 0
                       ? `${nbDemandesPubliees} notification${nbDemandesPubliees > 1 ? 's' : ''} concernent vos demandes publiées.`
                       : 'Demandes visibles par tous les artisans qualifiés.'}
                   </div>
                 </div>
                 {nbDemandesPubliees > 0 && (
-                  <span className="bg-[#2C3E50] text-white text-xs font-bold px-2.5 py-1 rounded-full min-w-[28px] text-center">
+                  <span className="bg-[#2C3E50] text-white text-sm font-bold px-3 py-1.5 rounded-full min-w-[32px] text-center">
                     {nbDemandesPubliees}
                   </span>
                 )}
@@ -334,56 +334,56 @@ export default function ClientDemandesHubPage() {
           </div>
 
           {/* ── CARTE Demandes Express ── */}
-          <div className="text-left bg-[#FF6B00] rounded-2xl shadow-md overflow-hidden flex flex-col relative">
+          <div className="text-left bg-[#FF6B00] rounded-2xl shadow-lg overflow-hidden flex flex-col relative">
             {/* Bandeau */}
-            <div className="bg-[#FF6B00] px-6 py-4 flex items-center gap-3">
-              <span className="text-3xl">⚡</span>
+            <div className="bg-[#FF6B00] px-8 py-8 flex items-center gap-4">
+              <span className="text-5xl">⚡</span>
               <div className="flex-1">
-                <div className="text-white font-bold text-xl">Demandes en urgence</div>
-                <div className="text-orange-100 text-sm">Petits travaux rapides</div>
+                <div className="text-white font-bold text-2xl">Demandes en urgence</div>
+                <div className="text-orange-100 text-base mt-1">Petits travaux rapides</div>
               </div>
               {nbExpress > 0 && (
-                <span className="bg-white text-[#FF6B00] text-sm font-black px-2.5 py-0.5 rounded-full animate-bounce shadow">
+                <span className="bg-white text-[#FF6B00] text-base font-black px-3 py-1 rounded-full animate-bounce shadow">
                   🔔 {nbExpress}
                 </span>
               )}
             </div>
             {/* Corps */}
-            <div className="bg-white px-6 py-5 space-y-4 flex-1">
+            <div className="bg-white px-8 py-7 space-y-5 flex-1">
               <button
                 onClick={openDemandesExpressDirectes}
-                className="w-full flex items-center gap-4 p-3 rounded-xl bg-orange-50 border border-orange-200 hover:border-[#FF6B00] hover:bg-orange-100 transition"
+                className="w-full flex items-center gap-5 p-5 rounded-xl bg-orange-50 border border-orange-200 hover:border-[#FF6B00] hover:bg-orange-100 transition"
               >
-                <span className="text-2xl">⚡</span>
+                <span className="text-3xl">⚡</span>
                 <div className="flex-1 text-left">
-                  <div className="font-semibold text-[#2C3E50] text-sm">⚡ Mes demandes express directes</div>
-                  <div className="text-xs text-gray-500 mt-0.5">
+                  <div className="font-semibold text-[#2C3E50] text-base">Mes demandes express directes</div>
+                  <div className="text-sm text-gray-500 mt-1">
                     {nbExpressDirectes > 0
                       ? `${nbExpressDirectes} notification${nbExpressDirectes > 1 ? 's' : ''} concernent vos demandes express directes.`
                       : 'Demandes envoyées à un artisan précis.'}
                   </div>
                 </div>
                 {nbExpressDirectes > 0 && (
-                  <span className="bg-[#FF6B00] text-white text-xs font-bold px-2.5 py-1 rounded-full min-w-[28px] text-center">
+                  <span className="bg-[#FF6B00] text-white text-sm font-bold px-3 py-1.5 rounded-full min-w-[32px] text-center">
                     {nbExpressDirectes}
                   </span>
                 )}
               </button>
               <button
                 onClick={openDemandesExpressPubliees}
-                className="w-full flex items-center gap-4 p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-[#2C3E50] hover:bg-slate-100 transition"
+                className="w-full flex items-center gap-5 p-5 rounded-xl bg-slate-50 border border-slate-200 hover:border-[#2C3E50] hover:bg-slate-100 transition"
               >
-                <span className="text-2xl">📢</span>
+                <span className="text-3xl">📢</span>
                 <div className="flex-1 text-left">
-                  <div className="font-semibold text-[#2C3E50] text-sm">📢 Mes demandes express publiées</div>
-                  <div className="text-xs text-gray-500 mt-0.5">
+                  <div className="font-semibold text-[#2C3E50] text-base">Mes demandes express publiées</div>
+                  <div className="text-sm text-gray-500 mt-1">
                     {nbExpressPubliees > 0
                       ? `${nbExpressPubliees} notification${nbExpressPubliees > 1 ? 's' : ''} concernent vos demandes express publiées.`
                       : 'Demandes visibles par tous les artisans qualifiés.'}
                   </div>
                 </div>
                 {nbExpressPubliees > 0 && (
-                  <span className="bg-[#2C3E50] text-white text-xs font-bold px-2.5 py-1 rounded-full min-w-[28px] text-center">
+                  <span className="bg-[#2C3E50] text-white text-sm font-bold px-3 py-1.5 rounded-full min-w-[32px] text-center">
                     {nbExpressPubliees}
                   </span>
                 )}
