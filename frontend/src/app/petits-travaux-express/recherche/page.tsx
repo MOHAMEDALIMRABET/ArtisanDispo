@@ -374,7 +374,37 @@ export default function RechercheExpressPage() {
       </section>
 
       {/* Section formulaire — style hero pro */}
-      <div className="relative bg-[#f5f7fa] min-h-[620px] flex items-center overflow-hidden">
+      <div className="relative bg-[#eef0f8] min-h-[620px] flex items-center overflow-hidden">
+
+        {/* Vague décorative — couche arrière */}
+        <svg
+          className="absolute bottom-0 left-0 w-full pointer-events-none"
+          viewBox="0 0 1440 180"
+          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M0,120 C200,160 400,60 600,100 C800,140 1000,80 1200,110 C1320,130 1400,100 1440,90 L1440,180 L0,180 Z"
+            fill="#2C3E50"
+            fillOpacity="0.08"
+          />
+        </svg>
+
+        {/* Vague décorative — couche avant */}
+        <svg
+          className="absolute bottom-0 left-0 w-full pointer-events-none"
+          viewBox="0 0 1440 140"
+          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M0,80 C180,40 360,120 600,80 C840,40 1100,110 1300,70 C1380,50 1420,65 1440,60 L1440,140 L0,140 Z"
+            fill="#2C3E50"
+            fillOpacity="0.13"
+          />
+        </svg>
 
         {/* Image plombier — droite, image complète visible */}
         <div className="absolute right-0 top-0 w-[38%] pointer-events-none">
