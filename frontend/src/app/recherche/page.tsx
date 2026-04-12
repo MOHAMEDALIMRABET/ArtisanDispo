@@ -253,7 +253,17 @@ export default function RecherchePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-[#F5F7FA] relative overflow-hidden">
+      {/* Vague couche arrière */}
+      <svg className="absolute bottom-0 left-0 w-full pointer-events-none z-0" viewBox="0 0 1440 180" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M0,120 C200,160 400,60 600,100 C800,140 1000,80 1200,110 C1320,130 1400,100 1440,90 L1440,180 L0,180 Z" fill="#2C3E50" fillOpacity="0.08"/>
+      </svg>
+      {/* Vague couche avant */}
+      <svg className="absolute bottom-0 left-0 w-full pointer-events-none z-0" viewBox="0 0 1440 140" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M0,80 C180,40 360,120 600,80 C840,40 1100,110 1300,70 C1380,50 1420,65 1440,60 L1440,140 L0,140 Z" fill="#2C3E50" fillOpacity="0.13"/>
+      </svg>
+      {/* Contenu principal — au-dessus des vagues */}
+      <div className="relative z-10">
       {/* Titre de la page */}
       {fromDashboard ? (
         // Header bleu avec retour (style pages client)
@@ -726,6 +736,7 @@ export default function RecherchePage() {
           </p>
         </form>
       </main>
+      </div>{/* fin relative z-10 */}
     </div>
   );
 }

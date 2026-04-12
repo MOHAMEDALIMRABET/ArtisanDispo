@@ -11,7 +11,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { authService } from '@/lib/auth-service';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useContratsANoter } from '@/hooks/useContratsANoter';
-import { collection, query, where, onSnapshot, or, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { getDemandesForArtisan, getDemandesPubliquesForArtisan } from '@/lib/firebase/demande-service';
 import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
@@ -105,9 +105,11 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
   useEffect(() => {
     if (!user?.uid) return;
 
+    // Requête directe sans or() : Firestore peut prouver la règle de sécurité
+    // (request.auth.uid in resource.data.participants) depuis le where() array-contains
     const q = query(
       collection(db, 'conversations'),
-      or(where('participants', 'array-contains', user.uid))
+      where('participants', 'array-contains', user.uid)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
