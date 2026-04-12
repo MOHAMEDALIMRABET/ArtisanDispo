@@ -14,7 +14,7 @@ import { getWalletByArtisanId, getSequestreTransactions, requestManualVirement }
 import { artisanDoitDecennale } from '@/lib/decennale-helper';
 import { EXPRESS_WORK_TAXONOMY } from '@/lib/express-work-taxonomy';
 import { db } from '@/lib/firebase/config';
-import { collection, query, where, or, onSnapshot, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { User, Artisan, Avis } from '@/types/firestore';
 
@@ -38,6 +38,8 @@ export default function ArtisanDashboardPage() {
   const [avisRecents, setAvisRecents] = useState<Avis[]>([]);
   const [statsAvis, setStatsAvis] = useState({ moyenne: 0, total: 0 });
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+  // État sidebar dépliable (style Outlook)
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   
   // États pour la modale de transfert
   const [showTransfertModal, setShowTransfertModal] = useState(false);
@@ -104,9 +106,10 @@ export default function ArtisanDashboardPage() {
   useEffect(() => {
     if (!user?.uid) return;
 
+    // Requête sans or() : Firestore peut valider la règle de sécurité
     const q = query(
       collection(db, 'conversations'),
-      or(where('participants', 'array-contains', user.uid))
+      where('participants', 'array-contains', user.uid)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -294,8 +297,154 @@ export default function ArtisanDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="min-h-screen bg-[#F5F7FA] relative overflow-hidden flex">
+
+      {/* ── SIDEBAR GAUCHE (couleur artisan bleu #2C3E50) ── */}
+      <aside
+        className={`relative z-20 flex-shrink-0 bg-white shadow-xl flex flex-col transition-all duration-300 ease-in-out ${
+          sidebarOpen ? 'w-64' : 'w-0'
+        } overflow-hidden`}
+        style={{ minHeight: '100vh' }}
+      >
+        {/* Bouton fermer (style Outlook) */}
+        <button
+          onClick={() => setSidebarOpen(false)}
+          title="Réduire la barre latérale"
+          className="absolute top-4 right-3 z-10 p-1.5 rounded-md text-gray-400 hover:text-[#2C3E50] hover:bg-gray-100 transition"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+
+        {/* Logo */}
+        <div className="px-5 pt-5 pb-4 border-b border-gray-100">
+          <span className="text-lg font-bold text-[#2C3E50] whitespace-nowrap">🛠️ Espace Artisan</span>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+          {/* Tableau de bord — actif */}
+          <Link href="/artisan/dashboard">
+            <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[#2C3E50] text-white font-semibold text-sm whitespace-nowrap">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+              Tableau de bord
+            </div>
+          </Link>
+          {/* Espace Artisan */}
+          <Link href="/artisan/profil">
+            <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#2C3E50] hover:bg-blue-50 hover:text-[#2C3E50] transition text-sm whitespace-nowrap">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+              Espace Artisan
+            </div>
+          </Link>
+          {/* Mon Agenda */}
+          <Link href="/artisan/agenda">
+            <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#2C3E50] hover:bg-blue-50 hover:text-[#2C3E50] transition text-sm whitespace-nowrap">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              Mon Agenda
+            </div>
+          </Link>
+          {/* Mon Wallet */}
+          <Link href="/artisan/wallet">
+            <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#2C3E50] hover:bg-blue-50 hover:text-[#2C3E50] transition text-sm whitespace-nowrap">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+              Mon Wallet
+            </div>
+          </Link>
+          {/* Mes Documents */}
+          <Link href="/artisan/documents">
+            <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#2C3E50] hover:bg-blue-50 hover:text-[#2C3E50] transition text-sm whitespace-nowrap">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              Mes Documents
+            </div>
+          </Link>
+          {/* Mes Devis */}
+          <Link href="/artisan/devis">
+            <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#2C3E50] hover:bg-blue-50 hover:text-[#2C3E50] transition text-sm whitespace-nowrap">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+              Mes Devis
+              {devisNotifications > 0 && (
+                <span className="ml-auto bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">{devisNotifications}</span>
+              )}
+            </div>
+          </Link>
+          {/* Demandes Clients */}
+          <Link href="/artisan/demandes">
+            <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#2C3E50] hover:bg-blue-50 hover:text-[#2C3E50] transition text-sm whitespace-nowrap">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              Demandes Clients
+              {nouvellesDemandes > 0 && (
+                <span className="ml-auto bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">{nouvellesDemandes}</span>
+              )}
+            </div>
+          </Link>
+          {/* Messages */}
+          <Link href="/messages">
+            <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#2C3E50] hover:bg-blue-50 hover:text-[#2C3E50] transition text-sm whitespace-nowrap">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+              Messages
+              {unreadMessagesCount > 0 && (
+                <span className="ml-auto bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">{unreadMessagesCount}</span>
+              )}
+            </div>
+          </Link>
+          {/* Avis */}
+          <Link href="/artisan/avis">
+            <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#2C3E50] hover:bg-blue-50 hover:text-[#2C3E50] transition text-sm whitespace-nowrap">
+              <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+              Avis
+              {avisNotifications > 0 && (
+                <span className="ml-auto bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">{avisNotifications}</span>
+              )}
+            </div>
+          </Link>
+        </nav>
+
+        {/* Besoin d’aide — bas de sidebar */}
+        <div className="mx-3 mb-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-[#2C3E50]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+            </div>
+            <div>
+              <p className="font-semibold text-[#2C3E50] text-sm whitespace-nowrap">Besoin d&apos;aide ?</p>
+              <p className="text-xs text-gray-500 mt-0.5">Support disponible 7j/7</p>
+            </div>
+          </div>
+          <Link href="/etre-rappele">
+            <button className="mt-3 w-full border border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white text-sm font-medium py-1.5 rounded-lg transition whitespace-nowrap">
+              Nous contacter
+            </button>
+          </Link>
+        </div>
+      </aside>
+
+      {/* Bouton réouvrir la sidebar */}
+      {!sidebarOpen && (
+        <button
+          onClick={() => setSidebarOpen(true)}
+          title="Afficher la barre latérale"
+          className="fixed left-0 top-1/2 -translate-y-1/2 z-30 bg-white shadow-lg border border-gray-200 rounded-r-xl px-1.5 py-3 text-[#2C3E50] hover:text-[#FF6B00] transition"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
+      )}
+
+      {/* ── CONTENU PRINCIPAL ── */}
+      <div className="flex-1 relative">
+      {/* Vagues SVG décoratives — bas de page */}
+      <svg className="absolute bottom-0 left-0 w-full pointer-events-none z-0" viewBox="0 0 1440 180" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M0,120 C200,160 400,60 600,100 C800,140 1000,80 1200,110 C1320,130 1400,100 1440,90 L1440,180 L0,180 Z" fill="#2C3E50" fillOpacity="0.08"/>
+      </svg>
+      <svg className="absolute bottom-0 left-0 w-full pointer-events-none z-0" viewBox="0 0 1440 140" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M0,80 C180,40 360,120 600,80 C840,40 1100,110 1300,70 C1380,50 1420,65 1440,60 L1440,140 L0,140 Z" fill="#2C3E50" fillOpacity="0.13"/>
+      </svg>
+
+      <div className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
         {/* Bannière email non vérifié (Artisan - OBLIGATOIRE) */}
         {!emailVerified && (
           <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
@@ -936,6 +1085,7 @@ export default function ArtisanDashboardPage() {
             </div>
           </Link>
         </div>
+      </div>
       </div>
     </div>
   );
