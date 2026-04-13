@@ -46,14 +46,15 @@ export default function ChoisirTypeTravauxPage() {
       {/* ── Contenu principal ────────────────────────────────────────── */}
       <main className="flex-1 relative flex flex-col items-center justify-start px-4 pt-8 pb-12">
 
-        {/* Image de fond derrière les blocs — s'arrête avant les vagues */}
-        <div
-          className="absolute top-0 left-0 right-0 bottom-0 bg-cover bg-top bg-no-repeat pointer-events-none z-0"
-          style={{ backgroundImage: "url('/images/Trv_urgence_std.png')" }}
-          aria-hidden="true"
-        >
-          {/* Voile semi-transparent pour garder les blocs lisibles */}
-          <div className="absolute inset-0 bg-white/30" />
+        {/* Image de fond — balise img native pour rendu sans flou Next.js */}
+        <div className="absolute top-0 left-0 right-0 bottom-0 pointer-events-none z-0" aria-hidden="true">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/Trv_urgence_std.png"
+            alt=""
+            className="w-full h-full object-cover object-center"
+            style={{ imageRendering: 'crisp-edges' }}
+          />
         </div>
 
         {/* Vagues SVG décoratives — bas de page (identique au dashboard) */}
@@ -93,7 +94,7 @@ export default function ChoisirTypeTravauxPage() {
           {/* Option 1 : Travaux standard */}
           <Link href="/recherche?from=dashboard">
             <div className="
-              group bg-white rounded-2xl shadow-md p-10 cursor-pointer
+              group bg-white/80 backdrop-blur-sm rounded-2xl shadow-md p-10 cursor-pointer
               border-2 border-transparent
               hover:border-[#FF6B00] hover:shadow-xl
               transition-all duration-200
@@ -135,7 +136,7 @@ export default function ChoisirTypeTravauxPage() {
           {/* Option 2 : Travaux en urgence */}
           <Link href="/petits-travaux-express">
             <div className="
-              group bg-white rounded-2xl shadow-md p-10 cursor-pointer
+              group bg-white/80 backdrop-blur-sm rounded-2xl shadow-md p-10 cursor-pointer
               border-2 border-transparent
               hover:border-[#DC3545] hover:shadow-xl
               transition-all duration-200
