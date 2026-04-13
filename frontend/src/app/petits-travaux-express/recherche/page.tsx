@@ -409,7 +409,7 @@ export default function RechercheExpressPage() {
         {/* Image plombier — droite, image complète visible */}
         <div className="absolute right-0 top-0 w-[38%] pointer-events-none">
           <img
-            src="/images/Plombier_urgence.png"
+            src="/images/Trv_urgence_std.png"
             alt=""
             aria-hidden="true"
             className="w-full h-auto object-contain object-bottom"

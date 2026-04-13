@@ -290,10 +290,8 @@ service cloud.firestore {
     // 1 avis par contrat
     
     match /avis/{avisId} {
-      allow read: if resource.data.visible == true || 
-                     isAdmin() || 
-                     isOwner(resource.data.artisanId) ||
-                     isOwner(resource.data.clientId); // ← CLIENT peut lire ses propres avis
+      allow read: if isAuthenticated() ||  // ← Tout utilisateur connecté peut lire (affichage profils + contrats à noter)
+                     isAdmin();
       allow create: if isAuthenticated() && 
                        request.auth.uid == request.resource.data.clientId &&
                        isClient();
