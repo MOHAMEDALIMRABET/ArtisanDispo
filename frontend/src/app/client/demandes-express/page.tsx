@@ -602,102 +602,112 @@ export default function MesDemandesExpressPage() {
           )}
         </div>
 
-        {/* Filtres */}
-        <div className="mb-4 flex flex-wrap gap-3">
-          <button
-            onClick={() => setSourceFilter('toutes')}
-            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-              sourceFilter === 'toutes'
-                ? 'bg-[#2C3E50] text-white'
-                : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
-            }`}
-          >
-            Toutes les demandes ({demandesDirectesCount + demandesPublieesCount})
-          </button>
-          <button
-            onClick={() => setSourceFilter('directes')}
-            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-              sourceFilter === 'directes'
-                ? 'bg-[#2C3E50] text-white'
-                : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
-            }`}
-          >
-            ⚡ Mes demandes express directes ({demandesDirectesCount})
-          </button>
-          <button
-            onClick={() => setSourceFilter('publiees')}
-            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-              sourceFilter === 'publiees'
-                ? 'bg-[#2C3E50] text-white'
-                : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
-            }`}
-          >
-            📢 Mes demandes express publiées ({demandesPublieesCount})
-          </button>
-        </div>
+        {/* Filtres — style cartes moderne (identique à /client/demandes) */}
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
 
-        <div className="mb-6 flex flex-wrap gap-3">
+          {/* Toutes */}
           <button
             onClick={() => { setFiltreStatut('toutes'); setFiltreEnTraitement('toutes'); }}
-            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filtreStatut === 'toutes'
-                ? 'bg-[#FF6B00] text-white'
-                : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+                ? 'bg-gradient-to-br from-[#FF6B00] to-[#E56100] text-white shadow-xl scale-105'
+                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
             }`}
           >
-            {t('clientExpressRequests.filters.all')} ({demandesActives.length})
-            {showToutsBell && <span className="ml-1.5 animate-bounce">🔔</span>}
+            <div className={`text-3xl font-black mb-1 ${filtreStatut === 'toutes' ? 'text-white' : 'text-[#FF6B00]'}`}>
+              {demandesActives.length}
+              {showToutsBell && <span className="ml-1 animate-bounce text-lg">🔔</span>}
+            </div>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${filtreStatut === 'toutes' ? 'text-white' : 'text-gray-600'}`}>
+              Toutes
+            </div>
           </button>
+
+          {/* Envoyées */}
           <button
             onClick={() => { setFiltreStatut('en_attente_proposition'); setFiltreEnTraitement('toutes'); }}
-            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filtreStatut === 'en_attente_proposition'
-                ? 'bg-[#FF6B00] text-white'
-                : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+                ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-xl scale-105'
+                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
             }`}
           >
-            <span className="mr-2">⏳</span>{t('clientExpressRequests.filters.waiting')} ({demandes.filter(d => d.statut === 'en_attente_proposition').length})
+            <div className={`text-3xl font-black mb-1 ${filtreStatut === 'en_attente_proposition' ? 'text-white' : 'text-orange-500'}`}>
+              {demandes.filter(d => d.statut === 'en_attente_proposition').length}
+            </div>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${filtreStatut === 'en_attente_proposition' ? 'text-white' : 'text-gray-600'}`}>
+              ⏳ Envoyées
+            </div>
           </button>
+
+          {/* Publiées */}
+          <button
+            onClick={() => setSourceFilter(sourceFilter === 'publiees' ? 'toutes' : 'publiees')}
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
+              sourceFilter === 'publiees'
+                ? 'bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-xl scale-105'
+                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+            }`}
+          >
+            <div className={`text-3xl font-black mb-1 ${sourceFilter === 'publiees' ? 'text-white' : 'text-purple-600'}`}>
+              {demandesPublieesCount}
+            </div>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${sourceFilter === 'publiees' ? 'text-white' : 'text-gray-600'}`}>
+              📢 Publiées
+            </div>
+          </button>
+
+          {/* Propositions reçues */}
           <button
             onClick={() => { setFiltreStatut('proposition_recue'); setFiltreEnTraitement('toutes'); }}
-            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filtreStatut === 'proposition_recue'
-                ? 'bg-[#FF6B00] text-white'
-                : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+                ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl scale-105'
+                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
             }`}
           >
-            <span className="mr-2">📋</span>{t('clientExpressRequests.filters.proposals')} ({demandes.filter(d => d.statut === 'proposition_recue').length})
+            <div className={`text-3xl font-black mb-1 ${filtreStatut === 'proposition_recue' ? 'text-white' : 'text-blue-600'}`}>
+              {demandes.filter(d => d.statut === 'proposition_recue').length}
+            </div>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${filtreStatut === 'proposition_recue' ? 'text-white' : 'text-gray-600'}`}>
+              📋 Propositions reçues
+            </div>
           </button>
+
+          {/* En traitement */}
           <button
             onClick={() => { setFiltreStatut('en_cours'); setFiltreEnTraitement('toutes'); }}
-            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filtreStatut === 'en_cours'
-                ? 'bg-[#FF6B00] text-white'
-                : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+                ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-xl scale-105'
+                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
             }`}
           >
-            <span className="mr-2">🔧</span>En traitement ({demandes.filter(d => ['payee', 'en_cours', 'travaux_termines'].includes(d.statut)).length})
+            <div className={`text-3xl font-black mb-1 ${filtreStatut === 'en_cours' ? 'text-white' : 'text-indigo-600'}`}>
+              {demandes.filter(d => ['payee', 'en_cours', 'travaux_termines'].includes(d.statut)).length}
+            </div>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${filtreStatut === 'en_cours' ? 'text-white' : 'text-gray-600'}`}>
+              🔧 En traitement
+            </div>
           </button>
+
+          {/* Validées */}
           <button
             onClick={() => { setFiltreStatut('terminee'); setFiltreEnTraitement('toutes'); }}
-            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filtreStatut === 'terminee'
-                ? 'bg-[#FF6B00] text-white'
-                : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+                ? 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-xl scale-105'
+                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
             }`}
           >
-            <span className="mr-2">✅</span>Validées ({demandes.filter(d => d.statut === 'terminee').length})
+            <div className={`text-3xl font-black mb-1 ${filtreStatut === 'terminee' ? 'text-white' : 'text-green-600'}`}>
+              {demandes.filter(d => d.statut === 'terminee').length}
+            </div>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${filtreStatut === 'terminee' ? 'text-white' : 'text-gray-600'}`}>
+              ✅ Validées
+            </div>
           </button>
-          <button
-            onClick={() => { setFiltreStatut('expiree'); setFiltreEnTraitement('toutes'); }}
-            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-              filtreStatut === 'expiree'
-                ? 'bg-gray-600 text-white'
-                : 'bg-white text-gray-500 hover:bg-[#F5F7FA]'
-            }`}
-          >
-            🚫 Refusées/Expirées ({demandesExpirees.length})
-          </button>
+
         </div>
 
         {/* Sous-menu "En traitement" : affiché uniquement quand ce filtre est actif */}

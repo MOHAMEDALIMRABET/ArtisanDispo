@@ -1864,7 +1864,7 @@
     }
   },
   "clientDemandes": {
-    "pageTitle": "Mes Demandes",
+    "pageTitle": "Mes Demandes Classiques",
     "backButton": "Retour au tableau de bord",
     "searchArtisan": "Rechercher un artisan",
     "sections": {
