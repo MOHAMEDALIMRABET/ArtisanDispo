@@ -44,7 +44,7 @@ export default function ChoisirTypeTravauxPage() {
       </header>
 
       {/* ── Contenu principal ────────────────────────────────────────── */}
-      <main className="flex-1 relative flex flex-col items-center justify-center px-4 pt-2 pb-12">
+      <main className="flex-1 relative flex flex-col items-center justify-start px-4 pt-8 pb-12">
 
         {/* Vagues SVG décoratives — bas de page (identique au dashboard) */}
         <svg
