@@ -18,7 +18,7 @@ export default function ChoisirTypeTravauxPage() {
   const { t } = useLanguage();
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] flex flex-col">
+    <div className="min-h-screen flex flex-col">
 
       {/* ── En-tête bleu avec retour (identique à /recherche?from=dashboard) ── */}
       <header className="bg-[#2C3E50] text-white py-8">
@@ -45,6 +45,16 @@ export default function ChoisirTypeTravauxPage() {
 
       {/* ── Contenu principal ────────────────────────────────────────── */}
       <main className="flex-1 relative flex flex-col items-center justify-start px-4 pt-8 pb-12">
+
+        {/* Image de fond derrière les blocs — s'arrête avant les vagues */}
+        <div
+          className="absolute top-0 left-0 right-0 bottom-0 bg-cover bg-top bg-no-repeat pointer-events-none z-0"
+          style={{ backgroundImage: "url('/images/Trv_urgence_std.png')" }}
+          aria-hidden="true"
+        >
+          {/* Voile semi-transparent pour garder les blocs lisibles */}
+          <div className="absolute inset-0 bg-white/60" />
+        </div>
 
         {/* Vagues SVG décoratives — bas de page (identique au dashboard) */}
         <svg
