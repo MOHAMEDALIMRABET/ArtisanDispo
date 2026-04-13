@@ -225,7 +225,8 @@ export default function DashboardPage() {
               Tableau de bord
             </div>
           </Link>
-          <Link href="/recherche?from=dashboard">
+          {/* Lien vers la page intermédiaire de choix du type de travaux */}
+          <Link href="/choisir-type-travaux">
             <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#2C3E50] hover:bg-orange-50 hover:text-[#FF6B00] transition text-sm whitespace-nowrap">
               <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               Rechercher un artisan
@@ -434,7 +435,8 @@ export default function DashboardPage() {
         {/* Dashboard Client */}
         {user?.role === 'client' && (
           <div className="grid md:grid-cols-2 gap-6">
-            <Link href="/recherche?from=dashboard">
+            {/* Carte : redirige vers la page intermédiaire de choix du type de travaux */}
+            <Link href="/choisir-type-travaux">
               <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-[#FF6B00]">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">

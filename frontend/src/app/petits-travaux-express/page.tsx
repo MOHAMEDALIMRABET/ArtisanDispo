@@ -62,33 +62,27 @@ export default function PetitsTravauxExpressPage() {
   return (
     <main className="min-h-screen bg-[#F8F9FA]">
 
-      {/* ── Breadcrumb ── */}
-      <div className="bg-white border-b border-[#E9ECEF]">
-        <div className="container mx-auto px-4 py-3">
-          <nav className="flex items-center gap-2 text-sm text-[#6C757D]">
-            <Link href="/" className="hover:text-[#FF6B00] transition-colors flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              {t('expressPages.landing.breadcrumbHome')}
-            </Link>
-            <span>&gt;</span>
-            <span className="text-[#2C3E50] font-semibold">{t('expressPages.landing.breadcrumb')}</span>
-          </nav>
+      {/* ── Bannière bleue — style identique à /recherche?from=dashboard ── */}
+      <div className="bg-[#2C3E50] text-white py-8">
+        <div className="container mx-auto px-4">
+          {/* Bouton retour vers la page de choix */}
+          <button
+            onClick={() => router.push('/choisir-type-travaux')}
+            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Retour au tableau de bord
+          </button>
+
+          {/* Titre et sous-titre */}
+          <div>
+            <h1 className="text-3xl font-bold">{t('expressPages.landing.heroTitle')}</h1>
+            <p className="text-gray-300 mt-2">{t('expressPages.landing.heroSubtitle')}</p>
+          </div>
         </div>
       </div>
-
-      {/* ── Hero ── */}
-      <section className="bg-[#2C3E50] text-white py-3 md:py-4">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
-            {t('expressPages.landing.heroTitle')}
-          </h1>
-          <p className="text-lg md:text-xl text-[#95A5A6] mb-8 max-w-2xl mx-auto">
-            {t('expressPages.landing.heroSubtitle')}
-          </p>
-        </div>
-      </section>
 
       {/* ── Stat ── */}
       <section className="bg-white border-b border-[#E9ECEF]">
@@ -109,7 +103,7 @@ export default function PetitsTravauxExpressPage() {
 
       {/* ── Deux blocs types de travaux ── */}
       <section className="container mx-auto px-4 py-6">
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-4">
 
           {/* Bloc 1 : Dépannage en urgence */}
           <div className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm overflow-hidden hover:border-red-400 hover:shadow-md transition-all duration-200">
