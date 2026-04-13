@@ -53,7 +53,7 @@ export default function ChoisirTypeTravauxPage() {
           aria-hidden="true"
         >
           {/* Voile semi-transparent pour garder les blocs lisibles */}
-          <div className="absolute inset-0 bg-white/60" />
+          <div className="absolute inset-0 bg-white/30" />
         </div>
 
         {/* Vagues SVG décoratives — bas de page (identique au dashboard) */}
