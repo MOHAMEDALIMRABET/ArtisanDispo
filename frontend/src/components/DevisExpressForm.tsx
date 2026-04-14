@@ -49,14 +49,18 @@ function calculerLigne(ligne: LigneDevisExpress): LigneDevisExpress {
 /** Calcule les totaux globaux du devis */
 function calculerTotaux(
   lignes: LigneDevisExpress[],
-  mainOeuvre: { quantite: number; prixHT: number; tauxTVA: TVARate },
+  mainOeuvre: { quantite: number; prixHT: number; tauxTVA: TVARate } | undefined,
   matierePremiere?: { quantite: number; prixHT: number; tauxTVA: TVARate }
 ) {
   const htLignes = lignes.reduce((s, l) => s + l.totalHT, 0);
   const tvaLignes = lignes.reduce((s, l) => s + l.totalTVA, 0);
 
-  const htMO = mainOeuvre.quantite * mainOeuvre.prixHT;
-  const tvaMO = htMO * mainOeuvre.tauxTVA / 100;
+  let htMO = 0;
+  let tvaMO = 0;
+  if (mainOeuvre) {
+    htMO = mainOeuvre.quantite * mainOeuvre.prixHT;
+    tvaMO = htMO * mainOeuvre.tauxTVA / 100;
+  }
 
   let htMP = 0;
   let tvaMP = 0;
@@ -86,7 +90,8 @@ export default function DevisExpressForm({ onChange }: DevisExpressFormProps) {
     totalTTC: 0,
   }]);
 
-  // ── Main d'œuvre (obligatoire) ──
+  // ── Main d'œuvre (optionnelle — l'artisan peut l'avoir incluse dans les lignes) ──
+  const [ajouterMO, setAjouterMO] = useState(false);
   const [mainOeuvre, setMainOeuvre] = useState({
     quantite: 1,
     prixHT: 0,
@@ -115,12 +120,18 @@ export default function DevisExpressForm({ onChange }: DevisExpressFormProps) {
   const [hasDrawn, setHasDrawn] = useState(false);
 
   // ── Totaux calculés ──
-  const totaux = calculerTotaux(lignes, mainOeuvre, ajouterMP ? matierePremiere : undefined);
+  const totaux = calculerTotaux(
+    lignes,
+    ajouterMO ? mainOeuvre : undefined,
+    ajouterMP ? matierePremiere : undefined,
+  );
 
   // ── Validation et remontée du devis ──────────────────────────────────────
   useEffect(() => {
+    // Chaque ligne doit avoir une description et un prix HT non nul
     const lignesValides = lignes.every(l => l.description.trim() && l.prixUnitaireHT > 0);
-    const moValide = mainOeuvre.prixHT > 0;
+    // Si la MO est activée, son prix doit être > 0
+    const moValide = !ajouterMO || mainOeuvre.prixHT > 0;
     const signatureValide = !!signatureDataURL;
 
     if (!lignesValides || !moValide || !signatureValide) {
@@ -130,7 +141,7 @@ export default function DevisExpressForm({ onChange }: DevisExpressFormProps) {
 
     const devis: DevisExpressJoint = {
       lignes,
-      mainOeuvre: { ...mainOeuvre },
+      mainOeuvre: ajouterMO ? { ...mainOeuvre } : { quantite: 0, prixHT: 0, tauxTVA: 0 as TVARate, unite: 'h' },
       matierePremiere: ajouterMP ? { ...matierePremiere } : undefined,
       totaux,
       delaiRealisation: delaiRealisation || undefined,
@@ -142,7 +153,7 @@ export default function DevisExpressForm({ onChange }: DevisExpressFormProps) {
       },
     };
     onChange(devis);
-  }, [lignes, mainOeuvre, matierePremiere, ajouterMP, delaiRealisation, dateDebutPrevue, conditions, signatureDataURL, totaux]);
+  }, [lignes, mainOeuvre, ajouterMO, matierePremiere, ajouterMP, delaiRealisation, dateDebutPrevue, conditions, signatureDataURL, totaux]);
 
   // ── Gestion des lignes ───────────────────────────────────────────────────
 
@@ -334,55 +345,66 @@ export default function DevisExpressForm({ onChange }: DevisExpressFormProps) {
         </button>
       </div>
 
-      {/* ── Section 2 : Main d'œuvre ── */}
+      {/* ── Section 2 : Main d'œuvre (optionnelle) ── */}
       <div>
-        <h4 className="text-sm font-semibold text-[#2C3E50] mb-2">
-          Main d&apos;œuvre <span className="text-red-500">*</span>
-        </h4>
-        <div className="bg-white rounded-lg border border-gray-200 p-3 grid grid-cols-4 gap-2 text-xs">
-          <div>
-            <label className="text-gray-500 block mb-0.5">Qté</label>
-            <input
-              type="number"
-              min="0.01"
-              step="0.01"
-              value={mainOeuvre.quantite}
-              onChange={e => setMainOeuvre(prev => ({ ...prev, quantite: parseFloat(e.target.value) || 0 }))}
-              className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
-            />
+        <label className="flex items-center gap-2 text-sm font-semibold text-[#2C3E50] cursor-pointer">
+          <input
+            type="checkbox"
+            checked={ajouterMO}
+            onChange={e => setAjouterMO(e.target.checked)}
+            className="accent-[#FF6B00]"
+          />
+          Ajouter la main d&apos;œuvre séparément (optionnel)
+        </label>
+        <p className="text-xs text-gray-400 mt-0.5 ml-5">
+          Si elle est déjà incluse dans vos prestations, laissez décoché.
+        </p>
+        {ajouterMO && (
+          <div className="mt-2 bg-white rounded-lg border border-gray-200 p-3 grid grid-cols-4 gap-2 text-xs">
+            <div>
+              <label className="text-gray-500 block mb-0.5">Qté</label>
+              <input
+                type="number"
+                min="0.01"
+                step="0.01"
+                value={mainOeuvre.quantite}
+                onChange={e => setMainOeuvre(prev => ({ ...prev, quantite: parseFloat(e.target.value) || 0 }))}
+                className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
+              />
+            </div>
+            <div>
+              <label className="text-gray-500 block mb-0.5">Unité</label>
+              <select
+                value={mainOeuvre.unite}
+                onChange={e => setMainOeuvre(prev => ({ ...prev, unite: e.target.value }))}
+                className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
+              >
+                {UNITE_OPTIONS.map(u => <option key={u} value={u}>{u}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-gray-500 block mb-0.5">Prix HT (€)</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={mainOeuvre.prixHT}
+                onChange={e => setMainOeuvre(prev => ({ ...prev, prixHT: parseFloat(e.target.value) || 0 }))}
+                className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
+              />
+            </div>
+            <div>
+              <label className="text-gray-500 block mb-0.5">TVA (%)</label>
+              <select
+                value={mainOeuvre.tauxTVA}
+                onChange={e => setMainOeuvre(prev => ({ ...prev, tauxTVA: parseFloat(e.target.value) as TVARate }))}
+                className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
+              >
+                {TVA_OPTIONS.map(t => <option key={t} value={t}>{t}%</option>)}
+              </select>
+            </div>
           </div>
-          <div>
-            <label className="text-gray-500 block mb-0.5">Unité</label>
-            <select
-              value={mainOeuvre.unite}
-              onChange={e => setMainOeuvre(prev => ({ ...prev, unite: e.target.value }))}
-              className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
-            >
-              {UNITE_OPTIONS.map(u => <option key={u} value={u}>{u}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="text-gray-500 block mb-0.5">Prix HT (€)</label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={mainOeuvre.prixHT}
-              onChange={e => setMainOeuvre(prev => ({ ...prev, prixHT: parseFloat(e.target.value) || 0 }))}
-              className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
-            />
-          </div>
-          <div>
-            <label className="text-gray-500 block mb-0.5">TVA (%)</label>
-            <select
-              value={mainOeuvre.tauxTVA}
-              onChange={e => setMainOeuvre(prev => ({ ...prev, tauxTVA: parseFloat(e.target.value) as TVARate }))}
-              className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
-            >
-              {TVA_OPTIONS.map(t => <option key={t} value={t}>{t}%</option>)}
-            </select>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* ── Section 3 : Matières premières ── */}
