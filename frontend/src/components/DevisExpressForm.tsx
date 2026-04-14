@@ -16,7 +16,7 @@
  * les champs obligatoires ne sont pas remplis ET signés.
  */
 
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { Timestamp } from 'firebase/firestore';
 import type { DevisExpressJoint, LigneDevisExpress } from '@/types/firestore';
 
@@ -119,11 +119,14 @@ export default function DevisExpressForm({ onChange }: DevisExpressFormProps) {
   const [signatureDataURL, setSignatureDataURL] = useState<string | null>(null);
   const [hasDrawn, setHasDrawn] = useState(false);
 
-  // ── Totaux calculés ──
-  const totaux = calculerTotaux(
-    lignes,
-    ajouterMO ? mainOeuvre : undefined,
-    ajouterMP ? matierePremiere : undefined,
+  // ── Totaux calculés (mémoisé — recalculé uniquement quand les dépendances changent) ──
+  const totaux = useMemo(
+    () => calculerTotaux(
+      lignes,
+      ajouterMO ? mainOeuvre : undefined,
+      ajouterMP ? matierePremiere : undefined,
+    ),
+    [lignes, ajouterMO, mainOeuvre, ajouterMP, matierePremiere],
   );
 
   // ── Validation et remontée du devis ──────────────────────────────────────
@@ -139,11 +142,18 @@ export default function DevisExpressForm({ onChange }: DevisExpressFormProps) {
       return;
     }
 
+    // Recalcul local (ne pas référencer totaux mémoisé pour éviter une dépendance circulaire)
+    const t = calculerTotaux(
+      lignes,
+      ajouterMO ? mainOeuvre : undefined,
+      ajouterMP ? matierePremiere : undefined,
+    );
+
     const devis: DevisExpressJoint = {
       lignes,
       mainOeuvre: ajouterMO ? { ...mainOeuvre } : { quantite: 0, prixHT: 0, tauxTVA: 0 as TVARate, unite: 'h' },
       matierePremiere: ajouterMP ? { ...matierePremiere } : undefined,
-      totaux,
+      totaux: t,
       delaiRealisation: delaiRealisation || undefined,
       dateDebutPrevue: dateDebutPrevue || undefined,
       conditions: conditions || undefined,
@@ -153,7 +163,8 @@ export default function DevisExpressForm({ onChange }: DevisExpressFormProps) {
       },
     };
     onChange(devis);
-  }, [lignes, mainOeuvre, ajouterMO, matierePremiere, ajouterMP, delaiRealisation, dateDebutPrevue, conditions, signatureDataURL, totaux]);
+    // totaux exclu des dépendances : recalculé localement dans l'effet
+  }, [lignes, mainOeuvre, ajouterMO, matierePremiere, ajouterMP, delaiRealisation, dateDebutPrevue, conditions, signatureDataURL]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Gestion des lignes ───────────────────────────────────────────────────
 
