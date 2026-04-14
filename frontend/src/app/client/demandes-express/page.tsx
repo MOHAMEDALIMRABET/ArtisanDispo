@@ -28,6 +28,22 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { getExpressArtisanWindowLabel } from '@/lib/express-work-taxonomy';
 
+/**
+ * Convertit un timestamp Firestore (Timestamp, {seconds,nanoseconds} brut, ou Date)
+ * en objet Date JavaScript. Évite l'erreur "toDate is not a function".
+ */
+function tsToDate(ts: unknown): Date {
+  if (!ts) return new Date(0);
+  if (ts instanceof Date) return ts;
+  if (typeof (ts as { toDate?: unknown }).toDate === 'function') {
+    return (ts as { toDate: () => Date }).toDate();
+  }
+  if (typeof (ts as { seconds?: unknown }).seconds === 'number') {
+    return new Date((ts as { seconds: number }).seconds * 1000);
+  }
+  return new Date(ts as string | number);
+}
+
 /* Listes de tags pour le popup d'avis (identiques aux demandes classiques) */
 const AVIS_POINTS_FORTS = [
   'Ponctuel', 'Soigneux', 'Professionnel', 'Rapide',
@@ -452,8 +468,8 @@ export default function MesDemandesExpressPage() {
 
       // Demandes expirées ou refusées depuis > 24h → suppression définitive
       const toDelete = demandesList.filter((d) => {
-        if (d.statut === 'expiree' && d.expiresAt && d.expiresAt.toDate().getTime() < nowMs - oneDayMs) return true;
-        if (d.statut === 'refusee_artisan' && d.updatedAt && d.updatedAt.toDate().getTime() < nowMs - oneDayMs) return true;
+        if (d.statut === 'expiree' && d.expiresAt && tsToDate(d.expiresAt).getTime() < nowMs - oneDayMs) return true;
+        if (d.statut === 'refusee_artisan' && d.updatedAt && tsToDate(d.updatedAt).getTime() < nowMs - oneDayMs) return true;
         return false;
       });
       await Promise.all(toDelete.map((d) => deleteDemandeExpress(d.id)));
@@ -463,7 +479,7 @@ export default function MesDemandesExpressPage() {
         (d) =>
           (d.statut === 'en_attente_proposition' || d.statut === 'proposition_recue') &&
           d.expiresAt &&
-          d.expiresAt.toDate().getTime() < nowMs
+          tsToDate(d.expiresAt).getTime() < nowMs
       );
       await Promise.all(toExpire.map((d) => updateDemandeExpressStatut(d.id, 'expiree')));
 
@@ -473,7 +489,7 @@ export default function MesDemandesExpressPage() {
         (d) =>
           d.statut === 'travaux_termines' &&
           d.travauxTerminesAt &&
-          d.travauxTerminesAt.toDate().getTime() < nowMs - oneDayMs
+          tsToDate(d.travauxTerminesAt).getTime() < nowMs - oneDayMs
       );
       const autoReleasedIds = new Set<string>();
       for (const d of toAutoRelease) {
@@ -919,7 +935,7 @@ export default function MesDemandesExpressPage() {
                     {getUrgenceBadge(demande.urgence)}
                     {demande.expiresAt && demande.statut === 'en_attente_proposition' && (
                       <span className="px-3 py-1 bg-orange-50 border border-orange-200 text-orange-600 rounded-full text-xs font-semibold">
-                        ⏱️ Expire le {format(demande.expiresAt.toDate(), 'dd MMMM à HH:mm', { locale: fr })} ({getExpressArtisanWindowLabel(demande)})
+                        ⏱️ Expire le {format(tsToDate(demande.expiresAt), 'dd MMMM à HH:mm', { locale: fr })} ({getExpressArtisanWindowLabel(demande)})
                       </span>
                     )}
                     {['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut) ? (
@@ -951,19 +967,19 @@ export default function MesDemandesExpressPage() {
 
                   <div className="flex flex-wrap gap-4 text-sm text-[#6C757D]">
                     <span>📍 {demande.ville} ({demande.codePostal})</span>
-                    <span>{t('clientExpressRequests.card.createdOn')} {format(demande.createdAt.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr })}</span>
+                    <span>{t('clientExpressRequests.card.createdOn')} {format(tsToDate(demande.createdAt), 'dd MMMM yyyy à HH:mm', { locale: fr })}</span>
 
                     {/* Date de début des travaux (artisan a cliqué sur "Début des travaux") */}
                     {demande.travauxDebutAt && (
                       <span className="text-blue-700 font-semibold">
-                        🔧 Début Travaux : {format(demande.travauxDebutAt.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr })}
+                        🔧 Début Travaux : {format(tsToDate(demande.travauxDebutAt), 'dd MMMM yyyy à HH:mm', { locale: fr })}
                       </span>
                     )}
 
                     {/* Date de fin des travaux — réelle si déclarée, sinon délai estimé */}
                     {demande.travauxTerminesAt ? (
                       <span className="text-green-700 font-semibold">
-                        ✅ Fin Travaux : {format(demande.travauxTerminesAt.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr })}
+                        ✅ Fin Travaux : {format(tsToDate(demande.travauxTerminesAt), 'dd MMMM yyyy à HH:mm', { locale: fr })}
                       </span>
                     ) : (['payee', 'en_cours', 'travaux_termines'].includes(demande.statut) && !demande.travauxDebutAt) ? (
                       <span className="text-blue-700 font-semibold">
@@ -1035,7 +1051,7 @@ export default function MesDemandesExpressPage() {
                                   </p>
                                 )}
                                 {demande.expiresAt && (() => {
-                                  const diff = demande.expiresAt.toDate().getTime() - Date.now();
+                                  const diff = tsToDate(demande.expiresAt).getTime() - Date.now();
                                   if (diff > 0) {
                                     const hours = Math.floor(diff / (60 * 60 * 1000));
                                     const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
@@ -1085,7 +1101,7 @@ export default function MesDemandesExpressPage() {
                             <div className="flex items-center justify-between flex-wrap gap-2">
                               <span className="text-base font-bold text-[#2C3E50]">💬 Proposition de l&apos;artisan</span>
                               <span className="text-xs text-[#6C757D]">
-                                Reçue le {prop.createdAt ? format(prop.createdAt.toDate(), 'dd MMM yyyy à HH:mm', { locale: fr }) : ''}
+                                Reçue le {prop.createdAt ? format(tsToDate(prop.createdAt), 'dd MMM yyyy à HH:mm', { locale: fr }) : ''}
                               </span>
                             </div>
 
@@ -1191,7 +1207,7 @@ export default function MesDemandesExpressPage() {
                                 <p className="text-xs text-[#6C757D] mb-3">
                                   Si vous ne validez pas dans 24h, le paiement sera libéré automatiquement.
                                   {demande.travauxTerminesAt && (() => {
-                                    const autoAt = demande.travauxTerminesAt!.toDate().getTime() + 24 * 60 * 60 * 1000;
+                                    const autoAt = tsToDate(demande.travauxTerminesAt!).getTime() + 24 * 60 * 60 * 1000;
                                     const rem = autoAt - Date.now();
                                     if (rem > 0) {
                                       const h = Math.floor(rem / 3600000);
