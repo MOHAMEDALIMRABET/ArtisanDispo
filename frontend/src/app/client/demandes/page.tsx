@@ -2072,17 +2072,9 @@ export default function MesDemandesPage() {
                   <h2 className="text-2xl font-bold text-[#2C3E50] mb-2">
                     {t('clientDemandes.empty.noRequestsInCategory')}
                   </h2>
-                  <p className="text-[#6C757D] mb-6">
+                  <p className="text-[#6C757D]">
                     {filtreSection === 'toutes' ? t('clientDemandes.empty.noRequestsYet') : t('clientDemandes.empty.tryAnotherCategory')}
                   </p>
-                  {filtreSection !== 'toutes' && (
-                    <button
-                      onClick={() => setFiltreSection('toutes')}
-                      className="text-[#FF6B00] hover:underline font-medium"
-                    >
-                      {t('clientDemandes.empty.viewAllRequests')}
-                    </button>
-                  )}
                 </Card>
               )}
             </>
