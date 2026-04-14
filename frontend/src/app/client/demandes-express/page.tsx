@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
@@ -90,6 +90,17 @@ export default function MesDemandesExpressPage() {
   const [disputeDemandeId, setDisputeDemandeId] = useState<string | null>(null);
   const [motifLitige, setMotifLitige] = useState('');
 
+  // Modale signature devis (propositions > 150€ avec devisJoint)
+  const [signatureDevisModal, setSignatureDevisModal] = useState<{
+    propositionId: string;
+    demandeId: string;
+    prop: PropositionExpress;
+  } | null>(null);
+  const signatureCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [signatureIsDrawing, setSignatureIsDrawing] = useState(false);
+  const [signatureHasDrawn, setSignatureHasDrawn] = useState(false);
+  const [signatureDataURL, setSignatureDataURL] = useState<string | null>(null);
+
   // Cloches temporaires (nouvelles propositions non lues)
   const { notifications, markAsRead, markTypeAsRead } = useNotifications(firebaseUser?.uid);
   const [bellDemandeIds, setBellDemandeIds] = useState<Set<string>>(new Set());
@@ -161,7 +172,14 @@ export default function MesDemandesExpressPage() {
     setExpandedIds(next);
   };
 
-  async function handleAccepterInline(demandeId: string, propositionId: string) {
+  async function handleAccepterInline(demandeId: string, propositionId: string, prop?: PropositionExpress) {
+    // Si la proposition a un devis joint (> 150€), ouvrir la modale de signature
+    if (prop?.devisJoint) {
+      setSignatureHasDrawn(false);
+      setSignatureDataURL(null);
+      setSignatureDevisModal({ propositionId, demandeId, prop });
+      return;
+    }
     if (!confirm('Confirmer l\'acceptation de cette proposition ?')) return;
     setSubmitting(true);
     try {
@@ -173,6 +191,77 @@ export default function MesDemandesExpressPage() {
       setSubmitting(false);
     }
   }
+
+  /**
+   * Acceptation d'une proposition avec devisJoint :
+   * le client a signé le canvas, on envoie le DataURL a` acceptPropositionExpress.
+   */
+  async function handleAccepterAvecSignature() {
+    if (!signatureDevisModal || !signatureDataURL) return;
+    setSubmitting(true);
+    try {
+      await acceptPropositionExpress(signatureDevisModal.propositionId, signatureDataURL);
+      setSignatureDevisModal(null);
+      router.push(`/client/paiement-express/${signatureDevisModal.propositionId}`);
+    } catch (err: any) {
+      alert(err.message || 'Erreur lors de l\'acceptation');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  /** Canvas signature du client — helpers */
+  const getSignaturePos = useCallback((e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = signatureCanvasRef.current!;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    if ('touches' in e) {
+      return {
+        x: (e.touches[0].clientX - rect.left) * scaleX,
+        y: (e.touches[0].clientY - rect.top) * scaleY,
+      };
+    }
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY,
+    };
+  }, []);
+
+  const signatureStartDraw = useCallback((e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    const ctx = signatureCanvasRef.current!.getContext('2d')!;
+    const pos = getSignaturePos(e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    setSignatureIsDrawing(true);
+    setSignatureHasDrawn(true);
+  }, [getSignaturePos]);
+
+  const signatureDraw = useCallback((e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (!signatureIsDrawing) return;
+    e.preventDefault();
+    const ctx = signatureCanvasRef.current!.getContext('2d')!;
+    ctx.strokeStyle = '#1a1a1a';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    const pos = getSignaturePos(e);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+  }, [signatureIsDrawing, getSignaturePos]);
+
+  const signatureStopDraw = useCallback(() => {
+    if (!signatureIsDrawing) return;
+    setSignatureIsDrawing(false);
+    setSignatureDataURL(signatureCanvasRef.current!.toDataURL('image/png'));
+  }, [signatureIsDrawing]);
+
+  const effacerSignatureClient = () => {
+    const ctx = signatureCanvasRef.current!.getContext('2d')!;
+    ctx.clearRect(0, 0, signatureCanvasRef.current!.width, signatureCanvasRef.current!.height);
+    setSignatureDataURL(null);
+    setSignatureHasDrawn(false);
+  };
 
   async function handleRefuserInline() {
     if (!refusModal || !motifRefus.trim()) { alert('Veuillez indiquer le motif'); return; }
@@ -1054,11 +1143,11 @@ export default function MesDemandesExpressPage() {
                                   💬 Contre-proposer
                                 </button>
                                 <button
-                                  onClick={(e) => { e.stopPropagation(); handleAccepterInline(demande.id, prop.id); }}
+                                  onClick={(e) => { e.stopPropagation(); handleAccepterInline(demande.id, prop.id, prop); }}
                                   disabled={submitting}
                                   className="px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 font-bold text-sm transition-all disabled:opacity-50 shadow"
                                 >
-                                  {submitting ? '⏳…' : '✅ Accepter et payer'}
+                                  {submitting ? '⏳…' : prop.devisJoint ? '📋 Signer le devis et payer' : '✅ Accepter et payer'}
                                 </button>
                               </div>
                             ) : null}
@@ -1194,6 +1283,302 @@ export default function MesDemandesExpressPage() {
 
       </div>
     </div>
+
+    {/* ── Modale Signature Devis (propositions > 150€) ───────────── */}
+    {signatureDevisModal && (
+      <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg my-4">
+          {/* En-tête */}
+          <div className="bg-[#2C3E50] text-white rounded-t-2xl px-6 py-5 flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold">📋 Signature du devis</h2>
+              <p className="text-sm text-gray-300 mt-0.5">
+                Montant : <strong className="text-[#FF6B00]">{signatureDevisModal.prop.devisJoint!.totaux.totalTTC.toFixed(2)}€ TTC</strong>
+              </p>
+            </div>
+            <button
+              onClick={() => setSignatureDevisModal(null)}
+              className="text-gray-300 hover:text-white text-2xl leading-none"
+            >
+              ×
+            </button>
+          </div>
+
+          {/* Corps */}
+          <div className="p-6 space-y-4">
+            {/* Récapitulatif devis */}
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Prestations</p>
+              <div className="space-y-1 text-sm">
+                {signatureDevisModal.prop.devisJoint!.lignes.map((l, i) => (
+                  <div key={i} className="flex justify-between">
+                    <span className="text-[#2C3E50]">
+                      {l.description} &times; {l.quantite} {l.unite}
+                    </span>
+                    <span className="font-medium text-[#2C3E50]">{l.totalTTC.toFixed(2)}€</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Conditions */}
+            {signatureDevisModal.prop.devisJoint!.delaiRealisation && (
+              <p className="text-xs text-[#6C757D]">
+                ⏱️ Délai : <strong>{signatureDevisModal.prop.devisJoint!.delaiRealisation}</strong>
+              </p>
+            )}
+            {signatureDevisModal.prop.devisJoint!.conditions && (
+              <p className="text-xs text-[#6C757D] italic">
+                {signatureDevisModal.prop.devisJoint!.conditions}
+              </p>
+            )}
+
+            {/* Totaux */}
+            <div className="bg-[#FFF5EB] rounded-xl p-4 space-y-1 text-sm">
+              <div className="flex justify-between text-gray-600">
+                <span>Total HT</span>
+                <span>{signatureDevisModal.prop.devisJoint!.totaux.totalHT.toFixed(2)}€</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>TVA</span>
+                <span>{signatureDevisModal.prop.devisJoint!.totaux.totalTVAGlobal.toFixed(2)}€</span>
+              </div>
+              <div className="flex justify-between font-bold text-[#2C3E50] text-base border-t pt-1">
+                <span>Total TTC</span>
+                <span className="text-[#FF6B00]">{signatureDevisModal.prop.devisJoint!.totaux.totalTTC.toFixed(2)}€</span>
+              </div>
+            </div>
+
+            {/* Signature artisan (aperçu) */}
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                Signature artisan (apposée)
+              </p>
+              <div className="border border-green-300 rounded-lg overflow-hidden h-16">
+                <img
+                  src={signatureDevisModal.prop.devisJoint!.signatureArtisan.dataURL}
+                  alt="Signature artisan"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+
+            {/* Zone de signature client */}
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                Votre signature <span className="text-red-500">*</span>
+              </p>
+              <p className="text-xs text-gray-400 mb-2">
+                Signez ci-dessous pour accepter les conditions de ce devis.
+              </p>
+              <div
+                className="relative bg-[#F8F9FA] border-2 border-dashed border-gray-300 rounded-lg overflow-hidden"
+                style={{ height: 100 }}
+              >
+                <canvas
+                  ref={signatureCanvasRef}
+                  width={500}
+                  height={100}
+                  className="w-full h-full cursor-crosshair touch-none"
+                  onMouseDown={signatureStartDraw}
+                  onMouseMove={signatureDraw}
+                  onMouseUp={signatureStopDraw}
+                  onMouseLeave={signatureStopDraw}
+                  onTouchStart={signatureStartDraw}
+                  onTouchMove={signatureDraw}
+                  onTouchEnd={signatureStopDraw}
+                />
+                {!signatureHasDrawn && (
+                  <span className="absolute inset-0 flex items-center justify-center text-gray-300 text-sm pointer-events-none select-none">
+                    ✍️ Signez ici
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <button
+                  type="button"
+                  onClick={effacerSignatureClient}
+                  className="text-xs text-gray-400 hover:text-red-500 transition"
+                >
+                  Effacer
+                </button>
+                {signatureDataURL
+                  ? <span className="text-xs text-green-600 font-medium">✓ Signé</span>
+                  : <span className="text-xs text-orange-500">Signature requise</span>
+                }
+              </div>
+            </div>
+
+            {/* Boutons */}
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setSignatureDevisModal(null)}
+                disabled={submitting}
+                className="flex-1 px-4 py-2.5 border-2 border-[#E9ECEF] text-[#6C757D] rounded-xl hover:border-[#2C3E50] font-medium text-sm"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleAccepterAvecSignature}
+                disabled={submitting || !signatureDataURL}
+                className="flex-1 px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 font-semibold text-sm disabled:opacity-50"
+                title={!signatureDataURL ? 'Vous devez signer pour continuer' : undefined}
+              >
+                {submitting ? '⏳ Traitement…' : '✅ Confirmer et payer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* ── Modale Signature Devis (propositions > 150€) ─────────────────── */}
+    {signatureDevisModal && (
+      <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg my-4">
+          {/* En-tête */}
+          <div className="bg-[#2C3E50] text-white rounded-t-2xl px-6 py-5 flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold">📋 Signature du devis</h2>
+              <p className="text-sm text-gray-300 mt-0.5">
+                Montant : <strong className="text-[#FF6B00]">{signatureDevisModal.prop.devisJoint!.totaux.totalTTC.toFixed(2)}€ TTC</strong>
+              </p>
+            </div>
+            <button
+              onClick={() => setSignatureDevisModal(null)}
+              className="text-gray-300 hover:text-white text-2xl leading-none"
+            >
+              ×
+            </button>
+          </div>
+
+          {/* Corps */}
+          <div className="p-6 space-y-4">
+            {/* Récapitulatif devis */}
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Prestations</p>
+              <div className="space-y-1 text-sm">
+                {signatureDevisModal.prop.devisJoint!.lignes.map((l, i) => (
+                  <div key={i} className="flex justify-between">
+                    <span className="text-[#2C3E50]">
+                      {l.description} &times; {l.quantite} {l.unite}
+                    </span>
+                    <span className="font-medium text-[#2C3E50]">{l.totalTTC.toFixed(2)}€</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Conditions */}
+            {signatureDevisModal.prop.devisJoint!.delaiRealisation && (
+              <p className="text-xs text-[#6C757D]">
+                ⏱️ Délai : <strong>{signatureDevisModal.prop.devisJoint!.delaiRealisation}</strong>
+              </p>
+            )}
+            {signatureDevisModal.prop.devisJoint!.conditions && (
+              <p className="text-xs text-[#6C757D] italic">
+                {signatureDevisModal.prop.devisJoint!.conditions}
+              </p>
+            )}
+
+            {/* Totaux */}
+            <div className="bg-[#FFF5EB] rounded-xl p-4 space-y-1 text-sm">
+              <div className="flex justify-between text-gray-600">
+                <span>Total HT</span>
+                <span>{signatureDevisModal.prop.devisJoint!.totaux.totalHT.toFixed(2)}€</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>TVA</span>
+                <span>{signatureDevisModal.prop.devisJoint!.totaux.totalTVAGlobal.toFixed(2)}€</span>
+              </div>
+              <div className="flex justify-between font-bold text-[#2C3E50] text-base border-t pt-1">
+                <span>Total TTC</span>
+                <span className="text-[#FF6B00]">{signatureDevisModal.prop.devisJoint!.totaux.totalTTC.toFixed(2)}€</span>
+              </div>
+            </div>
+
+            {/* Signature artisan (aperçu) */}
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                Signature artisan (apposée)
+              </p>
+              <div className="border border-green-300 rounded-lg overflow-hidden h-16 bg-white">
+                <img
+                  src={signatureDevisModal.prop.devisJoint!.signatureArtisan.dataURL}
+                  alt="Signature artisan"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+
+            {/* Zone de signature client */}
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                Votre signature <span className="text-red-500">*</span>
+              </p>
+              <p className="text-xs text-gray-400 mb-2">
+                Signez ci-dessous pour accepter les conditions de ce devis.
+              </p>
+              <div
+                className="relative bg-[#F8F9FA] border-2 border-dashed border-gray-300 rounded-lg overflow-hidden"
+                style={{ height: 100 }}
+              >
+                <canvas
+                  ref={signatureCanvasRef}
+                  width={500}
+                  height={100}
+                  className="w-full h-full cursor-crosshair touch-none"
+                  onMouseDown={signatureStartDraw}
+                  onMouseMove={signatureDraw}
+                  onMouseUp={signatureStopDraw}
+                  onMouseLeave={signatureStopDraw}
+                  onTouchStart={signatureStartDraw}
+                  onTouchMove={signatureDraw}
+                  onTouchEnd={signatureStopDraw}
+                />
+                {!signatureHasDrawn && (
+                  <span className="absolute inset-0 flex items-center justify-center text-gray-300 text-sm pointer-events-none select-none">
+                    ✍️ Signez ici
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <button
+                  type="button"
+                  onClick={effacerSignatureClient}
+                  className="text-xs text-gray-400 hover:text-red-500 transition"
+                >
+                  Effacer
+                </button>
+                {signatureDataURL
+                  ? <span className="text-xs text-green-600 font-medium">✓ Signé</span>
+                  : <span className="text-xs text-orange-500">Signature requise</span>
+                }
+              </div>
+            </div>
+
+            {/* Boutons */}
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setSignatureDevisModal(null)}
+                disabled={submitting}
+                className="flex-1 px-4 py-2.5 border-2 border-[#E9ECEF] text-[#6C757D] rounded-xl hover:border-[#2C3E50] font-medium text-sm"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleAccepterAvecSignature}
+                disabled={submitting || !signatureDataURL}
+                className="flex-1 px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 font-semibold text-sm disabled:opacity-50"
+                title={!signatureDataURL ? 'Vous devez signer pour continuer' : undefined}
+              >
+                {submitting ? '⏳ Traitement…' : '✅ Confirmer et payer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
 
     {/* ── Modale Refus ─────────────────────────────── */}
     {refusModal && (

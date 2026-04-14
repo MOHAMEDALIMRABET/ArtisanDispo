@@ -1026,6 +1026,68 @@ export interface NegociationRound {
 }
 
 /**
+ * Devis joint à une proposition express (montant > 150€)
+ * Même structure que le devis classique, embarqué dans la proposition.
+ */
+export interface LigneDevisExpress {
+  id: string;
+  description: string;        // Désignation de la prestation
+  quantite: number;
+  unite: string;              // 'h', 'm²', 'unité', etc.
+  prixUnitaireHT: number;
+  tauxTVA: 0 | 5.5 | 10 | 20;
+  totalHT: number;            // Calculé : quantite * prixUnitaireHT
+  totalTVA: number;           // Calculé : totalHT * tauxTVA / 100
+  totalTTC: number;           // Calculé : totalHT + totalTVA
+}
+
+export interface DevisExpressJoint {
+  // Lignes de prestation
+  lignes: LigneDevisExpress[];
+
+  // Main d'œuvre (obligatoire)
+  mainOeuvre: {
+    quantite: number;
+    prixHT: number;
+    tauxTVA: 0 | 5.5 | 10 | 20;
+    unite: string;
+  };
+
+  // Matières premières (optionnel)
+  matierePremiere?: {
+    quantite: number;
+    prixHT: number;
+    tauxTVA: 0 | 5.5 | 10 | 20;
+    unite: string;
+  };
+
+  // Totaux calculés
+  totaux: {
+    totalHT: number;
+    totalTVAGlobal: number;
+    totalTTC: number;
+  };
+
+  // Conditions d'exécution
+  delaiRealisation?: string;      // ex: "3 jours"
+  dateDebutPrevue?: string;       // ISO date
+  conditions?: string;            // Conditions particulières
+
+  // Signature artisan (obligatoire avant envoi)
+  signatureArtisan: {
+    dataURL: string;              // Canvas DataURL de la signature
+    date: Timestamp;              // Horodatage de la signature
+  };
+
+  // Signature client (obligatoire avant acceptation)
+  signatureClient?: {
+    dataURL: string;              // Canvas DataURL de la signature client
+    date: Timestamp;              // Horodatage de la signature
+    ip?: string;                  // IP optionnelle
+  };
+}
+
+/**
  * Proposition de prix pour travaux express
  */
 export interface PropositionExpress {
@@ -1037,18 +1099,23 @@ export interface PropositionExpress {
   clientId: string;
   
   // Proposition initiale
-  montantPropose: number; // Max 150€
-  description: string; // Ce qui est inclus dans la prestation
-  delaiIntervention?: string; // "Demain 14h", "Sous 24h"
+  montantPropose: number; // ≤ 150€ SANS devisJoint / > 150€ AVEC devisJoint obligatoire
+  description: string;   // Ce qui est inclus dans la prestation
+  delaiIntervention?: string;
   dateInterventionProposee?: Timestamp;
+
+  // Devis joint (obligatoire si montantPropose > 150€)
+  // Contient le devis complet signé par l'artisan
+  // Le client doit le contre-signer pour accepter la proposition
+  devisJoint?: DevisExpressJoint;
   
   // Négociation (rounds)
-  rounds?: NegociationRound[];         // Historique des échanges
-  montantCourant?: number;             // Dernier montant en jeu
-  contrePropositionMontant?: number;   // Montant contre-proposé par le client (round 2)
-  contrePropositionMessage?: string;   // Message du client (round 2)
-  propositionFinaleMontant?: number;   // Montant proposition finale artisan (round 3)
-  propositionFinaleMessage?: string;   // Message proposition finale artisan (round 3)
+  rounds?: NegociationRound[];
+  montantCourant?: number;
+  contrePropositionMontant?: number;
+  contrePropositionMessage?: string;
+  propositionFinaleMontant?: number;
+  propositionFinaleMessage?: string;
   
   // Statut
   statut: PropositionExpressStatut;

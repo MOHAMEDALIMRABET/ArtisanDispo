@@ -181,7 +181,10 @@ service cloud.firestore {
                        isArtisan() &&
                        isVerified() &&
                        request.auth.uid == request.resource.data.artisanId &&
-                       request.resource.data.montantPropose <= 150; // Max 150€
+                       // ≤ 150€ sans devis OU > 150€ avec devisJoint signé par l'artisan
+                       (request.resource.data.montantPropose <= 150 ||
+                        (request.resource.data.devisJoint != null &&
+                         request.resource.data.devisJoint.signatureArtisan != null));
       allow update: if (isAuthenticated() && isOwner(resource.data.artisanId) && resource.data.statut == 'en_attente_acceptation') ||
                        (isAuthenticated() && isOwner(resource.data.clientId)) ||
                        isAdmin();

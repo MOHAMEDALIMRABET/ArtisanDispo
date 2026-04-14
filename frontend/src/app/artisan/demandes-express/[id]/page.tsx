@@ -19,6 +19,8 @@ import { Button } from '@/components/ui/Button';
 import type { Timestamp } from 'firebase/firestore';
 import { EXPRESS_WORK_TAXONOMY } from '@/lib/express-work-taxonomy';
 import { getExpressArtisanWindowMs } from '@/lib/express-work-taxonomy';
+import DevisExpressForm from '@/components/DevisExpressForm';
+import type { DevisExpressJoint } from '@/types/firestore';
 
 /**
  * Normalise le champ photos : accepte tableau OU objet-map {0:url,...} (bug historique sanitizeForFirestore).
@@ -88,6 +90,12 @@ export default function DemandeExpressDetailArtisanPage() {
   const [montantPropose, setMontantPropose] = useState('');
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  // Devis joint (obligatoire si montant > 150€)
+  const [devisExpress, setDevisExpress] = useState<DevisExpressJoint | undefined>(undefined);
+
+  /** True si le montant saisi dépasse 150€ → le formulaire de devis doit s'afficher */
+  const montantVal = parseFloat(montantPropose);
+  const besoinDevis = !isNaN(montantVal) && montantVal > 150;
 
   // Réponse à la contre-proposition client
   const [negoAction, setNegoAction] = useState<'accepter_prix_client' | 'refuser' | 'proposition_finale' | null>(null);
@@ -166,12 +174,13 @@ export default function DemandeExpressDetailArtisanPage() {
       alert('Montant invalide');
       return;
     }
-    if (montant > 150) {
-      alert('Le montant maximum pour les travaux express est de 150€');
-      return;
-    }
     if (!description.trim()) {
       alert('Veuillez décrire ce qui est inclus dans votre proposition');
+      return;
+    }
+    // Si montant > 150€ : le devis est obligatoire et doit être signé
+    if (montant > 150 && !devisExpress) {
+      alert('Vous devez remplir et signer le devis pour soumettre une proposition supérieure à 150€.');
       return;
     }
 
@@ -183,6 +192,7 @@ export default function DemandeExpressDetailArtisanPage() {
         clientId: demande.clientId,
         montantPropose: montant,
         description: description.trim(),
+        devisJoint: devisExpress,
       });
 
       alert('✅ Proposition envoyée avec succès !');
@@ -687,15 +697,21 @@ export default function DemandeExpressDetailArtisanPage() {
               <form onSubmit={handleSubmitProposition} className="space-y-6">
                 <div>
                   <label htmlFor="montant" className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                    Montant proposé * <span className="text-[#6C757D] font-normal">(max 150€)</span>
+                    Montant proposé *{' '}
+                    <span className="text-[#6C757D] font-normal">
+                      {besoinDevis ? '(devis signé requis)' : '(≤ 150€ sans devis)'}
+                    </span>
                   </label>
                   <div className="relative">
                     <input
                       type="number"
                       id="montant"
                       value={montantPropose}
-                      onChange={(e) => setMontantPropose(e.target.value)}
-                      max={150}
+                      onChange={(e) => {
+                        setMontantPropose(e.target.value);
+                        // Réinitialiser le devis si on repasse sous 150€
+                        if (parseFloat(e.target.value) <= 150) setDevisExpress(undefined);
+                      }}
                       min={1}
                       step={1}
                       required
@@ -704,7 +720,17 @@ export default function DemandeExpressDetailArtisanPage() {
                     />
                     <span className="absolute right-4 top-3 text-[#6C757D] font-semibold">€</span>
                   </div>
+                  {besoinDevis && (
+                    <p className="mt-1 text-xs text-orange-600 font-medium">
+                      ⚠️ Montant &gt; 150€ — un devis signé est obligatoire ci-dessous.
+                    </p>
+                  )}
                 </div>
+
+                {/* Formulaire devis (affiché uniquement si montant > 150€) */}
+                {besoinDevis && (
+                  <DevisExpressForm onChange={setDevisExpress} />
+                )}
 
                 <div>
                   <label htmlFor="description" className="block text-sm font-semibold text-[#2C3E50] mb-2">
@@ -741,10 +767,11 @@ export default function DemandeExpressDetailArtisanPage() {
                   </Button>
                   <Button
                     type="submit"
-                    disabled={submitting}
+                    disabled={submitting || (besoinDevis && !devisExpress)}
                     className="flex-1"
+                    title={besoinDevis && !devisExpress ? 'Remplissez et signez le devis pour continuer' : undefined}
                   >
-                    {submitting ? '⏳ Envoi...' : '💬 Envoyer ma proposition'}
+                    {submitting ? '⏳ Envoi...' : besoinDevis && !devisExpress ? '📋 Devis requis' : '💬 Envoyer ma proposition'}
                   </Button>
                 </div>
               </form>

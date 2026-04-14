@@ -261,13 +261,25 @@ export async function getDemandesExpressPubliquesByArtisan(options: {
 
 /**
  * Créer une proposition pour une demande express
+ * 
+ * Règle montant :
+ *  - montantPropose ≤ 150€  → proposition simple, pas de devis requis
+ *  - montantPropose > 150€  → devisJoint obligatoire (signé par l'artisan)
  */
 export async function createPropositionExpress(
   data: Omit<PropositionExpress, 'id' | 'statut' | 'createdAt'>
 ): Promise<string> {
-  // Validation montant max 150€
+  // Validation : si montant > 150€ un devis signé est OBLIGATOIRE
   if (data.montantPropose > 150) {
-    throw new Error('Le montant ne peut pas dépasser 150€ pour un travail express');
+    if (!data.devisJoint) {
+      throw new Error('Un devis signé est obligatoire pour une proposition supérieure à 150€');
+    }
+    if (!data.devisJoint.signatureArtisan?.dataURL) {
+      throw new Error('Le devis doit être signé par l\'artisan avant envoi');
+    }
+    if (!data.devisJoint.lignes || data.devisJoint.lignes.length === 0) {
+      throw new Error('Le devis doit contenir au moins une ligne de prestation');
+    }
   }
 
   // Vérifier que la demande existe et est en attente
@@ -318,7 +330,9 @@ export async function createPropositionExpress(
   await createNotification(data.clientId, {
     type: 'proposition_express_recue',
     titre: 'Nouvelle proposition reçue',
-    message: `L'artisan vous propose ${data.montantPropose}€ TTC`,
+    message: data.montantPropose > 150
+      ? `L'artisan vous propose ${data.montantPropose}€ TTC — Un devis signé est joint, votre signature est requise pour accepter.`
+      : `L'artisan vous propose ${data.montantPropose}€ TTC`,
     lien: `/client/demandes-express/${data.demandeId}`,
   });
 
@@ -359,8 +373,14 @@ export async function getPropositionsByDemande(demandeId: string): Promise<Propo
 
 /**
  * Accepter une proposition (avant paiement)
+ * 
+ * Si la proposition a un devisJoint (montant > 150€),
+ * la signature client est obligatoire dans le payload.
  */
-export async function acceptPropositionExpress(propositionId: string): Promise<void> {
+export async function acceptPropositionExpress(
+  propositionId: string,
+  signatureClientDataURL?: string  // Obligatoire si proposition.devisJoint présent
+): Promise<void> {
   const proposition = await getPropositionExpressById(propositionId);
   if (!proposition) {
     throw new Error('Proposition introuvable');
@@ -368,6 +388,20 @@ export async function acceptPropositionExpress(propositionId: string): Promise<v
 
   if (proposition.statut !== 'en_attente_acceptation' && proposition.statut !== 'proposition_finale_artisan') {
     throw new Error('Cette proposition ne peut plus être acceptée');
+  }
+
+  // Si devis joint (montant > 150€) : signature client OBLIGATOIRE
+  if (proposition.devisJoint) {
+    if (!signatureClientDataURL) {
+      throw new Error('Vous devez signer le devis avant d\'accepter cette proposition');
+    }
+    // Enregistrer la signature client dans le devis joint
+    await updateDoc(doc(db, 'propositions_express', propositionId), {
+      'devisJoint.signatureClient': {
+        dataURL: signatureClientDataURL,
+        date: Timestamp.now(),
+      },
+    });
   }
 
   // Récupérer la demande pour connaître l'urgence
