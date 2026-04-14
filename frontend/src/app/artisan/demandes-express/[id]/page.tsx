@@ -92,6 +92,8 @@ export default function DemandeExpressDetailArtisanPage() {
   const [submitting, setSubmitting] = useState(false);
   // Devis joint (obligatoire si montant > 150€)
   const [devisExpress, setDevisExpress] = useState<DevisExpressJoint | undefined>(undefined);
+  // Modale de consultation du devis joint envoyé
+  const [devisModalOpen, setDevisModalOpen] = useState(false);
 
   /** True si le montant saisi dépasse 150€ → le formulaire de devis doit s'afficher */
   const montantVal = parseFloat(montantPropose);
@@ -303,6 +305,134 @@ export default function DemandeExpressDetailArtisanPage() {
 
   return (
     <div className="min-h-screen bg-[#F5F7FA]">
+
+      {/* ═══ MODALE DEVIS JOINT ═══ */}
+      {devisModalOpen && maProposition?.devisJoint && (
+        <div
+          className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center overflow-y-auto py-8 px-4"
+          onClick={() => setDevisModalOpen(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* En-tête modale */}
+            <div className="bg-[#2C3E50] text-white px-6 py-4 rounded-t-2xl flex items-center justify-between">
+              <h2 className="text-lg font-bold">📋 Devis envoyé</h2>
+              <button
+                onClick={() => setDevisModalOpen(false)}
+                className="text-white/70 hover:text-white text-2xl leading-none"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Lignes de prestation */}
+              <div>
+                <h3 className="font-bold text-[#2C3E50] mb-3 text-sm uppercase tracking-wide">Prestations</h3>
+                <div className="border border-[#E9ECEF] rounded-xl overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-[#F8F9FA]">
+                      <tr>
+                        <th className="text-left px-4 py-2 text-[#6C757D] font-semibold">Description</th>
+                        <th className="text-right px-4 py-2 text-[#6C757D] font-semibold">Qté</th>
+                        <th className="text-right px-4 py-2 text-[#6C757D] font-semibold">PU HT</th>
+                        <th className="text-right px-4 py-2 text-[#6C757D] font-semibold">Total HT</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {maProposition.devisJoint.lignes.map((ligne, i) => (
+                        <tr key={i} className="border-t border-[#E9ECEF]">
+                          <td className="px-4 py-2 text-[#2C3E50]">{ligne.description || '—'}</td>
+                          <td className="px-4 py-2 text-right text-[#6C757D]">{ligne.quantite} {ligne.unite}</td>
+                          <td className="px-4 py-2 text-right text-[#6C757D]">{ligne.prixUnitaireHT.toFixed(2)} €</td>
+                          <td className="px-4 py-2 text-right font-semibold text-[#2C3E50]">{ligne.totalHT.toFixed(2)} €</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Main d'œuvre */}
+              {maProposition.devisJoint.mainOeuvre && maProposition.devisJoint.mainOeuvre.prixHT > 0 && (
+                <div>
+                  <h3 className="font-bold text-[#2C3E50] mb-2 text-sm uppercase tracking-wide">Main d'œuvre</h3>
+                  <div className="bg-[#F8F9FA] rounded-lg px-4 py-3 flex justify-between text-sm">
+                    <span className="text-[#6C757D]">{maProposition.devisJoint.mainOeuvre.quantite} {maProposition.devisJoint.mainOeuvre.unite} — TVA {maProposition.devisJoint.mainOeuvre.tauxTVA}%</span>
+                    <span className="font-semibold text-[#2C3E50]">{maProposition.devisJoint.mainOeuvre.prixHT.toFixed(2)} € HT</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Matières premières */}
+              {maProposition.devisJoint.matierePremiere && (
+                <div>
+                  <h3 className="font-bold text-[#2C3E50] mb-2 text-sm uppercase tracking-wide">Matières premières</h3>
+                  <div className="bg-[#F8F9FA] rounded-lg px-4 py-3 flex justify-between text-sm">
+                    <span className="text-[#6C757D]">{maProposition.devisJoint.matierePremiere.quantite} {maProposition.devisJoint.matierePremiere.unite} — TVA {maProposition.devisJoint.matierePremiere.tauxTVA}%</span>
+                    <span className="font-semibold text-[#2C3E50]">{maProposition.devisJoint.matierePremiere.prixHT.toFixed(2)} € HT</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Totaux */}
+              <div className="bg-[#FF6B00]/5 border border-[#FF6B00]/20 rounded-xl p-4 space-y-2">
+                <div className="flex justify-between text-sm text-[#6C757D]">
+                  <span>Total HT</span>
+                  <span>{maProposition.devisJoint.totaux.totalHT.toFixed(2)} €</span>
+                </div>
+                <div className="flex justify-between text-sm text-[#6C757D]">
+                  <span>TVA</span>
+                  <span>{maProposition.devisJoint.totaux.totalTVAGlobal.toFixed(2)} €</span>
+                </div>
+                <div className="flex justify-between text-lg font-bold text-[#FF6B00] border-t border-[#FF6B00]/20 pt-2">
+                  <span>Total TTC</span>
+                  <span>{maProposition.devisJoint.totaux.totalTTC.toFixed(2)} €</span>
+                </div>
+              </div>
+
+              {/* Conditions */}
+              {(maProposition.devisJoint.delaiRealisation || maProposition.devisJoint.dateDebutPrevue || maProposition.devisJoint.conditions) && (
+                <div className="space-y-2 text-sm border-t border-[#E9ECEF] pt-4">
+                  {maProposition.devisJoint.delaiRealisation && (
+                    <div className="flex gap-2"><span className="text-[#6C757D] font-semibold min-w-32">Délai :</span><span>{maProposition.devisJoint.delaiRealisation}</span></div>
+                  )}
+                  {maProposition.devisJoint.dateDebutPrevue && (
+                    <div className="flex gap-2"><span className="text-[#6C757D] font-semibold min-w-32">Début prévu :</span><span>{maProposition.devisJoint.dateDebutPrevue}</span></div>
+                  )}
+                  {maProposition.devisJoint.conditions && (
+                    <div className="flex gap-2"><span className="text-[#6C757D] font-semibold min-w-32">Conditions :</span><span>{maProposition.devisJoint.conditions}</span></div>
+                  )}
+                </div>
+              )}
+
+              {/* Signature artisan */}
+              {maProposition.devisJoint.signatureArtisan?.dataURL && (
+                <div className="border-t border-[#E9ECEF] pt-4">
+                  <p className="text-sm font-semibold text-[#2C3E50] mb-2">✍️ Votre signature</p>
+                  <img
+                    src={maProposition.devisJoint.signatureArtisan.dataURL}
+                    alt="Signature artisan"
+                    className="h-16 border border-[#E9ECEF] rounded-lg bg-white p-1"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="px-6 pb-6">
+              <button
+                onClick={() => setDevisModalOpen(false)}
+                className="w-full bg-[#FF6B00] text-white px-4 py-3 rounded-lg hover:bg-[#E56100] transition-colors font-semibold"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-[#E9ECEF]">
         <div className="container mx-auto px-4 py-6">
@@ -567,6 +697,19 @@ export default function DemandeExpressDetailArtisanPage() {
                      "⏳ En attente d'acceptation"}
                   </span>
                 </div>
+
+                {/* Bouton consulter le devis joint (si devis > 150€) */}
+                {maProposition.devisJoint && (
+                  <div className="pt-3 border-t border-purple-200">
+                    <button
+                      onClick={() => setDevisModalOpen(true)}
+                      className="w-full flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-2.5 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold text-sm"
+                    >
+                      📋 Consulter le devis envoyé
+                    </button>
+                  </div>
+                )}
+
               </div>
             </div>
           )}
