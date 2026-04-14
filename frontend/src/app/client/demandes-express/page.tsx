@@ -117,6 +117,9 @@ export default function MesDemandesExpressPage() {
   const [signatureHasDrawn, setSignatureHasDrawn] = useState(false);
   const [signatureDataURL, setSignatureDataURL] = useState<string | null>(null);
 
+  // Modale consultation devis joint (propositions > 150€ acceptées/payées)
+  const [devisConsultModal, setDevisConsultModal] = useState<PropositionExpress | null>(null);
+
   // Cloches temporaires (nouvelles propositions non lues)
   const { notifications, markAsRead, markTypeAsRead } = useNotifications(firebaseUser?.uid);
   const [bellDemandeIds, setBellDemandeIds] = useState<Set<string>>(new Set());
@@ -655,6 +658,129 @@ export default function MesDemandesExpressPage() {
   }
 
   return (<>
+    {/* ═══ MODALE CONSULTATION DEVIS JOINT ═══ */}
+    {devisConsultModal?.devisJoint && (
+      <div
+        className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center overflow-y-auto py-8 px-4"
+        onClick={() => setDevisConsultModal(null)}
+      >
+        <div
+          className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* En-tête */}
+          <div className="bg-[#2C3E50] text-white px-6 py-4 rounded-t-2xl flex items-center justify-between">
+            <h2 className="text-lg font-bold">📋 Devis signé</h2>
+            <button onClick={() => setDevisConsultModal(null)} className="text-white/70 hover:text-white text-2xl leading-none">×</button>
+          </div>
+
+          <div className="p-6 space-y-6">
+            {/* Lignes de prestation */}
+            <div>
+              <h3 className="font-bold text-[#2C3E50] mb-3 text-sm uppercase tracking-wide">Prestations</h3>
+              <div className="border border-[#E9ECEF] rounded-xl overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-[#F8F9FA]">
+                    <tr>
+                      <th className="text-left px-4 py-2 text-[#6C757D] font-semibold">Description</th>
+                      <th className="text-right px-4 py-2 text-[#6C757D] font-semibold">Qté</th>
+                      <th className="text-right px-4 py-2 text-[#6C757D] font-semibold">PU HT</th>
+                      <th className="text-right px-4 py-2 text-[#6C757D] font-semibold">Total HT</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {devisConsultModal.devisJoint.lignes.map((ligne, i) => (
+                      <tr key={i} className="border-t border-[#E9ECEF]">
+                        <td className="px-4 py-2 text-[#2C3E50]">{ligne.description || '—'}</td>
+                        <td className="px-4 py-2 text-right text-[#6C757D]">{ligne.quantite} {ligne.unite}</td>
+                        <td className="px-4 py-2 text-right text-[#6C757D]">{ligne.prixUnitaireHT.toFixed(2)} €</td>
+                        <td className="px-4 py-2 text-right font-semibold text-[#2C3E50]">{ligne.totalHT.toFixed(2)} €</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Main d'œuvre */}
+            {devisConsultModal.devisJoint.mainOeuvre && devisConsultModal.devisJoint.mainOeuvre.prixHT > 0 && (
+              <div>
+                <h3 className="font-bold text-[#2C3E50] mb-2 text-sm uppercase tracking-wide">Main d'œuvre</h3>
+                <div className="bg-[#F8F9FA] rounded-lg px-4 py-3 flex justify-between text-sm">
+                  <span className="text-[#6C757D]">{devisConsultModal.devisJoint.mainOeuvre.quantite} {devisConsultModal.devisJoint.mainOeuvre.unite} — TVA {devisConsultModal.devisJoint.mainOeuvre.tauxTVA}%</span>
+                  <span className="font-semibold text-[#2C3E50]">{devisConsultModal.devisJoint.mainOeuvre.prixHT.toFixed(2)} € HT</span>
+                </div>
+              </div>
+            )}
+
+            {/* Matières premières */}
+            {devisConsultModal.devisJoint.matierePremiere && (
+              <div>
+                <h3 className="font-bold text-[#2C3E50] mb-2 text-sm uppercase tracking-wide">Matières premières</h3>
+                <div className="bg-[#F8F9FA] rounded-lg px-4 py-3 flex justify-between text-sm">
+                  <span className="text-[#6C757D]">{devisConsultModal.devisJoint.matierePremiere.quantite} {devisConsultModal.devisJoint.matierePremiere.unite} — TVA {devisConsultModal.devisJoint.matierePremiere.tauxTVA}%</span>
+                  <span className="font-semibold text-[#2C3E50]">{devisConsultModal.devisJoint.matierePremiere.prixHT.toFixed(2)} € HT</span>
+                </div>
+              </div>
+            )}
+
+            {/* Totaux */}
+            <div className="bg-[#FF6B00]/5 border border-[#FF6B00]/20 rounded-xl p-4 space-y-2">
+              <div className="flex justify-between text-sm text-[#6C757D]">
+                <span>Total HT</span><span>{devisConsultModal.devisJoint.totaux.totalHT.toFixed(2)} €</span>
+              </div>
+              <div className="flex justify-between text-sm text-[#6C757D]">
+                <span>TVA</span><span>{devisConsultModal.devisJoint.totaux.totalTVAGlobal.toFixed(2)} €</span>
+              </div>
+              <div className="flex justify-between text-lg font-bold text-[#FF6B00] border-t border-[#FF6B00]/20 pt-2">
+                <span>Total TTC</span><span>{devisConsultModal.devisJoint.totaux.totalTTC.toFixed(2)} €</span>
+              </div>
+            </div>
+
+            {/* Conditions */}
+            {(devisConsultModal.devisJoint.delaiRealisation || devisConsultModal.devisJoint.dateDebutPrevue || devisConsultModal.devisJoint.conditions) && (
+              <div className="space-y-2 text-sm border-t border-[#E9ECEF] pt-4">
+                {devisConsultModal.devisJoint.delaiRealisation && (
+                  <div className="flex gap-2"><span className="text-[#6C757D] font-semibold min-w-32">Délai :</span><span>{devisConsultModal.devisJoint.delaiRealisation}</span></div>
+                )}
+                {devisConsultModal.devisJoint.dateDebutPrevue && (
+                  <div className="flex gap-2"><span className="text-[#6C757D] font-semibold min-w-32">Début prévu :</span><span>{devisConsultModal.devisJoint.dateDebutPrevue}</span></div>
+                )}
+                {devisConsultModal.devisJoint.conditions && (
+                  <div className="flex gap-2"><span className="text-[#6C757D] font-semibold min-w-32">Conditions :</span><span>{devisConsultModal.devisJoint.conditions}</span></div>
+                )}
+              </div>
+            )}
+
+            {/* Signatures */}
+            <div className="border-t border-[#E9ECEF] pt-4 grid grid-cols-2 gap-4">
+              {devisConsultModal.devisJoint.signatureArtisan?.dataURL && (
+                <div>
+                  <p className="text-xs font-semibold text-[#6C757D] mb-1">✍️ Signature artisan</p>
+                  <img src={devisConsultModal.devisJoint.signatureArtisan.dataURL} alt="Signature artisan" className="h-14 border border-[#E9ECEF] rounded-lg bg-white p-1 w-full object-contain" />
+                </div>
+              )}
+              {devisConsultModal.devisJoint.signatureClient?.dataURL && (
+                <div>
+                  <p className="text-xs font-semibold text-[#6C757D] mb-1">✍️ Votre signature</p>
+                  <img src={devisConsultModal.devisJoint.signatureClient.dataURL} alt="Signature client" className="h-14 border border-[#E9ECEF] rounded-lg bg-white p-1 w-full object-contain" />
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="px-6 pb-6">
+            <button
+              onClick={() => setDevisConsultModal(null)}
+              className="w-full bg-[#FF6B00] text-white px-4 py-3 rounded-lg hover:bg-[#E56100] transition-colors font-semibold"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
     <div className="min-h-screen bg-gradient-to-b from-[#F8F9FA] to-white">
 
       {/* Bande bleue — identique à /client/demandes-hub */}
@@ -1181,7 +1307,15 @@ export default function MesDemandesExpressPage() {
                         {demande.statut === 'en_cours' && (
                           <div className="flex items-center gap-3 bg-indigo-50 border border-indigo-200 rounded-xl p-4">
                             <span className="text-2xl">🔧</span>
-                            <p className="text-sm text-indigo-800 font-medium">L&apos;artisan est en cours d&apos;intervention. Vous serez notifié à la fin.</p>
+                            <p className="flex-1 text-sm text-indigo-800 font-medium">L&apos;artisan est en cours d&apos;intervention. Vous serez notifié à la fin.</p>
+                            {prop?.devisJoint && (
+                              <button
+                                onClick={() => setDevisConsultModal(prop)}
+                                className="shrink-0 flex items-center gap-1.5 bg-[#2C3E50] text-white px-3 py-2 rounded-lg hover:bg-[#1A3A5C] transition-colors text-xs font-semibold"
+                              >
+                                📋 Voir le devis
+                              </button>
+                            )}
                           </div>
                         )}
 
@@ -1189,10 +1323,19 @@ export default function MesDemandesExpressPage() {
                         {demande.statut === 'payee' && (
                           <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl p-4">
                             <span className="text-2xl">💳</span>
-                            <div>
+                            <div className="flex-1">
                               <p className="text-sm text-green-800 font-medium">Paiement confirmé.</p>
                               {prop && <p className="text-sm text-green-700">Montant sécurisé : <strong>{prop.montantPropose}€</strong></p>}
                             </div>
+                            {/* Bouton devis si montant > 150€ avec devis joint */}
+                            {prop?.devisJoint && (
+                              <button
+                                onClick={() => setDevisConsultModal(prop)}
+                                className="shrink-0 flex items-center gap-1.5 bg-[#2C3E50] text-white px-3 py-2 rounded-lg hover:bg-[#1A3A5C] transition-colors text-xs font-semibold"
+                              >
+                                📋 Voir le devis
+                              </button>
+                            )}
                           </div>
                         )}
 
