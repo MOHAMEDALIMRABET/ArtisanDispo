@@ -179,7 +179,7 @@ service cloud.firestore {
                       isAdmin());
       allow create: if isAuthenticated() && 
                        isArtisan() &&
-                       isVerified() &&
+                       request.auth.token.email_verified == true &&
                        request.auth.uid == request.resource.data.artisanId &&
                        // ≤ 150€ sans devis OU > 150€ avec devisJoint signé par l'artisan
                        (request.resource.data.montantPropose <= 150 ||
