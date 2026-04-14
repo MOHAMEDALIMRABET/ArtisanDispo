@@ -298,18 +298,18 @@ export default function RecherchePage() {
           </div>
         </div>
       ) : (
-        // Header blanc classique (depuis page d'accueil ou autre)
-        <div className="bg-white shadow-sm">
-          <div className="container mx-auto px-4 py-6">
+        // Header bleu toujours visible (depuis page d'accueil ou autre)
+        <div className="bg-[#2C3E50] text-white py-8">
+          <div className="container mx-auto px-4">
             <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <h1 className="text-3xl font-bold text-[#2C3E50]">Trouvez votre artisan</h1>
-                <p className="text-[#6C757D] text-sm mt-2">Décrivez votre projet, nous trouvons les artisans disponibles</p>
+              <div>
+                <h1 className="text-3xl font-bold">Trouvez votre artisan</h1>
+                <p className="text-gray-300 mt-2">Décrivez votre projet, nous trouvons les artisans disponibles</p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowHowItWorks(!showHowItWorks)}
-                className="flex items-center gap-2 px-4 py-2 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] transition-colors shadow-md"
+                className="flex items-center gap-2 px-4 py-2 border-2 border-white text-white rounded-lg hover:bg-white/10 transition-colors"
                 title="Afficher/masquer comment ça marche"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">

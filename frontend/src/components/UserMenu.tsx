@@ -112,15 +112,26 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
       where('participants', 'array-contains', user.uid)
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      let totalUnread = 0;
-      snapshot.docs.forEach((doc) => {
-        const data = doc.data();
-        const unreadForUser = data.unreadCount?.[user.uid] || 0;
-        totalUnread += unreadForUser;
-      });
-      setUnreadMessagesCount(totalUnread);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        let totalUnread = 0;
+        snapshot.docs.forEach((doc) => {
+          const data = doc.data();
+          const unreadForUser = data.unreadCount?.[user.uid] || 0;
+          totalUnread += unreadForUser;
+        });
+        setUnreadMessagesCount(totalUnread);
+      },
+      (error) => {
+        // Ignorer les erreurs de permission lors des changements d'état d'authentification
+        if (error.code === 'permission-denied') {
+          setUnreadMessagesCount(0);
+          return;
+        }
+        console.error('Erreur écoute conversations (UserMenu):', error);
+      }
+    );
 
     return () => unsubscribe();
   }, [user?.uid]);
@@ -302,269 +313,6 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
 
           {/* Menu items */}
           <div className="py-2">
-            {/* Tableau de bord */}
-            <button
-              onClick={() => handleNavigation(isArtisan ? '/artisan/dashboard' : '/dashboard')}
-              className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
-            >
-              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                />
-              </svg>
-              <span className="font-medium">{t('common.dashboard')}</span>
-            </button>
-
-            {/* Espace Artisan - uniquement pour artisans */}
-            {isArtisan && (
-              <button
-                onClick={() => {
-                  // Bloquer l'accès au profil pour les artisans non vérifiés
-                  if (user.statut !== 'verifie') {
-                    alert('⚠️ Profil non vérifié\n\nVous devez d\'abord compléter la vérification de votre profil (KBIS, CNI, RC Pro) avant d\'accéder à cette section.\n\nVous allez être redirigé vers la page de vérification.');
-                    handleNavigation('/artisan/verification');
-                  } else {
-                    handleNavigation('/artisan/profil');
-                  }
-                }}
-                className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
-              >
-                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-                <span className="font-medium">{t('common.craftspaceSpace')}</span>
-                {user.statut !== 'verifie' && (
-                  <span className="text-lg">
-                    🔒
-                  </span>
-                )}
-              </button>
-            )}
-
-            {/* Liens spécifiques client */}
-            {!isArtisan && (
-              <>
-                {/* Mes Devis */}
-                <button
-                  onClick={() => handleNavigationWithMarkRead('/client/devis?filter=tous', ['devis_accepte', 'devis_refuse', 'devis_recu', 'nouveau_devis', 'devis_revision', 'travaux_demarres', 'travaux_termines'])}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
-                >
-                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  <span className="font-medium flex-1">Mes Devis</span>
-                  {notifDevis > 0 && (
-                    <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
-                      {notifDevis}
-                    </span>
-                  )}
-                </button>
-
-                {/* Mes Demandes */}
-                <button
-                  onClick={() => handleNavigation('/client/demandes-hub')}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
-                >
-                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                    />
-                  </svg>
-                  <span className="font-medium flex-1">{t('common.myRequests')}</span>
-                  {notifDemandes > 0 && (
-                    <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
-                      {notifDemandes}
-                    </span>
-                  )}
-                </button>
-
-                {/* Messages Client */}
-                <button
-                  onClick={handleMessagesNavigation}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
-                >
-                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                    />
-                  </svg>
-                  <span className="font-medium flex-1">Messages</span>
-                  {unreadMessagesCount > 0 && (
-                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
-                      {unreadMessagesCount}
-                    </span>
-                  )}
-                </button>
-
-                {/* Avis Artisans */}
-                <button
-                  onClick={() => handleNavigationWithMarkRead('/client/avis', ['reponse_avis'])}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
-                >
-                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-                    />
-                  </svg>
-                  <span className="font-medium flex-1">Avis</span>
-                  {notifAvis > 0 && (
-                    <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
-                      {notifAvis}
-                    </span>
-                  )}
-                  {avisEnAttente > 0 && (
-                    <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
-                      {avisEnAttente}
-                    </span>
-                  )}
-                </button>
-              </>
-            )}
-
-            {/* Liens spécifiques artisan */}
-            {isArtisan && (
-              <>
-                {/* Mon Agenda */}
-                <button
-                  onClick={() => handleNavigation('/artisan/agenda')}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
-                >
-                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <span className="font-medium flex-1">{t('common.myAgenda')}</span>
-                </button>
-
-                {/* Mon Wallet */}
-                <button
-                  onClick={() => handleNavigation('/artisan/wallet')}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
-                >
-                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                    />
-                  </svg>
-                  <span className="font-medium flex-1">{t('common.myWallet')}</span>
-                </button>
-
-                {/* Mes Devis */}
-                <button
-                  onClick={() => handleNavigationWithMarkRead('/artisan/devis', ['devis_accepte', 'devis_refuse', 'devis_recu', 'nouveau_devis', 'devis_revision'])}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
-                >
-                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  <span className="font-medium flex-1">Mes Devis</span>
-                  {notifDevis > 0 && (
-                    <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
-                      {notifDevis}
-                    </span>
-                  )}
-                </button>
-
-                {/* Mes Demandes Clients (classiques + express fusionnées) */}
-                <button
-                  onClick={() => handleNavigationWithMarkRead('/artisan/demandes', ['nouvelle_demande', 'demande_refusee', 'nouvelle_demande_express', 'travaux_valides', 'proposition_acceptee', 'contre_proposition_recue', 'paiement_recu_express', 'acceptation_expiree', 'proposition_refusee', 'paiement_libere_express'])}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
-                >
-                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                    />
-                  </svg>
-                  <span className="font-medium flex-1">{t('common.clientRequests')}</span>
-                  {(notifDemandes + notifExpressDemandes + nouvellesDemandesCount) > 0 && (
-                    <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
-                      {notifDemandes + notifExpressDemandes + nouvellesDemandesCount}
-                    </span>
-                  )}
-                </button>
-
-                {/* Messages Artisan */}
-                <button
-                  onClick={handleMessagesNavigation}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
-                >
-                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                    />
-                  </svg>
-                  <span className="font-medium flex-1">Messages</span>
-                  {unreadMessagesCount > 0 && (
-                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
-                      {unreadMessagesCount}
-                    </span>
-                  )}
-                </button>
-
-                {/* Avis Clients */}
-                <button
-                  onClick={() => handleNavigationWithMarkRead('/artisan/avis', ['nouvel_avis'])}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
-                >
-                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-                    />
-                  </svg>
-                  <span className="font-medium flex-1">Avis</span>
-                  {notifAvis > 0 && (
-                    <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
-                      {notifAvis}
-                    </span>
-                  )}
-                </button>
-              </>
-            )}
-
-            <hr className="my-2 border-gray-200" />
 
             {/* Déconnexion */}
             <button

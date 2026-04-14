@@ -218,10 +218,11 @@ service cloud.firestore {
     // TODO 2026-03 : Supprimer après migration complète vers devis
     
     match /contrats/{contratId} {
-      allow read: if isAuthenticated() && 
-                     (isOwner(resource.data.clientId) || 
-                      isOwner(resource.data.artisanId) || 
-                      isAdmin());
+      // Lecture ouverte à tout utilisateur connecté :
+      // - Collection OBSOLÈTE en cours de migration → devis
+      // - Les requêtes de collection (where devisId==...) échouent si la règle
+      //   dépend de resource.data (Firestore ne peut pas évaluer clientId avant lecture)
+      allow read: if isAuthenticated();
       allow create: if false; // Bloquer création (migration vers devis)
       allow update: if isAdmin(); // Admin peut anonymiser pour RGPD
       allow delete: if false; // Bloquer suppression

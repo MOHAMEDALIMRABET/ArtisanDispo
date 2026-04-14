@@ -329,6 +329,16 @@ export default function DashboardPage() {
         />
       </svg>
 
+      {/* ── BANDE BLEUE EN-TÊTE ── */}
+      <div className="relative z-10 bg-[#2C3E50] text-white py-8 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <p className="text-sm text-gray-300 mb-1 font-medium uppercase tracking-wide">Tableau de bord Client</p>
+          <h1 className="text-2xl font-bold">
+            👋 Bienvenue {user?.prenom || ''} {user?.nom || ''}
+          </h1>
+        </div>
+      </div>
+
       <div className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
         {/* Bannière email non vérifié (Client) */}
         {!emailVerified && (

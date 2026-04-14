@@ -568,7 +568,7 @@ export default function MesDemandesExpressPage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold">
-                ⚡ {t('clientExpressRequests.pageTitle')}
+                {t('clientExpressRequests.pageTitle')}
               </h1>
               <p className="text-gray-300 text-sm mt-1">
                 {t('clientExpressRequests.pageSubtitle')}

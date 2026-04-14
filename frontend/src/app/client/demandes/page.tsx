@@ -874,22 +874,19 @@ export default function MesDemandesPage() {
             <div className="flex items-center gap-3">
               <Button
                 onClick={() => router.push('/recherche')}
-                className="bg-[#FF6B00] hover:bg-[#E56100] text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+                className="bg-[#FF6B00] hover:bg-[#E56100] text-white px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                {t('common.search')} {t('common.artisan')}
+                Nouvelle demande
               </Button>
               <button
                 onClick={() => setShowExpirationHelp(true)}
-                className="flex items-center gap-2 px-4 py-2 border-2 border-white text-white rounded-lg hover:bg-white hover:text-[#2C3E50] transition-colors"
-                title={t('clientDemandes.expirationHelp.subtitle')}
+                className="flex items-center gap-2 px-4 py-2 border-2 border-white text-white rounded-lg hover:bg-white/10 transition-colors"
               >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-                </svg>
-                <span>Aide : Expiration</span>
+                <span>ℹ️</span>
+                <span>Comment ça marche ?</span>
               </button>
             </div>
           </div>
