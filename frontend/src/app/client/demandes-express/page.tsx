@@ -27,6 +27,7 @@ import type { DemandeExpress, PropositionExpress, User, DemandeExpressStatut } f
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { getExpressArtisanWindowLabel } from '@/lib/express-work-taxonomy';
+import { generateDevisExpressPDF } from '@/lib/generateDevisExpressPDF';
 
 /**
  * Convertit un timestamp Firestore (Timestamp, {seconds,nanoseconds} brut, ou Date)
@@ -119,6 +120,7 @@ export default function MesDemandesExpressPage() {
 
   // Modale consultation devis joint (propositions > 150€ acceptées/payées)
   const [devisConsultModal, setDevisConsultModal] = useState<PropositionExpress | null>(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   // Cloches temporaires (nouvelles propositions non lues)
   const { notifications, markAsRead, markTypeAsRead } = useNotifications(firebaseUser?.uid);
@@ -769,10 +771,37 @@ export default function MesDemandesExpressPage() {
             </div>
           </div>
 
-          <div className="px-6 pb-6">
+          <div className="px-6 pb-6 flex gap-3">
+            {/* Bouton télécharger le PDF */}
+            <button
+              onClick={async () => {
+                if (!devisConsultModal?.devisJoint) return;
+                setPdfLoading(true);
+                try {
+                  // Récupérer les noms depuis les maps déjà chargées
+                  const artisanNom = artisanNomMap.get(devisConsultModal.demandeId) ?? 'Artisan';
+                  // Trouver la demande correspondante pour la catégorie et la ville
+                  const demandeConcernee = demandes.find(d => d.id === devisConsultModal.demandeId);
+                  await generateDevisExpressPDF({
+                    devis: devisConsultModal.devisJoint,
+                    propositionId: devisConsultModal.id,
+                    artisanNom,
+                    clientNom: firebaseUser?.displayName ?? 'Client',
+                    categorie: demandeConcernee?.categorie ?? '',
+                    ville: demandeConcernee?.ville ?? '',
+                  });
+                } finally {
+                  setPdfLoading(false);
+                }
+              }}
+              disabled={pdfLoading}
+              className="flex-1 flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-3 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold disabled:opacity-60"
+            >
+              {pdfLoading ? '⏳ Génération...' : '⬇️ Télécharger le devis (PDF)'}
+            </button>
             <button
               onClick={() => setDevisConsultModal(null)}
-              className="w-full bg-[#FF6B00] text-white px-4 py-3 rounded-lg hover:bg-[#E56100] transition-colors font-semibold"
+              className="flex-1 bg-[#FF6B00] text-white px-4 py-3 rounded-lg hover:bg-[#E56100] transition-colors font-semibold"
             >
               Fermer
             </button>
