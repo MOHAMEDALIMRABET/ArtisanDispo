@@ -307,8 +307,21 @@ export async function createPropositionExpress(
     throw new Error('Vous avez déjà une proposition active sur cette demande');
   }
 
+  // Nettoyer les champs undefined du devisJoint avant envoi Firestore
+  // (Firestore rejette les valeurs undefined — ex: matierePremiere non remplie)
+  let devisJointClean = data.devisJoint;
+  if (devisJointClean) {
+    const { matierePremiere, mainOeuvre, ...restDevis } = devisJointClean;
+    devisJointClean = {
+      ...restDevis,
+      ...(mainOeuvre !== undefined ? { mainOeuvre } : {}),
+      ...(matierePremiere !== undefined ? { matierePremiere } : {}),
+    };
+  }
+
   const propositionData = {
     ...data,
+    ...(devisJointClean !== undefined ? { devisJoint: devisJointClean } : {}),
     statut: 'en_attente_acceptation' as const,
     createdAt: Timestamp.now(),
   };
