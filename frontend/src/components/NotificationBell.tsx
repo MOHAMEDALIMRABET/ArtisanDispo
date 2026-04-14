@@ -64,9 +64,12 @@ export default function NotificationBell() {
     switch (type) {
       case 'nouvelle_demande':
         return '📋';
+      case 'nouvelle_demande_publique':
+        return '📢';
       case 'nouvelle_demande_express':
         return '⚡';
       case 'demande_refusee':
+      case 'demande_annulee':
         return '🚫';
       case 'devis_recu':
       case 'nouveau_devis':
@@ -82,12 +85,28 @@ export default function NotificationBell() {
         return '📝';
       case 'paiement':
       case 'paiement_libere':
+      case 'paiement_libere_express':
       case 'paiement_recu_express':
         return '💰';
+      case 'paiement_expire':
+      case 'acceptation_expiree':
+        return '⏰';
+      case 'proposition_express_recue':
+        return '📬';
+      case 'proposition_acceptee':
+        return '✅';
+      case 'proposition_refusee':
+        return '❌';
+      case 'contre_proposition_recue':
+        return '💬';
       case 'intervention_demarree':
         return '🚧';
       case 'travaux_termines':
+      case 'travaux_termines_demande':
+      case 'travaux_termines_express':
         return '🔔';
+      case 'travaux_valides':
+        return '✅';
       case 'avis':
       case 'nouvel_avis':
         return '⭐';

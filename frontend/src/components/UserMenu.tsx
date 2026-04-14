@@ -142,15 +142,27 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
     n => !n.lue && (
       n.type === 'nouvelle_demande' ||
       n.type === 'demande_refusee' ||
+      n.type === 'demande_annulee' ||              // ✅ Demande express annulée
       n.type === 'proposition_express_recue' ||
-      n.type === 'travaux_demarres_demande' || // ✅ Artisan a démarré les travaux (niveau demande)
+      n.type === 'proposition_refusee' ||          // ✅ Artisan rejette négociation → client
+      n.type === 'intervention_demarree' ||        // ✅ Artisan démarre intervention express
+      n.type === 'paiement_expire' ||              // ✅ Timeout paiement express
+      n.type === 'travaux_demarres_demande' ||     // ✅ Artisan a démarré les travaux (niveau demande)
       n.type === 'travaux_valides' ||
-      n.type === 'travaux_termines_demande'  // ✅ Artisan a terminé, validation client requise
+      n.type === 'travaux_termines_demande' ||     // ✅ Artisan a terminé, validation client requise (classique)
+      n.type === 'travaux_termines_express'        // ✅ Artisan a terminé intervention express → badge Demandes
     )
   ).length;
 
   const notifExpressDemandes = notifications.filter(
-    n => !n.lue && n.type === 'nouvelle_demande_express'
+    n => !n.lue && (
+      n.type === 'nouvelle_demande_express' ||     // Nouvelle demande reçue
+      n.type === 'proposition_acceptee' ||          // Client a accepté la proposition
+      n.type === 'contre_proposition_recue' ||      // Client envoie une contre-proposition
+      n.type === 'paiement_recu_express' ||          // Paiement confirmé, intervention possible
+      n.type === 'acceptation_expiree' ||           // Timeout paiement : demande expirée
+      n.type === 'paiement_libere_express'          // ✅ Paiement libéré après validation travaux express
+    )
   ).length;
 
   // Notifications avis strictes par rôle
@@ -489,7 +501,7 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
 
                 {/* Mes Demandes Clients (classiques + express fusionnées) */}
                 <button
-                  onClick={() => handleNavigationWithMarkRead('/artisan/demandes', ['nouvelle_demande', 'demande_refusee', 'nouvelle_demande_express', 'travaux_valides'])}
+                  onClick={() => handleNavigationWithMarkRead('/artisan/demandes', ['nouvelle_demande', 'demande_refusee', 'nouvelle_demande_express', 'travaux_valides', 'proposition_acceptee', 'contre_proposition_recue', 'paiement_recu_express', 'acceptation_expiree', 'proposition_refusee', 'paiement_libere_express'])}
                   className="w-full px-4 py-3 text-left hover:bg-gray-50 transition flex items-center gap-3 text-gray-700"
                 >
                   <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

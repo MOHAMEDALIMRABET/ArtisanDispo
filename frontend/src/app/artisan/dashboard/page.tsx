@@ -77,9 +77,16 @@ export default function ArtisanDashboardPage() {
     n => n.type === 'nouvel_avis' && !n.lue
   ).length;
 
-  // Compter les notifications de demandes express NON LUES
+  // Compter les notifications de demandes express NON LUES (tous types workflow artisan)
   const expressDemandeNotifications = notifications.filter(
-    n => n.type === 'nouvelle_demande_express' && !n.lue
+    n => !n.lue && (
+      n.type === 'nouvelle_demande_express' ||     // Nouvelle demande reçue
+      n.type === 'proposition_acceptee' ||          // Client a accepté la proposition
+      n.type === 'contre_proposition_recue' ||      // Client envoie une contre-proposition
+      n.type === 'paiement_recu_express' ||          // Paiement confirmé, intervention possible
+      n.type === 'acceptation_expiree' ||           // Timeout paiement : demande expirée
+      n.type === 'paiement_libere_express'          // ✅ Paiement libéré après validation travaux express
+    )
   ).length;
 
   // Compter les validations client NON LUES (lié au flux demandes)
@@ -942,7 +949,7 @@ export default function ArtisanDashboardPage() {
             </Link>
 
           {/* Demandes - Position 6 */}
-          <Link href="/artisan/demandes" className="h-full" onClick={() => markNotificationsByTypeAsRead(user?.uid || '', ['nouvelle_demande_express', 'travaux_valides'])}>
+          <Link href="/artisan/demandes" className="h-full" onClick={() => markNotificationsByTypeAsRead(user?.uid || '', ['nouvelle_demande_express', 'travaux_valides', 'proposition_acceptee', 'contre_proposition_recue', 'paiement_recu_express', 'acceptation_expiree'])}>
             <div className="h-full flex flex-col bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-[#FF6B00] relative">
               {/* Badge notification */}
               {totalNouvellesDemandes > 0 && (

@@ -38,7 +38,7 @@ import type {
   NegociationRound,
   Categorie,
 } from '@/types/firestore';
-import { createNotification } from './notification-service';
+import { createNotification, notifyArtisansDemandeExpressPublique } from './notification-service';
 import {
   getExpressArtisanWindowMs,
   getExpressPaymentWindowMinutes,
@@ -84,14 +84,29 @@ export async function createDemandeExpress(
 
   const docRef = await addDoc(collection(db, 'demandes_express'), sanitized);
 
-  // Notifier artisan si demande directe
+  // Notifier artisan si demande directe (avec artisanId cible)
   if (data.artisanId) {
     await createNotification(data.artisanId, {
       type: 'nouvelle_demande_express',
-      titre: 'Nouvelle demande express',
-      message: `${data.description.slice(0, 80)}... - ${data.ville}`,
+      titre: '⚡ Nouvelle demande express',
+      message: `${data.description.slice(0, 80)}${data.description.length > 80 ? '...' : ''} — ${data.ville}`,
       lien: `/artisan/demandes-express/${docRef.id}`,
     });
+  } else {
+    // Demande express PUBLIQUE : notifier tous les artisans du même métier/zone
+    // (fire-and-forget — ne bloque pas la création)
+    notifyArtisansDemandeExpressPublique(
+      docRef.id,
+      data.categorie,
+      data.categorieLabel ?? data.categorie,
+      data.ville,
+      data.description,
+      data.coordonneesGPS
+        ? { latitude: data.coordonneesGPS.latitude, longitude: data.coordonneesGPS.longitude }
+        : undefined
+    ).catch(err =>
+      console.error('⚠️ notifyArtisansDemandeExpressPublique échoué (non bloquant):', err)
+    );
   }
 
   return docRef.id;
@@ -716,9 +731,9 @@ export async function markInterventionTerminee(demandeId: string): Promise<void>
     updatedAt: Timestamp.now(),
   });
 
-  // Notifier le client pour validation des travaux
+  // Notifier le client pour validation des travaux (type express pour badge Demandes)
   await createNotification(demande.clientId, {
-    type: 'travaux_termines',
+    type: 'travaux_termines_express',
     titre: '🔔 Travaux terminés — Validation requise',
     message: "L'artisan a terminé les travaux. Validez pour libérer le paiement (auto-libération dans 24h).",
     lien: `/client/demandes-express/${demandeId}`,
@@ -795,10 +810,10 @@ export async function markTravauxValides(demandeId: string): Promise<void> {
     updatedAt: Timestamp.now(),
   });
 
-  // Notifier l'artisan que le paiement est libéré
+  // Notifier l'artisan que le paiement est libéré (type express pour badge Express)
   if (demande.artisanId) {
     await createNotification(demande.artisanId, {
-      type: 'paiement_libere',
+      type: 'paiement_libere_express',
       titre: '💰 Paiement libéré !',
       message: 'Le client a validé les travaux. Votre paiement a été versé.',
       lien: `/artisan/demandes-express/${demandeId}`,
@@ -941,6 +956,6 @@ export async function refuserDemandeExpressParArtisan(demandeId: string, artisan
     type: 'demande_refusee',
     titre: 'Demande refusée',
     message: 'Un artisan n\'est pas disponible pour votre demande express. Vous pouvez en contacter un autre.',
-    lien: `/client/demandes-express`,
+    lien: `/client/demandes-express/${demandeId}`,
   });
 }

@@ -56,9 +56,14 @@ export default function DashboardPage() {
   const demandesNouvelles = notifications.filter(n => !n.lue && (
     n.type === 'nouvelle_demande' ||
     n.type === 'demande_refusee' ||
+    n.type === 'demande_annulee' ||              // ✅ Demande express annulée
     n.type === 'proposition_express_recue' ||
-    n.type === 'travaux_demarres_demande' || // ✅ Artisan a démarré les travaux (niveau demande)
-    n.type === 'travaux_termines_demande'  // ✅ Artisan a terminé, validation client requise
+    n.type === 'proposition_refusee' ||          // ✅ Artisan rejette négociation → client
+    n.type === 'intervention_demarree' ||        // ✅ Artisan démarre intervention express
+    n.type === 'paiement_expire' ||              // ✅ Timeout paiement express
+    n.type === 'travaux_demarres_demande' ||     // ✅ Artisan a démarré les travaux (niveau demande)
+    n.type === 'travaux_termines_demande' ||     // ✅ Artisan a terminé, validation client requise (classique)
+    n.type === 'travaux_termines_express'        // ✅ Artisan a terminé intervention express → badge Demandes client
   )).length;
   const reponseAvisNouveaux = notifications.filter(n => !n.lue && n.type === 'reponse_avis').length;
 

@@ -13,6 +13,7 @@ import {
 } from '@/lib/firebase/demande-express-service';
 import { getUserById } from '@/lib/firebase/user-service';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotifications } from '@/hooks/useNotifications';
 import type { DemandeExpress, PropositionExpress, User } from '@/types/firestore';
 import { Button } from '@/components/ui/Button';
 import type { Timestamp } from 'firebase/firestore';
@@ -62,6 +63,7 @@ export default function DemandeExpressDetailArtisanPage() {
   const params = useParams();
   const demandeId = params.id as string;
   const { user: firebaseUser, loading: authLoading } = useAuth();
+  const { markTypeAsRead } = useNotifications(firebaseUser?.uid);
 
   const [userData, setUserData] = useState<User | null>(null);
   const [demande, setDemande] = useState<DemandeExpress | null>(null);
@@ -100,6 +102,19 @@ export default function DemandeExpressDetailArtisanPage() {
     }
     loadData();
   }, [firebaseUser, authLoading, demandeId]);
+
+  // Marquer les notifications express liées à cette demande comme lues à l'ouverture de la page
+  useEffect(() => {
+    if (!firebaseUser || authLoading) return;
+    markTypeAsRead([
+      'proposition_acceptee',
+      'contre_proposition_recue',
+      'paiement_recu_express',
+      'nouvelle_demande_express',
+      'acceptation_expiree',
+      'paiement_libere_express',
+    ]);
+  }, [firebaseUser, authLoading]);
 
   async function loadData() {
     if (!firebaseUser) return;

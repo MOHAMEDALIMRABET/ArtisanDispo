@@ -93,8 +93,18 @@ export default function ArtisanDemandesPage() {
     }
 
     loadData();
-    // Marquer les notifications de demandes comme lues
-    markTypeAsRead(['nouvelle_demande', 'nouvelle_demande_publique']);
+    // Marquer les notifications de demandes comme lues (classiques + express)
+    markTypeAsRead([
+      'nouvelle_demande',
+      'nouvelle_demande_publique',
+      'nouvelle_demande_express',
+      'proposition_acceptee',
+      'contre_proposition_recue',
+      'paiement_recu_express',
+      'acceptation_expiree',
+      'proposition_refusee',
+      'paiement_libere_express',
+    ]);
   }, [authUser, authLoading, router]);
 
   // Si on arrive avec un demandeId dans l'URL → aller directement dans Classiques et activer le bon filtre
