@@ -18,6 +18,20 @@
  */
 
 import { db } from './config';
+
+/**
+ * Supprime récursivement les clés dont la valeur est `undefined`.
+ * Firestore rejette les valeurs undefined dans addDoc/updateDoc.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function removeUndefined(obj: any): any {
+  if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) return obj;
+  return Object.fromEntries(
+    Object.entries(obj)
+      .filter(([, v]) => v !== undefined)
+      .map(([k, v]) => [k, removeUndefined(v)])
+  );
+}
 import {
   collection,
   addDoc,
@@ -307,24 +321,13 @@ export async function createPropositionExpress(
     throw new Error('Vous avez déjà une proposition active sur cette demande');
   }
 
-  // Nettoyer les champs undefined du devisJoint avant envoi Firestore
-  // (Firestore rejette les valeurs undefined — ex: matierePremiere non remplie)
-  let devisJointClean = data.devisJoint;
-  if (devisJointClean) {
-    const { matierePremiere, mainOeuvre, ...restDevis } = devisJointClean;
-    devisJointClean = {
-      ...restDevis,
-      ...(mainOeuvre !== undefined ? { mainOeuvre } : {}),
-      ...(matierePremiere !== undefined ? { matierePremiere } : {}),
-    };
-  }
-
-  const propositionData = {
+  // Nettoyer tous les champs undefined avant envoi Firestore
+  // (Firestore rejette les valeurs undefined — delaiRealisation, matierePremiere, etc.)
+  const propositionData = removeUndefined({
     ...data,
-    ...(devisJointClean !== undefined ? { devisJoint: devisJointClean } : {}),
     statut: 'en_attente_acceptation' as const,
     createdAt: Timestamp.now(),
-  };
+  });
 
   const docRef = await addDoc(collection(db, 'propositions_express'), propositionData);
 
