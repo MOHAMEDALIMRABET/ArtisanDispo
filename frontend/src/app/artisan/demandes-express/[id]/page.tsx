@@ -706,30 +706,48 @@ export default function DemandeExpressDetailArtisanPage() {
                     <input
                       type="number"
                       id="montant"
-                      value={montantPropose}
+                      value={besoinDevis && devisExpress ? devisExpress.totaux.totalTTC.toFixed(2) : montantPropose}
                       onChange={(e) => {
+                        if (besoinDevis && devisExpress) return; // piloté par le devis
                         setMontantPropose(e.target.value);
                         // Réinitialiser le devis si on repasse sous 150€
                         if (parseFloat(e.target.value) <= 150) setDevisExpress(undefined);
                       }}
+                      readOnly={besoinDevis && !!devisExpress}
                       min={1}
-                      step={1}
+                      step={0.01}
                       required
-                      className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:outline-none focus:border-[#FF6B00] pr-12"
+                      className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none pr-12 ${
+                        besoinDevis && devisExpress
+                          ? 'border-green-400 bg-green-50 text-green-800 font-bold cursor-default'
+                          : 'border-[#E9ECEF] focus:border-[#FF6B00]'
+                      }`}
                       placeholder="Ex: 120"
                     />
                     <span className="absolute right-4 top-3 text-[#6C757D] font-semibold">€</span>
                   </div>
-                  {besoinDevis && (
+                  {besoinDevis && devisExpress && (
+                    <p className="mt-1 text-xs text-green-700 font-medium">
+                      ✓ Montant calculé depuis le devis (HT : {devisExpress.totaux.totalHT.toFixed(2)}€ + TVA : {devisExpress.totaux.totalTVAGlobal.toFixed(2)}€)
+                    </p>
+                  )}
+                  {besoinDevis && !devisExpress && (
                     <p className="mt-1 text-xs text-orange-600 font-medium">
-                      ⚠️ Montant &gt; 150€ — un devis signé est obligatoire ci-dessous.
+                      ⚠️ Montant &gt; 150€ — remplissez le devis ci-dessous, il déterminera le montant final.
                     </p>
                   )}
                 </div>
 
                 {/* Formulaire devis (affiché uniquement si montant > 150€) */}
                 {besoinDevis && (
-                  <DevisExpressForm onChange={setDevisExpress} />
+                  <DevisExpressForm
+                    onChange={(devis) => {
+                      setDevisExpress(devis);
+                      // Synchroniser montantPropose avec le total TTC du devis
+                      if (devis) setMontantPropose(devis.totaux.totalTTC.toFixed(2));
+                    }}
+                    montantInitial={montantVal}
+                  />
                 )}
 
                 <div>

@@ -23,6 +23,8 @@ import type { DevisExpressJoint, LigneDevisExpress } from '@/types/firestore';
 type TVARate = 0 | 5.5 | 10 | 20;
 
 interface DevisExpressFormProps {
+  /** Montant initialement saisi par l'artisan — pré-remplit la première ligne */
+  montantInitial?: number;
   /** Callback appelé à chaque changement valide du devis (undefined = devis incomplet) */
   onChange: (devis: DevisExpressJoint | undefined) => void;
 }
@@ -76,19 +78,25 @@ function calculerTotaux(
 
 // ── Composant principal ──────────────────────────────────────────────────────
 
-export default function DevisExpressForm({ onChange }: DevisExpressFormProps) {
+export default function DevisExpressForm({ onChange, montantInitial }: DevisExpressFormProps) {
   // ── État des lignes de prestation ──
-  const [lignes, setLignes] = useState<LigneDevisExpress[]>([{
-    id: uid(),
-    description: '',
-    quantite: 1,
-    unite: 'h',
-    prixUnitaireHT: 0,
-    tauxTVA: 20,
-    totalHT: 0,
-    totalTVA: 0,
-    totalTTC: 0,
-  }]);
+  const [lignes, setLignes] = useState<LigneDevisExpress[]>(() => {
+    // Pré-remplir la première ligne avec le montant proposé (TVA 20% par défaut)
+    const prixHT = montantInitial && montantInitial > 0 ? montantInitial : 0;
+    const totalHT = prixHT;
+    const totalTVA = totalHT * 20 / 100;
+    return [{
+      id: uid(),
+      description: '',
+      quantite: 1,
+      unite: 'forfait',
+      prixUnitaireHT: prixHT,
+      tauxTVA: 20,
+      totalHT,
+      totalTVA,
+      totalTTC: totalHT + totalTVA,
+    }];
+  });
 
   // ── Main d'œuvre (optionnelle — l'artisan peut l'avoir incluse dans les lignes) ──
   const [ajouterMO, setAjouterMO] = useState(false);
