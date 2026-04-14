@@ -251,21 +251,23 @@ export default function ClientDemandesHubPage() {
         <path d="M0,80 C180,40 360,120 600,80 C840,40 1100,110 1300,70 C1380,50 1420,65 1440,60 L1440,140 L0,140 Z" fill="#2C3E50" fillOpacity="0.13"/>
       </svg>
       {/* En-tête */}
-      <div className="relative z-10 bg-[#2C3E50] text-white py-6 px-4">
+      <div className="relative z-10 bg-[#2C3E50] text-white py-8 px-4">
         <div className="container mx-auto max-w-5xl">
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Retour au tableau de bord
+          </button>
           <h1 className="text-2xl font-bold">📋 Mes Demandes</h1>
           <p className="text-gray-300 text-sm mt-1">Gérez vos demandes de travaux</p>
         </div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8 max-w-5xl">
-
-        {/* Fil d'Ariane */}
-        <div className="flex items-center gap-2 mb-6 text-sm text-gray-500">
-          <button onClick={() => router.push('/dashboard')} className="hover:text-[#FF6B00] transition flex items-center gap-1">
-            ← Retour au tableau de bord
-          </button>
-        </div>
 
         {/* Hub : 2 cartes */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

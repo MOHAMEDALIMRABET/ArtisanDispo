@@ -458,3 +458,106 @@ export async function notifyArtisansDemandePublique(
     return [];
   }
 }
+
+// ============================================
+// Notification nouvelle demande EXPRESS publique
+// ============================================
+
+/**
+ * Notifie tous les artisans approuvés dont le métier + zone couvrent
+ * une demande express PUBLIQUE (sans artisanId cible).
+ *
+ * Logique identique à notifyArtisansDemandePublique() mais :
+ * - Porte sur le champ `categorie` (= métier Firestore) de la demande express
+ * - Lien direct vers /artisan/demandes-express/[id]
+ * - Type de notification : 'nouvelle_demande_express'
+ *
+ * @returns Liste des IDs artisans notifiés
+ */
+export async function notifyArtisansDemandeExpressPublique(
+  demandeId: string,
+  categorie: string,       // ex: 'serrurerie', 'plomberie', 'electricite'
+  categorieLabel: string,  // ex: 'Serrurerie'
+  ville: string,
+  description: string,
+  demandeCoords?: { latitude: number; longitude: number }
+): Promise<string[]> {
+  try {
+    // 1. Récupérer artisans ayant ce métier dans leur tableau `metiers`
+    const artisansSnap = await getDocs(
+      query(
+        collection(db, 'artisans'),
+        where('metiers', 'array-contains', categorie)
+      )
+    );
+
+    if (artisansSnap.empty) {
+      console.log(`ℹ️ Aucun artisan avec le métier '${categorie}' pour demande express ${demandeId}`);
+      return [];
+    }
+
+    const artisansNotifies: string[] = [];
+    const villeNorm = ville.toLowerCase().trim();
+
+    const promises = artisansSnap.docs.map(async (artisanDoc) => {
+      const artisan = artisanDoc.data();
+      const artisanId = artisanDoc.id;
+
+      // Filtre : approuvé + email vérifié
+      if (artisan.verificationStatus !== 'approved') return;
+      if (!artisan.emailVerified) return;
+
+      // Filtre : zone d'intervention couvre la demande
+      const zones: any[] = artisan.zonesIntervention || [];
+
+      if (zones.length === 0) {
+        // Fallback : ville principale de l'artisan
+        const artisanVille = (
+          artisan.location?.city ||
+          artisan.location?.ville ||
+          ''
+        ).toLowerCase().trim();
+        if (!artisanVille || artisanVille !== villeNorm) return;
+      } else {
+        const zoneMatch = zones.some((zone: any) => {
+          // Comparaison GPS si disponible
+          if (demandeCoords && zone.latitude && zone.longitude) {
+            const dist = haversineKm(
+              demandeCoords.latitude, demandeCoords.longitude,
+              zone.latitude, zone.longitude
+            );
+            return dist <= (zone.rayonKm || 50);
+          }
+          // Sinon : comparaison nom de ville
+          return zone.ville?.toLowerCase().trim() === villeNorm;
+        });
+        if (!zoneMatch) return;
+      }
+
+      // Notification in-app : lien direct vers le détail de la demande
+      await createNotification(artisanId, {
+        type: 'nouvelle_demande_express',
+        titre: `⚡ Nouvelle demande express : ${categorieLabel} à ${ville}`,
+        message: description
+          ? description.slice(0, 100) + (description.length > 100 ? '...' : '')
+          : `Un client cherche un artisan en ${categorieLabel} à ${ville} (travaux express).`,
+        lien: `/artisan/demandes-express/${demandeId}`,
+      });
+
+      artisansNotifies.push(artisanId);
+    });
+
+    await Promise.all(promises);
+
+    console.log(
+      artisansNotifies.length > 0
+        ? `✅ ${artisansNotifies.length} artisan(s) notifié(s) pour demande express ${demandeId}`
+        : `ℹ️ Aucun artisan à notifier pour demande express ${demandeId} (métier: ${categorie}, ville: ${ville})`
+    );
+
+    return artisansNotifies;
+  } catch (error) {
+    console.error('❌ Erreur notifyArtisansDemandeExpressPublique:', error);
+    return [];
+  }
+}

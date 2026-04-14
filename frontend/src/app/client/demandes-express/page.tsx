@@ -551,23 +551,26 @@ export default function MesDemandesExpressPage() {
 
   return (<>
     <div className="min-h-screen bg-gradient-to-b from-[#F8F9FA] to-white">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <nav className="text-sm mb-4">
-            <Link href="/client/demandes-hub" className="text-[#2C3E50] hover:text-[#FF6B00]">
-              Mes demandes
-            </Link>
-            <span className="mx-2 text-[#6C757D]">/</span>
-            <span className="text-[#6C757D]">{t('clientExpressRequests.breadcrumb.current')}</span>
-          </nav>
+
+      {/* Bande bleue — identique à /client/demandes-hub */}
+      <div className="bg-[#2C3E50] text-white py-8 px-4">
+        <div className="container mx-auto">
+          <button
+            onClick={() => router.push('/client/demandes-hub')}
+            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Retour à Mes Demandes
+          </button>
 
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-[#2C3E50] mb-2">
-                {t('clientExpressRequests.pageTitle')}
+              <h1 className="text-2xl font-bold">
+                ⚡ {t('clientExpressRequests.pageTitle')}
               </h1>
-              <p className="text-[#6C757D]">
+              <p className="text-gray-300 text-sm mt-1">
                 {t('clientExpressRequests.pageSubtitle')}
               </p>
             </div>
@@ -575,7 +578,7 @@ export default function MesDemandesExpressPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setShowHowItWorks(v => !v)}
-                className="flex items-center gap-2 px-4 py-2 bg-[#2C3E50] text-white rounded-lg hover:bg-[#1A3A5C] transition-colors text-sm font-semibold whitespace-nowrap"
+                className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm font-semibold whitespace-nowrap border border-white/20"
               >
                 <span>ℹ️</span> Comment ça marche ?
               </button>
@@ -587,45 +590,48 @@ export default function MesDemandesExpressPage() {
               </Button>
             </div>
           </div>
-
-          {/* Panneau comment ça marche */}
-          {showHowItWorks && (
-            <div className="mt-4 bg-blue-50 border-2 border-blue-200 rounded-xl p-5 text-sm text-[#6C757D]">
-              <ul className="space-y-2">
-                <li><strong>1.</strong> {t('clientExpressRequests.howItWorks.step1')}</li>
-                <li><strong>2.</strong> {t('clientExpressRequests.howItWorks.step2')}</li>
-                <li><strong>3.</strong> {t('clientExpressRequests.howItWorks.step3')}</li>
-                <li><strong>4.</strong> {t('clientExpressRequests.howItWorks.step4')}</li>
-                <li><strong>5.</strong> {t('clientExpressRequests.howItWorks.step5')}</li>
-              </ul>
-            </div>
-          )}
         </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-8">
+
+        {/* Panneau comment ça marche */}
+        {showHowItWorks && (
+          <div className="mb-6 bg-blue-50 border-2 border-blue-200 rounded-xl p-5 text-sm text-[#6C757D]">
+            <ul className="space-y-2">
+              <li><strong>1.</strong> {t('clientExpressRequests.howItWorks.step1')}</li>
+              <li><strong>2.</strong> {t('clientExpressRequests.howItWorks.step2')}</li>
+              <li><strong>3.</strong> {t('clientExpressRequests.howItWorks.step3')}</li>
+              <li><strong>4.</strong> {t('clientExpressRequests.howItWorks.step4')}</li>
+              <li><strong>5.</strong> {t('clientExpressRequests.howItWorks.step5')}</li>
+            </ul>
+          </div>
+        )}
 
         {/* Filtres — style cartes moderne (identique à /client/demandes) */}
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
 
           {/* Toutes */}
           <button
-            onClick={() => { setFiltreStatut('toutes'); setFiltreEnTraitement('toutes'); }}
+            onClick={() => { setFiltreStatut('toutes'); setFiltreEnTraitement('toutes'); setSourceFilter('toutes'); }}
             className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
-              filtreStatut === 'toutes'
+              filtreStatut === 'toutes' && sourceFilter === 'toutes'
                 ? 'bg-gradient-to-br from-[#FF6B00] to-[#E56100] text-white shadow-xl scale-105'
                 : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
             }`}
           >
-            <div className={`text-3xl font-black mb-1 ${filtreStatut === 'toutes' ? 'text-white' : 'text-[#FF6B00]'}`}>
+            <div className={`text-3xl font-black mb-1 ${filtreStatut === 'toutes' && sourceFilter === 'toutes' ? 'text-white' : 'text-[#FF6B00]'}`}>
               {demandesActives.length}
               {showToutsBell && <span className="ml-1 animate-bounce text-lg">🔔</span>}
             </div>
-            <div className={`text-xs font-semibold uppercase tracking-wide ${filtreStatut === 'toutes' ? 'text-white' : 'text-gray-600'}`}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${filtreStatut === 'toutes' && sourceFilter === 'toutes' ? 'text-white' : 'text-gray-600'}`}>
               Toutes
             </div>
           </button>
 
           {/* Envoyées */}
           <button
-            onClick={() => { setFiltreStatut('en_attente_proposition'); setFiltreEnTraitement('toutes'); }}
+            onClick={() => { setFiltreStatut('en_attente_proposition'); setFiltreEnTraitement('toutes'); setSourceFilter('toutes'); }}
             className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filtreStatut === 'en_attente_proposition'
                 ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-xl scale-105'
@@ -642,7 +648,7 @@ export default function MesDemandesExpressPage() {
 
           {/* Publiées */}
           <button
-            onClick={() => setSourceFilter(sourceFilter === 'publiees' ? 'toutes' : 'publiees')}
+            onClick={() => { setSourceFilter(sourceFilter === 'publiees' ? 'toutes' : 'publiees'); setFiltreStatut('toutes'); setFiltreEnTraitement('toutes'); }}
             className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               sourceFilter === 'publiees'
                 ? 'bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-xl scale-105'
@@ -659,7 +665,7 @@ export default function MesDemandesExpressPage() {
 
           {/* Propositions reçues */}
           <button
-            onClick={() => { setFiltreStatut('proposition_recue'); setFiltreEnTraitement('toutes'); }}
+            onClick={() => { setFiltreStatut('proposition_recue'); setFiltreEnTraitement('toutes'); setSourceFilter('toutes'); }}
             className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filtreStatut === 'proposition_recue'
                 ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl scale-105'
@@ -676,7 +682,7 @@ export default function MesDemandesExpressPage() {
 
           {/* En traitement */}
           <button
-            onClick={() => { setFiltreStatut('en_cours'); setFiltreEnTraitement('toutes'); }}
+            onClick={() => { setFiltreStatut('en_cours'); setFiltreEnTraitement('toutes'); setSourceFilter('toutes'); }}
             className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filtreStatut === 'en_cours'
                 ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-xl scale-105'
@@ -693,7 +699,7 @@ export default function MesDemandesExpressPage() {
 
           {/* Validées */}
           <button
-            onClick={() => { setFiltreStatut('terminee'); setFiltreEnTraitement('toutes'); }}
+            onClick={() => { setFiltreStatut('terminee'); setFiltreEnTraitement('toutes'); setSourceFilter('toutes'); }}
             className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filtreStatut === 'terminee'
                 ? 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-xl scale-105'
@@ -759,13 +765,23 @@ export default function MesDemandesExpressPage() {
 
         {/* Liste des demandes */}
         {demandesFiltrees.length === 0 ? (
-          <Card className="text-center py-12">
-            <p className="text-xl text-[#6C757D]">
-              {filtreStatut === 'toutes'
-                ? t('clientExpressRequests.empty.all')
-                : `${t('clientExpressRequests.empty.filtered')} "${filtreStatut}"`}
-            </p>
-          </Card>
+          filtreStatut === 'toutes' && sourceFilter === 'toutes' ? (
+            <Card className="text-center py-12">
+              <p className="text-xl text-[#6C757D]">
+                {t('clientExpressRequests.empty.all')}
+              </p>
+            </Card>
+          ) : (
+            <Card className="text-center py-16">
+              <div className="text-5xl mb-4">🔍</div>
+              <p className="text-xl font-semibold text-[#2C3E50] mb-2">
+                Aucune demande dans cette catégorie
+              </p>
+              <p className="text-sm text-[#6C757D]">
+                Essayez une autre catégorie
+              </p>
+            </Card>
+          )
         ) : (
           <div className="grid gap-6">
             {demandesFiltrees.map((demande) => {

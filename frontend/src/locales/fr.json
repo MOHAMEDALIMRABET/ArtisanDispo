@@ -1628,10 +1628,10 @@
     },
     "howItWorks": {
       "title": "ℹ️ Comment ça marche ?",
-      "step1": "Créez une demande Express (budget max 150€, mode immédiat ou urgent)",
+      "step1": "Créez une demande Express (budget max 150€)",
       "step2": "Un artisan vous envoie rapidement une proposition de prix",
       "step3": "Acceptez la proposition et payez en ligne (paiement sécurisé)",
-      "step4": "L'artisan intervient : le jour même (immédiat) ou sous 24h (urgent)",
+      "step4": "L'artisan intervient rapidement : sous 30 min - 1h (dépannage) ou sous 2h (petits travaux)",
       "step5": "Validez les travaux, l'argent est libéré"
     },
     "links": {

@@ -109,10 +109,12 @@ export type NotificationType =
   | 'intervention_demarree'       // ✅ Demande express : intervention démarrée
   | 'travaux_termines'            // ✅ Artisan a déclaré la fin des travaux (niveau devis)
   | 'travaux_termines_demande'   // ✅ Artisan a déclaré la fin des travaux (niveau demande)
+  | 'travaux_termines_express'   // ✅ Artisan a terminé l'intervention express (client doit valider)
   | 'travaux_valides'             // ✅ Client a validé les travaux
   | 'validation_auto'             // ✅ Validation automatique après 7 jours
   | 'paiement' 
   | 'paiement_libere'
+  | 'paiement_libere_express'    // ✅ Paiement libéré suite à validation travaux express
   | 'paiement_recu_express'      // ✅ Paiement reçu pour travaux express
   | 'paiement_expire'            // ✅ Délai de paiement dépassé (timeout 15-30 min)
   | 'acceptation_expiree'        // ✅ Acceptation expirée sans paiement
