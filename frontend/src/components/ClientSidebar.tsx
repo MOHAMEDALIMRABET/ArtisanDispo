@@ -83,9 +83,7 @@ export default function ClientSidebar() {
         n.type === 'nouveau_devis' ||        // ancien type (migration progressive)
         n.type === 'contrat_signe' ||        // contrat signé suite au devis
         n.type === 'travaux_demarres' ||     // artisan a démarré les travaux
-        n.type === 'travaux_termines' ||     // artisan a terminé les travaux
-        n.type === 'devis_annule' ||         // artisan a annulé le devis
-        n.type === 'devis_supprime')          // artisan a supprimé le devis
+        n.type === 'travaux_termines')       // artisan a terminé les travaux
   ).length;
 
   // Comptage des notifications non lues relatives aux demandes (reçues par le CLIENT)
@@ -95,6 +93,7 @@ export default function ClientSidebar() {
       (n.type === 'demande_refusee' ||              // artisan a refusé la demande
         n.type === 'demande_annulee' ||              // demande annulée
         n.type === 'proposition_express_recue' ||    // artisan a envoyé une proposition express
+        n.type === 'proposition_refusee' ||          // artisan a rompu la négociation express
         n.type === 'intervention_demarree' ||        // artisan a démarré intervention express
         n.type === 'travaux_termines_express' ||     // artisan a terminé travaux express
         n.type === 'paiement_expire' ||              // délai de paiement dépassé
@@ -215,7 +214,8 @@ export default function ClientSidebar() {
               // Marquer les notifications de demandes comme lues avant navigation
               await markTypeAsRead([
                 'demande_refusee', 'demande_annulee',
-                'proposition_express_recue', 'intervention_demarree',
+                'proposition_express_recue', 'proposition_refusee',
+                'intervention_demarree',
                 'travaux_termines_express', 'paiement_expire',
                 'travaux_demarres_demande', 'travaux_termines_demande',
                 'validation_auto', 'demande_avis_express',
@@ -260,7 +260,6 @@ export default function ClientSidebar() {
               await markTypeAsRead([
                 'devis_recu', 'nouveau_devis', 'contrat_signe',
                 'travaux_demarres', 'travaux_termines',
-                'devis_annule', 'devis_supprime',
               ]);
               router.push('/client/devis?filter=tous');
             }}
