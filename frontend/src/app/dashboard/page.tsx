@@ -247,18 +247,53 @@ export default function DashboardPage() {
               Rechercher un artisan
             </div>
           </Link>
-          <Link href="/client/demandes-hub">
+          {/* Mes Demandes — marque les notifications comme lues au clic */}
+          <button
+            className="w-full text-left"
+            onClick={async () => {
+              await markTypeAsRead([
+                'demande_refusee', 'demande_annulee',
+                'proposition_express_recue', 'proposition_refusee',
+                'intervention_demarree',
+                'travaux_termines_express', 'paiement_expire',
+                'travaux_demarres_demande', 'travaux_termines_demande',
+                'validation_auto', 'demande_avis_express',
+                'litige_ouvert', 'litige_commentaire', 'litige_pris_en_charge',
+                'litige_proposition', 'litige_acceptation_partielle', 'litige_refus',
+                'litige_escalade', 'litige_resolu', 'litige_abandonne',
+              ]);
+              router.push('/client/demandes-hub');
+            }}
+          >
             <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#2C3E50] hover:bg-orange-50 hover:text-[#FF6B00] transition text-sm whitespace-nowrap">
               <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
               Mes Demandes
+              {/* Badge notifications demandes */}
+              {demandesNouvelles > 0 && (
+                <span className="ml-auto bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">{demandesNouvelles}</span>
+              )}
             </div>
-          </Link>
-          <Link href="/client/devis">
+          </button>
+          {/* Mes Devis — marque les notifications comme lues au clic */}
+          <button
+            className="w-full text-left"
+            onClick={async () => {
+              await markTypeAsRead([
+                'devis_recu', 'nouveau_devis', 'contrat_signe',
+                'travaux_demarres', 'travaux_termines',
+              ]);
+              router.push('/client/devis?filter=tous');
+            }}
+          >
             <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#2C3E50] hover:bg-orange-50 hover:text-[#FF6B00] transition text-sm whitespace-nowrap">
               <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
               Mes Devis
+              {/* Badge notifications devis */}
+              {devisNouveaux > 0 && (
+                <span className="ml-auto bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">{devisNouveaux}</span>
+              )}
             </div>
-          </Link>
+          </button>
           <Link href="/messages">
             <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#2C3E50] hover:bg-orange-50 hover:text-[#FF6B00] transition text-sm whitespace-nowrap">
               <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
@@ -268,12 +303,23 @@ export default function DashboardPage() {
               )}
             </div>
           </Link>
-          <Link href="/client/avis">
+          {/* Avis — marque la notification comme lue au clic */}
+          <button
+            className="w-full text-left"
+            onClick={async () => {
+              await markTypeAsRead(['reponse_avis']);
+              router.push('/client/avis');
+            }}
+          >
             <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#2C3E50] hover:bg-orange-50 hover:text-[#FF6B00] transition text-sm whitespace-nowrap">
               <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
               Avis
+              {/* Badge notifications avis */}
+              {reponseAvisNouveaux > 0 && (
+                <span className="ml-auto bg-[#FF6B00] text-white text-xs font-bold px-1.5 py-0.5 rounded-full">{reponseAvisNouveaux}</span>
+              )}
             </div>
-          </Link>
+          </button>
         </nav>
 
         {/* Besoin d'aide — bas de sidebar */}
@@ -477,7 +523,24 @@ export default function DashboardPage() {
               </div>
             </Link>
 
-            <Link href="/client/demandes-hub">
+            {/* Carte Mes Demandes — marque les notifications comme lues au clic */}
+            <button
+              className="w-full text-left"
+              onClick={async () => {
+                await markTypeAsRead([
+                  'demande_refusee', 'demande_annulee',
+                  'proposition_express_recue', 'proposition_refusee',
+                  'intervention_demarree',
+                  'travaux_termines_express', 'paiement_expire',
+                  'travaux_demarres_demande', 'travaux_termines_demande',
+                  'validation_auto', 'demande_avis_express',
+                  'litige_ouvert', 'litige_commentaire', 'litige_pris_en_charge',
+                  'litige_proposition', 'litige_acceptation_partielle', 'litige_refus',
+                  'litige_escalade', 'litige_resolu', 'litige_abandonne',
+                ]);
+                router.push('/client/demandes-hub');
+              }}
+            >
               <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-[#FF6B00]">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center relative">
@@ -503,9 +566,19 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
-            </Link>
+            </button>
 
-            <Link href="/client/devis">
+            {/* Carte Mes Devis — marque les notifications comme lues au clic */}
+            <button
+              className="w-full text-left"
+              onClick={async () => {
+                await markTypeAsRead([
+                  'devis_recu', 'nouveau_devis', 'contrat_signe',
+                  'travaux_demarres', 'travaux_termines',
+                ]);
+                router.push('/client/devis?filter=tous');
+              }}
+            >
               <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-[#FF6B00]">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center relative">
@@ -531,7 +604,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
-            </Link>
+            </button>
 
             <Link href="/client/avis" onClick={() => markTypeAsRead && markTypeAsRead(['reponse_avis'])}>
               <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-[#FF6B00]">
