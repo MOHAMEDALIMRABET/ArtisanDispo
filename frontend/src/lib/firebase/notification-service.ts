@@ -378,9 +378,9 @@ export async function notifyArtisansDemandePublique(
       const artisan = artisanDoc.data();
       const artisanId = artisanDoc.id;
 
-      // Filtre : approué + email vérifié
+      // Filtre : artisan approuvé par admin (verificationStatus suffit,
+      // emailVerified n'est pas fiablement présent sur le document artisan)
       if (artisan.verificationStatus !== 'approved') return;
-      if (!artisan.emailVerified) return;
 
       // Filtre : zone d'intervention couvre la demande
       const zones: any[] = artisan.zonesIntervention || [];
@@ -503,9 +503,9 @@ export async function notifyArtisansDemandeExpressPublique(
       const artisan = artisanDoc.data();
       const artisanId = artisanDoc.id;
 
-      // Filtre : approuvé + email vérifié
+      // Filtre : artisan approuvé par admin (verificationStatus suffit,
+      // emailVerified n'est pas fiablement présent sur le document artisan)
       if (artisan.verificationStatus !== 'approved') return;
-      if (!artisan.emailVerified) return;
 
       // Filtre : zone d'intervention couvre la demande
       const zones: any[] = artisan.zonesIntervention || [];
