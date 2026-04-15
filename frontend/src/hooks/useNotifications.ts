@@ -4,12 +4,12 @@
  */
 
 import { useEffect, useState } from 'react';
-import { collection, query, where, onSnapshot, limit } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { markNotificationAsRead, markAllNotificationsAsRead, markNotificationsByTypeAsRead } from '@/lib/firebase/notification-service';
 import type { Notification } from '@/types/firestore';
 
-export function useNotifications(userId: string | undefined, maxResults: number = 20) {
+export function useNotifications(userId: string | undefined) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -24,14 +24,15 @@ export function useNotifications(userId: string | undefined, maxResults: number 
 
     setLoading(true);
 
-    // Écoute en temps réel des notifications
-    // ⚠️ PAS d'orderBy ici : combine where+orderBy = index composite requis (risque d'échec)
-    // → Tri côté client avec .sort() pour respecter les conventions du projet
+    // Écoute en temps réel de TOUTES les notifications de l'utilisateur
+    // ⚠️ PAS d'orderBy : combine where+orderBy = index composite requis
+    // ⚠️ PAS de limit : avec limit(N) sans orderBy, Firestore retourne les N premiers
+    //    par ID (= les plus anciens), donc les nouvelles notifications seraient invisibles
+    // → Tri côté client avec .sort()
     const notificationsRef = collection(db, 'notifications');
     const q = query(
       notificationsRef,
-      where('userId', '==', userId),
-      limit(maxResults)
+      where('userId', '==', userId)
     );
 
     const unsubscribe = onSnapshot(
@@ -63,7 +64,7 @@ export function useNotifications(userId: string | undefined, maxResults: number 
 
     // Nettoyage à la désinscription
     return () => unsubscribe();
-  }, [userId, maxResults]);
+  }, [userId]);
 
   const markAsRead = async (notificationId: string) => {
     try {
