@@ -75,34 +75,37 @@ export default function ClientSidebar() {
   if (authLoading || !firebaseUser || userRole !== 'client') return null;
 
   // ── Badges notifications ──
-  // Comptage des notifications non lues relatives aux devis
+  // Comptage des notifications non lues relatives aux devis (reçues par le CLIENT)
   const devisNouveaux = notifications.filter(
     (n) =>
       !n.lue &&
-      (n.type === 'devis_recu' ||
-        n.type === 'devis_accepte' ||
-        n.type === 'devis_refuse' ||
-        n.type === 'nouveau_devis' ||   // ancien type (migration progressive)
-        n.type === 'devis_revision' ||
-        n.type === 'travaux_demarres' ||
-        n.type === 'travaux_termines')
+      (n.type === 'devis_recu' ||           // artisan a envoyé un devis
+        n.type === 'nouveau_devis' ||        // ancien type (migration progressive)
+        n.type === 'contrat_signe' ||        // contrat signé suite au devis
+        n.type === 'travaux_demarres' ||     // artisan a démarré les travaux
+        n.type === 'travaux_termines' ||     // artisan a terminé les travaux
+        n.type === 'devis_annule' ||         // artisan a annulé le devis
+        n.type === 'devis_supprime')          // artisan a supprimé le devis
   ).length;
 
-  // Comptage des notifications non lues relatives aux demandes
+  // Comptage des notifications non lues relatives aux demandes (reçues par le CLIENT)
   const demandesNouvelles = notifications.filter(
     (n) =>
       !n.lue &&
-      (n.type === 'nouvelle_demande' ||
-        n.type === 'demande_refusee' ||
-        n.type === 'demande_annulee' ||
-        n.type === 'proposition_express_recue' ||
-        n.type === 'proposition_refusee' ||
-        n.type === 'intervention_demarree' ||
-        n.type === 'paiement_expire' ||
-        n.type === 'travaux_demarres_demande' ||
-        n.type === 'travaux_valides' ||       // client doit valider les travaux
-        n.type === 'travaux_termines_demande' ||
-        n.type === 'travaux_termines_express')
+      (n.type === 'demande_refusee' ||              // artisan a refusé la demande
+        n.type === 'proposition_express_recue' ||    // artisan a envoyé une proposition express
+        n.type === 'intervention_demarree' ||        // artisan a démarré intervention express
+        n.type === 'travaux_termines_express' ||     // artisan a terminé travaux express
+        n.type === 'paiement_expire' ||              // délai de paiement dépassé
+        n.type === 'travaux_demarres_demande' ||     // artisan a démarré sur la demande
+        n.type === 'travaux_termines_demande' ||     // artisan a terminé sur la demande
+        n.type === 'demande_avis_express' ||         // invitation à laisser un avis
+        n.type === 'litige_ouvert' ||                // litige ouvert
+        n.type === 'litige_commentaire' ||           // nouveau commentaire litige
+        n.type === 'litige_pris_en_charge' ||        // admin a pris en charge le litige
+        n.type === 'litige_proposition' ||            // proposition de résolution
+        n.type === 'litige_acceptation_partielle' || // acceptation partielle
+        n.type === 'litige_refus')                   // refus résolution
   ).length;
 
   // Notifications avis : réponse de l'artisan à un avis client
@@ -201,7 +204,21 @@ export default function ClientSidebar() {
           </Link>
 
           {/* Mes Demandes */}
-          <Link href="/client/demandes-hub">
+          <button
+            className="w-full text-left"
+            onClick={async () => {
+              // Marquer les notifications de demandes comme lues avant navigation
+              await markTypeAsRead([
+                'demande_refusee', 'proposition_express_recue',
+                'intervention_demarree', 'travaux_termines_express',
+                'paiement_expire', 'travaux_demarres_demande',
+                'travaux_termines_demande', 'demande_avis_express',
+                'litige_ouvert', 'litige_commentaire', 'litige_pris_en_charge',
+                'litige_proposition', 'litige_acceptation_partielle', 'litige_refus',
+              ]);
+              router.push('/client/demandes-hub');
+            }}
+          >
             <div
               className={navLinkClass(pathname.startsWith('/client/demandes'))}
             >
@@ -226,7 +243,7 @@ export default function ClientSidebar() {
                 </span>
               )}
             </div>
-          </Link>
+          </button>
 
           {/* Mes Devis */}
           <button
@@ -234,9 +251,9 @@ export default function ClientSidebar() {
             onClick={async () => {
               // Marquer les notifications de devis comme lues avant navigation
               await markTypeAsRead([
-                'devis_accepte', 'devis_refuse', 'devis_recu',
-                'nouveau_devis', 'devis_revision',
+                'devis_recu', 'nouveau_devis', 'contrat_signe',
                 'travaux_demarres', 'travaux_termines',
+                'devis_annule', 'devis_supprime',
               ]);
               router.push('/client/devis?filter=tous');
             }}

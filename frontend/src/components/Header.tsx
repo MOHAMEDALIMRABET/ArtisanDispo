@@ -32,9 +32,15 @@ export default function Header() {
     return '/petits-travaux-express';
   };
 
-  // Helper : Navigation logo - Toujours vers page d'accueil
+  // Helper : Navigation logo - Redirige vers le dashboard selon le rôle connecté
   const handleLogoClick = () => {
-    router.push('/');
+    if (user?.role === 'artisan') {
+      router.push('/artisan/dashboard');
+    } else if (user?.role === 'client') {
+      router.push('/dashboard');
+    } else {
+      router.push('/');
+    }
   };
 
   // Pages où le header ne doit PAS s'afficher
