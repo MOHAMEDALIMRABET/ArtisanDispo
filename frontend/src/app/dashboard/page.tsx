@@ -45,16 +45,15 @@ export default function DashboardPage() {
       // silently ignore
     }
   };
+  // Devis : notifications reçues par le CLIENT
   const devisNouveaux = notifications.filter(n => !n.lue && (
-    n.type === 'devis_recu' ||
-    n.type === 'devis_accepte' ||
-    n.type === 'devis_refuse' ||
-    n.type === 'devis_revision' ||
-    n.type === 'travaux_demarres' ||
-    n.type === 'travaux_termines'
+    n.type === 'devis_recu' ||               // ✅ Artisan a envoyé un devis
+    n.type === 'nouveau_devis' ||            // ✅ Ancien type (migration progressive)
+    n.type === 'contrat_signe' ||            // ✅ Contrat signé suite au devis
+    n.type === 'travaux_demarres' ||         // ✅ Artisan a démarré les travaux
+    n.type === 'travaux_termines'            // ✅ Artisan a terminé les travaux
   )).length;
   const demandesNouvelles = notifications.filter(n => !n.lue && (
-    n.type === 'nouvelle_demande' ||
     n.type === 'demande_refusee' ||
     n.type === 'demande_annulee' ||              // ✅ Demande express annulée
     n.type === 'proposition_express_recue' ||
@@ -63,7 +62,18 @@ export default function DashboardPage() {
     n.type === 'paiement_expire' ||              // ✅ Timeout paiement express
     n.type === 'travaux_demarres_demande' ||     // ✅ Artisan a démarré les travaux (niveau demande)
     n.type === 'travaux_termines_demande' ||     // ✅ Artisan a terminé, validation client requise (classique)
-    n.type === 'travaux_termines_express'        // ✅ Artisan a terminé intervention express → badge Demandes client
+    n.type === 'travaux_termines_express' ||     // ✅ Artisan a terminé intervention express
+    n.type === 'validation_auto' ||              // ✅ Auto-validation travaux (7 jours)
+    n.type === 'demande_avis_express' ||         // ✅ Invitation à laisser un avis
+    n.type === 'litige_ouvert' ||                // ✅ Litige ouvert
+    n.type === 'litige_commentaire' ||           // ✅ Nouveau commentaire litige
+    n.type === 'litige_pris_en_charge' ||        // ✅ Admin a pris en charge le litige
+    n.type === 'litige_proposition' ||           // ✅ Proposition de résolution
+    n.type === 'litige_acceptation_partielle' || // ✅ Acceptation partielle
+    n.type === 'litige_refus' ||                 // ✅ Refus résolution
+    n.type === 'litige_escalade' ||              // ✅ Litige escaladé
+    n.type === 'litige_resolu' ||                // ✅ Litige résolu
+    n.type === 'litige_abandonne'                // ✅ Litige abandonné
   )).length;
   const reponseAvisNouveaux = notifications.filter(n => !n.lue && n.type === 'reponse_avis').length;
 
