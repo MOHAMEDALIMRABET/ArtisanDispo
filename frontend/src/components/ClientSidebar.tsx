@@ -93,19 +93,24 @@ export default function ClientSidebar() {
     (n) =>
       !n.lue &&
       (n.type === 'demande_refusee' ||              // artisan a refusé la demande
+        n.type === 'demande_annulee' ||              // demande annulée
         n.type === 'proposition_express_recue' ||    // artisan a envoyé une proposition express
         n.type === 'intervention_demarree' ||        // artisan a démarré intervention express
         n.type === 'travaux_termines_express' ||     // artisan a terminé travaux express
         n.type === 'paiement_expire' ||              // délai de paiement dépassé
         n.type === 'travaux_demarres_demande' ||     // artisan a démarré sur la demande
         n.type === 'travaux_termines_demande' ||     // artisan a terminé sur la demande
+        n.type === 'validation_auto' ||              // auto-validation travaux (7 jours)
         n.type === 'demande_avis_express' ||         // invitation à laisser un avis
         n.type === 'litige_ouvert' ||                // litige ouvert
         n.type === 'litige_commentaire' ||           // nouveau commentaire litige
         n.type === 'litige_pris_en_charge' ||        // admin a pris en charge le litige
         n.type === 'litige_proposition' ||            // proposition de résolution
         n.type === 'litige_acceptation_partielle' || // acceptation partielle
-        n.type === 'litige_refus')                   // refus résolution
+        n.type === 'litige_refus' ||                 // refus résolution
+        n.type === 'litige_escalade' ||              // litige escaladé
+        n.type === 'litige_resolu' ||                // litige résolu
+        n.type === 'litige_abandonne')               // litige abandonné
   ).length;
 
   // Notifications avis : réponse de l'artisan à un avis client
@@ -209,12 +214,14 @@ export default function ClientSidebar() {
             onClick={async () => {
               // Marquer les notifications de demandes comme lues avant navigation
               await markTypeAsRead([
-                'demande_refusee', 'proposition_express_recue',
-                'intervention_demarree', 'travaux_termines_express',
-                'paiement_expire', 'travaux_demarres_demande',
-                'travaux_termines_demande', 'demande_avis_express',
+                'demande_refusee', 'demande_annulee',
+                'proposition_express_recue', 'intervention_demarree',
+                'travaux_termines_express', 'paiement_expire',
+                'travaux_demarres_demande', 'travaux_termines_demande',
+                'validation_auto', 'demande_avis_express',
                 'litige_ouvert', 'litige_commentaire', 'litige_pris_en_charge',
                 'litige_proposition', 'litige_acceptation_partielle', 'litige_refus',
+                'litige_escalade', 'litige_resolu', 'litige_abandonne',
               ]);
               router.push('/client/demandes-hub');
             }}

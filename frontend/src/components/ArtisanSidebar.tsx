@@ -147,6 +147,8 @@ export default function ArtisanSidebar() {
       (n.type === 'devis_accepte' ||       // client a accepté le devis
         n.type === 'devis_refuse' ||        // client a refusé le devis
         n.type === 'devis_revision' ||      // client demande révision
+        n.type === 'devis_annule' ||        // client a annulé le devis
+        n.type === 'devis_supprime' ||      // devis auto-supprimé (expiration)
         n.type === 'contrat_signe' ||       // contrat signé suite au devis
         n.type === 'paiement_libere')       // paiement libéré pour l'artisan
   ).length;
@@ -163,7 +165,12 @@ export default function ArtisanSidebar() {
         n.type === 'litige_ouvert' ||              // litige ouvert sur un chantier
         n.type === 'litige_commentaire' ||         // nouveau commentaire litige
         n.type === 'litige_pris_en_charge' ||      // admin a pris en charge le litige
-        n.type === 'litige_proposition')            // proposition de résolution
+        n.type === 'litige_proposition' ||          // proposition de résolution
+        n.type === 'litige_acceptation_partielle' || // acceptation partielle résolution
+        n.type === 'litige_refus' ||               // refus de résolution
+        n.type === 'litige_escalade' ||            // litige escaladé
+        n.type === 'litige_resolu' ||              // litige résolu
+        n.type === 'litige_abandonne')             // litige abandonné
   ).length;
 
   // Demandes express : notifications reçues par l'ARTISAN
@@ -284,11 +291,17 @@ export default function ArtisanSidebar() {
             onClick={async () => {
               // Marquer les notifications de demandes comme lues avant navigation
               await markTypeAsRead([
+                // Demandes classiques
                 'nouvelle_demande', 'nouvelle_demande_publique', 'demande_annulee',
+                'travaux_valides', 'validation_auto',
+                // Demandes express
                 'nouvelle_demande_express', 'proposition_acceptee', 'proposition_refusee',
                 'contre_proposition_recue', 'paiement_recu_express', 'acceptation_expiree',
-                'paiement_libere_express', 'travaux_valides', 'validation_auto',
-                'litige_ouvert', 'litige_commentaire', 'litige_pris_en_charge', 'litige_proposition',
+                'paiement_libere_express',
+                // Litiges
+                'litige_ouvert', 'litige_commentaire', 'litige_pris_en_charge',
+                'litige_proposition', 'litige_acceptation_partielle', 'litige_refus',
+                'litige_escalade', 'litige_resolu', 'litige_abandonne',
               ]);
               router.push('/artisan/demandes');
             }}
@@ -324,6 +337,7 @@ export default function ArtisanSidebar() {
               // Marquer les notifications de devis comme lues avant navigation
               await markTypeAsRead([
                 'devis_accepte', 'devis_refuse', 'devis_revision',
+                'devis_annule', 'devis_supprime',
                 'contrat_signe', 'paiement_libere',
               ]);
               router.push('/artisan/devis');
