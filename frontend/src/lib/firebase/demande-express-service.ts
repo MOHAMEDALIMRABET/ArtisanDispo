@@ -388,6 +388,24 @@ export async function getPropositionsByDemande(demandeId: string): Promise<Propo
 }
 
 /**
+ * Récupérer toutes les propositions soumises par un artisan
+ * Utilisé sur la page liste artisan pour afficher le bouton "Voir le devis"
+ * sur les cartes où l'artisan a joint un devis (montant > 150€)
+ */
+export async function getPropositionsByArtisanId(artisanId: string): Promise<PropositionExpress[]> {
+  // Requête simple → pas d'index composite (pas d'orderBy)
+  const q = query(
+    collection(db, 'propositions_express'),
+    where('artisanId', '==', artisanId)
+  );
+
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs
+    .map(doc => ({ id: doc.id, ...doc.data() } as PropositionExpress))
+    .sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+}
+
+/**
  * Accepter une proposition (avant paiement)
  * 
  * Si la proposition a un devisJoint (montant > 150€),

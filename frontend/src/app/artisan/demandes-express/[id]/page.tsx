@@ -980,9 +980,20 @@ export default function DemandeExpressDetailArtisanPage() {
               <p className="text-[#6C757D] mb-4">
                 Le client a payé. L'argent est bloqué jusqu'à la fin de l'intervention.
               </p>
-              <Button onClick={handleMarquerEnCours} disabled={submitting}>
-                🚀 Marquer l'intervention comme démarrée
-              </Button>
+              <div className="flex flex-col gap-3">
+                <Button onClick={handleMarquerEnCours} disabled={submitting}>
+                  🚀 Marquer l'intervention comme démarrée
+                </Button>
+                {/* Bouton accès rapide au devis joint (si montant > 150€) */}
+                {maProposition?.devisJoint && (
+                  <button
+                    onClick={() => setDevisModalOpen(true)}
+                    className="w-full flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-2.5 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold text-sm"
+                  >
+                    📋 Consulter / Télécharger le devis
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
@@ -994,9 +1005,20 @@ export default function DemandeExpressDetailArtisanPage() {
               <p className="text-[#6C757D] mb-4">
                 Une fois les travaux terminés, déclarez-le. Le client aura 24h pour valider et libérer votre paiement (libération automatique après 24h).
               </p>
-              <Button onClick={handleMarquerTerminee} disabled={submitting}>
-                ✅ Déclarer la fin des travaux
-              </Button>
+              <div className="flex flex-col gap-3">
+                <Button onClick={handleMarquerTerminee} disabled={submitting}>
+                  ✅ Déclarer la fin des travaux
+                </Button>
+                {/* Bouton accès rapide au devis joint (si montant > 150€) */}
+                {maProposition?.devisJoint && (
+                  <button
+                    onClick={() => setDevisModalOpen(true)}
+                    className="w-full flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-2.5 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold text-sm"
+                  >
+                    📋 Consulter / Télécharger le devis
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
@@ -1005,10 +1027,19 @@ export default function DemandeExpressDetailArtisanPage() {
               <h3 className="text-lg font-bold text-[#2C3E50] mb-4">
                 ⏳ En attente de validation du client
               </h3>
-              <p className="text-[#6C757D]">
+              <p className="text-[#6C757D] mb-4">
                 Le client a été notifié. Il doit valider les travaux pour libérer votre paiement.
                 Le paiement sera automatiquement libéré dans 24h si le client ne répond pas.
               </p>
+              {/* Bouton accès rapide au devis joint (si montant > 150€) */}
+              {maProposition?.devisJoint && (
+                <button
+                  onClick={() => setDevisModalOpen(true)}
+                  className="w-full flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-2.5 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold text-sm"
+                >
+                  📋 Consulter / Télécharger le devis
+                </button>
+              )}
             </div>
           )}
 
@@ -1017,9 +1048,18 @@ export default function DemandeExpressDetailArtisanPage() {
               <h3 className="text-lg font-bold text-[#2C3E50] mb-2">
                 🎉 Travaux validés — Paiement libéré !
               </h3>
-              <p className="text-[#6C757D]">
+              <p className="text-[#6C757D] mb-4">
                 Le client a validé les travaux. Votre paiement a été versé.
               </p>
+              {/* Bouton accès rapide au devis joint (si montant > 150€) */}
+              {maProposition?.devisJoint && (
+                <button
+                  onClick={() => setDevisModalOpen(true)}
+                  className="w-full flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-2.5 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold text-sm"
+                >
+                  📋 Consulter / Télécharger le devis
+                </button>
+              )}
             </div>
           )}
 

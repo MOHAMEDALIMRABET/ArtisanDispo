@@ -1405,6 +1405,15 @@ export default function MesDemandesExpressPage() {
                                     {validatingId === demande.id ? '⏳ Libération du paiement...' : t('clientExpressRequests.dispute.validateButton')}
                                   </button>
                                 </div>
+                                {/* Bouton consultation devis joint si montant > 150€ */}
+                                {prop?.devisJoint && (
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); setDevisConsultModal(prop); }}
+                                    className="w-full flex items-center justify-center gap-1.5 bg-[#2C3E50] text-white px-3 py-2 rounded-lg hover:bg-[#1A3A5C] transition-colors text-xs font-semibold"
+                                  >
+                                    📋 Consulter / Télécharger le devis
+                                  </button>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -1432,6 +1441,15 @@ export default function MesDemandesExpressPage() {
                                 <span className="text-2xl">✅</span>
                                 <p className="text-sm text-green-800 font-medium">Intervention terminée avec succès.</p>
                               </div>
+                              {/* Bouton consultation devis joint si montant > 150€ */}
+                              {prop?.devisJoint && (
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setDevisConsultModal(prop); }}
+                                  className="w-full flex items-center justify-center gap-1.5 bg-[#2C3E50] text-white px-3 py-2 rounded-lg hover:bg-[#1A3A5C] transition-colors text-xs font-semibold"
+                                >
+                                  📋 Consulter / Télécharger le devis
+                                </button>
+                              )}
                               {dejaEvalue ? (
                                 <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-5 py-3">
                                   <span className="text-lg">⭐</span>

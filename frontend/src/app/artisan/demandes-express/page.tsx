@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { getDemandesExpressByArtisan } from '@/lib/firebase/demande-express-service';
+import { getDemandesExpressByArtisan, getPropositionsByArtisanId } from '@/lib/firebase/demande-express-service';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
 import { getUserById } from '@/lib/firebase/user-service';
-import type { DemandeExpress, User } from '@/types/firestore';
+import type { DemandeExpress, PropositionExpress, User } from '@/types/firestore';
 import { getExpressArtisanWindowMs } from '@/lib/express-work-taxonomy';
+import { generateDevisExpressPDF } from '@/lib/generateDevisExpressPDF';
 
 function getInterventionDeadline(demande: DemandeExpress): string {
   if (!demande.createdAt) {
@@ -33,6 +34,14 @@ export default function DemandesExpressArtisanPage() {
   const [clientNoms, setClientNoms] = useState<Map<string, string>>(new Map());
   const [loading, setLoading] = useState(true);
   const [filtreStatut, setFiltreStatut] = useState<'toutes' | 'nouvelles' | 'discussion' | 'payees' | 'terminees' | 'refusees'>('toutes');
+  // Map demandeId → proposition de l'artisan (pour détecter devisJoint)
+  const [propositionsMap, setPropositionsMap] = useState<Map<string, PropositionExpress>>(new Map());
+  // Modale de consultation du devis joint
+  const [devisListModal, setDevisListModal] = useState<PropositionExpress | null>(null);
+  // Demande liée à la modale (pour le nom client et la catégorie)
+  const [devisListDemande, setDevisListDemande] = useState<DemandeExpress | null>(null);
+  // Chargement génération PDF
+  const [pdfLoadingList, setPdfLoadingList] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -59,6 +68,12 @@ export default function DemandesExpressArtisanPage() {
 
       const demandesList = await getDemandesExpressByArtisan(firebaseUser.uid);
       setDemandes(demandesList);
+
+      // Charger les propositions de l'artisan pour détecter les devisJoint
+      const propositions = await getPropositionsByArtisanId(firebaseUser.uid);
+      const propMap = new Map<string, PropositionExpress>();
+      propositions.forEach(p => propMap.set(p.demandeId, p));
+      setPropositionsMap(propMap);
 
       // Charger les noms clients
       const nomMap = new Map<string, string>();
@@ -320,7 +335,7 @@ export default function DemandesExpressArtisanPage() {
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-2 items-end">
                         {demande.statut === 'en_attente_proposition' && (
                           <span className="px-4 py-2 bg-[#FF6B00] text-white rounded-lg font-semibold text-center whitespace-nowrap">
                             {t('artisanExpressRequests.actions.makeProposal')}
@@ -336,6 +351,21 @@ export default function DemandesExpressArtisanPage() {
                             {t('artisanExpressRequests.actions.viewDetails')}
                           </span>
                         )}
+
+                        {/* Bouton "Voir le devis" si l'artisan a joint un devis joint (montant > 150€) */}
+                        {propositionsMap.get(demande.id)?.devisJoint && (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setDevisListModal(propositionsMap.get(demande.id)!);
+                              setDevisListDemande(demande);
+                            }}
+                            className="flex items-center gap-1.5 bg-[#2C3E50] text-white px-3 py-2 rounded-lg hover:bg-[#1A3A5C] transition-colors text-xs font-semibold whitespace-nowrap"
+                          >
+                            📋 Voir le devis
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -345,6 +375,162 @@ export default function DemandesExpressArtisanPage() {
           )}
         </div>
       </div>
+
+    {/* ── Modale consultation devis joint (artisan) ──────────────────── */}
+    {devisListModal?.devisJoint && (() => {
+      const dj = devisListModal.devisJoint!;
+      return (
+        <div
+          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto"
+          onClick={() => setDevisListModal(null)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg my-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* En-tête */}
+            <div className="bg-[#2C3E50] text-white rounded-t-2xl px-6 py-5 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold">📋 Devis express</h2>
+                <p className="text-white/70 text-sm mt-0.5">
+                  {devisListDemande
+                    ? `${devisListDemande.categorie.charAt(0).toUpperCase() + devisListDemande.categorie.slice(1)} — ${devisListDemande.ville}`
+                    : ''}
+                </p>
+              </div>
+              <button onClick={() => setDevisListModal(null)} className="text-white/70 hover:text-white text-2xl leading-none">×</button>
+            </div>
+
+            {/* Parties */}
+            <div className="px-6 py-4 grid grid-cols-2 gap-4 bg-[#F8F9FA] border-b border-[#E9ECEF] text-sm">
+              <div>
+                <p className="text-[#6C757D] font-semibold uppercase tracking-wide text-xs mb-0.5">Artisan</p>
+                <p className="font-semibold text-[#2C3E50]">{userData?.prenom} {userData?.nom}</p>
+              </div>
+              <div>
+                <p className="text-[#6C757D] font-semibold uppercase tracking-wide text-xs mb-0.5">Client</p>
+                <p className="font-semibold text-[#2C3E50]">
+                  {devisListDemande ? (clientNoms.get(devisListDemande.clientId) || 'Client') : 'Client'}
+                </p>
+              </div>
+            </div>
+
+            {/* Lignes de prestation */}
+            <div className="px-6 pt-4 pb-2 space-y-2">
+              {dj.lignes.map((ligne, i) => (
+                <div key={i} className="flex justify-between items-start gap-4 py-2 border-b border-[#E9ECEF] last:border-0">
+                  <div className="flex-1">
+                    <p className="font-semibold text-[#2C3E50] text-sm">{ligne.description}</p>
+                    <p className="text-[#6C757D] text-xs">{ligne.quantite} {ligne.unite} — TVA {ligne.tauxTVA}%</p>
+                  </div>
+                  <span className="font-semibold text-[#2C3E50] text-sm whitespace-nowrap">{ligne.totalHT.toFixed(2)} € HT</span>
+                </div>
+              ))}
+
+              {/* Main d'œuvre */}
+              {dj.mainOeuvre && dj.mainOeuvre.prixHT > 0 && (
+                <div className="flex justify-between items-start gap-4 py-2 border-b border-[#E9ECEF]">
+                  <div className="flex-1">
+                    <p className="font-semibold text-[#2C3E50] text-sm">Main d&apos;œuvre</p>
+                    <span className="text-[#6C757D] text-xs">{dj.mainOeuvre.quantite} {dj.mainOeuvre.unite} — TVA {dj.mainOeuvre.tauxTVA}%</span>
+                  </div>
+                  <span className="font-semibold text-[#2C3E50] text-sm whitespace-nowrap">{dj.mainOeuvre.prixHT.toFixed(2)} € HT</span>
+                </div>
+              )}
+
+              {/* Matière première */}
+              {dj.matierePremiere && (
+                <div className="flex justify-between items-start gap-4 py-2 border-b border-[#E9ECEF]">
+                  <div className="flex-1">
+                    <p className="font-semibold text-[#2C3E50] text-sm">Matière première</p>
+                    <span className="text-[#6C757D] text-xs">{dj.matierePremiere.quantite} {dj.matierePremiere.unite} — TVA {dj.matierePremiere.tauxTVA}%</span>
+                  </div>
+                  <span className="font-semibold text-[#2C3E50] text-sm whitespace-nowrap">{dj.matierePremiere.prixHT.toFixed(2)} € HT</span>
+                </div>
+              )}
+            </div>
+
+            {/* Totaux */}
+            <div className="px-6 pb-3 space-y-1.5 text-sm">
+              <div className="flex justify-between text-[#6C757D]">
+                <span>Total HT</span><span>{dj.totaux.totalHT.toFixed(2)} €</span>
+              </div>
+              <div className="flex justify-between text-[#6C757D]">
+                <span>TVA</span><span>{dj.totaux.totalTVAGlobal.toFixed(2)} €</span>
+              </div>
+              <div className="flex justify-between font-bold text-lg text-[#FF6B00] pt-1 border-t border-[#E9ECEF]">
+                <span>Total TTC</span><span>{dj.totaux.totalTTC.toFixed(2)} €</span>
+              </div>
+            </div>
+
+            {/* Conditions */}
+            {(dj.delaiRealisation || dj.dateDebutPrevue || dj.conditions) && (
+              <div className="px-6 pb-4 space-y-1.5 text-sm border-t border-[#E9ECEF] pt-3">
+                {dj.delaiRealisation && (
+                  <div className="flex gap-2"><span className="text-[#6C757D] font-semibold min-w-32">Délai :</span><span>{dj.delaiRealisation}</span></div>
+                )}
+                {dj.dateDebutPrevue && (
+                  <div className="flex gap-2"><span className="text-[#6C757D] font-semibold min-w-32">Début prévu :</span><span>{dj.dateDebutPrevue}</span></div>
+                )}
+                {dj.conditions && (
+                  <div className="flex gap-2"><span className="text-[#6C757D] font-semibold min-w-32">Conditions :</span><span>{dj.conditions}</span></div>
+                )}
+              </div>
+            )}
+
+            {/* Signatures */}
+            {(dj.signatureArtisan?.dataURL || dj.signatureClient?.dataURL) && (
+              <div className="px-6 pb-4 grid grid-cols-2 gap-4 border-t border-[#E9ECEF] pt-4">
+                {dj.signatureArtisan?.dataURL && (
+                  <div>
+                    <p className="text-xs text-[#6C757D] font-semibold mb-1">Signature artisan</p>
+                    <img src={dj.signatureArtisan.dataURL} alt="Signature artisan" className="h-14 border border-[#E9ECEF] rounded-lg bg-white p-1 w-full object-contain" />
+                  </div>
+                )}
+                {dj.signatureClient?.dataURL && (
+                  <div>
+                    <p className="text-xs text-[#6C757D] font-semibold mb-1">Signature client</p>
+                    <img src={dj.signatureClient.dataURL} alt="Signature client" className="h-14 border border-[#E9ECEF] rounded-lg bg-white p-1 w-full object-contain" />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Boutons */}
+            <div className="px-6 pb-6 flex gap-3">
+              <button
+                onClick={async () => {
+                  if (!devisListDemande) return;
+                  setPdfLoadingList(true);
+                  try {
+                    await generateDevisExpressPDF({
+                      devis: dj,
+                      propositionId: devisListModal.id,
+                      artisanNom: `${userData?.prenom ?? ''} ${userData?.nom ?? ''}`.trim() || 'Artisan',
+                      clientNom: clientNoms.get(devisListDemande.clientId) || 'Client',
+                      categorie: devisListDemande.categorie,
+                      ville: devisListDemande.ville,
+                    });
+                  } finally {
+                    setPdfLoadingList(false);
+                  }
+                }}
+                disabled={pdfLoadingList}
+                className="flex-1 flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-3 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold disabled:opacity-60"
+              >
+                {pdfLoadingList ? '⏳ Génération...' : '⬇️ Télécharger le devis (PDF)'}
+              </button>
+              <button
+                onClick={() => setDevisListModal(null)}
+                className="flex-1 bg-[#FF6B00] text-white px-4 py-3 rounded-lg hover:bg-[#E56100] transition-colors font-semibold"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    })()}
     </div>
   );
 }
