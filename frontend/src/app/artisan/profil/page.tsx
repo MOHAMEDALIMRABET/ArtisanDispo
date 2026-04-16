@@ -567,6 +567,7 @@ export default function ProfilArtisanPage() {
                               key={sc.value}
                               type="button"
                               onClick={() => toggleSousCatDepannage(sc.value, cat.value)}
+                              title={sc.prix ? `Prix indicatif : ${sc.prix}` : undefined}
                               className={`text-xs px-2 py-1 rounded-full border transition-all ${
                                 sousCatsDepannage.includes(sc.value)
                                   ? 'bg-red-500 text-white border-red-500'
@@ -615,6 +616,7 @@ export default function ProfilArtisanPage() {
                               key={sc.value}
                               type="button"
                               onClick={() => toggleSousCatPetitsTravaux(sc.value, cat.value)}
+                              title={sc.prix ? `Prix indicatif : ${sc.prix}` : undefined}
                               className={`text-xs px-2 py-1 rounded-full border transition-all ${
                                 sousCatsPetitsTravaux.includes(sc.value)
                                   ? 'bg-[#FF6B00] text-white border-[#FF6B00]'

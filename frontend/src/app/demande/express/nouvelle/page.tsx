@@ -299,7 +299,7 @@ export default function NouvelleDemandeExpressPage() {
                   >
                     <option value="">Toutes</option>
                     {selectedCategorie.sousCategories.map((sc) => (
-                      <option key={sc.value} value={sc.value}>
+                      <option key={sc.value} value={sc.value} title={sc.prix ? `Prix indicatif : ${sc.prix}` : undefined}>
                         {sc.label}
                       </option>
                     ))}

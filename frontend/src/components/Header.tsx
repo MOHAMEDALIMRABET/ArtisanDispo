@@ -178,7 +178,7 @@ export default function Header() {
                 {/* Bouton Menu Hamburger (visible < xl) */}
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="xl:hidden flex items-center justify-center w-10 h-10 rounded-lg bg-[#FF6B00] hover:bg-[#E56100] text-white transition-colors"
+                  className="xl:hidden flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition-colors hover:bg-slate-900 hover:text-white"
                   aria-label="Menu"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -282,7 +282,7 @@ export default function Header() {
                 <Link
                   href="/comment-ca-marche"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-3 text-gray-700 hover:text-[#FF6B00] hover:bg-orange-50 px-4 py-3 rounded-lg font-medium transition-colors"
+                  className="flex items-center gap-3 rounded-xl px-4 py-3 font-medium text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -296,7 +296,7 @@ export default function Header() {
                 <Link
                   href="/inscription?role=client"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-[#2C3E50] to-[#3D5A73] hover:from-[#1A3A5C] hover:to-[#2C3E50] text-white px-6 py-3 rounded-lg font-medium transition-all shadow-md"
+                  className="flex items-center justify-center gap-2 w-full rounded-xl bg-slate-900 px-6 py-3 font-medium text-white transition-all shadow-md hover:bg-slate-800"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -307,7 +307,7 @@ export default function Header() {
                 <Link
                   href="/inscription?role=artisan"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-[#FF6B00] to-[#E56100] hover:from-[#E56100] hover:to-[#D55000] text-white px-6 py-3 rounded-lg font-medium transition-all shadow-md"
+                  className="flex items-center justify-center gap-2 w-full rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-3 font-medium text-white transition-all shadow-[0_12px_28px_rgba(249,115,22,0.22)] hover:from-orange-600 hover:to-orange-700"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />

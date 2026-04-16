@@ -5,6 +5,7 @@ export type TypeTravauxExpress = 'depannage-urgence' | 'petits-travaux-maintenan
 export interface ExpressSousCategorieOption {
   value: string;
   label: string;
+  prix?: string; // Information tarifaire affichée au survol
 }
 
 export interface ExpressCategorieOption {
@@ -32,9 +33,12 @@ export const EXPRESS_WORK_TAXONOMY: Record<TypeTravauxExpress, ExpressTypeConfig
         label: 'Serrurerie',
         metier: 'serrurerie',
         sousCategories: [
-          { value: 'porte-claquee', label: 'Porte claquee' },
-          { value: 'cle-cassee', label: 'Cle cassee' },
-          { value: 'changement-serrure', label: 'Changement de serrure' },
+          { value: 'ouverture-porte-claquee', label: 'Ouverture porte simple claquée', prix: '110€ - 135€' },
+          { value: 'cle-cassee-serrure', label: 'Clé cassée dans la serrure', prix: 'À partir de 120€' },
+          { value: 'degrippage-serrure', label: 'Dégrippage de serrure', prix: '100€ - 180€' },
+          { value: 'installation-cylindre-europeen', label: 'Installation cylindre simple européen', prix: '110€ — 150€' },
+          { value: 'installation-serrure-blindee', label: 'Installation serrure blindée 3 points', prix: '390€ - sur devis' },
+          { value: 'grille-tarifaire-serrurerie', label: 'Grille tarifaire des interventions en serrurerie' },
         ],
       },
       {
@@ -42,19 +46,12 @@ export const EXPRESS_WORK_TAXONOMY: Record<TypeTravauxExpress, ExpressTypeConfig
         label: 'Plomberie',
         metier: 'plomberie',
         sousCategories: [
-          { value: 'fuite-eau', label: 'Fuite d\'eau' },
-          { value: 'wc-bouche', label: 'WC bouche' },
-          { value: 'chauffe-eau-panne', label: 'Chauffe-eau en panne' },
-        ],
-      },
-      {
-        value: 'electricite',
-        label: 'Electricite',
-        metier: 'electricite',
-        sousCategories: [
-          { value: 'panne-electrique', label: 'Panne' },
-          { value: 'court-circuit', label: 'Court-circuit' },
-          { value: 'tableau-electrique', label: 'Tableau electrique' },
+          { value: 'debouchage-canalisation', label: 'Débouchage canalisation', prix: '290€ - 390€' },
+          { value: 'fuite-eau', label: 'Fuite d\'eau', prix: '149€ - 199€' },
+          { value: 'debouchage-wc', label: 'Débouchage de WC', prix: '130€ - 200€' },
+          { value: 'reparation-chasse-eau', label: 'Réparation chasse d\'eau', prix: '150€ — 250€' },
+          { value: 'recherche-fuite', label: 'Recherche de fuite', prix: '120€ - 380€' },
+          { value: 'grille-tarifaire-plomberie', label: 'Grille tarifaire des interventions en plomberie' },
         ],
       },
       {
@@ -62,8 +59,24 @@ export const EXPRESS_WORK_TAXONOMY: Record<TypeTravauxExpress, ExpressTypeConfig
         label: 'Chauffage',
         metier: 'chauffage',
         sousCategories: [
-          { value: 'chaudiere-panne', label: 'Chaudiere en panne' },
-          { value: 'radiateur-hs', label: 'Radiateur HS' },
+          { value: 'reparation-chaudiere', label: 'Réparation de chaudière', prix: '150€ — 350€' },
+          { value: 'reparation-chauffage', label: 'Réparation du chauffage', prix: '200€ — 300€' },
+          { value: 'entretien-chaudiere', label: 'Entretien de chaudière', prix: '90€ — 250€' },
+          { value: 'fuite-chaudiere', label: 'Fuite chaudière', prix: '149€ - 200€' },
+          { value: 'reparation-ballon-eau-chaude', label: 'Réparation ballon d\'eau chaude', prix: '150€ — 350€' },
+          { value: 'grille-tarifaire-chauffage', label: 'Grille tarifaire des interventions de chauffage' },
+        ],
+      },
+      {
+        value: 'electricite',
+        label: 'Électricité',
+        metier: 'electricite',
+        sousCategories: [
+          { value: 'recherche-panne-electrique', label: 'Recherche de panne électrique', prix: '110€ — 135€ TTC' },
+          { value: 'reparation-tableau-electrique', label: 'Réparation tableau électrique', prix: '150€ — 250€ TTC' },
+          { value: 'reparation-prises-electriques', label: 'Réparation de prises électriques', prix: '110€ — 150€ TTC' },
+          { value: 'mise-aux-normes', label: 'Mise aux normes', prix: 'Devis sur-mesure' },
+          { value: 'reparation-radiateur-electrique', label: 'Réparation d\'un radiateur électrique', prix: '200€ — 250€ TTC' },
         ],
       },
       {
@@ -71,7 +84,11 @@ export const EXPRESS_WORK_TAXONOMY: Record<TypeTravauxExpress, ExpressTypeConfig
         label: 'Vitrerie',
         metier: 'renovation',
         sousCategories: [
-          { value: 'vitre-cassee', label: 'Vitre cassee' },
+          { value: 'changement-vitre-double-vitrage', label: 'Changement de vitre cassée double vitrage', prix: '250€ — 500€ TTC' },
+          { value: 'installation-cremone-fenetre', label: 'Installation d\'une crémone de fenêtre', prix: '150€ — 250€ TTC' },
+          { value: 'reparation-fenetre', label: 'Réparation fenêtre', prix: '120€ - 210€' },
+          { value: 'changement-vitrine-magasin', label: 'Changement de vitrine de magasin', prix: 'Devis sur-mesure (à partir de 2 900€ TTC)' },
+          { value: 'installation-fenetre-bois', label: 'Installation d\'une fenêtre en bois', prix: '650€ — 1 000€ TTC' },
         ],
       },
     ],

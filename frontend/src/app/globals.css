@@ -416,3 +416,20 @@ body {
     page-break-inside: avoid;
   }
 }
+
+
+.premium-grid-fade {
+  background-image:
+    linear-gradient(to bottom, rgba(255,255,255,0.06), rgba(255,255,255,0)),
+    linear-gradient(to right, rgba(148,163,184,0.10) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148,163,184,0.10) 1px, transparent 1px);
+  background-size: auto, 32px 32px, 32px 32px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-slideDown,
+  .animate-fade-slide-up,
+  .highlight-demande {
+    animation: none !important;
+  }
+}

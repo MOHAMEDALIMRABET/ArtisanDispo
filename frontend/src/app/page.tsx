@@ -157,6 +157,48 @@ export default function Home() {
     router.push(`/resultats?${params.toString()}`);
   }
 
+  const featuredArtisans = [
+    {
+      name: 'Atelier Morel',
+      trade: 'Rénovation intérieure',
+      city: 'Paris 16e',
+      rating: '4,9',
+      delay: 'Répond en 2 h',
+      badge: 'Vérifié'
+    },
+    {
+      name: 'Studio Bâtir',
+      trade: 'Cuisine & menuiserie',
+      city: 'Boulogne-Billancourt',
+      rating: '4,8',
+      delay: 'Répond aujourd’hui',
+      badge: 'Premium'
+    },
+    {
+      name: 'Maison Lenoir',
+      trade: 'Peinture & finitions',
+      city: 'Neuilly-sur-Seine',
+      rating: '5,0',
+      delay: 'Disponible cette semaine',
+      badge: 'Top avis'
+    },
+  ];
+
+  const testimonials = [
+    {
+      quote: 'J’ai trouvé un artisan fiable en quelques minutes, avec une présentation claire et rassurante.',
+      author: 'Sonia, Paris',
+    },
+    {
+      quote: 'Le parcours est fluide et on comprend tout de suite à qui l’on confie son projet.',
+      author: 'Karim, Courbevoie',
+    },
+    {
+      quote: 'Plus premium qu’un annuaire, plus simple qu’une agence : exactement ce qu’il fallait.',
+      author: 'Julie, Boulogne',
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#2C3E50] via-[#3D5A73] to-[#2C3E50]">
       {/* Hero Section avec Bannière de Recherche */}
@@ -645,6 +687,27 @@ export default function Home() {
           </div>
         </div>
 
+
+        <section className="mb-20 mt-20">
+          <div className="mb-10 text-center">
+            <div className="premium-pill mx-auto mb-4 w-fit text-xs font-semibold uppercase tracking-[0.18em]">Preuve sociale</div>
+            <h2 className="text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl">Une plateforme qui inspire confiance dès les premiers écrans</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-slate-600">Des retours clients courts, lisibles et premium renforcent la crédibilité et la conversion.</p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {testimonials.map((item) => (
+              <div key={item.author} className="premium-card rounded-[28px] p-8">
+                <div className="mb-5 flex items-center gap-1 text-orange-500">
+                  <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                </div>
+                <p className="text-base leading-7 text-slate-700">“{item.quote}”</p>
+                <p className="mt-6 text-sm font-semibold text-slate-900">{item.author}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* CTA Double - Artisans et Particuliers */}
         <div className="mt-20 grid md:grid-cols-2 gap-6">
           {/* CTA Particuliers */}
@@ -654,7 +717,7 @@ export default function Home() {
                 {t('home.areYouClient')}
               </h2>
               <p className="text-lg mb-6 text-[#E9ECEF]">
-                {t('home.clientDescription')}
+                Décrivez votre projet, comparez les profils les plus pertinents et avancez avec plus de sérénité.
               </p>
               <Link href="/inscription?role=client">
                 <button className="bg-white text-[#2C3E50] hover:bg-[#E9ECEF] hover:text-[#1A3A5C] px-6 py-3 text-lg font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl">
@@ -671,7 +734,7 @@ export default function Home() {
                 {t('home.areYouArtisan')}
               </h2>
               <p className="text-lg mb-6 text-orange-100">
-                {t('home.artisanDescription')}
+                Présentez votre savoir-faire avec une image plus premium et recevez des demandes mieux qualifiées.
               </p>
               <Link href="/inscription?role=artisan">
                 <button className="bg-white text-[#FF6B00] hover:bg-[#E9ECEF] hover:text-[#E56100] px-6 py-3 text-lg font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl">
