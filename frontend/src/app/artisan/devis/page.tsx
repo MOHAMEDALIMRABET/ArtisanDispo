@@ -301,15 +301,27 @@ export default function MesDevisPage() {
         if (notifIds.size > 0) {
           const uid = user.uid;
           setTimeout(async () => {
-            await markNotificationsByTypeAsRead(uid, ['devis_accepte', 'devis_refuse', 'devis_revision']);
+            await markNotificationsByTypeAsRead(uid, [
+              'devis_accepte', 'devis_refuse', 'devis_revision',
+              'devis_annule', 'devis_supprime', 'demande_paye',
+              'contrat_signe', 'paiement_libere',
+            ]);
           }, 1500);
         } else {
           // Pas de notif non lues à afficher → marquer immédiatement
-          markNotificationsByTypeAsRead(user.uid, ['devis_accepte', 'devis_refuse', 'devis_revision']);
+          markNotificationsByTypeAsRead(user.uid, [
+            'devis_accepte', 'devis_refuse', 'devis_revision',
+            'devis_annule', 'devis_supprime', 'demande_paye',
+            'contrat_signe', 'paiement_libere',
+          ]);
         }
       } catch (e) {
         // Non bloquant
-        markNotificationsByTypeAsRead(user.uid, ['devis_accepte', 'devis_refuse', 'devis_revision']);
+        markNotificationsByTypeAsRead(user.uid, [
+          'devis_accepte', 'devis_refuse', 'devis_revision',
+          'devis_annule', 'devis_supprime', 'demande_paye',
+          'contrat_signe', 'paiement_libere',
+        ]);
       }
     } catch (error) {
       console.error('Erreur chargement devis:', error);

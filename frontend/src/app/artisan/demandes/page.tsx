@@ -93,18 +93,11 @@ export default function ArtisanDemandesPage() {
     }
 
     loadData();
-    // Marquer les notifications de demandes comme lues (classiques + express)
-    markTypeAsRead([
-      'nouvelle_demande',
-      'nouvelle_demande_publique',
-      'nouvelle_demande_express',
-      'proposition_acceptee',
-      'contre_proposition_recue',
-      'paiement_recu_express',
-      'acceptation_expiree',
-      'proposition_refusee',
-      'paiement_libere_express',
-    ]);
+    // ⚠️ NE PAS marquer les notifications ici :
+    // Le markTypeAsRead est géré par le bouton ArtisanSidebar (au clic)
+    // et par les boutons des catégories ci-dessous (classiques/express).
+    // Marquer automatiquement à l'ouverture vidait le badge sidebar avant
+    // que l'artisan ait pu consulter les détails.
   }, [authUser, authLoading, router]);
 
   // Si on arrive avec un demandeId dans l'URL → aller directement dans Classiques et activer le bon filtre
@@ -1000,6 +993,14 @@ export default function ArtisanDemandesPage() {
                 // Auto-activer le filtre "Nouvelles" si des nouvelles demandes non vues existent
                 const nbNonVues = getDemandesNouvelles(demandes).filter(d => !demandesVuesSet.has(d.id)).length;
                 if (nbNonVues > 0) setFilter('nouvelles');
+                // Marquer les notifications de demandes classiques comme lues
+                markTypeAsRead([
+                  'nouvelle_demande', 'nouvelle_demande_publique', 'demande_annulee',
+                  'travaux_valides', 'validation_auto',
+                  'litige_ouvert', 'litige_commentaire', 'litige_pris_en_charge',
+                  'litige_proposition', 'litige_acceptation_partielle', 'litige_refus',
+                  'litige_escalade', 'litige_resolu', 'litige_abandonne',
+                ]);
               }}
               className="group text-left bg-[#2C3E50] rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col"
             >
@@ -1054,7 +1055,16 @@ export default function ArtisanDemandesPage() {
 
             {/* ── CARTE Demandes Express ── */}
             <button
-              onClick={() => { setCategoryActive('express'); setSectionActive('demandes_express'); }}
+              onClick={() => {
+                setCategoryActive('express');
+                setSectionActive('demandes_express');
+                // Marquer les notifications de demandes express comme lues
+                markTypeAsRead([
+                  'nouvelle_demande_express', 'proposition_acceptee', 'proposition_refusee',
+                  'contre_proposition_recue', 'paiement_recu_express',
+                  'acceptation_expiree', 'paiement_libere_express',
+                ]);
+              }}
               className="group text-left bg-[#FF6B00] rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col"
             >
               {/* Bandeau */}

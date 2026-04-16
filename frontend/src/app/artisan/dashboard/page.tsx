@@ -67,7 +67,16 @@ export default function ArtisanDashboardPage() {
 
   // Compter les notifications de devis acceptés/refusés/révision NON LUES
   const devisNotifications = notifications.filter(
-    n => (n.type === 'devis_accepte' || n.type === 'devis_refuse' || n.type === 'devis_revision') && !n.lue
+    n => !n.lue && (
+      n.type === 'devis_accepte' ||
+      n.type === 'devis_refuse' ||
+      n.type === 'devis_revision' ||
+      n.type === 'devis_annule' ||
+      n.type === 'devis_supprime' ||
+      n.type === 'demande_paye' ||
+      n.type === 'contrat_signe' ||
+      n.type === 'paiement_libere'
+    )
   ).length;
 
   // Compter les notifications de nouvel avis NON LUES
@@ -80,16 +89,17 @@ export default function ArtisanDashboardPage() {
     n => !n.lue && (
       n.type === 'nouvelle_demande_express' ||     // Nouvelle demande reçue
       n.type === 'proposition_acceptee' ||          // Client a accepté la proposition
+      n.type === 'proposition_refusee' ||           // Client a refusé la proposition
       n.type === 'contre_proposition_recue' ||      // Client envoie une contre-proposition
       n.type === 'paiement_recu_express' ||          // Paiement confirmé, intervention possible
       n.type === 'acceptation_expiree' ||           // Timeout paiement : demande expirée
-      n.type === 'paiement_libere_express'          // ✅ Paiement libéré après validation travaux express
+      n.type === 'paiement_libere_express'          // Paiement libéré après validation travaux express
     )
   ).length;
 
   // Compter les validations client NON LUES (lié au flux demandes)
   const travauxValidesNotifications = notifications.filter(
-    n => n.type === 'travaux_valides' && !n.lue
+    n => !n.lue && (n.type === 'travaux_valides' || n.type === 'validation_auto')
   ).length;
 
   // Total demandes (régulières + express + validations client non lues)
@@ -808,7 +818,15 @@ export default function ArtisanDashboardPage() {
             </Link>
 
           {/* Demandes - Position 6 */}
-          <Link href="/artisan/demandes" className="h-full" onClick={() => markNotificationsByTypeAsRead(user?.uid || '', ['nouvelle_demande_express', 'travaux_valides', 'proposition_acceptee', 'contre_proposition_recue', 'paiement_recu_express', 'acceptation_expiree'])}>
+          <Link href="/artisan/demandes" className="h-full" onClick={() => markNotificationsByTypeAsRead(user?.uid || '', [
+            'nouvelle_demande', 'nouvelle_demande_publique', 'nouvelle_demande_express',
+            'demande_annulee', 'travaux_valides', 'validation_auto',
+            'proposition_acceptee', 'proposition_refusee', 'contre_proposition_recue',
+            'paiement_recu_express', 'acceptation_expiree', 'paiement_libere_express',
+            'litige_ouvert', 'litige_commentaire', 'litige_pris_en_charge',
+            'litige_proposition', 'litige_acceptation_partielle', 'litige_refus',
+            'litige_escalade', 'litige_resolu', 'litige_abandonne',
+          ])}>
             <div className="h-full flex flex-col bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-[#FF6B00] relative">
               {/* Badge notification */}
               {totalNouvellesDemandes > 0 && (
@@ -845,7 +863,11 @@ export default function ArtisanDashboardPage() {
           </Link>
 
           {/* Devis - Position 7 */}
-          <Link href="/artisan/devis" className="h-full" onClick={() => markNotificationsByTypeAsRead(user?.uid || '', ['devis_accepte', 'devis_refuse', 'devis_revision'])}>
+          <Link href="/artisan/devis" className="h-full" onClick={() => markNotificationsByTypeAsRead(user?.uid || '', [
+            'devis_accepte', 'devis_refuse', 'devis_revision',
+            'devis_annule', 'devis_supprime', 'demande_paye',
+            'contrat_signe', 'paiement_libere',
+          ])}>
             <div className="h-full flex flex-col bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-[#FF6B00]">
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center relative">

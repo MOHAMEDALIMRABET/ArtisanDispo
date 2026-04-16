@@ -162,6 +162,7 @@ export default function ArtisanSidebar() {
         n.type === 'nouvelle_demande_publique' ||  // demande publique compatible
         n.type === 'demande_annulee' ||            // client a annulé sa demande
         n.type === 'travaux_valides' ||            // client a validé les travaux
+        n.type === 'validation_auto' ||            // auto-validation travaux (7 jours)
         n.type === 'litige_ouvert' ||              // litige ouvert sur un chantier
         n.type === 'litige_commentaire' ||         // nouveau commentaire litige
         n.type === 'litige_pris_en_charge' ||      // admin a pris en charge le litige
@@ -293,7 +294,7 @@ export default function ArtisanSidebar() {
               await markTypeAsRead([
                 // Demandes classiques
                 'nouvelle_demande', 'nouvelle_demande_publique', 'demande_annulee',
-                'travaux_valides',
+                'travaux_valides', 'validation_auto',
                 // Demandes express
                 'nouvelle_demande_express', 'proposition_acceptee', 'proposition_refusee',
                 'contre_proposition_recue', 'paiement_recu_express', 'acceptation_expiree',
