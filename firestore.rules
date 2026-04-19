@@ -573,5 +573,19 @@ service cloud.firestore {
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
+    
+    // ============================================
+    // 4c. COLLECTION: categories_urgence
+    // ============================================
+    match /categories_urgence/{docId} {
+      allow read: if isAuthenticated();
+    }
+
+    // ============================================
+    // 4d. COLLECTION: categories_travaux
+    // ============================================
+    match /categories_travaux/{docId} {
+      allow read: if isAuthenticated();
+    }
   }
 }

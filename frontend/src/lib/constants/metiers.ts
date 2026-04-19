@@ -39,6 +39,25 @@ export const METIERS_MAP: Record<Categorie, string> = {
 };
 
 /**
+ * Mapping des icônes pour chaque métier
+ */
+export const METIERS_ICONS: Record<Categorie, string> = {
+  'plomberie': '🚰',
+  'electricite': '💡',
+  'peinture': '🎨',
+  'menuiserie': '🪚',
+  'maconnerie': '🧱',
+  'carrelage': '🧩',
+  'chauffage': '🔥',
+  'climatisation': '❄️',
+  'toiture': '🏠',
+  'isolation': '🧥',
+  'serrurerie': '🔑',
+  'exterieur-jardin': '🌳',
+  'renovation': '🔨'
+};
+
+/**
  * Liste des métiers avec leurs icônes pour l'affichage
  */
 export const METIERS_AVEC_ICONES: { value: Categorie; label: string; icon: string }[] = [

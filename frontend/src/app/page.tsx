@@ -8,6 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui';
 import type { Categorie } from '@/types/firestore';
 import { METIERS_AVEC_ICONES } from '@/lib/constants/metiers';
+import { fetchCategories } from '@/lib/firebase/category-service';
 
 export default function Home() {
   const { t } = useLanguage();
@@ -198,6 +199,25 @@ export default function Home() {
       author: 'Julie, Boulogne',
     },
   ];
+
+  const [urgenceCategories, setUrgenceCategories] = useState<{ value: string; icon: string; [key: string]: any }[]>([]);
+  const [travauxCategories, setTravauxCategories] = useState<{ value: string; icon: string; [key: string]: any }[]>([]);
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        // fetchCategories retourne { urgence, travaux } en un seul appel
+        const { urgence, travaux } = await fetchCategories();
+        console.log('🚨 Catégories urgence récupérées :', urgence);
+        console.log('🛠️ Catégories travaux récupérées :', travaux);
+        setUrgenceCategories(urgence);
+        setTravauxCategories(travaux);
+      } catch (error) {
+        console.error('Erreur lors du chargement des catégories :', error);
+      }
+    }
+    loadCategories();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#2C3E50] via-[#3D5A73] to-[#2C3E50]">
