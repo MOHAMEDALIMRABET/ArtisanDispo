@@ -24,8 +24,8 @@ interface ExpressTypeConfig {
 
 export const EXPRESS_WORK_TAXONOMY: Record<TypeTravauxExpress, ExpressTypeConfig> = {
   'depannage-urgence': {
-    label: 'Depannage en urgence',
-    urgenceLabel: 'Urgent (30 min et 1h)',
+    label: 'Dépannage en urgence',
+    urgenceLabel: 'Urgent (30 min - 1h)',
     urgenceValue: 'immediat',
     categories: [
       {
@@ -95,19 +95,19 @@ export const EXPRESS_WORK_TAXONOMY: Record<TypeTravauxExpress, ExpressTypeConfig
   },
   'petits-travaux-maintenance': {
     label: 'Petits travaux & maintenance',
-    urgenceLabel: 'Immediat (2h)',
+    urgenceLabel: 'Immédiat (2h)',
     urgenceValue: 'immediat',
     categories: [
       {
         value: 'reglage-reparation',
-        label: 'Reglage & reparation',
+        label: 'Réglage & réparation',
         metier: 'menuiserie',
         sousCategories: [
           { value: 'ajustement-portes', label: 'Ajustement de portes (qui frottent / ferment mal)' },
-          { value: 'reglage-fenetres', label: 'Reglage de fenetres / baies vitrees' },
-          { value: 'reparation-volets', label: 'Reparation de volets (manuels ou roulants simples)' },
-          { value: 'poignees-charnieres', label: 'Remplacement de poignees, charnieres' },
-          { value: 'placards-tiroirs', label: 'Reparation de placards / tiroirs' },
+          { value: 'reglage-fenetres', label: 'Réglage de fenêtres / baies vitrées' },
+          { value: 'reparation-volets', label: 'Réparation de volets (manuels ou roulants simples)' },
+          { value: 'poignees-charnieres', label: 'Remplacement de poignées, charnières' },
+          { value: 'placards-tiroirs', label: 'Réparation de placards / tiroirs' },
           { value: 'retouches-bois', label: 'Rebouchage / retouches bois' },
         ],
       },
@@ -116,8 +116,8 @@ export const EXPRESS_WORK_TAXONOMY: Record<TypeTravauxExpress, ExpressTypeConfig
         label: 'Installation simple',
         metier: 'menuiserie',
         sousCategories: [
-          { value: 'pose-etageres', label: 'Pose d\'etageres' },
-          { value: 'tringles-rideaux', label: 'Installation de tringles a rideaux' },
+          { value: 'pose-etageres', label: 'Pose d\'étagères' },
+          { value: 'tringles-rideaux', label: 'Installation de tringles à rideaux' },
           { value: 'tv-murale', label: 'Fixation de TV murale' },
           { value: 'montage-meubles', label: 'Montage de meubles (IKEA, etc.)' },
           { value: 'meubles-suspendus', label: 'Pose de petits meubles suspendus' },
@@ -126,37 +126,37 @@ export const EXPRESS_WORK_TAXONOMY: Record<TypeTravauxExpress, ExpressTypeConfig
       },
       {
         value: 'amelioration-optimisation',
-        label: 'Amelioration & optimisation',
+        label: 'Amélioration & optimisation',
         metier: 'renovation',
         sousCategories: [
-          { value: 'rangements-simples', label: 'Creation de rangements simples' },
-          { value: 'placards-existants', label: 'Amenagement de placards existants' },
+          { value: 'rangements-simples', label: 'Création de rangements simples' },
+          { value: 'placards-existants', label: 'Aménagement de placards existants' },
           { value: 'portes-placard-coulissantes', label: 'Pose de portes de placard coulissantes' },
-          { value: 'etageres-mesure', label: 'Ajout d\'etageres sur mesure simples' },
+          { value: 'etageres-mesure', label: 'Ajout d\'étagères sur mesure simples' },
           { value: 'optimisation-espaces', label: 'Optimisation petits espaces' },
         ],
       },
       {
         value: 'petits-travaux-bois',
-        label: 'Petits travaux bois / menuiserie legere',
+        label: 'Petits travaux bois / menuiserie légère',
         metier: 'menuiserie',
         sousCategories: [
-          { value: 'decoupe-plan-travail', label: 'Decoupe et ajustement de plans de travail' },
-          { value: 'reparation-meubles-bois', label: 'Reparation de meubles bois' },
+          { value: 'decoupe-plan-travail', label: 'Découpe et ajustement de plans de travail' },
+          { value: 'reparation-meubles-bois', label: 'Réparation de meubles bois' },
           { value: 'pose-plinthes', label: 'Pose de plinthes' },
           { value: 'ajustement-parquet', label: 'Ajustement de parquet (petites zones)' },
-          { value: 'elements-bois-simples', label: 'Creation d\'elements bois simples' },
+          { value: 'elements-bois-simples', label: 'Création d\'éléments bois simples' },
         ],
       },
       {
         value: 'maintenance-preventive',
-        label: 'Maintenance preventive',
+        label: 'Maintenance préventive',
         metier: 'renovation',
         sousCategories: [
-          { value: 'verification-ouvrants', label: 'Verification des ouvrants (portes/fenetres)' },
+          { value: 'verification-ouvrants', label: 'Vérification des ouvrants (portes/fenêtres)' },
           { value: 'entretien-volets', label: 'Entretien des volets' },
-          { value: 'controle-fixations', label: 'Resserrage / controle fixations' },
-          { value: 'inspection-logement', label: 'Inspection generale logement' },
+          { value: 'controle-fixations', label: 'Resserrage / contrôle fixations' },
+          { value: 'inspection-logement', label: 'Inspection générale du logement' },
         ],
       },
       {

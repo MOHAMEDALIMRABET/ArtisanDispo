@@ -561,14 +561,14 @@ export default function ProfilArtisanPage() {
                         {cat.label}
                       </button>
                       {selected && (
-                        <div className="mt-2 flex flex-wrap gap-1 px-1">
+                        <div className="mt-2 grid grid-cols-2 gap-1 px-1">
                           {cat.sousCategories.map((sc) => (
                             <button
                               key={sc.value}
                               type="button"
                               onClick={() => toggleSousCatDepannage(sc.value, cat.value)}
                               title={sc.prix ? `Prix indicatif : ${sc.prix}` : undefined}
-                              className={`text-xs px-2 py-1 rounded-full border transition-all ${
+                              className={`text-xs px-2 py-1.5 rounded-lg border transition-all text-left ${
                                 sousCatsDepannage.includes(sc.value)
                                   ? 'bg-red-500 text-white border-red-500'
                                   : 'bg-white text-red-600 border-red-200 hover:bg-red-50'
@@ -610,14 +610,14 @@ export default function ProfilArtisanPage() {
                         {cat.label}
                       </button>
                       {selected && (
-                        <div className="mt-2 flex flex-wrap gap-1 px-1">
+                        <div className="mt-2 grid grid-cols-2 gap-1 px-1">
                           {cat.sousCategories.map((sc) => (
                             <button
                               key={sc.value}
                               type="button"
                               onClick={() => toggleSousCatPetitsTravaux(sc.value, cat.value)}
                               title={sc.prix ? `Prix indicatif : ${sc.prix}` : undefined}
-                              className={`text-xs px-2 py-1 rounded-full border transition-all ${
+                              className={`text-xs px-2 py-1.5 rounded-lg border transition-all text-left ${
                                 sousCatsPetitsTravaux.includes(sc.value)
                                   ? 'bg-[#FF6B00] text-white border-[#FF6B00]'
                                   : 'bg-white text-[#FF6B00] border-orange-200 hover:bg-orange-50'
