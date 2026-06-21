@@ -179,10 +179,6 @@ export default function DemandeExpressDetailArtisanPage() {
       alert('Montant invalide');
       return;
     }
-    if (!description.trim()) {
-      alert('Veuillez décrire ce qui est inclus dans votre proposition');
-      return;
-    }
     // Si montant > 150€ : le devis est obligatoire et doit être signé
     if (montant > 150 && !devisExpress) {
       alert('Vous devez remplir et signer le devis pour soumettre une proposition supérieure à 150€.');
@@ -919,14 +915,13 @@ export default function DemandeExpressDetailArtisanPage() {
 
                 <div>
                   <label htmlFor="description" className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                    Que comprend votre prestation ? *
+                    Que comprend votre prestation ?
                   </label>
                   <textarea
                     id="description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={4}
-                    required
                     className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:outline-none focus:border-[#FF6B00]"
                     placeholder="Ex: Fourniture des pièces, main d'œuvre, déplacement inclus..."
                   />
