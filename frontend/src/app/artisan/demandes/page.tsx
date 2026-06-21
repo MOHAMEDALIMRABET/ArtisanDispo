@@ -889,11 +889,15 @@ export default function ArtisanDemandesPage() {
     ).length;
 
   const nbNouvellesExpressAttribuees = demandesExpress.filter(
-    d => d.statut === 'en_attente_proposition' && !demandesVuesSet.has(d.id)
+    d => d.statut === 'en_attente_proposition'
+      && !demandesVuesSet.has(d.id)
+      && !(d.expiresAt && d.expiresAt.toDate().getTime() < now)
   ).length;
 
   const nbNouvellesExpressPubliees = demandesExpressPubliques.filter(
-    d => d.statut === 'en_attente_proposition' && !demandesVuesSet.has(d.id)
+    d => d.statut === 'en_attente_proposition'
+      && !demandesVuesSet.has(d.id)
+      && !(d.expiresAt && d.expiresAt.toDate().getTime() < now)
   ).length;
 
   const nbNouvellesExpress = nbNouvellesExpressAttribuees + nbNouvellesExpressPubliees;
@@ -2189,6 +2193,10 @@ export default function ArtisanDemandesPage() {
 
             // Calcule les listes filtrées (en dehors du JSX pour éviter la repetition)
             const getFilteredList = (key: typeof expressFilter) => demandesExpressSource.filter(d => {
+              // Demandes expirées : masquer des onglets "nouvelles" et "propositions envoyées"
+              const isExpired = d.expiresAt && d.expiresAt.toDate().getTime() < now;
+              if (isExpired && (key === 'nouvelles' || key === 'propositions_envoyees')) return false;
+
               const props = expressPropositionsMap.get(d.id) || [];
               const maProps = props.find(p => p.artisanId === authUser?.uid);
               const isPublished = !d.artisanId;
