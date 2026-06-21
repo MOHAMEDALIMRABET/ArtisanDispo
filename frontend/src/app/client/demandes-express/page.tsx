@@ -64,8 +64,8 @@ export default function MesDemandesExpressPage() {
   const [demandes, setDemandes] = useState<DemandeExpress[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtreStatut, setFiltreStatut] = useState<'toutes' | DemandeExpressStatut>('toutes');
-  // Sous-filtre pour le menu "En traitement" (payee / en_cours / travaux_termines)
-  const [filtreEnTraitement, setFiltreEnTraitement] = useState<'toutes' | 'payee' | 'en_cours' | 'travaux_termines'>('toutes');
+  // Sous-filtre pour le menu "En traitement" (payee / en_cours / travaux_termines / refusee)
+  const [filtreEnTraitement, setFiltreEnTraitement] = useState<'toutes' | 'payee' | 'en_cours' | 'travaux_termines' | 'refusee'>('toutes');
   const [sourceFilter, setSourceFilter] = useState<'toutes' | 'directes' | 'publiees'>('toutes');
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [showHowItWorks, setShowHowItWorks] = useState(false);
@@ -609,29 +609,43 @@ export default function MesDemandesExpressPage() {
     }
   }
 
-  const isExpireeOuRefusee = (statut: DemandeExpressStatut) => statut === 'expiree' || statut === 'refusee_artisan';
-  const demandesExpirees = demandes.filter((d) => isExpireeOuRefusee(d.statut));
-  const demandesActives = demandes.filter((d) => !isExpireeOuRefusee(d.statut));
+  // Demande expirée (délai dépassé)
+  const isExpiree = (statut: DemandeExpressStatut) => statut === 'expiree';
+  // Demande refusée par l'artisan ou annulée par le client
+  const isRefuseeOuAnnulee = (statut: DemandeExpressStatut) => statut === 'refusee_artisan' || statut === 'annulee';
+  // Demandes à exclure du fil actif (expirées OU refusées/annulées)
+  const isExclueDesActives = (statut: DemandeExpressStatut) => isExpiree(statut) || isRefuseeOuAnnulee(statut);
+
+  // Gardé pour compatibilité (non utilisé directement)
+  const isExpireeOuRefusee = isExclueDesActives;
+  const demandesExpirees = demandes.filter((d) => isExpiree(d.statut));
+  const demandesActives = demandes.filter((d) => !isExclueDesActives(d.statut));
 
   const demandesFiltrees = demandes.filter((d) => {
     const isPublished = !d.artisanId;
     if (sourceFilter === 'directes' && isPublished) return false;
     if (sourceFilter === 'publiees' && !isPublished) return false;
 
-    if (filtreStatut === 'toutes') return !isExpireeOuRefusee(d.statut);
-    if (filtreStatut === 'expiree') return isExpireeOuRefusee(d.statut);
+    // Onglet "Toutes" : exclut les expirées ET les refusées/annulées
+    if (filtreStatut === 'toutes') return !isExclueDesActives(d.statut);
+    // Onglet "Expirées" : uniquement les expirées
+    if (filtreStatut === 'expiree') return isExpiree(d.statut);
     if (filtreStatut === 'en_cours') {
       // Application du sous-filtre "En traitement"
       if (filtreEnTraitement === 'payee') return d.statut === 'payee';
       if (filtreEnTraitement === 'en_cours') return d.statut === 'en_cours';
       if (filtreEnTraitement === 'travaux_termines') return d.statut === 'travaux_termines';
-      return ['payee', 'en_cours', 'travaux_termines'].includes(d.statut);
+      // Sous-filtre "Refusée" : refus artisan + annulation client
+      if (filtreEnTraitement === 'refusee') return isRefuseeOuAnnulee(d.statut);
+      // Tous les sous-statuts "En traitement" (y compris refusées)
+      return ['payee', 'en_cours', 'travaux_termines'].includes(d.statut) || isRefuseeOuAnnulee(d.statut);
     }
     return d.statut === filtreStatut;
   });
 
-  const demandesDirectesCount = demandes.filter((d) => d.artisanId && !isExpireeOuRefusee(d.statut)).length;
-  const demandesPublieesCount = demandes.filter((d) => !d.artisanId && !isExpireeOuRefusee(d.statut)).length;
+  // Compteurs des filtres source (excluent expirées ET refusées/annulées)
+  const demandesDirectesCount = demandes.filter((d) => d.artisanId && !isExclueDesActives(d.statut)).length;
+  const demandesPublieesCount = demandes.filter((d) => !d.artisanId && !isExclueDesActives(d.statut)).length;
 
   const getStatutBadge = (statut: DemandeExpressStatut) => {
     const classes: Record<DemandeExpressStatut, string> = {
@@ -966,7 +980,7 @@ export default function MesDemandesExpressPage() {
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${filtreStatut === 'en_cours' ? 'text-white' : 'text-indigo-600'}`}>
-              {demandes.filter(d => ['payee', 'en_cours', 'travaux_termines'].includes(d.statut)).length}
+              {demandes.filter(d => ['payee', 'en_cours', 'travaux_termines', 'refusee_artisan', 'annulee'].includes(d.statut)).length}
             </div>
             <div className={`text-xs font-semibold uppercase tracking-wide ${filtreStatut === 'en_cours' ? 'text-white' : 'text-gray-600'}`}>
               🔧 En traitement
@@ -1004,7 +1018,7 @@ export default function MesDemandesExpressPage() {
                   : 'bg-white text-[#2C3E50] border border-gray-200 hover:bg-[#FFF3EA]'
               }`}
             >
-              Tous ({demandes.filter(d => ['payee', 'en_cours', 'travaux_termines'].includes(d.statut)).length})
+              Tous ({demandes.filter(d => ['payee', 'en_cours', 'travaux_termines', 'refusee_artisan', 'annulee'].includes(d.statut)).length})
             </button>
             <button
               onClick={() => setFiltreEnTraitement('payee')}
@@ -1035,6 +1049,17 @@ export default function MesDemandesExpressPage() {
               }`}
             >
               ⏳ Terminée - Attente Validation ({demandes.filter(d => d.statut === 'travaux_termines').length})
+            </button>
+            {/* Sous-filtre : demandes refusées par l'artisan ou annulées par le client */}
+            <button
+              onClick={() => setFiltreEnTraitement('refusee')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                filtreEnTraitement === 'refusee'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-white text-red-700 border border-red-200 hover:bg-red-50'
+              }`}
+            >
+              ❌ Refusée ({demandes.filter(d => d.statut === 'refusee_artisan' || d.statut === 'annulee').length})
             </button>
           </div>
         )}
