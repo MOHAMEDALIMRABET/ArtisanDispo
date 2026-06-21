@@ -270,7 +270,7 @@ export default function DevisExpressForm({ onChange, montantInitial }: DevisExpr
         <span className="text-lg">📋</span>
         <div>
           <h3 className="font-bold text-[#2C3E50] text-base">
-            Devis obligatoire — Montant supérieur à 150€
+            Devis obligatoire — Montant supérieur ou égal à 150€
           </h3>
           <p className="text-xs text-gray-500">
             Remplissez et signez ce devis. Le client devra le contre-signer pour accepter votre proposition.
