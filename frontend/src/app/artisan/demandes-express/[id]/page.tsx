@@ -21,7 +21,7 @@ import { EXPRESS_WORK_TAXONOMY } from '@/lib/express-work-taxonomy';
 import { getExpressArtisanWindowMs } from '@/lib/express-work-taxonomy';
 import DevisExpressForm from '@/components/DevisExpressForm';
 import type { DevisExpressJoint } from '@/types/firestore';
-import { generateDevisExpressPDF } from '@/lib/generateDevisExpressPDF';
+
 
 /**
  * Normalise le champ photos : accepte tableau OU objet-map {0:url,...} (bug historique sanitizeForFirestore).
@@ -96,7 +96,7 @@ export default function DemandeExpressDetailArtisanPage() {
   // Modale de consultation du devis joint envoyé
   const [devisModalOpen, setDevisModalOpen] = useState(false);
   // Chargement génération PDF
-  const [pdfLoading, setPdfLoading] = useState(false);
+
 
   /** True si le montant saisi dépasse 150€ → le formulaire de devis doit s'afficher */
   const montantVal = parseFloat(montantPropose);
@@ -427,32 +427,14 @@ export default function DemandeExpressDetailArtisanPage() {
             <div className="px-6 pb-6 flex gap-3">
               {/* Bouton téléchargement PDF du devis */}
               <button
-                onClick={async () => {
-                  if (!maProposition?.devisJoint) return;
-                  setPdfLoading(true);
-                  try {
-                    // Nom artisan : affiché depuis Firebase Auth
-                    const artisanNom = firebaseUser?.displayName ?? 'Artisan';
-                    // Nom client récupéré depuis Firestore
-                    const clientNom = clientData
-                      ? `${clientData.prenom} ${clientData.nom}`
-                      : 'Client';
-                    await generateDevisExpressPDF({
-                      devis: maProposition.devisJoint,
-                      propositionId: maProposition.id,
-                      artisanNom,
-                      clientNom,
-                      categorie: demande?.categorie ?? '',
-                      ville: demande?.ville ?? '',
-                    });
-                  } finally {
-                    setPdfLoading(false);
-                  }
+                onClick={() => {
+                  if (!maProposition?.id) return;
+                  // Ouvre la page d'impression dans un nouvel onglet (comme le devis classique)
+                  window.open(`/devis-express-print/${maProposition.id}`, '_blank');
                 }}
-                disabled={pdfLoading}
-                className="flex-1 flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-3 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold disabled:opacity-60"
+                className="flex-1 flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-3 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold"
               >
-                {pdfLoading ? '⏳ Génération...' : '⬇️ Télécharger le devis (PDF)'}
+                🖨️ Imprimer / PDF
               </button>
               <button
                 onClick={() => setDevisModalOpen(false)}
@@ -537,9 +519,14 @@ export default function DemandeExpressDetailArtisanPage() {
           )}
 
           {/* ── Grille deux colonnes ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          <div className={`grid gap-6 items-start ${
+            maProposition?.devisJoint
+              ? 'grid-cols-1 max-w-2xl mx-auto w-full'
+              : 'grid-cols-1 lg:grid-cols-2'
+          }`}>
 
             {/* ══ COLONNE GAUCHE : Infos demande ══ */}
+            {!maProposition?.devisJoint && (
             <div className="space-y-6">
 
             {/* Infos demande */}
@@ -682,8 +669,9 @@ export default function DemandeExpressDetailArtisanPage() {
                 )}
               </div>
             </div>
-            </div>{/* fin infos demande */}
-            </div>{/* fin colonne gauche */}
+            </div>
+            </div>
+            )}{/* fin condition !devisJoint — colonne gauche masquée si devisJoint présent */}
 
             {/* ══ COLONNE DROITE : Proposition / Actions ══ */}
             <div className="space-y-6 lg:sticky lg:top-8">
