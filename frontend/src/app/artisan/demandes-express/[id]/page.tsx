@@ -906,8 +906,10 @@ export default function DemandeExpressDetailArtisanPage() {
                   <DevisExpressForm
                     onChange={(devis) => {
                       setDevisExpress(devis);
-                      // Synchroniser montantPropose avec le total TTC du devis
-                      if (devis) setMontantPropose(devis.totaux.totalTTC.toFixed(2));
+                    }}
+                    onTotauxChange={(ttc) => {
+                      // Mettre à jour le champ "Montant proposé TTC" en temps réel
+                      setMontantPropose(ttc.toFixed(2));
                     }}
                     montantInitial={Math.round((montantVal / 1.20) * 100) / 100}
                   />
