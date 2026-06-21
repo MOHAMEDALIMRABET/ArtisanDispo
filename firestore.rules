@@ -577,15 +577,19 @@ service cloud.firestore {
     // ============================================
     // 4c. COLLECTION: categories_urgence
     // ============================================
+    // Lecture publique : chargées sur la page d'accueil sans auth
     match /categories_urgence/{docId} {
-      allow read: if isAuthenticated();
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // ============================================
     // 4d. COLLECTION: categories_travaux
     // ============================================
+    // Lecture publique : chargées sur la page d'accueil sans auth
     match /categories_travaux/{docId} {
-      allow read: if isAuthenticated();
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }

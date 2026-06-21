@@ -123,7 +123,11 @@ export default function SecureAdminLoginPage() {
       // Redirection vers dashboard admin
       router.push('/admin/dashboard');
     } catch (err: any) {
-      console.error('Erreur connexion admin:', err);
+      // Ne logger en console que les erreurs inattendues (pas les mauvais credentials)
+      const errorsAttenduees = ['auth/invalid-credential', 'auth/wrong-password', 'auth/user-not-found', 'auth/invalid-email', 'auth/user-disabled'];
+      if (!errorsAttenduees.includes(err.code)) {
+        console.error('Erreur connexion admin:', err);
+      }
 
       // 📝 Logger l'échec
       await logAdminAccess({

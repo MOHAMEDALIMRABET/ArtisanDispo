@@ -207,7 +207,19 @@ export default function InscriptionPage() {
         
         // Rediriger vers le formulaire de demande si contexte de recherche existe
         const context = getSearchContext();
-        if (context) {
+        if (context?.typeProjet === 'express') {
+          // Flux express : reconstruire les paramètres de la demande
+          const params = new URLSearchParams({
+            categorie: context.categorie,
+            categorieExpress: context.categorieExpress || context.categorie,
+            ville: context.ville || '',
+            codePostal: context.codePostal || '',
+            typeTravaux: context.typeTravaux || 'depannage-urgence',
+          });
+          if (context.artisanId) params.append('artisanId', context.artisanId);
+          if (context.sousCategorie) params.append('sousCategorie', context.sousCategorie);
+          router.push(`/demande/express/nouvelle?${params.toString()}`);
+        } else if (context) {
           router.push('/demande/publique/nouvelle');
         } else {
           router.push('/dashboard');

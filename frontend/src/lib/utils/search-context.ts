@@ -14,6 +14,13 @@ export interface SearchContext {
   timestamp: number;
   source: 'petits-travaux-express' | 'homepage' | 'direct';
   titre?: string; // Titre généré automatiquement
+  // Champs spécifiques au flux express
+  typeProjet?: 'express' | 'publique';
+  artisanId?: string;   // Artisan ciblé (demande directe)
+  ville?: string;
+  codePostal?: string;
+  typeTravaux?: string;
+  categorieExpress?: string; // Catégorie fine express (ex: 'serrurerie')
 }
 
 const STORAGE_KEY = 'artisan_search_context';

@@ -58,14 +58,25 @@ export default function ClientSidebar() {
       where('participants', 'array-contains', firebaseUser.uid)
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      let total = 0;
-      snapshot.docs.forEach((docSnap) => {
-        const data = docSnap.data();
-        total += data.unreadCount?.[firebaseUser.uid] || 0;
-      });
-      setUnreadMessagesCount(total);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        let total = 0;
+        snapshot.docs.forEach((docSnap) => {
+          const data = docSnap.data();
+          total += data.unreadCount?.[firebaseUser.uid] || 0;
+        });
+        setUnreadMessagesCount(total);
+      },
+      (error) => {
+        // Ignorer les erreurs de permission lors de la déconnexion
+        if (error.code === 'permission-denied') {
+          setUnreadMessagesCount(0);
+          return;
+        }
+        console.error('Erreur écoute conversations (ClientSidebar):', error);
+      }
+    );
 
     return () => unsubscribe();
   }, [firebaseUser?.uid, userRole]);
@@ -93,6 +104,7 @@ export default function ClientSidebar() {
       (n.type === 'demande_refusee' ||              // artisan a refusé la demande
         n.type === 'demande_annulee' ||              // demande annulée
         n.type === 'proposition_express_recue' ||    // artisan a envoyé une proposition express
+        n.type === 'proposition_acceptee' ||          // artisan a accepté le prix du client (négociation)
         n.type === 'proposition_refusee' ||          // artisan a rompu la négociation express
         n.type === 'intervention_demarree' ||        // artisan a démarré intervention express
         n.type === 'travaux_termines_express' ||     // artisan a terminé travaux express
@@ -214,7 +226,7 @@ export default function ClientSidebar() {
               // Marquer les notifications de demandes comme lues avant navigation
               await markTypeAsRead([
                 'demande_refusee', 'demande_annulee',
-                'proposition_express_recue', 'proposition_refusee',
+                'proposition_express_recue', 'proposition_acceptee', 'proposition_refusee',
                 'intervention_demarree',
                 'travaux_termines_express', 'paiement_expire',
                 'travaux_demarres_demande', 'travaux_termines_demande',

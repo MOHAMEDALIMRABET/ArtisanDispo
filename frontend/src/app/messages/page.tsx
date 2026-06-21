@@ -275,7 +275,17 @@ export default function MessagesPage() {
       }));
       setInactiveConvIds(newInactive);
       setLoading(false);
-    });
+    },
+    (error) => {
+      // Ignorer les erreurs de permission lors de la déconnexion
+      if (error.code === 'permission-denied') {
+        setConversations([]);
+        setLoading(false);
+        return;
+      }
+      console.error('Erreur écoute conversations (messages page):', error);
+    }
+    );
 
     return () => unsubscribe();
   }, [user, authLoading]);
@@ -355,7 +365,16 @@ export default function MessagesPage() {
       
       // Marquer comme lu
       markAsRead(selectedConversation);
-    });
+    },
+    (error) => {
+      // Ignorer les erreurs de permission lors de la déconnexion
+      if (error.code === 'permission-denied') {
+        setMessages([]);
+        return;
+      }
+      console.error('Erreur écoute messages:', error);
+    }
+    );
 
     return () => unsubscribe();
   }, [selectedConversation]);

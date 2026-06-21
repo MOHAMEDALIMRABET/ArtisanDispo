@@ -71,6 +71,7 @@ router.post('/create-payment-intent', requireStripe, async (req, res) => {
       return res.status(400).json({ 
         error: 'Un paiement existe déjà pour cette demande',
         existingPaymentIntentId: existingPaiement.stripePaymentIntentId,
+        demandeId: proposition.demandeId,
       });
     }
 

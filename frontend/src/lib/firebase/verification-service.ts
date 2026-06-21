@@ -772,8 +772,8 @@ export async function calculateVerificationStatus(userId: string): Promise<Verif
   const artisan = artisanDoc.data() as Artisan;
   
   // Vérifier les critères requis pour la vérification complète
+  // Note: contactVerification.telephone n'est pas utilisé — l'email est vérifié via Firebase Auth
   const siretOk = artisan.siretVerified === true;
-  const phoneOk = artisan.contactVerification?.telephone?.verified === true;
   const kbisOk = artisan.verificationDocuments?.kbis?.verified === true;
   const idCardOk = artisan.verificationDocuments?.idCard?.verified === true;
   const rcProOk = artisan.verificationDocuments?.rcPro?.verified === true;
@@ -783,7 +783,8 @@ export async function calculateVerificationStatus(userId: string): Promise<Verif
   const decennaleOk = !decennaleRequired || artisan.verificationDocuments?.decennale?.verified === true;
 
   // Tous les critères remplis = approved (profil vérifié)
-  if (siretOk && phoneOk && kbisOk && idCardOk && rcProOk && decennaleOk) {
+  // La vérification téléphone/email est gérée par Firebase Auth séparément
+  if (siretOk && kbisOk && idCardOk && rcProOk && decennaleOk) {
     return 'approved';
   }
 
@@ -848,7 +849,7 @@ export async function validateDocument(
       [`${fieldPath}.rejectionReason`]: null
     });
 
-    // ✅ VÉRIFIER SI TOUS LES DOCUMENTS SONT VALIDÉS
+    // ✅ VÉRIFIER SI LES DOCUMENTS OBLIGATOIRES SONT TOUS VALIDÉS
     const artisanSnap = await getDoc(artisanRef);
     if (artisanSnap.exists()) {
       const data = artisanSnap.data();
@@ -856,12 +857,12 @@ export async function validateDocument(
       const idVerified = data.verificationDocuments?.idCard?.verified || false;
       const rcProVerified = data.verificationDocuments?.rcPro?.verified || false;
       
-      // Vérifier si décennale requise
-      const decennaleRequired = data.metiers && data.metiers.length > 0 && artisanDoitDecennale(data.metiers);
-      const decennaleVerified = !decennaleRequired || data.verificationDocuments?.decennale?.verified || false;
-      
-      // Si tous les documents sont validés (y compris décennale si requise) → activer l'artisan
-      if (kbisVerified && idVerified && rcProVerified && decennaleVerified) {
+      // ✅ verified = true dès que KBIS + Pièce ID + RC Pro sont validés.
+      // La décennale n'est PAS requise ici : elle est vérifiée à la recherche par le
+      // matching-service (metierNecessiteDecennale) trade par trade.
+      // Cela permet à un serrurier (pas de décennale requise) d'être visible même s'il
+      // a aussi de la maçonnerie dans ses métiers (décennale requise pour ce trade).
+      if (kbisVerified && idVerified && rcProVerified) {
         await updateDoc(artisanRef, {
           verified: true,  // ← CHAMP PRINCIPAL pour les recherches
           verificationStatus: 'approved',
@@ -875,7 +876,7 @@ export async function validateDocument(
         });
         console.log(`✅ Artisan ${userId} complètement vérifié et activé !`);
       } else {
-        console.log(`⏳ Artisan ${userId} partiellement vérifié (${documentType} validé)`);
+        console.log(`⏳ Artisan ${userId} partiellement vérifié (${documentType} validé) — kbis:${kbisVerified} idCard:${idVerified} rcPro:${rcProVerified}`);
       }
     }
 

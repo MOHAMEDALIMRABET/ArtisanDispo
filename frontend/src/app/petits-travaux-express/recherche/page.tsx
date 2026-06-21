@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getUserById } from '@/lib/firebase/user-service';
 import type { MatchingResult, User, Categorie } from '@/types/firestore';
+import { saveSearchContext } from '@/lib/utils/search-context';
 import {
   EXPRESS_WORK_TAXONOMY,
   getExpressCategories,
@@ -274,9 +275,9 @@ export default function RechercheExpressPage() {
     if (authLoading) return; // Attendre Firebase
 
     if (!firebaseUser) {
-      // Sauvegarder le contexte et rediriger vers inscription
-      const context = {
-        categorie: selectedCategorie?.metier || 'renovation',
+      // Sauvegarder le contexte pour reprendre après inscription/connexion
+      saveSearchContext({
+        categorie: (selectedCategorie?.metier || 'renovation') as Categorie,
         categorieExpress: categorie,
         sousCategorie,
         typeProjet: 'express',
@@ -284,8 +285,8 @@ export default function RechercheExpressPage() {
         codePostal,
         artisanId,
         typeTravaux,
-      };
-      sessionStorage.setItem('searchContext', JSON.stringify(context));
+        source: 'petits-travaux-express',
+      });
       router.push('/inscription?role=client');
       return;
     }
@@ -307,17 +308,17 @@ export default function RechercheExpressPage() {
 
   async function handlePublierDemande() {
     if (!firebaseUser) {
-      // Sauvegarder le contexte et rediriger vers inscription
-      const context = {
-        categorie: selectedCategorie?.metier || 'renovation',
+      // Sauvegarder le contexte pour reprendre après inscription/connexion
+      saveSearchContext({
+        categorie: (selectedCategorie?.metier || 'renovation') as Categorie,
         categorieExpress: categorie,
         sousCategorie,
         typeProjet: 'express',
         ville,
         codePostal,
         typeTravaux,
-      };
-      sessionStorage.setItem('searchContext', JSON.stringify(context));
+        source: 'petits-travaux-express',
+      });
       router.push('/inscription?role=client');
       return;
     }

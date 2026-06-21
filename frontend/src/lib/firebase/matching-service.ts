@@ -2,6 +2,7 @@ import { db } from './config';
 import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import type { Artisan, Demande, MatchingResult, MatchingCriteria } from '@/types/firestore';
 import { getArtisanStats, calculateScoreReactivite } from './artisan-stats-service';
+import { metierNecessiteDecennale } from '@/lib/decennale-helper';
 
 /**
  * Calcule la distance entre deux points GPS (formule de Haversine)
@@ -579,6 +580,19 @@ export async function matchArtisansExpress(criteria: ExpressMatchingCriteria): P
       categoryMatch = artisan.metiers?.includes(criteria.categorieMetier as any) ?? false;
       if (!categoryMatch) continue;
       console.log(`⚠️  ${artisan.raisonSociale}: pas de spécialités express, fallback métier "${criteria.categorieMetier}"`);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    // 1b. Vérifier la décennale si le métier recherché l'exige
+    // Seuls les métiers structurels BTP (maçonnerie, toiture, charpente, isolation)
+    // nécessitent la décennale. Serrurerie, plomberie courante, etc. → pas de blocage.
+    // ──────────────────────────────────────────────────────────────────────
+    if (metierNecessiteDecennale(criteria.categorieMetier as any)) {
+      const decennaleOk = artisan.verificationDocuments?.decennale?.verified === true;
+      if (!decennaleOk) {
+        console.log(`❌ ${artisan.raisonSociale}: décennale requise pour "${criteria.categorieMetier}" mais non vérifiée`);
+        continue;
+      }
     }
 
     // ──────────────────────────────────────────────────────────────────────

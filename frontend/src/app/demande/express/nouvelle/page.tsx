@@ -220,7 +220,7 @@ export default function NouvelleDemandeExpressPage() {
             🚀 Nouvelle demande express
           </h1>
           <p className="text-[#6C757D] mt-2">
-            Intervention rapide • Budget max 150€ • Sans devis formel
+            Intervention rapide — moins de 150€ • Sans devis formel
           </p>
         </div>
       </div>
@@ -388,9 +388,6 @@ export default function NouvelleDemandeExpressPage() {
                   €
                 </span>
               </div>
-              <p className="text-xs text-[#6C757D] mt-1">
-                Maximum 150€ pour un travail express
-              </p>
             </div>
 
             {/* Localisation */}

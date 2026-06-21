@@ -255,6 +255,9 @@ export default function PaiementExpressPage() {
   async function loadData() {
     if (!firebaseUser) return;
 
+    // demandeId hissé hors du try pour être accessible après le finally
+    let resolvedDemandeId: string | undefined;
+
     try {
       const propositionData = await getPropositionExpressById(propositionId);
       if (!propositionData) {
@@ -270,9 +273,16 @@ export default function PaiementExpressPage() {
       }
 
       setProposition(propositionData);
+      resolvedDemandeId = propositionData.demandeId;
 
       const demandeData = await getDemandeExpressById(propositionData.demandeId);
       setDemande(demandeData);
+
+      // Si la demande est déjà payée, rediriger directement vers la page succès
+      if (demandeData?.statut === 'payee' || demandeData?.statut === 'en_cours' || demandeData?.statut === 'terminee') {
+        router.push(`/client/paiement-success?demandeId=${demandeData.id}`);
+        return;
+      }
 
       const artisanData = await getArtisanByUserId(propositionData.artisanId);
       setArtisan(artisanData);
@@ -284,10 +294,11 @@ export default function PaiementExpressPage() {
     }
 
     // Créer le PaymentIntent séparément — les erreurs s'affichent inline
-    await createPaymentIntent(propositionId);
+    // On passe le demandeId local (pas le state React) pour éviter la stale closure
+    await createPaymentIntent(propositionId, resolvedDemandeId);
   }
 
-  async function createPaymentIntent(propositionId: string) {
+  async function createPaymentIntent(propositionId: string, knownDemandeId?: string) {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/stripe-express/create-payment-intent`, {
         method: 'POST',
@@ -297,6 +308,17 @@ export default function PaiementExpressPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
+
+        // Si un paiement existe déjà → la demande est probablement déjà payée
+        // On redirige vers la page succès plutôt qu'afficher une erreur
+        if (errorData.existingPaymentIntentId || errorData.demandeId) {
+          const targetDemandeId = errorData.demandeId || knownDemandeId || demande?.id;
+          if (targetDemandeId) {
+            router.push(`/client/paiement-success?demandeId=${targetDemandeId}`);
+            return;
+          }
+        }
+
         throw new Error(errorData.error || 'Erreur création paiement');
       }
 
@@ -447,7 +469,7 @@ export default function PaiementExpressPage() {
                 <p className="text-red-800 font-semibold mb-1">Paiement indisponible</p>
                 <p className="text-sm text-red-700 mb-4">{error}</p>
                 <button
-                  onClick={() => { setError(null); createPaymentIntent(propositionId); }}
+                  onClick={() => { setError(null); createPaymentIntent(propositionId, demande?.id); }}
                   className="px-4 py-2 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] text-sm font-semibold"
                 >
                   Réessayer

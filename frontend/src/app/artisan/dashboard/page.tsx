@@ -11,7 +11,7 @@ import { getAvisByArtisanId, calculateAverageRating } from '@/lib/firebase/avis-
 import { useNotifications } from '@/hooks/useNotifications';
 import { markNotificationsByTypeAsRead } from '@/lib/firebase/notification-service';
 import { getWalletByArtisanId, getSequestreTransactions, requestManualVirement } from '@/lib/firebase/wallet-service';
-import { artisanDoitDecennale } from '@/lib/decennale-helper';
+import { artisanDoitDecennale, getMetiersNecessitantDecennale } from '@/lib/decennale-helper';
 import { EXPRESS_WORK_TAXONOMY } from '@/lib/express-work-taxonomy';
 import { db } from '@/lib/firebase/config';
 import { collection, query, where, onSnapshot, getDocs, updateDoc, doc } from 'firebase/firestore';
@@ -127,15 +127,26 @@ export default function ArtisanDashboardPage() {
       where('participants', 'array-contains', user.uid)
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      let totalUnread = 0;
-      snapshot.docs.forEach((doc) => {
-        const data = doc.data();
-        const unreadForUser = data.unreadCount?.[user.uid] || 0;
-        totalUnread += unreadForUser;
-      });
-      setUnreadMessagesCount(totalUnread);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        let totalUnread = 0;
+        snapshot.docs.forEach((doc) => {
+          const data = doc.data();
+          const unreadForUser = data.unreadCount?.[user.uid] || 0;
+          totalUnread += unreadForUser;
+        });
+        setUnreadMessagesCount(totalUnread);
+      },
+      (error) => {
+        // Ignorer les erreurs de permission lors de la déconnexion
+        if (error.code === 'permission-denied') {
+          setUnreadMessagesCount(0);
+          return;
+        }
+        console.error('Erreur écoute conversations (artisan dashboard):', error);
+      }
+    );
 
     return () => unsubscribe();
   }, [user?.uid]);
@@ -376,7 +387,7 @@ export default function ArtisanDashboardPage() {
           </div>
         )}
 
-        {/* Alerte : Profil invisible car décennale manquante */}
+        {/* Alerte : Décennale manquante pour certains métiers structurels */}
         {artisan?.metiers && artisanDoitDecennale(artisan.metiers) && !artisan?.verificationDocuments?.decennale?.verified && (
           <div className="mb-6 bg-orange-50 border-l-4 border-[#FF6B00] rounded-lg p-5 shadow-md">
             <div className="flex items-start gap-3">
@@ -385,12 +396,19 @@ export default function ArtisanDashboardPage() {
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-bold text-[#FF6B00] mb-2">
-                  🚫 {t('dashboard.artisan.profileNotVisible')}
+                  ⚠️ Décennale requise pour certains de vos métiers
                 </h3>
-                <p className="text-sm text-gray-700 mb-3">
-                  {t('dashboard.artisan.decennaleRequired').replace('{{trades}}', artisan.metiers.join(', '))}
+                <p className="text-sm text-gray-700 mb-1">
+                  Les métiers suivants (travaux structurels BTP) nécessitent une garantie décennale obligatoire :
                 </p>
-                
+                <p className="text-sm font-semibold text-red-700 mb-3">
+                  {getMetiersNecessitantDecennale(artisan.metiers).join(', ')}
+                </p>
+                <p className="text-xs text-gray-500 mb-3">
+                  ℹ️ Votre profil reste <strong>visible</strong> pour vos autres métiers (serrurerie, plomberie, électricité, peinture…).
+                  Seuls les métiers ci-dessus seront invisibles tant que la décennale n'est pas validée.
+                </p>
+
                 {!artisan?.verificationDocuments?.decennale?.url ? (
                   <div className="bg-white rounded-lg p-3 mb-3">
                     <p className="text-sm font-semibold text-red-700 mb-1">

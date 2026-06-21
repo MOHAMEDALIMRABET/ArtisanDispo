@@ -57,6 +57,7 @@ export default function DashboardPage() {
     n.type === 'demande_refusee' ||
     n.type === 'demande_annulee' ||              // ✅ Demande express annulée
     n.type === 'proposition_express_recue' ||
+    n.type === 'proposition_acceptee' ||          // artisan accepte le prix du client (négociation)
     n.type === 'proposition_refusee' ||          // ✅ Artisan rejette négociation → client
     n.type === 'intervention_demarree' ||        // ✅ Artisan démarre intervention express
     n.type === 'paiement_expire' ||              // ✅ Timeout paiement express
@@ -90,15 +91,26 @@ export default function DashboardPage() {
       or(where('participants', 'array-contains', firebaseUser.uid))
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      let totalUnread = 0;
-      snapshot.docs.forEach((doc) => {
-        const data = doc.data();
-        const unreadForUser = data.unreadCount?.[firebaseUser.uid] || 0;
-        totalUnread += unreadForUser;
-      });
-      setUnreadMessagesCount(totalUnread);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        let totalUnread = 0;
+        snapshot.docs.forEach((doc) => {
+          const data = doc.data();
+          const unreadForUser = data.unreadCount?.[firebaseUser.uid] || 0;
+          totalUnread += unreadForUser;
+        });
+        setUnreadMessagesCount(totalUnread);
+      },
+      (error) => {
+        // Ignorer les erreurs de permission lors de la déconnexion
+        if (error.code === 'permission-denied') {
+          setUnreadMessagesCount(0);
+          return;
+        }
+        console.error('Erreur écoute conversations (dashboard):', error);
+      }
+    );
 
     return () => unsubscribe();
   }, [firebaseUser?.uid]);

@@ -126,7 +126,6 @@ export default function MesDemandesExpressPage() {
   const { notifications, markAsRead, markTypeAsRead } = useNotifications(firebaseUser?.uid);
   const [bellDemandeIds, setBellDemandeIds] = useState<Set<string>>(new Set());
   const [showToutsBell, setShowToutsBell] = useState(false);
-  const bellsInitialized = useRef(false);
 
   // Marquer les notifications de propositions express comme lues au chargement
   useEffect(() => {
@@ -134,25 +133,24 @@ export default function MesDemandesExpressPage() {
     markTypeAsRead(['proposition_express_recue']);
   }, [firebaseUser?.uid, markTypeAsRead]);
 
-  // Initialiser les cloches une fois (notifications de nouvelles propositions non lues)
+  // Mettre à jour les cloches en temps réel à chaque changement de notifications
+  // Pas de flag bellsInitialized : on recalcule à chaque onSnapshot pour capter
+  // les propositions qui arrivent pendant que le client est déjà sur la page.
   useEffect(() => {
-    if (bellsInitialized.current) return;
-    if (loading && notifications.length === 0) return;
-    bellsInitialized.current = true;
+    if (loading) return;
     const expressNotifs = notifications.filter(
       n => !n.lue && n.type === 'proposition_express_recue' && n.lien
     );
-    if (expressNotifs.length === 0) return;
+    if (expressNotifs.length === 0) {
+      setBellDemandeIds(prev => (prev.size === 0 ? prev : new Set<string>()));
+      setShowToutsBell(false);
+      return;
+    }
     const ids = new Set<string>(
       expressNotifs.map(n => n.lien!.split('/').pop() ?? '').filter(Boolean)
     );
     setBellDemandeIds(ids);
     setShowToutsBell(true);
-    const timer = setTimeout(() => {
-      setBellDemandeIds(new Set());
-      setShowToutsBell(false);
-    }, 8000);
-    return () => clearTimeout(timer);
   }, [loading, notifications]);
 
   const toggleExpand = async (id: string, statut: DemandeExpressStatut) => {
