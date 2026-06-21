@@ -19,6 +19,22 @@ import { getUserById } from '@/lib/firebase/user-service';
 import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
 import type { PropositionExpress, DemandeExpress, User, Artisan } from '@/types/firestore';
 
+/**
+ * Convertit un timestamp Firestore (Timestamp, {seconds,nanoseconds} brut, ou Date)
+ * en objet Date JavaScript. Évite l'erreur "toDate is not a function".
+ */
+function tsToDate(ts: unknown): Date {
+  if (!ts) return new Date(0);
+  if (ts instanceof Date) return ts;
+  if (typeof (ts as { toDate?: unknown }).toDate === 'function') {
+    return (ts as { toDate: () => Date }).toDate();
+  }
+  if (typeof (ts as { seconds?: unknown }).seconds === 'number') {
+    return new Date((ts as { seconds: number }).seconds * 1000);
+  }
+  return new Date(ts as string | number);
+}
+
 export default function DevisExpressPrintPage() {
   const params = useParams();
   const propositionId = params.propositionId as string;
@@ -95,7 +111,9 @@ export default function DevisExpressPrintPage() {
   const clientNom = client ? `${client.prenom} ${client.nom}` : 'Client';
   const categorieLabel = demande?.categorieLabel ?? demande?.categorie ?? '';
   const ville = demande?.ville ?? '';
-  const dateDevis = proposition.createdAt?.toDate().toLocaleDateString('fr-FR') ?? '—';
+  const dateDevis = proposition.createdAt
+    ? tsToDate(proposition.createdAt).toLocaleDateString('fr-FR')
+    : '—';
   const numeroRef = propositionId.slice(0, 8).toUpperCase();
 
   return (
@@ -344,7 +362,7 @@ export default function DevisExpressPrintPage() {
                     <p className="text-xs text-gray-600 mt-1 font-medium">{clientNom}</p>
                     {devis.signatureClient.date && (
                       <p className="text-xs text-gray-500">
-                        Signé le {(devis.signatureClient.date as any).toDate?.()?.toLocaleDateString('fr-FR') ?? '—'}
+                        Signé le {tsToDate(devis.signatureClient.date).toLocaleDateString('fr-FR')}
                       </p>
                     )}
                   </>
@@ -372,7 +390,7 @@ export default function DevisExpressPrintPage() {
                     <p className="text-xs text-gray-600 mt-1 font-medium">{artisanNom}</p>
                     {devis.signatureArtisan.date && (
                       <p className="text-xs text-gray-500">
-                        Signé le {(devis.signatureArtisan.date as any).toDate?.()?.toLocaleDateString('fr-FR') ?? '—'}
+                        Signé le {tsToDate(devis.signatureArtisan.date).toLocaleDateString('fr-FR')}
                       </p>
                     )}
                   </>

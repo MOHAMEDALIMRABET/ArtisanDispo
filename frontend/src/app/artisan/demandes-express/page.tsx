@@ -125,9 +125,13 @@ export default function DemandesExpressArtisanPage() {
     return labels[statut] ?? statut;
   };
 
+  // Statuts "clôturés" exclus de l'onglet "Toutes" (déjà visibles dans "Refusées")
+  const STATUTS_CLOS = ['expiree', 'annulee', 'refusee_artisan'];
+
   // Filtrer les demandes
   const demandesFiltrees = demandes.filter((demande) => {
-    if (filtreStatut === 'toutes') return true;
+    // "Toutes" n'affiche que les demandes actives (pas les expirées/annulées/refusées)
+    if (filtreStatut === 'toutes') return !STATUTS_CLOS.includes(demande.statut);
     if (filtreStatut === 'nouvelles') return demande.statut === 'en_attente_proposition';
     if (filtreStatut === 'discussion') return demande.statut === 'proposition_recue';
     if (filtreStatut === 'payees') return ['payee', 'en_cours'].includes(demande.statut);

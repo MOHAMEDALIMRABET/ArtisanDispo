@@ -27,8 +27,6 @@ interface DevisExpressFormProps {
   montantInitial?: number;
   /** Callback appelé à chaque changement valide du devis (undefined = devis incomplet) */
   onChange: (devis: DevisExpressJoint | undefined) => void;
-  /** Callback appelé à chaque changement du Total TTC (même si devis incomplet) */
-  onTotauxChange?: (totalTTC: number) => void;
 }
 
 // ── Constantes ──────────────────────────────────────────────────────────────
@@ -80,7 +78,7 @@ function calculerTotaux(
 
 // ── Composant principal ──────────────────────────────────────────────────────
 
-export default function DevisExpressForm({ onChange, onTotauxChange, montantInitial }: DevisExpressFormProps) {
+export default function DevisExpressForm({ onChange, montantInitial }: DevisExpressFormProps) {
   // ── État des lignes de prestation ──
   const [lignes, setLignes] = useState<LigneDevisExpress[]>(() => {
     // Pré-remplir la première ligne avec le montant proposé (TVA 20% par défaut)
@@ -138,11 +136,6 @@ export default function DevisExpressForm({ onChange, onTotauxChange, montantInit
     ),
     [lignes, ajouterMO, mainOeuvre, ajouterMP, matierePremiere],
   );
-
-  // ── Notifier le parent du Total TTC en temps réel (même si devis incomplet) ──
-  useEffect(() => {
-    onTotauxChange?.(totaux.totalTTC);
-  }, [totaux.totalTTC]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Validation et remontée du devis ──────────────────────────────────────
   useEffect(() => {

@@ -126,6 +126,10 @@ export default function MesDemandesExpressPage() {
   const { notifications, markAsRead, markTypeAsRead } = useNotifications(firebaseUser?.uid);
   const [bellDemandeIds, setBellDemandeIds] = useState<Set<string>>(new Set());
   const [showToutsBell, setShowToutsBell] = useState(false);
+  // IDs des demandes dont la proposition vient d'être refusée (pour message spécifique)
+  const [refusedDemandeIds, setRefusedDemandeIds] = useState<Set<string>>(new Set());
+  // Référence pour détecter si c'est le tout premier rendu des notifications (après chargement)
+  const isInitialNotifLoad = useRef(true);
 
   // Marquer les notifications de propositions express comme lues au chargement
   useEffect(() => {
@@ -133,9 +137,10 @@ export default function MesDemandesExpressPage() {
     markTypeAsRead(['proposition_express_recue']);
   }, [firebaseUser?.uid, markTypeAsRead]);
 
-  // Mettre à jour les cloches en temps réel à chaque changement de notifications
-  // Pas de flag bellsInitialized : on recalcule à chaque onSnapshot pour capter
-  // les propositions qui arrivent pendant que le client est déjà sur la page.
+  // Mettre à jour les cloches ET le statut local en temps réel à chaque changement de notifications
+  // Quand une notification 'proposition_express_recue' arrive, on met à jour localement le statut
+  // de la demande concernée en 'proposition_recue' pour qu'elle bascule immédiatement dans
+  // l'onglet "Propositions reçues" sans attendre un rechargement de page.
   useEffect(() => {
     if (loading) return;
     const expressNotifs = notifications.filter(
@@ -144,6 +149,7 @@ export default function MesDemandesExpressPage() {
     if (expressNotifs.length === 0) {
       setBellDemandeIds(prev => (prev.size === 0 ? prev : new Set<string>()));
       setShowToutsBell(false);
+      isInitialNotifLoad.current = true; // réinitialiser si plus de notifs
       return;
     }
     const ids = new Set<string>(
@@ -151,6 +157,18 @@ export default function MesDemandesExpressPage() {
     );
     setBellDemandeIds(ids);
     setShowToutsBell(true);
+    // Basculer le statut local vers 'proposition_recue' pour les demandes concernées
+    setDemandes(prev => prev.map(d =>
+      ids.has(d.id) && d.statut === 'en_attente_proposition'
+        ? { ...d, statut: 'proposition_recue' as DemandeExpressStatut }
+        : d
+    ));
+    // Basculer automatiquement sur l'onglet "Propositions reçues" :
+    // - au premier chargement si des notifs non lues existent déjà
+    // - à chaque nouvelle notification qui arrive après le chargement
+    setFiltreStatut('proposition_recue');
+    setSourceFilter('toutes');
+    isInitialNotifLoad.current = false;
   }, [loading, notifications]);
 
   const toggleExpand = async (id: string, statut: DemandeExpressStatut) => {
@@ -287,9 +305,11 @@ export default function MesDemandesExpressPage() {
     setSubmitting(true);
     try {
       await refusePropositionExpress(refusModal.propId, motifRefus.trim());
-      // Mettre à jour la demande localement
-      setDemandes(prev => prev.map(d => d.id === refusModal.id ? { ...d, statut: 'en_attente_proposition' as DemandeExpressStatut } : d));
-      setPropositionsMap(prev => { const m = new Map(prev); m.delete(refusModal.id); return m; });
+      // Mettre à jour la demande localement + mémoriser l'ID pour afficher le bon message
+      const refusedId = refusModal.id;
+      setDemandes(prev => prev.map(d => d.id === refusedId ? { ...d, statut: 'en_attente_proposition' as DemandeExpressStatut } : d));
+      setPropositionsMap(prev => { const m = new Map(prev); m.delete(refusedId); return m; });
+      setRefusedDemandeIds(prev => new Set(prev).add(refusedId));
       setRefusModal(null); setMotifRefus('');
     } catch (err: any) {
       alert(err.message || 'Erreur');
@@ -915,13 +935,23 @@ export default function MesDemandesExpressPage() {
             className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filtreStatut === 'proposition_recue'
                 ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl scale-105'
-                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                : bellDemandeIds.size > 0
+                  ? 'bg-blue-50 hover:bg-blue-100 shadow-lg border-2 border-blue-400 ring-2 ring-blue-300 ring-opacity-50'
+                  : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${filtreStatut === 'proposition_recue' ? 'text-white' : 'text-blue-600'}`}>
               {demandes.filter(d => d.statut === 'proposition_recue').length}
+              {/* Badge 🔔 sur le tab quand des propositions non lues arrivent */}
+              {bellDemandeIds.size > 0 && filtreStatut !== 'proposition_recue' && (
+                <span className="ml-1 animate-bounce text-lg" title={`${bellDemandeIds.size} nouvelle(s) proposition(s)`}>🔔</span>
+              )}
             </div>
-            <div className={`text-xs font-semibold uppercase tracking-wide ${filtreStatut === 'proposition_recue' ? 'text-white' : 'text-gray-600'}`}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${
+              filtreStatut === 'proposition_recue' ? 'text-white'
+              : bellDemandeIds.size > 0 ? 'text-blue-700'
+              : 'text-gray-600'
+            }`}>
               📋 Propositions reçues
             </div>
           </button>
@@ -1072,7 +1102,14 @@ export default function MesDemandesExpressPage() {
                   onClick={canExpand ? () => toggleExpand(demande.id, demande.statut) : undefined}
                 >
                   <div className="flex items-center gap-3 mb-3 flex-wrap">
-                    {getStatutBadge(demande.statut)}
+                    {/* Badge statut — message sp\u00e9cifique si proposition r\u00e9cemment refus\u00e9e */}
+                    {demande.statut === 'en_attente_proposition' && refusedDemandeIds.has(demande.id) ? (
+                      <span className="px-3 py-1 rounded-full text-sm font-semibold bg-orange-100 text-orange-800">
+                        ↩️ Proposition refusée
+                      </span>
+                    ) : (
+                      getStatutBadge(demande.statut)
+                    )}
                     {getUrgenceBadge(demande.urgence, demande.typeTravauxExpress)}
                     {demande.expiresAt && demande.statut === 'en_attente_proposition' && (
                       <span className="px-3 py-1 bg-orange-50 border border-orange-200 text-orange-600 rounded-full text-xs font-semibold">
@@ -1177,19 +1214,30 @@ export default function MesDemandesExpressPage() {
 
                         {/* En attente de proposition */}
                         {demande.statut === 'en_attente_proposition' && (
-                          <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-5">
+                          <div className={`border-2 rounded-xl p-5 ${refusedDemandeIds.has(demande.id) ? 'bg-orange-50 border-orange-200' : 'bg-blue-50 border-blue-200'}`}>
                             <div className="flex items-start gap-3">
-                              <span className="text-3xl">⏳</span>
+                              <span className="text-3xl">{refusedDemandeIds.has(demande.id) ? '↩️' : '⏳'}</span>
                               <div className="flex-1">
-                                <p className="font-bold text-blue-900 mb-2 text-lg">En attente d'une proposition</p>
-                                {demande.artisanId ? (
-                                  <p className="text-sm text-blue-800 mb-3">
-                                    L'artisan a été notifié de votre demande. Il va vous envoyer une proposition dans les prochaines heures.
-                                  </p>
+                                {refusedDemandeIds.has(demande.id) ? (
+                                  <>
+                                    <p className="font-bold text-orange-900 mb-2 text-lg">Proposition refusée</p>
+                                    <p className="text-sm text-orange-800 mb-3">
+                                      Vous avez refusé la proposition. La demande est de nouveau ouverte aux artisans.
+                                    </p>
+                                  </>
                                 ) : (
-                                  <p className="text-sm text-blue-800 mb-3">
-                                    Votre demande est publiée. Les artisans qualifiés de votre secteur vont la consulter et vous enverront des propositions rapidement.
-                                  </p>
+                                  <>
+                                    <p className="font-bold text-blue-900 mb-2 text-lg">En attente d'une proposition</p>
+                                    {demande.artisanId ? (
+                                      <p className="text-sm text-blue-800 mb-3">
+                                        L'artisan a été notifié de votre demande. Il va vous envoyer une proposition dans les prochaines heures.
+                                      </p>
+                                    ) : (
+                                      <p className="text-sm text-blue-800 mb-3">
+                                        Votre demande est publiée. Les artisans qualifiés de votre secteur vont la consulter et vous enverront des propositions rapidement.
+                                      </p>
+                                    )}
+                                  </>
                                 )}
                                 {demande.expiresAt && (() => {
                                   const diff = tsToDate(demande.expiresAt).getTime() - Date.now();

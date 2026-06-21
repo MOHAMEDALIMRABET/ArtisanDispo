@@ -95,6 +95,8 @@ export default function DemandeExpressDetailArtisanPage() {
   const [devisExpress, setDevisExpress] = useState<DevisExpressJoint | undefined>(undefined);
   // Modale de consultation du devis joint envoyé
   const [devisModalOpen, setDevisModalOpen] = useState(false);
+  // Panneau gauche (détails intervention) visible/masqué quand le devis est affiché
+  const [showDetails, setShowDetails] = useState(false);
   // Chargement génération PDF
 
 
@@ -515,14 +517,28 @@ export default function DemandeExpressDetailArtisanPage() {
           )}
 
           {/* ── Grille deux colonnes ── */}
+
+          {/* Lien toggle : visible uniquement quand le devis est affiché (montant >= 150 ou devis déjà joint) */}
+          {(maProposition?.devisJoint || besoinDevis) && (
+            <div className="mb-2 flex justify-start">
+              <button
+                type="button"
+                onClick={() => setShowDetails(prev => !prev)}
+                className="text-sm text-[#FF6B00] hover:underline flex items-center gap-1"
+              >
+                {showDetails ? '▲ Masquer les détails de l\'intervention' : '▼ Voir les détails de l\'intervention'}
+              </button>
+            </div>
+          )}
+
           <div className={`grid gap-6 items-start ${
-            (maProposition?.devisJoint || besoinDevis)
+            (maProposition?.devisJoint || besoinDevis) && !showDetails
               ? 'grid-cols-1 max-w-2xl mx-auto w-full'
               : 'grid-cols-1 lg:grid-cols-2'
           }`}>
 
             {/* ══ COLONNE GAUCHE : Infos demande ══ */}
-            {!(maProposition?.devisJoint || besoinDevis) && (
+            {(!(maProposition?.devisJoint || besoinDevis) || showDetails) && (
             <div className="space-y-6">
 
             {/* Infos demande */}
@@ -667,7 +683,7 @@ export default function DemandeExpressDetailArtisanPage() {
             </div>
             </div>
             </div>
-            )}{/* fin condition !devisJoint — colonne gauche masquée si devisJoint présent */}
+            )}{/* fin condition colonne gauche */}
 
             {/* ══ COLONNE DROITE : Proposition / Actions ══ */}
             <div className="space-y-6 lg:sticky lg:top-8">
@@ -906,10 +922,6 @@ export default function DemandeExpressDetailArtisanPage() {
                   <DevisExpressForm
                     onChange={(devis) => {
                       setDevisExpress(devis);
-                    }}
-                    onTotauxChange={(ttc) => {
-                      // Mettre à jour le champ "Montant proposé TTC" en temps réel
-                      setMontantPropose(ttc.toFixed(2));
                     }}
                     montantInitial={Math.round((montantVal / 1.20) * 100) / 100}
                   />
