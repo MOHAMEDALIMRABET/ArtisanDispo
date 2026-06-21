@@ -38,7 +38,6 @@ export const EXPRESS_WORK_TAXONOMY: Record<TypeTravauxExpress, ExpressTypeConfig
           { value: 'degrippage-serrure', label: 'Dégrippage de serrure', prix: 'Max 180 €' },
           { value: 'installation-cylindre-europeen', label: 'Installation cylindre simple européen', prix: 'Max 150 €' },
           { value: 'installation-serrure-blindee', label: 'Installation serrure blindée 3 points', prix: 'Max 390 € - sur devis' },
-          { value: 'grille-tarifaire-serrurerie', label: 'Grille tarifaire des interventions en serrurerie' },
         ],
       },
       {
