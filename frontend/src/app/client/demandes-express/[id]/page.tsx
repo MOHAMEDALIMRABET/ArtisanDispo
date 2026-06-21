@@ -292,7 +292,24 @@ export default function DemandeExpressDetailClientPage() {
     ? EXPRESS_WORK_TAXONOMY[demande.typeTravauxExpress].label
     : 'Travaux express';
   const categorieLabel = demande.categorieLabel || (demande.categorie.charAt(0).toUpperCase() + demande.categorie.slice(1));
-  const sousCategorieLabel = demande.sousCategorieLabel || demande.sousCategorie;
+
+  // Résoudre le label de la sous-catégorie :
+  // 1. Utiliser le label sauvegardé si disponible
+  // 2. Chercher dans la taxonomie via la valeur technique
+  // 3. Si introuvable (sous-catégorie supprimée), ne rien afficher
+  const sousCategorieLabel = (() => {
+    if (demande.sousCategorieLabel) return demande.sousCategorieLabel;
+    if (!demande.sousCategorie) return undefined;
+    // Chercher dans toutes les catégories de la taxonomie
+    for (const type of Object.values(EXPRESS_WORK_TAXONOMY)) {
+      for (const cat of type.categories || []) {
+        const found = cat.sousCategories?.find((sc: { value: string; label: string }) => sc.value === demande.sousCategorie);
+        if (found) return found.label;
+      }
+    }
+    // Valeur technique inconnue → ne pas afficher
+    return undefined;
+  })();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#F8F9FA] to-white">

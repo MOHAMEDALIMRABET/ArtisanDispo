@@ -297,7 +297,7 @@ export default function NouvelleDemandeExpressPage() {
                     onChange={(e) => setSousCategorie(e.target.value)}
                     className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
                   >
-                    <option value="">Toutes</option>
+                    <option value="">-- Choisir une sous-catégorie --</option>
                     {selectedCategorie.sousCategories.map((sc) => (
                       <option key={sc.value} value={sc.value} title={sc.prix ? `Prix indicatif : ${sc.prix}` : undefined}>
                         {sc.label}

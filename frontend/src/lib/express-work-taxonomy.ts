@@ -51,7 +51,6 @@ export const EXPRESS_WORK_TAXONOMY: Record<TypeTravauxExpress, ExpressTypeConfig
           { value: 'debouchage-wc', label: 'Débouchage de WC', prix: 'Max 200 €' },
           { value: 'reparation-chasse-eau', label: 'Réparation chasse d\'eau', prix: 'Max 250 €' },
           { value: 'recherche-fuite', label: 'Recherche de fuite', prix: 'Max 380 €' },
-          { value: 'grille-tarifaire-plomberie', label: 'Grille tarifaire des interventions en plomberie' },
         ],
       },
       {
