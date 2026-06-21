@@ -98,9 +98,9 @@ export default function DemandeExpressDetailArtisanPage() {
   // Chargement génération PDF
 
 
-  /** True si le montant saisi dépasse 150€ → le formulaire de devis doit s'afficher */
+  /** True si le montant saisi est égal ou supérieur à 150€ → le formulaire de devis doit s'afficher */
   const montantVal = parseFloat(montantPropose);
-  const besoinDevis = !isNaN(montantVal) && montantVal > 150;
+  const besoinDevis = !isNaN(montantVal) && montantVal >= 150;
 
   // Réponse à la contre-proposition client
   const [negoAction, setNegoAction] = useState<'accepter_prix_client' | 'refuser' | 'proposition_finale' | null>(null);
@@ -179,9 +179,9 @@ export default function DemandeExpressDetailArtisanPage() {
       alert('Montant invalide');
       return;
     }
-    // Si montant > 150€ : le devis est obligatoire et doit être signé
-    if (montant > 150 && !devisExpress) {
-      alert('Vous devez remplir et signer le devis pour soumettre une proposition supérieure à 150€.');
+    // Si montant >= 150€ : le devis est obligatoire et doit être signé
+    if (montant >= 150 && !devisExpress) {
+      alert('Vous devez remplir et signer le devis pour soumettre une proposition de 150€ ou plus.');
       return;
     }
 
@@ -862,7 +862,7 @@ export default function DemandeExpressDetailArtisanPage() {
                   <label htmlFor="montant" className="block text-sm font-semibold text-[#2C3E50] mb-2">
                     Montant proposé *{' '}
                     <span className="text-[#6C757D] font-normal">
-                      {besoinDevis ? '(devis signé requis)' : '(≤ 150€ sans devis)'}
+                      {besoinDevis ? '(devis signé requis)' : '(< 150€ sans devis)'}
                     </span>
                   </label>
                   <div className="relative">
@@ -874,7 +874,7 @@ export default function DemandeExpressDetailArtisanPage() {
                         if (besoinDevis && devisExpress) return; // piloté par le devis
                         setMontantPropose(e.target.value);
                         // Réinitialiser le devis si on repasse sous 150€
-                        if (parseFloat(e.target.value) <= 150) setDevisExpress(undefined);
+                        if (parseFloat(e.target.value) < 150) setDevisExpress(undefined);
                       }}
                       readOnly={besoinDevis && !!devisExpress}
                       min={1}
