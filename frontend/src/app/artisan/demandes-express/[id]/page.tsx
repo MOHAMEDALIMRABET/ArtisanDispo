@@ -896,7 +896,7 @@ export default function DemandeExpressDetailArtisanPage() {
                   )}
                   {besoinDevis && !devisExpress && (
                     <p className="mt-1 text-xs text-orange-600 font-medium">
-                      ⚠️ Montant &gt; 150€ — remplissez le devis ci-dessous, il déterminera le montant final.
+                      ⚠️ Montant &gt;= 150€ — remplissez le devis ci-dessous, il déterminera le montant final.
                     </p>
                   )}
                 </div>
