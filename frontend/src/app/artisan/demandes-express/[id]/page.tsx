@@ -860,7 +860,7 @@ export default function DemandeExpressDetailArtisanPage() {
               <form onSubmit={handleSubmitProposition} className="space-y-6">
                 <div>
                   <label htmlFor="montant" className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                    Montant proposé *{' '}
+                    Montant proposé <span className="text-[#FF6B00]">TTC</span> *{' '}
                     <span className="text-[#6C757D] font-normal">
                       {besoinDevis ? '(devis signé requis)' : '(< 150€ sans devis)'}
                     </span>
