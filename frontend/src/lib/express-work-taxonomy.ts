@@ -62,7 +62,6 @@ export const EXPRESS_WORK_TAXONOMY: Record<TypeTravauxExpress, ExpressTypeConfig
           { value: 'entretien-chaudiere', label: 'Entretien de chaudière', prix: 'Max 250 €' },
           { value: 'fuite-chaudiere', label: 'Fuite chaudière', prix: 'Max 200 €' },
           { value: 'reparation-ballon-eau-chaude', label: 'Réparation ballon d\'eau chaude', prix: 'Max 350 €' },
-          { value: 'grille-tarifaire-chauffage', label: 'Grille tarifaire des interventions de chauffage' },
         ],
       },
       {
