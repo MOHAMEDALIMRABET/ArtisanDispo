@@ -51,6 +51,20 @@ export function PaymentForm({
   const heuresRestantes = Math.max(0, Math.floor((limite.getTime() - now.getTime()) / (1000 * 60 * 60)));
   const minutesRestantes = Math.max(0, Math.floor(((limite.getTime() - now.getTime()) % (1000 * 60 * 60)) / (1000 * 60)));
 
+  // process.env.NODE_ENV est remplacé à la compilation par Next.js :
+  // → 'development' en local (`next dev`), 'production' lors du build (`next build`).
+  // Le bloc ci-dessous est donc éliminé du bundle de production par tree-shaking.
+  const isDev = process.env.NODE_ENV === 'development';
+
+  // Remplir automatiquement avec la carte de test Stripe (mode dev uniquement)
+  const fillTestCard = () => {
+    setCardNumber('4242 4242 4242 4242');
+    setCardName('TEST CARD');
+    setExpiryDate('12/34');
+    setCvv('123');
+    setErrors({});
+  };
+
   // Formatage automatique numéro de carte (XXXX XXXX XXXX XXXX)
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\s/g, ''); // Enlever espaces
@@ -172,6 +186,32 @@ export function PaymentForm({
 
         {/* Body */}
         <div className="p-6 space-y-6">
+          {/* Carte virtuelle de test (mode dev uniquement) */}
+          {isDev && (
+            <div className="bg-[#FFF8E1] border-2 border-dashed border-[#FFC107] rounded-lg p-4">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div>
+                  <p className="text-sm font-bold text-[#2C3E50] flex items-center gap-1">
+                    🛠️ MODE DÉVELOPPEMENT — Carte de test
+                  </p>
+                  <p className="text-xs text-[#6C757D] mt-1">
+                    Numéro : <code className="bg-[#FFC107] bg-opacity-20 px-1 rounded">4242 4242 4242 4242</code>
+                    &nbsp;|&nbsp;Expiration : <code className="bg-[#FFC107] bg-opacity-20 px-1 rounded">12/34</code>
+                    &nbsp;|&nbsp;CVV : <code className="bg-[#FFC107] bg-opacity-20 px-1 rounded">123</code>
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={fillTestCard}
+                  disabled={processing}
+                  className="px-4 py-2 bg-[#FFC107] text-[#2C3E50] rounded-lg text-sm font-semibold hover:bg-[#E5AB00] transition-colors disabled:opacity-50 whitespace-nowrap"
+                >
+                  ⚡ Utiliser la carte test
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Alerte délai 24h */}
           <div className={`border-l-4 p-4 rounded ${
             heuresRestantes < 2 
