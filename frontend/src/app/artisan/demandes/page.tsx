@@ -2407,7 +2407,7 @@ export default function ArtisanDemandesPage() {
                           demande.urgence === 'immediat' ? 'bg-orange-100 text-orange-700' :
                           'bg-red-100 text-red-700'
                         }`}>
-                          {demande.urgence === 'immediat' ? '⚡ Immédiat (2h)' : '🚨 Urgent (24h)'}
+                          {demande.typeTravauxExpress === 'depannage-urgence' ? '🚨 Urgent (30 min - 1h)' : demande.urgence === 'immediat' ? '⚡ Immédiat (2h)' : '🚨 Urgent (24h)'}
                         </span>
                         <span className={`ml-auto mr-2 px-3 py-1 rounded-full text-xs font-bold ${
                           demande.statut === 'en_attente_proposition' ? 'bg-yellow-100 text-yellow-700' :
@@ -2532,7 +2532,7 @@ export default function ArtisanDemandesPage() {
                               {demande.urgence === 'immediat' ? '⚡' : '🚨'} Intervention attendue
                             </p>
                             <p className="font-semibold text-[#2C3E50]">
-                              {demande.urgence === 'immediat' ? 'Dans les 2h' : 'Dans les 24h'} après création
+                              {demande.typeTravauxExpress === 'depannage-urgence' ? 'Sous 30 min - 1h' : demande.urgence === 'immediat' ? 'Dans les 2h' : 'Dans les 24h'} après création
                             </p>
                             {demande.createdAt && (
                               <p className="text-xs text-gray-400 mt-0.5">

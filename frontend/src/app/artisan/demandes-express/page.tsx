@@ -284,8 +284,12 @@ export default function DemandesExpressArtisanPage() {
                             </span>
                           )}
                           {demande.urgence === 'immediat' && (
-                            <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs font-semibold">
-                              ⚡ Immédiat (2h)
+                            <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                              demande.typeTravauxExpress === 'depannage-urgence'
+                                ? 'bg-red-100 text-red-800'
+                                : 'bg-orange-100 text-orange-800'
+                            }`}>
+                              {demande.typeTravauxExpress === 'depannage-urgence' ? '🚨 Urgent (30 min - 1h)' : '⚡ Immédiat (2h)'}
                             </span>
                           )}
                         </div>

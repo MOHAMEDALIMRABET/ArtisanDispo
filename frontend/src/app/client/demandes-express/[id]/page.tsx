@@ -399,10 +399,7 @@ export default function DemandeExpressDetailClientPage() {
                     <p className="text-[#2C3E50] font-medium text-sm">{demande.adresse}</p>
                   </div>
                 )}
-                <div>
-                  <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">📅 Date</p>
-                  <p className="text-[#2C3E50] font-medium text-sm">{new Date(demande.date).toLocaleDateString('fr-FR')}</p>
-                </div>
+
                 {['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut) && montantPaye != null ? (
                   <div>
                     <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">💳 Montant payé (séquestre)</p>
@@ -417,13 +414,15 @@ export default function DemandeExpressDetailClientPage() {
                 <div>
                   <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">🔥 Urgence</p>
                   <p className="text-[#2C3E50] font-medium text-sm">
-                    {demande.urgence === 'immediat' ? '⚡ Immédiat (2h)' : '🚨 Urgent (24h)'}
+                    {demande.typeTravauxExpress === 'depannage-urgence'
+                      ? '🚨 Urgent (30 min - 1h)'
+                      : demande.urgence === 'immediat' ? '⚡ Immédiat (2h)' : '🚨 Urgent (24h)'}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">📅 Déposée le</p>
                   <p className="text-[#2C3E50] font-medium text-sm">
-                    {demande.createdAt ? format(demande.createdAt.toDate(), 'dd MMM yyyy', { locale: fr }) : '—'}
+                    {demande.createdAt ? format(demande.createdAt.toDate(), "dd MMM yyyy 'à' HH:mm:ss", { locale: fr }) : '—'}
                   </p>
                 </div>
               </div>
@@ -726,7 +725,11 @@ export default function DemandeExpressDetailClientPage() {
                         />
                       </div>
                       <p className="text-xs text-orange-700">
-                        {demande.urgence === 'immediat' ? (
+                        {demande.typeTravauxExpress === 'depannage-urgence' ? (
+                          <>
+                            🚨 <strong>Intervention urgente (30 min - 1h)</strong> → Paiement requis sous <strong>15 minutes</strong>
+                          </>
+                        ) : demande.urgence === 'immediat' ? (
                           <>
                             ⚡ <strong>Intervention immédiate (2h)</strong> → Paiement requis sous <strong>15 minutes</strong>
                           </>

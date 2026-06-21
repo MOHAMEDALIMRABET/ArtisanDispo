@@ -635,7 +635,11 @@ export default function MesDemandesExpressPage() {
     );
   };
 
-  const getUrgenceBadge = (urgence: 'immediat' | 'urgent') => {
+  const getUrgenceBadge = (urgence: 'immediat' | 'urgent', typeTravauxExpress?: string) => {
+    // Dépannage urgence → 30 min - 1h (rouge), petits travaux → 2h (orange)
+    if (typeTravauxExpress === 'depannage-urgence') {
+      return <span className="px-2 py-1 rounded text-xs font-semibold bg-red-100 text-red-700">🚨 Urgent (30 min - 1h)</span>;
+    }
     const config: Record<string, { cls: string; label: string }> = {
       immediat: { cls: 'bg-orange-100 text-orange-700', label: '⚡ Immédiat (2h)' },
       urgent:   { cls: 'bg-red-100 text-red-700',       label: '🚨 Urgent (24h)' },
@@ -1085,7 +1089,7 @@ export default function MesDemandesExpressPage() {
                 >
                   <div className="flex items-center gap-3 mb-3 flex-wrap">
                     {getStatutBadge(demande.statut)}
-                    {getUrgenceBadge(demande.urgence)}
+                    {getUrgenceBadge(demande.urgence, demande.typeTravauxExpress)}
                     {demande.expiresAt && demande.statut === 'en_attente_proposition' && (
                       <span className="px-3 py-1 bg-orange-50 border border-orange-200 text-orange-600 rounded-full text-xs font-semibold">
                         ⏱️ Expire le {format(tsToDate(demande.expiresAt), 'dd MMMM à HH:mm', { locale: fr })} ({getExpressArtisanWindowLabel(demande)})
