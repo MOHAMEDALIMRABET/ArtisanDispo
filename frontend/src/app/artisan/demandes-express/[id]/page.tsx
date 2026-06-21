@@ -516,13 +516,13 @@ export default function DemandeExpressDetailArtisanPage() {
 
           {/* ── Grille deux colonnes ── */}
           <div className={`grid gap-6 items-start ${
-            maProposition?.devisJoint
+            (maProposition?.devisJoint || besoinDevis)
               ? 'grid-cols-1 max-w-2xl mx-auto w-full'
               : 'grid-cols-1 lg:grid-cols-2'
           }`}>
 
             {/* ══ COLONNE GAUCHE : Infos demande ══ */}
-            {!maProposition?.devisJoint && (
+            {!(maProposition?.devisJoint || besoinDevis) && (
             <div className="space-y-6">
 
             {/* Infos demande */}
