@@ -27,7 +27,7 @@ import type { DemandeExpress, PropositionExpress, User, DemandeExpressStatut } f
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { getExpressArtisanWindowLabel } from '@/lib/express-work-taxonomy';
-import { generateDevisExpressPDF } from '@/lib/generateDevisExpressPDF';
+
 
 /**
  * Convertit un timestamp Firestore (Timestamp, {seconds,nanoseconds} brut, ou Date)
@@ -777,29 +777,13 @@ export default function MesDemandesExpressPage() {
             {/* Bouton télécharger le PDF */}
             <button
               onClick={async () => {
-                if (!devisConsultModal?.devisJoint) return;
-                setPdfLoading(true);
-                try {
-                  // Récupérer les noms depuis les maps déjà chargées
-                  const artisanNom = artisanNomMap.get(devisConsultModal.demandeId) ?? 'Artisan';
-                  // Trouver la demande correspondante pour la catégorie et la ville
-                  const demandeConcernee = demandes.find(d => d.id === devisConsultModal.demandeId);
-                  await generateDevisExpressPDF({
-                    devis: devisConsultModal.devisJoint,
-                    propositionId: devisConsultModal.id,
-                    artisanNom,
-                    clientNom: firebaseUser?.displayName ?? 'Client',
-                    categorie: demandeConcernee?.categorie ?? '',
-                    ville: demandeConcernee?.ville ?? '',
-                  });
-                } finally {
-                  setPdfLoading(false);
-                }
+                if (!devisConsultModal?.id) return;
+                // Ouvre la page d'impression dans un nouvel onglet (comme le devis classique)
+                window.open(`/devis-express-print/${devisConsultModal.id}`, '_blank');
               }}
-              disabled={pdfLoading}
-              className="flex-1 flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-3 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold disabled:opacity-60"
+              className="flex-1 flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-3 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold"
             >
-              {pdfLoading ? '⏳ Génération...' : '⬇️ Télécharger le devis (PDF)'}
+              🖨️ Imprimer / PDF
             </button>
             <button
               onClick={() => setDevisConsultModal(null)}

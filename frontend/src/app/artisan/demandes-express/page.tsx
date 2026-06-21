@@ -10,7 +10,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { getUserById } from '@/lib/firebase/user-service';
 import type { DemandeExpress, PropositionExpress, User } from '@/types/firestore';
 import { getExpressArtisanWindowMs } from '@/lib/express-work-taxonomy';
-import { generateDevisExpressPDF } from '@/lib/generateDevisExpressPDF';
+
 
 function getInterventionDeadline(demande: DemandeExpress): string {
   if (!demande.createdAt) {
@@ -507,22 +507,15 @@ export default function DemandesExpressArtisanPage() {
                   if (!devisListDemande) return;
                   setPdfLoadingList(true);
                   try {
-                    await generateDevisExpressPDF({
-                      devis: dj,
-                      propositionId: devisListModal.id,
-                      artisanNom: `${userData?.prenom ?? ''} ${userData?.nom ?? ''}`.trim() || 'Artisan',
-                      clientNom: clientNoms.get(devisListDemande.clientId) || 'Client',
-                      categorie: devisListDemande.categorie,
-                      ville: devisListDemande.ville,
-                    });
+                    // Ouvre la page d'impression dans un nouvel onglet (comme le devis classique)
+                    window.open(`/devis-express-print/${devisListModal.id}`, '_blank');
                   } finally {
                     setPdfLoadingList(false);
                   }
                 }}
-                disabled={pdfLoadingList}
-                className="flex-1 flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-3 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold disabled:opacity-60"
+                className="flex-1 flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-3 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold"
               >
-                {pdfLoadingList ? '⏳ Génération...' : '⬇️ Télécharger le devis (PDF)'}
+                🖨️ Imprimer / PDF
               </button>
               <button
                 onClick={() => setDevisListModal(null)}
