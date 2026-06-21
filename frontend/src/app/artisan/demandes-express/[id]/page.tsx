@@ -98,7 +98,7 @@ export default function DemandeExpressDetailArtisanPage() {
   // Chargement génération PDF
 
 
-  /** True si le montant saisi est égal ou supérieur à 150€ → le formulaire de devis doit s'afficher */
+  /** True si le montant TTC saisi est égal ou supérieur à 150€ → le formulaire de devis doit s'afficher */
   const montantVal = parseFloat(montantPropose);
   const besoinDevis = !isNaN(montantVal) && montantVal >= 150;
 
@@ -901,7 +901,7 @@ export default function DemandeExpressDetailArtisanPage() {
                   )}
                 </div>
 
-                {/* Formulaire devis (affiché uniquement si montant > 150€) */}
+                {/* Formulaire devis (affiché quand Total TTC >= 150€) */}
                 {besoinDevis && (
                   <DevisExpressForm
                     onChange={(devis) => {
@@ -909,7 +909,7 @@ export default function DemandeExpressDetailArtisanPage() {
                       // Synchroniser montantPropose avec le total TTC du devis
                       if (devis) setMontantPropose(devis.totaux.totalTTC.toFixed(2));
                     }}
-                    montantInitial={montantVal}
+                    montantInitial={Math.round((montantVal / 1.20) * 100) / 100}
                   />
                 )}
 
