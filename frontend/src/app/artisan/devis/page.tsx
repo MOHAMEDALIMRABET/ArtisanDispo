@@ -619,8 +619,9 @@ export default function MesDevisPage() {
       if (!aRecent && bRecent) return 1;
       
       // 2. Si les deux ont (ou n'ont pas) de notification récente, trier par date de création
-      const dateA = a.dateCreation?.toMillis() || 0;
-      const dateB = b.dateCreation?.toMillis() || 0;
+      // Gère les deux formats : Timestamp Firestore (.toMillis()) et objet sérialisé ({ seconds })
+      const dateA = a.dateCreation?.toMillis?.() ?? (a.dateCreation as any)?.seconds * 1000 ?? 0;
+      const dateB = b.dateCreation?.toMillis?.() ?? (b.dateCreation as any)?.seconds * 1000 ?? 0;
       return dateB - dateA; // Plus récent en premier
     });
 

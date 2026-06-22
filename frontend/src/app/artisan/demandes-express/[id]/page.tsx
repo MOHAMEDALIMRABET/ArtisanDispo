@@ -17,8 +17,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import type { DemandeExpress, PropositionExpress, User } from '@/types/firestore';
 import { Button } from '@/components/ui/Button';
 import type { Timestamp } from 'firebase/firestore';
-import { EXPRESS_WORK_TAXONOMY } from '@/lib/express-work-taxonomy';
-import { getExpressArtisanWindowMs } from '@/lib/express-work-taxonomy';
+import { EXPRESS_WORK_TAXONOMY, getExpressArtisanWindowMs, parsePrixMax } from '@/lib/express-work-taxonomy';
 import DevisExpressForm from '@/components/DevisExpressForm';
 import type { DevisExpressJoint } from '@/types/firestore';
 
@@ -180,6 +179,25 @@ export default function DemandeExpressDetailArtisanPage() {
       alert('Montant invalide');
       return;
     }
+
+    // Vérification du plafond de prix de la taxonomie
+    // Si la sous-catégorie a un prix "Max X€", l'artisan ne peut pas dépasser ce plafond
+    if (demande.typeTravauxExpress && demande.sousCategorie) {
+      const prixIndicatifTaxo = EXPRESS_WORK_TAXONOMY[demande.typeTravauxExpress]?.categories
+        ?.flatMap((c: { sousCategories: { value: string; prix?: string }[] }) => c.sousCategories)
+        ?.find((sc: { value: string }) => sc.value === demande.sousCategorie)
+        ?.prix;
+      const plafond = parsePrixMax(prixIndicatifTaxo);
+      if (plafond !== null && montant > plafond) {
+        alert(
+          `⛔ Votre proposition de ${montant}€ TTC dépasse le plafond autorisé pour cette prestation.\n\n` +
+          `💰 Prix maximum : ${plafond}€ TTC (${prixIndicatifTaxo})\n\n` +
+          `Veuillez réduire votre montant à ${plafond}€ TTC maximum.`
+        );
+        return;
+      }
+    }
+
     // Si montant >= 150€ : le devis est obligatoire et doit être signé
     if (montant >= 150 && !devisExpress) {
       alert('Vous devez remplir et signer le devis pour soumettre une proposition de 150€ ou plus.');
@@ -269,6 +287,11 @@ export default function DemandeExpressDetailArtisanPage() {
         ?.find((sc: { value: string }) => sc.value === demande.sousCategorie)
         ?.prix ?? null
     : null;
+
+  // Plafond numérique extrait du prix indicatif (ex: "Max 199 €" → 199)
+  // Utilisé pour le retour visuel en temps réel sur le champ montant
+  const prixMaxTaxonomie = parsePrixMax(prixIndicatif);
+  const montantExcedePlafond = prixMaxTaxonomie !== null && !isNaN(montantVal) && montantVal > prixMaxTaxonomie;
   const interventionWindowHours = Math.round(getExpressArtisanWindowMs(demande) / (60 * 60 * 1000));
 
   const maProposition = propositions.find(p => p.artisanId === firebaseUser?.uid);
@@ -936,6 +959,17 @@ export default function DemandeExpressDetailArtisanPage() {
                     <p className="mt-1 text-xs text-orange-600 font-medium">
                       ⚠️ Montant &gt;= 150€ — remplissez le devis ci-dessous, il déterminera le montant final.
                     </p>
+                  )}
+                  {/* Avertissement en temps réel si le montant dépasse le plafond de la taxonomie */}
+                  {montantExcedePlafond && (
+                    <div className="mt-2 flex items-start gap-2 bg-red-50 border border-red-300 rounded-lg px-3 py-2">
+                      <span className="text-red-600 text-sm flex-shrink-0">⛔</span>
+                      <p className="text-sm text-red-700 font-medium">
+                        Votre montant ({montantVal}€) dépasse le plafond autorisé pour cette prestation.{' '}
+                        <strong>Maximum : {prixMaxTaxonomie}€ TTC ({prixIndicatif})</strong>.
+                        La soumission sera bloquée.
+                      </p>
+                    </div>
                   )}
                 </div>
 

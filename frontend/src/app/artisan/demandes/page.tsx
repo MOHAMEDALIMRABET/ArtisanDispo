@@ -1274,7 +1274,7 @@ export default function ArtisanDemandesPage() {
                   { key: 'payees', label: '💰 Payées', count: getToutesDemandesTraitees(demandes).filter(d => devisMap.get(d.id)?.some(v => v.statut === 'paye')).length },
                   { key: 'travaux_en_cours', label: '🚧 Travaux en cours', count: getToutesDemandesTraitees(demandes).filter(d => devisMap.get(d.id)?.some(v => v.statut === 'en_cours')).length },
                   { key: 'termines', label: '✅ Terminés', count: getToutesDemandesTraitees(demandes).filter(d => devisMap.get(d.id)?.some(v => ['travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(v.statut))).length },
-                  { key: 'refusees', label: '❌ Refusées', count: getToutesDemandesTraitees(demandes).filter(d => d.statut === 'annulee' && !devisMap.get(d.id)?.some(v => ['paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(v.statut))).length },
+                  { key: 'refusees', label: '❌ Refusées / Expirées', count: getToutesDemandesTraitees(demandes).filter(d => d.statut === 'annulee' && !devisMap.get(d.id)?.some(v => ['paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(v.statut))).length },
                   { key: 'expirees', label: '⏰ Expirées', count: getToutesDemandesTraitees(demandes).filter(d => (d.statut === 'expiree' || (d.dateExpiration && isDemandeExpired(d.dateExpiration))) && !devisMap.get(d.id)?.some(v => ['paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(v.statut))).length },
                 ] as { key: string; label: string; count: number }[]).filter(({ key, count }) => key === 'tout' || count > 0).map(({ key, label, count }) => (
                   <button
@@ -2284,7 +2284,7 @@ export default function ArtisanDemandesPage() {
                   { key: 'propositions_envoyees' as const, label: '📨 Propositions envoyées', count: counts.propositions_envoyees },
                   { key: 'acceptees' as const, label: '🔧 En traitement', count: counts.acceptees },
                   { key: 'validees' as const, label: '🎉 Validées', count: counts.validees },
-                  { key: 'refusees' as const, label: '❌ Refusées', count: counts.refusees },
+                  { key: 'refusees' as const, label: '❌ Refusées / Expirées', count: counts.refusees },
                 ] as { key: typeof expressFilter; label: string; count: number }[]).map(tab => (
                   <button
                     key={tab.key}

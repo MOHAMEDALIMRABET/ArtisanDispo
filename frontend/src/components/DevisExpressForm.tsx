@@ -489,11 +489,11 @@ export default function DevisExpressForm({ onChange, montantInitial }: DevisExpr
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="text-xs font-medium text-gray-600 block mb-1">
-            Délai de réalisation
+            Délai d'intervention
           </label>
           <input
             type="text"
-            placeholder="ex : 2 jours, 4h"
+            placeholder="ex : 2h, sous 4h, dans la journée"
             value={delaiRealisation}
             onChange={e => setDelaiRealisation(e.target.value)}
             className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-[#FF6B00]"
