@@ -58,6 +58,8 @@ export default function RechercheExpressPage() {
 
   const categorieOptions = getExpressCategories(typeTravaux);
   const selectedCategorie = categorieOptions.find((cat) => cat.value === categorie);
+  // Prix indicatif de la sous-catégorie sélectionnée (affiché sous le select)
+  const prixIndicatif = selectedCategorie?.sousCategories.find((sc) => sc.value === sousCategorie)?.prix ?? null;
 
   // Recherche de villes
   const [villeSuggestions, setVilleSuggestions] = useState<VilleSuggestion[]>([]);
@@ -497,6 +499,14 @@ export default function RechercheExpressPage() {
                     </option>
                   ))}
                 </select>
+                {/* Badge prix indicatif : affiché dès qu'une sous-catégorie avec un prix est sélectionnée */}
+                {prixIndicatif && (
+                  <div className="mt-2 flex items-center gap-2 bg-[#FFF3EA] border border-[#FF6B00] rounded-lg px-3 py-2">
+                    <span className="text-lg">💰</span>
+                    <span className="text-sm font-semibold text-[#FF6B00]">Prix indicatif :</span>
+                    <span className="text-sm font-bold text-[#2C3E50]">{prixIndicatif}</span>
+                  </div>
+                )}
               </div>
             )}
 

@@ -48,6 +48,8 @@ export default function NouvelleDemandeExpressPage() {
 
   const categorieOptions = getExpressCategories(typeTravaux);
   const selectedCategorie = getExpressCategorieOption(typeTravaux, categorieExpress);
+  // Prix indicatif de la sous-catégorie sélectionnée (affiché sous le select)
+  const prixIndicatif = selectedCategorie?.sousCategories.find((sc) => sc.value === sousCategorie)?.prix ?? null;
   const urgence = EXPRESS_WORK_TAXONOMY[typeTravaux].urgenceValue;
   const dateReference = new Date().toISOString().slice(0, 10);
 
@@ -299,11 +301,19 @@ export default function NouvelleDemandeExpressPage() {
                   >
                     <option value="">-- Choisir une sous-catégorie --</option>
                     {selectedCategorie.sousCategories.map((sc) => (
-                      <option key={sc.value} value={sc.value} title={sc.prix ? `Prix indicatif : ${sc.prix}` : undefined}>
+                      <option key={sc.value} value={sc.value}>
                         {sc.label}
                       </option>
                     ))}
                   </select>
+                )}
+                {/* Badge prix indicatif : affiché dès qu'une sous-catégorie avec un prix est sélectionnée */}
+                {prixIndicatif && (
+                  <div className="mt-2 flex items-center gap-2 bg-[#FFF3EA] border border-[#FF6B00] rounded-lg px-3 py-2">
+                    <span className="text-lg">💰</span>
+                    <span className="text-sm font-semibold text-[#FF6B00]">Prix indicatif :</span>
+                    <span className="text-sm font-bold text-[#2C3E50]">{prixIndicatif}</span>
+                  </div>
                 )}
               </div>
             )}
