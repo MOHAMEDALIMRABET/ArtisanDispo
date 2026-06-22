@@ -12,12 +12,20 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { collection, query, where, getDocs, doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { Devis } from '@/types/devis';
-import type { Demande } from '@/types/firestore';
+import type { Demande, PropositionExpress } from '@/types/firestore';
 import Link from 'next/link';
 import { annulerDevisParClient } from '@/lib/firebase/devis-service';
 import { getAvisByContratId, getAvisByDevisId } from '@/lib/firebase/avis-service';
 import { markNotificationsByLienAsRead } from '@/lib/firebase/notification-service';
 import { resendVerificationEmail } from '@/lib/auth-service';
+import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
+
+// Extension du type Devis pour intégrer les propositions express (> 150€ acceptées)
+type DevisItem = Devis & {
+  _isExpress?: boolean;            // Devis issu d'une proposition express
+  _expressPropositionId?: string;  // ID de la proposition (lien page impression)
+  _expressDemandeId?: string;      // ID de la demande express (lien retour)
+};
 
 // Helper: Devis considérés comme "acceptés" (en attente de paiement)
 const isDevisAccepte = (statut: string) => statut === 'en_attente_paiement';
@@ -31,7 +39,7 @@ export default function ClientDevisPage() {
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
   const { t } = useLanguage();
-  const [devis, setDevis] = useState<Devis[]>([]);
+  const [devis, setDevis] = useState<DevisItem[]>([]);
   const [demandes, setDemandes] = useState<Map<string, Demande>>(new Map());
   const [loading, setLoading] = useState(true);
   const [emailResent, setEmailResent] = useState(false);
@@ -118,7 +126,101 @@ export default function ClientDevisPage() {
         return d;
       });
 
-      setDevis(devisDataFinal);
+      // ─── Charger les propositions express avec devisJoint (> 150€ acceptées) ───
+      let expressItems: DevisItem[] = [];
+      try {
+        const qExpress = query(
+          collection(db, 'propositions_express'),
+          where('clientId', '==', user.uid)
+        );
+        const expressSnap = await getDocs(qExpress);
+        // Filtrer : devisJoint présent + proposition acceptée par le client
+        const expressPropositions = expressSnap.docs
+          .map(docSnap => ({ id: docSnap.id, ...docSnap.data() } as PropositionExpress))
+          .filter(p => p.devisJoint != null && p.statut === 'acceptee');
+
+        if (expressPropositions.length > 0) {
+          expressItems = (await Promise.all(
+            expressPropositions.map(async (prop): Promise<DevisItem | null> => {
+              try {
+                // Charger la demande express pour le statut actuel et la catégorie
+                const demandeSnap = await getDoc(doc(db, 'demandes_express', prop.demandeId));
+                if (!demandeSnap.exists()) return null;
+                const demandeData = demandeSnap.data();
+                const demandeStatut: string = demandeData.statut ?? 'payee';
+
+                // N'afficher que les demandes dont le paiement a été effectué ou est en cours
+                const statutsVisibles = ['acceptee', 'payee', 'en_cours', 'travaux_termines', 'terminee', 'litige'];
+                if (!statutsVisibles.includes(demandeStatut)) return null;
+
+                // Mapper statut demande → statut devis (compatible avec les filtres existants)
+                const statutMap: Record<string, string> = {
+                  acceptee: 'en_attente_paiement',
+                  payee: 'paye',
+                  en_cours: 'en_cours',
+                  travaux_termines: 'travaux_termines',
+                  terminee: 'termine_valide',
+                  litige: 'litige',
+                };
+                const devisStatut = statutMap[demandeStatut] ?? 'paye';
+
+                // Récupérer le nom commercial de l'artisan
+                let raisonSociale = '';
+                try {
+                  const artisan = await getArtisanByUserId(prop.artisanId);
+                  raisonSociale = (artisan as any)?.businessName || (artisan as any)?.raisonSociale || '';
+                } catch { /* non bloquant */ }
+
+                // Titre composé à partir de la catégorie de la demande express
+                const categorie: string = demandeData.categorie ?? 'Intervention express';
+                const sousCategorie: string = demandeData.sousCategorie ?? '';
+                const titre = `${categorie.charAt(0).toUpperCase() + categorie.slice(1)}${sousCategorie ? ` — ${sousCategorie}` : ''}`;
+
+                // Numéro de référence du devis express
+                const annee = prop.createdAt?.toDate?.().getFullYear() ?? new Date().getFullYear();
+                const numeroDevis = `EXP-${annee}-${prop.id.slice(0, 8).toUpperCase()}`;
+
+                return {
+                  id: prop.id,
+                  numeroDevis,
+                  clientId: prop.clientId,
+                  artisanId: prop.artisanId,
+                  statut: devisStatut as any,
+                  dateCreation: prop.createdAt,
+                  dateModification: prop.createdAt,
+                  dateDebutPrevue: prop.createdAt,
+                  dateValidite: Timestamp.fromMillis((prop.createdAt?.toMillis?.() ?? Date.now()) + 30 * 24 * 60 * 60 * 1000),
+                  titre,
+                  artisan: { raisonSociale, siret: '', email: '', telephone: '', prenom: '', nom: '' },
+                  client: { nom: '', prenom: '', email: '', telephone: '' },
+                  lignes: [] as any,
+                  totaux: {
+                    totalHT: prop.devisJoint!.totaux.totalHT,
+                    totalTVA: {},
+                    totalTVAGlobal: prop.devisJoint!.totaux.totalTVAGlobal,
+                    totalTTC: prop.devisJoint!.totaux.totalTTC,
+                  },
+                  historiqueStatuts: [] as any,
+                  delaiRealisation: prop.devisJoint!.delaiRealisation,
+                  // Champs spécifiques au devis express
+                  _isExpress: true,
+                  _expressPropositionId: prop.id,
+                  _expressDemandeId: prop.demandeId,
+                } as unknown as DevisItem;
+              } catch {
+                return null;
+              }
+            })
+          )).filter(Boolean) as DevisItem[];
+        }
+      } catch (e) {
+        console.warn('Erreur chargement devis express:', e);
+      }
+
+      // Fusionner devis classiques et express, triés par date décroissante
+      const allDevisItems: DevisItem[] = [...devisDataFinal, ...expressItems];
+      allDevisItems.sort((a, b) => (b.dateCreation?.toMillis() || 0) - (a.dateCreation?.toMillis() || 0));
+      setDevis(allDevisItems);
 
       if (aExpirerIds.length > 0) {
         // Persister en Firestore (fire-and-forget)
@@ -210,6 +312,34 @@ export default function ClientDevisPage() {
     }
     router.push(`/client/devis/${devisId}${queryString ? `?${queryString}` : ''}`);
   };
+
+  // Naviguer vers le détail d'un devis
+  // — Classique : page /client/devis/{id}
+  // — Express   : page d'impression /devis-express-print/{propositionId} (nouvel onglet)
+  const handleVoirDetail = (d: DevisItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (d._isExpress && d._expressPropositionId) {
+      window.open(`/devis-express-print/${d._expressPropositionId}`, '_blank');
+    } else {
+      naviguerVersDevis(d.id, `returnFilter=${filter}`);
+    }
+  };
+
+  // Naviguer vers la demande associée
+  // — Classique : /client/demandes?demandeId={id}
+  // — Express   : /client/demandes-express/{demandeId}
+  const handleVoirDemande = (d: DevisItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (d._isExpress && d._expressDemandeId) {
+      router.push(`/client/demandes-express/${d._expressDemandeId}`);
+    } else if (d.demandeId) {
+      router.push(`/client/demandes?demandeId=${d.demandeId}`);
+    }
+  };
+
+  // Vérifie si le devis a une demande associée navigable
+  const hasDemandeLink = (d: DevisItem) => d._isExpress ? !!d._expressDemandeId : !!d.demandeId;
 
   const handleAnnulerDevis = async (devisId: string, numeroDevis: string, montantTTC: number, nomArtisan: string) => {
     if (!user) return;
@@ -579,6 +709,12 @@ export default function ClientDevisPage() {
                           {d.titre}
                         </h3>
                         {getStatutBadge(d.statut)}
+                        {/* Badge ⚡ Express pour les propositions express (> 150€ avec devis joint) */}
+                        {d._isExpress && (
+                          <span className="inline-flex items-center gap-1 bg-[#FF6B00]/10 border border-[#FF6B00]/40 text-[#FF6B00] text-xs font-bold px-2.5 py-1 rounded-full">
+                            ⚡ Express
+                          </span>
+                        )}
                         {['termine_valide', 'termine_auto_valide'].includes(d.statut) && avisParDevisId[d.id] && (
                           <span className="inline-flex items-center gap-1 bg-yellow-50 border border-yellow-300 text-yellow-700 text-xs font-semibold px-2.5 py-1 rounded-full">
                             ⭐ Avis publié
@@ -726,42 +862,43 @@ export default function ClientDevisPage() {
                           <button 
                             onClick={(e) => {
                               e.stopPropagation();
-                              naviguerVersDevis(d.id, `action=payer&returnFilter=${filter}`);
+                              // Express : rediriger vers la page de paiement express
+                              if (d._isExpress && d._expressPropositionId) {
+                                router.push(`/client/paiement-express/${d._expressPropositionId}`);
+                              } else {
+                                naviguerVersDevis(d.id, `action=payer&returnFilter=${filter}`);
+                              }
                             }}
                             className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition font-medium"
                           >
                             💳 {t('quotes.proceedPayment')}
                           </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const nomArtisan = d.artisan.raisonSociale || `${d.artisan.prenom} ${d.artisan.nom}`;
-                              handleAnnulerDevis(d.id, d.numeroDevis, d.totaux.totalTTC, nomArtisan);
-                            }}
-                            className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition font-medium"
-                          >
-                            🚫 {t('quotes.cancel')}
-                          </button>
+                          {/* Bouton Annuler : uniquement pour les devis classiques */}
+                          {!d._isExpress && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const nomArtisan = d.artisan.raisonSociale || `${d.artisan.prenom} ${d.artisan.nom}`;
+                                handleAnnulerDevis(d.id, d.numeroDevis, d.totaux.totalTTC, nomArtisan);
+                              }}
+                              className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition font-medium"
+                            >
+                              🚫 {t('quotes.cancel')}
+                            </button>
+                          )}
                           <div
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              naviguerVersDevis(d.id, `returnFilter=${filter}`);
-                            }}
+                            onClick={(e) => handleVoirDetail(d, e)}
                             className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
                           >
-                            📄 {t('quotes.viewDetails')}
+                            📄 {d._isExpress ? '🖶️ Imprimer' : t('quotes.viewDetails')}
                           </div>
                         </div>
-                        {d.demandeId && (
+                        {hasDemandeLink(d) && (
                           <div
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              router.push(`/client/demandes?demandeId=${d.demandeId}`);
-                            }}
+                            onClick={(e) => handleVoirDemande(d, e)}
                             className="w-full bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer mt-3"
                           >
-                            📋 Voir demande associée
+                            📋 {d._isExpress ? 'Voir la demande express' : 'Voir demande associée'}
                           </div>
                         )}
                       </>
@@ -771,24 +908,17 @@ export default function ClientDevisPage() {
                     {(d.statut === 'paye' || d.statut === 'en_cours') && (
                       <div className="flex gap-3">
                         <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            naviguerVersDevis(d.id, `returnFilter=${filter}`);
-                          }}
+                          onClick={(e) => handleVoirDetail(d, e)}
                           className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
                         >
-                          📄 {t('quotes.viewDetails')}
+                          📄 {d._isExpress ? '🖶️ Imprimer / PDF' : t('quotes.viewDetails')}
                         </div>
-                        {d.demandeId && (
+                        {hasDemandeLink(d) && (
                           <div
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              router.push(`/client/demandes?demandeId=${d.demandeId}`);
-                            }}
+                            onClick={(e) => handleVoirDemande(d, e)}
                             className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
                           >
-                            📋 Voir demande associée
+                            📋 {d._isExpress ? 'Voir la demande express' : 'Voir demande associée'}
                           </div>
                         )}
                       </div>
@@ -798,24 +928,17 @@ export default function ClientDevisPage() {
                     {d.statut === 'travaux_termines' && (
                       <div className="flex gap-3">
                         <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            naviguerVersDevis(d.id, `returnFilter=${filter}`);
-                          }}
+                          onClick={(e) => handleVoirDetail(d, e)}
                           className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
                         >
-                          📄 {t('quotes.viewDetails')}
+                          📄 {d._isExpress ? '🖶️ Imprimer / PDF' : t('quotes.viewDetails')}
                         </div>
-                        {d.demandeId && (
+                        {hasDemandeLink(d) && (
                           <div
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              router.push(`/client/demandes?demandeId=${d.demandeId}`);
-                            }}
+                            onClick={(e) => handleVoirDemande(d, e)}
                             className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
                           >
-                            📋 Voir demande associée
+                            📋 {d._isExpress ? 'Voir la demande express' : 'Voir demande associée'}
                           </div>
                         )}
                       </div>
@@ -825,24 +948,17 @@ export default function ClientDevisPage() {
                     {['termine_valide', 'termine_auto_valide'].includes(d.statut) && (
                       <div className="flex gap-3">
                         <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            naviguerVersDevis(d.id, `returnFilter=${filter}`);
-                          }}
+                          onClick={(e) => handleVoirDetail(d, e)}
                           className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
                         >
-                          📄 {t('quotes.viewDetails')}
+                          📄 {d._isExpress ? '🖶️ Imprimer / PDF' : t('quotes.viewDetails')}
                         </div>
-                        {d.demandeId && (
+                        {hasDemandeLink(d) && (
                           <div
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              router.push(`/client/demandes?demandeId=${d.demandeId}`);
-                            }}
+                            onClick={(e) => handleVoirDemande(d, e)}
                             className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
                           >
-                            📋 Voir demande associée
+                            📋 {d._isExpress ? 'Voir la demande express' : 'Voir demande associée'}
                           </div>
                         )}
                       </div>
@@ -884,25 +1000,17 @@ export default function ClientDevisPage() {
                     {isDevisPaye(d.statut) && !['paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(d.statut) && (
                       <div className="flex gap-3">
                         <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            naviguerVersDevis(d.id, `returnFilter=${filter}`);
-                          }}
+                          onClick={(e) => handleVoirDetail(d, e)}
                           className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
                         >
-                          📄 {t('quotes.viewDetails')}
+                          📄 {d._isExpress ? '🖶️ Imprimer / PDF' : t('quotes.viewDetails')}
                         </div>
-                        {d.demandeId && (
+                        {hasDemandeLink(d) && (
                           <div
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              router.push(`/client/demandes?demandeId=${d.demandeId}`);
-                            }}
+                            onClick={(e) => handleVoirDemande(d, e)}
                             className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
                           >
-                            📋 Voir demande associée
+                            📋 {d._isExpress ? 'Voir la demande express' : 'Voir demande associée'}
                           </div>
                         )}
                       </div>

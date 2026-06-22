@@ -14,7 +14,8 @@ import { db } from '@/lib/firebase/config';
 import type { Devis } from '@/types/devis';
 import type { Demande, PropositionExpress } from '@/types/firestore';
 import { supprimerDevisAnulesExpires } from '@/lib/firebase/devis-service';
-import { getPropositionsByArtisanId } from '@/lib/firebase/demande-express-service';
+import { getPropositionsByArtisanId, getDemandeExpressById } from '@/lib/firebase/demande-express-service';
+import { getUserById } from '@/lib/firebase/user-service';
 import { markNotificationsByTypeAsRead, markNotificationsByLienAsRead } from '@/lib/firebase/notification-service';
 
 type TabType = 'devis' | 'factures';
@@ -283,8 +284,14 @@ export default function MesDevisPage() {
             'litige':                     'litige',
           };
 
+          // Récupérer les noms des clients ET les demandes (catégories) en parallèle
+          const [clientsExpress, demandesExpress] = await Promise.all([
+            Promise.all(expressAvecDevis.map(p => getUserById(p.clientId).catch(() => null))),
+            Promise.all(expressAvecDevis.map(p => getDemandeExpressById(p.demandeId).catch(() => null))),
+          ]);
+
           // Mapper chaque proposition express vers un objet compatible DevisAvecExpress
-          const expressDevisData: DevisAvecExpress[] = expressAvecDevis.map(p => ({
+          const expressDevisData: DevisAvecExpress[] = expressAvecDevis.map((p, idx) => ({
             id: p.id,
             artisanId: p.artisanId,
             clientId: p.clientId,
@@ -296,13 +303,18 @@ export default function MesDevisPage() {
             dateValidite: Timestamp.fromMillis(
               (p.createdAt?.toMillis?.() || Date.now()) + 30 * 24 * 60 * 60 * 1000
             ),
-            // Numéro de devis express : EXP-XXXXXXXX
-            numeroDevis: `EXP-${p.id.slice(0, 8).toUpperCase()}`,
+            // Numéro de devis express : EXP-ANNEE-XXXXXXXX
+            numeroDevis: `EXP-${(p.createdAt?.toMillis?.() ? new Date(p.createdAt.toMillis()) : new Date()).getFullYear()}-${p.id.slice(0, 8).toUpperCase()}`,
             // Marqueurs pour identifier ce devis comme express dans le rendu
             typeProjet: 'express' as const,
             propositionExpressId: p.id,
-            // Données client minimales (nom récupéré dynamiquement si besoin)
-            client: { nom: 'Express', prenom: 'Devis', email: '', telephone: '' },
+            // Données client récupérées depuis Firestore
+            client: {
+              nom: clientsExpress[idx]?.nom ?? '',
+              prenom: clientsExpress[idx]?.prenom ?? '',
+              email: clientsExpress[idx]?.email ?? '',
+              telephone: clientsExpress[idx]?.telephone ?? '',
+            },
             // Données financières depuis le devis joint
             totaux: {
               totalHT: p.devisJoint!.totaux.totalHT,
@@ -313,7 +325,14 @@ export default function MesDevisPage() {
             // Champs requis par le type Devis (valeurs minimales)
             artisan: { raisonSociale: '', siret: '', email: '', telephone: '' },
             lignes: (p.devisJoint!.lignes ?? []) as Devis['lignes'],
-            titre: 'Devis Express',
+            // Titre = catégorie + sous-catégorie de la demande express
+            titre: (() => {
+              const d = demandesExpress[idx];
+              if (!d) return 'Demande Express';
+              const cat = d.categorieLabel ?? d.categorie ?? '';
+              const sousCat = d.sousCategorieLabel ?? d.sousCategorie ?? '';
+              return sousCat ? `${cat} — ${sousCat}` : cat || 'Demande Express';
+            })(),
             dateDebutPrevue: p.createdAt,
             historiqueStatuts: [],
           } as unknown as DevisAvecExpress));
@@ -636,8 +655,9 @@ export default function MesDevisPage() {
       
       // 2. Si les deux ont (ou n'ont pas) de notification récente, trier par date de création
       // Gère les deux formats : Timestamp Firestore (.toMillis()) et objet sérialisé ({ seconds })
-      const dateA = a.dateCreation?.toMillis?.() ?? (a.dateCreation as any)?.seconds * 1000 ?? 0;
-      const dateB = b.dateCreation?.toMillis?.() ?? (b.dateCreation as any)?.seconds * 1000 ?? 0;
+      // Note : `seconds * 1000` peut retourner NaN si absent → || 0 couvre NaN + undefined
+      const dateA = a.dateCreation?.toMillis?.() ?? ((a.dateCreation as any)?.seconds * 1000 || 0);
+      const dateB = b.dateCreation?.toMillis?.() ?? ((b.dateCreation as any)?.seconds * 1000 || 0);
       return dateB - dateA; // Plus récent en premier
     });
 
@@ -1130,12 +1150,7 @@ export default function MesDevisPage() {
                         <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-[#2C3E50]">
                           <div className="flex items-center gap-1.5">
                             <span className="numero-devis">{d.numeroDevis}</span>
-                            {/* Badge Express pour les devis issus de propositions_express */}
-                            {d.typeProjet === 'express' && (
-                              <span className="inline-flex items-center bg-orange-100 text-[#FF6B00] text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-orange-200">
-                                🚀 Express
-                              </span>
-                            )}
+                            {/* Le préfixe EXP- suffit à identifier les devis express */}
                             {devisNotifsInitialIds.has(d.id) && (
                               <span className="inline-flex items-center bg-[#FF6B00] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
                                 🔔
@@ -1155,7 +1170,7 @@ export default function MesDevisPage() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                               </svg>
                               <span className="text-xs font-medium text-[#FF6B00] group-hover:text-[#E56100] whitespace-normal leading-snug">
-                                🚀 Demande Express
+                                {d.titre}
                               </span>
                             </div>
                           </button>
@@ -1228,16 +1243,16 @@ export default function MesDevisPage() {
                         {d.dateCreation ? tsToDate(d.dateCreation).toLocaleDateString('fr-FR') : '—'}
                       </td>
                       <td className="px-3 py-4 text-sm font-medium">
-                        {/* ===== Devis Express : bouton unique vers la page d'impression ===== */}
+                        {/* ===== Devis Express : bouton "Voir le détail" → page de détail (pas d'impression directe) ===== */}
                         {d.typeProjet === 'express' ? (
                           <button
-                            onClick={() => window.open(`/devis-express-print/${d.propositionExpressId}`, '_blank')}
+                            onClick={() => router.push(`/devis-express-print/${d.propositionExpressId}`)}
                             className="px-3 py-1 bg-[#FF6B00] text-white rounded hover:bg-[#E56100] text-xs font-semibold flex items-center gap-1"
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            Consulter le devis
+                            Voir le détail
                           </button>
                         ) : d.statut === 'en_revision' && d.demandeId ? (
                           <button
@@ -1278,43 +1293,58 @@ export default function MesDevisPage() {
                             </button>
                           </div>
                         ) : d.statut === 'paye' || d.statut === 'en_cours' ? (
-                          // 📋 Bouton "Voir le détail" uniquement (actions dans /artisan/demandes)
+                          // 📋 Bouton "Voir le détail"
                           <button
                             onClick={() => handleVoirDevis(d.id, aReponseClienteRecente(d))}
-                            className="px-3 py-1 border border-[#FF6B00] text-[#FF6B00] rounded hover:bg-[#FF6B00] hover:text-white text-xs font-medium transition"
+                            className="px-3 py-1 bg-[#FF6B00] text-white rounded hover:bg-[#E56100] text-xs font-semibold flex items-center gap-1"
                           >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
                             {t('quotes.viewDetails')}
                           </button>
                         ) : d.statut === 'travaux_termines' ? (
                           // ⏳ EN ATTENTE VALIDATION CLIENT + Lien Voir
                           <button
                             onClick={() => handleVoirDevis(d.id, aReponseClienteRecente(d))}
-                            className="px-3 py-1 border border-[#FF6B00] text-[#FF6B00] rounded hover:bg-[#FF6B00] hover:text-white text-xs font-medium transition"
+                            className="px-3 py-1 bg-[#FF6B00] text-white rounded hover:bg-[#E56100] text-xs font-semibold flex items-center gap-1"
                           >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
                             {t('quotes.viewDetails')}
                           </button>
                         ) : ['termine_valide', 'termine_auto_valide'].includes(d.statut) ? (
                           // ✅ TRAVAUX VALIDÉS - PAIEMENT LIBÉRÉ + Lien Voir
                           <button
                             onClick={() => handleVoirDevis(d.id, aReponseClienteRecente(d))}
-                            className="px-3 py-1 border border-[#FF6B00] text-[#FF6B00] rounded hover:bg-[#FF6B00] hover:text-white text-xs font-medium transition"
+                            className="px-3 py-1 bg-[#FF6B00] text-white rounded hover:bg-[#E56100] text-xs font-semibold flex items-center gap-1"
                           >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
                             {t('quotes.viewDetails')}
                           </button>
                         ) : d.statut === 'litige' ? (
                           // ⚠️ LITIGE EN COURS
                           <button
                             onClick={() => handleVoirDevis(d.id, aReponseClienteRecente(d))}
-                            className="px-3 py-1 border border-[#FF6B00] text-[#FF6B00] rounded hover:bg-[#FF6B00] hover:text-white text-xs font-medium transition"
+                            className="px-3 py-1 bg-[#FF6B00] text-white rounded hover:bg-[#E56100] text-xs font-semibold flex items-center gap-1"
                           >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
                             {t('quotes.viewDetails')}
                           </button>
                         ) : (
                           <button
                             onClick={() => handleVoirDevis(d.id, aReponseClienteRecente(d))}
-                            className="text-[#FF6B00] hover:text-[#E56100]"
+                            className="px-3 py-1 bg-[#FF6B00] text-white rounded hover:bg-[#E56100] text-xs font-semibold flex items-center gap-1"
                           >
-                            {t('quotes.see')}
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            {t('quotes.viewDetails')}
                           </button>
                         )}
                       </td>

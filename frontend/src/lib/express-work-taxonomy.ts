@@ -214,8 +214,8 @@ export function getExpressPaymentWindowMinutes(input: ExpressTimingInput): numbe
 
 export function getExpressArtisanWindowLabel(input: ExpressTimingInput): string {
   if (input.typeTravauxExpress === 'depannage-urgence') return '30 min - 1h';
-  if (input.typeTravauxExpress === 'petits-travaux-maintenance') return '2h';
-  return input.urgence === 'immediat' ? '1h' : '6h';
+  // petits-travaux-maintenance ou legacy → 2h
+  return '2h';
 }
 
 /**

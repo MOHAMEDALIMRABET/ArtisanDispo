@@ -83,7 +83,8 @@ router.post('/create-payment-intent', requireStripe, async (req, res) => {
 
     // Mode simulation : retourner token simulé sans Stripe
     if (isSimulationMode && !stripe) {
-      const simulationToken = `sim_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+      // Token lié à la propositionId pour validation ultérieure au simulate-confirm
+      const simulationToken = `sim_${proposition.id}_${Date.now()}`;
       console.log(`🎭 [SIMULATION] PaymentIntent pour proposition ${proposition.id} — montant ${proposition.montantPropose}€`);
       return res.json({
         simulationMode: true,
@@ -149,13 +150,19 @@ router.post('/simulate-confirm', async (req, res) => {
     const proposition = await getPropositionExpressById(propositionId);
     if (!proposition) return res.status(404).json({ error: 'Proposition introuvable' });
 
+    // Valider que le token appartient bien à cette proposition (prévient réutilisation cross-proposition)
+    if (!simulationToken.startsWith(`sim_${propositionId}_`)) {
+      return res.status(400).json({ error: 'Token de simulation invalide pour cette proposition' });
+    }
+
     const existing = await getPaiementByDemandeId(proposition.demandeId);
     if (existing) {
       await markDemandePaid(proposition.demandeId);
       return res.json({ success: true, alreadyExisted: true });
     }
 
-    const montantTotal = proposition.montantPropose;
+    // Pour les propositions avec devis joint (> 150€), le totalTTC du devis fait foi sur montantPropose
+    const montantTotal = (proposition as any).devisJoint?.totaux?.totalTTC ?? proposition.montantPropose;
     const commission = Math.round(montantTotal * 0.1 * 100) / 100;
     const montantArtisan = montantTotal - commission;
 

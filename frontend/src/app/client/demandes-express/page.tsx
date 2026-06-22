@@ -670,18 +670,12 @@ export default function MesDemandesExpressPage() {
   };
 
   const getUrgenceBadge = (urgence: 'immediat' | 'urgent', typeTravauxExpress?: string) => {
-    // Dépannage urgence → 30 min - 1h (rouge), petits travaux → 2h (orange)
+    // Dépannage urgence → 30 min - 1h (rouge)
     if (typeTravauxExpress === 'depannage-urgence') {
       return <span className="px-2 py-1 rounded text-xs font-semibold bg-red-100 text-red-700">🚨 Urgent (30 min - 1h)</span>;
     }
-    const config: Record<string, { cls: string; label: string }> = {
-      immediat: { cls: 'bg-orange-100 text-orange-700', label: '⚡ Immédiat (2h)' },
-      urgent:   { cls: 'bg-red-100 text-red-700',       label: '🚨 Urgent (24h)' },
-    };
-    const { cls, label } = config[urgence] ?? config.urgent;
-    return (
-      <span className={`px-2 py-1 rounded text-xs font-semibold ${cls}`}>{label}</span>
-    );
+    // Petits travaux / legacy → Immédiat 2h
+    return <span className="px-2 py-1 rounded text-xs font-semibold bg-orange-100 text-orange-700">⚡ Immédiat (2h)</span>;
   };
 
   if (authLoading || loading) {
@@ -1271,7 +1265,7 @@ export default function MesDemandesExpressPage() {
                                     const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
                                     return (
                                       <p className="text-xs text-blue-700 bg-blue-100 inline-block px-3 py-1.5 rounded-lg">
-                                        ⏱️ Expire dans {hours}h{minutes > 0 ? ` ${minutes}min` : ''} - Délai pour recevoir une proposition ({demande.urgence === 'immediat' ? '1h' : '6h'})
+                                        ⏱️ Expire dans {hours}h{minutes > 0 ? ` ${minutes}min` : ''} - Délai pour recevoir une proposition ({getExpressArtisanWindowLabel(demande)})
                                       </p>
                                     );
                                   }

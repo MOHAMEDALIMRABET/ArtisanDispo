@@ -44,6 +44,7 @@ import {
   where,
   Timestamp,
   QueryConstraint,
+  writeBatch,
 } from 'firebase/firestore';
 import type {
   DemandeExpress,
@@ -277,16 +278,16 @@ export async function getDemandesExpressPubliquesByArtisan(options: {
 
 /**
  * Créer une proposition pour une demande express
- * 
+ *
  * Règle montant :
- *  - montantPropose ≤ 150€  → proposition simple, pas de devis requis
- *  - montantPropose > 150€  → devisJoint obligatoire (signé par l'artisan)
+ *  - montantPropose < 150€   → proposition simple, pas de devis requis
+ *  - montantPropose >= 150€  → devisJoint obligatoire (signé par l'artisan)
  */
 export async function createPropositionExpress(
   data: Omit<PropositionExpress, 'id' | 'statut' | 'createdAt'>
 ): Promise<string> {
-  // Validation : si montant > 150€ un devis signé est OBLIGATOIRE
-  if (data.montantPropose > 150) {
+  // Validation : si montant >= 150€ un devis signé est OBLIGATOIRE
+  if (data.montantPropose >= 150) {
     if (!data.devisJoint) {
       throw new Error('Un devis signé est obligatoire pour une proposition supérieure à 150€');
     }
@@ -410,7 +411,7 @@ export async function getPropositionsByArtisanId(artisanId: string): Promise<Pro
 /**
  * Accepter une proposition (avant paiement)
  * 
- * Si la proposition a un devisJoint (montant > 150€),
+ * Si la proposition a un devisJoint (montant >= 150€),
  * la signature client est obligatoire dans le payload.
  */
 export async function acceptPropositionExpress(
@@ -431,72 +432,83 @@ export async function acceptPropositionExpress(
     if (!signatureClientDataURL) {
       throw new Error('Vous devez signer le devis avant d\'accepter cette proposition');
     }
-    // Enregistrer la signature client dans le devis joint
-    await updateDoc(doc(db, 'propositions_express', propositionId), {
-      'devisJoint.signatureClient': {
-        dataURL: signatureClientDataURL,
-        date: Timestamp.now(),
-      },
-    });
   }
 
-  // Récupérer la demande pour connaître l'urgence
+  // Récupérer la demande pour connaître l'urgence et le type de travaux
   const demande = await getDemandeExpressById(proposition.demandeId);
   if (!demande) {
     throw new Error('Demande introuvable');
   }
 
-  // Calculer deadline paiement selon stratégie:
+  // Calculer deadline paiement selon stratégie :
   // - depannage-urgence: 60 minutes
   // - petits-travaux-maintenance: 120 minutes
   // (fallback legacy: immediat=15, urgent=30)
   const delaiMinutes = getExpressPaymentWindowMinutes(demande);
   const paymentDeadline = Timestamp.fromDate(new Date(Date.now() + delaiMinutes * 60 * 1000));
 
-  // Mettre à jour la proposition
-  await updateDoc(doc(db, 'propositions_express', propositionId), {
-    statut: 'acceptee',
-    acceptedAt: Timestamp.now(),
-  });
-
   const isPublished = !demande.artisanId;
 
-  // Mettre à jour la demande avec deadline
-  await updateDoc(doc(db, 'demandes_express', proposition.demandeId), {
+  // Charger les propositions concurrentes AVANT le batch (requête async non réalisable dans un batch)
+  let concurrentes: PropositionExpress[] = [];
+  if (isPublished) {
+    const allPropositions = await getPropositionsByDemande(proposition.demandeId);
+    concurrentes = allPropositions.filter(
+      p =>
+        p.id !== proposition.id &&
+        ['en_attente_acceptation', 'en_negociation', 'proposition_finale_artisan'].includes(p.statut)
+    );
+  }
+
+  // Batch atomique : met à jour proposition + demande + concurrentes en une seule opération
+  const batch = writeBatch(db);
+
+  // Mise à jour de la proposition acceptée (inclut la signature si devis joint)
+  const propositionUpdate: Record<string, unknown> = {
+    statut: 'acceptee',
+    acceptedAt: Timestamp.now(),
+  };
+  if (proposition.devisJoint && signatureClientDataURL) {
+    propositionUpdate['devisJoint.signatureClient'] = {
+      dataURL: signatureClientDataURL,
+      date: Timestamp.now(),
+    };
+  }
+  batch.update(doc(db, 'propositions_express', propositionId), propositionUpdate);
+
+  // Mise à jour de la demande avec assignation artisan + deadline paiement
+  batch.update(doc(db, 'demandes_express', proposition.demandeId), {
     statut: 'acceptee',
     artisanId: isPublished ? proposition.artisanId : demande.artisanId,
     updatedAt: Timestamp.now(),
     paymentDeadline,
   });
 
-  // Si demande publiée: fermer les autres propositions concurrentes.
-  if (isPublished) {
-    const allPropositions = await getPropositionsByDemande(proposition.demandeId);
-    const concurrentes = allPropositions.filter(
-      p =>
-        p.id !== proposition.id &&
-        ['en_attente_acceptation', 'en_negociation', 'proposition_finale_artisan'].includes(p.statut)
-    );
-
-    await Promise.all(
-      concurrentes.map(async (p) => {
-        await updateDoc(doc(db, 'propositions_express', p.id), {
-          statut: 'refusee',
-          refusedAt: Timestamp.now(),
-          motifRefus: 'Demande attribuée à un autre artisan',
-        });
-
-        await createNotification(p.artisanId, {
-          type: 'proposition_refusee',
-          titre: 'Demande attribuée à un autre artisan',
-          message: 'Le client a retenu une autre proposition pour cette demande express publiée.',
-          lien: `/artisan/demandes`,
-        });
-      })
-    );
+  // Fermer les propositions concurrentes dans le même batch
+  for (const p of concurrentes) {
+    batch.update(doc(db, 'propositions_express', p.id), {
+      statut: 'refusee',
+      refusedAt: Timestamp.now(),
+      motifRefus: 'Demande attribuée à un autre artisan',
+    });
   }
 
-  // Notifier l'artisan
+  // Commit atomique — toutes les mises à jour réussissent ou échouent ensemble
+  await batch.commit();
+
+  // Notifications envoyées APRÈS le commit (non critiques pour l'intégrité des données)
+  await Promise.all(
+    concurrentes.map(p =>
+      createNotification(p.artisanId, {
+        type: 'proposition_refusee',
+        titre: 'Demande attribuée à un autre artisan',
+        message: 'Le client a retenu une autre proposition pour cette demande express publiée.',
+        lien: `/artisan/demandes`,
+      })
+    )
+  );
+
+  // Notifier l'artisan retenu
   await createNotification(proposition.artisanId, {
     type: 'proposition_acceptee',
     titre: 'Proposition acceptée !',
@@ -548,8 +560,11 @@ export async function refusePropositionExpress(
     await updateDoc(doc(db, 'demandes_express', proposition.demandeId), {
       statut: hasOtherActive ? 'proposition_recue' : 'en_attente_proposition',
       updatedAt: Timestamp.now(),
+      // Fenêtre client selon l'urgence : 30 min si immediat, 3h sinon (legacy urgent)
       expiresAt: hasOtherActive
-        ? Timestamp.fromDate(new Date(Date.now() + 30 * 60 * 1000))
+        ? Timestamp.fromDate(new Date(Date.now() + (
+            demandeForRefus?.urgence === 'immediat' ? 30 * 60 * 1000 : 3 * 60 * 60 * 1000
+          )))
         : expiresAtAfterRefus,
     });
   } else {
@@ -583,6 +598,10 @@ export async function sendContrePropositionExpress(
   if (!proposition) throw new Error('Proposition introuvable');
   if (proposition.statut !== 'en_attente_acceptation') throw new Error('Cette proposition ne peut plus être négociée');
 
+  // Charger la demande pour calculer la fenêtre de réponse artisan
+  const demande = await getDemandeExpressById(proposition.demandeId);
+  const artisanWindowMs = getExpressArtisanWindowMs(demande || {});
+
   const newRound: NegociationRound = {
     auteur: 'client',
     montant: montantCounter,
@@ -599,7 +618,11 @@ export async function sendContrePropositionExpress(
     rounds,
   });
 
-  // La demande reste 'proposition_recue' — on négocie avec le même artisan
+  // Réinitialiser expiresAt : donne à l'artisan une fenêtre complète pour répondre à la contre-offre
+  await updateDoc(doc(db, 'demandes_express', proposition.demandeId), {
+    expiresAt: Timestamp.fromDate(new Date(Date.now() + artisanWindowMs)),
+    updatedAt: Timestamp.now(),
+  });
 
   await createNotification(proposition.artisanId, {
     type: 'contre_proposition_recue',
@@ -998,6 +1021,8 @@ export async function updateDemandeExpressStatut(
   await updateDoc(doc(db, 'demandes_express', demandeId), {
     statut,
     updatedAt: Timestamp.now(),
+    // Requis par la Cloud Function de nettoyage : query WHERE 'expireeAt' < cutoff
+    ...(statut === 'expiree' ? { expireeAt: Timestamp.now() } : {}),
   });
 }
 
@@ -1017,9 +1042,14 @@ export async function refuserDemandeExpressParArtisan(demandeId: string, artisan
   if (demande.artisanId && demande.artisanId !== artisanId) throw new Error('Non autorisé');
   if (demande.statut !== 'en_attente_proposition') throw new Error('Cette demande ne peut plus être refusée');
 
+  // Recalculer la fenêtre d'expiration pour laisser au client le temps de recevoir
+  // une autre proposition (même durée que la fenêtre artisan selon le type de travaux)
+  const nouvelExpiresAt = Timestamp.fromMillis(Date.now() + getExpressArtisanWindowMs(demande));
+
   await updateDoc(doc(db, 'demandes_express', demandeId), {
     statut: 'refusee_artisan',
     updatedAt: Timestamp.now(),
+    expiresAt: nouvelExpiresAt,
   });
 
   await createNotification(demande.clientId, {

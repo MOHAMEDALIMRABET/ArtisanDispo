@@ -78,21 +78,12 @@ export default function DevisExpressPrintPage() {
     loadData();
   }, [propositionId]);
 
-  // Déclencher l'impression automatiquement après le rendu
-  useEffect(() => {
-    if (!loading && !error && proposition) {
-      // Petit délai pour laisser le DOM se rendre complètement (signatures, etc.)
-      const timer = setTimeout(() => window.print(), 600);
-      return () => clearTimeout(timer);
-    }
-  }, [loading, error, proposition]);
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto mb-4"></div>
-          <p className="text-[#6C757D]">Préparation du devis pour impression...</p>
+          <p className="text-[#6C757D]">Chargement du devis...</p>
         </div>
       </div>
     );
@@ -123,7 +114,8 @@ export default function DevisExpressPrintPage() {
   const dateValidite = proposition.createdAt
     ? new Date(tsToDate(proposition.createdAt).getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR')
     : '—';
-  const numeroRef = `EXP-${propositionId.slice(0, 8).toUpperCase()}`;
+  const annee = tsToDate(proposition.createdAt).getFullYear();
+  const numeroRef = `EXP-${annee}-${propositionId.slice(0, 8).toUpperCase()}`;
 
   // Adresse complète de l'artisan (zone d'intervention principale)
   const artisanAdresse = (() => {
@@ -146,7 +138,7 @@ export default function DevisExpressPrintPage() {
       <style jsx global>{`
         @media print {
           @page {
-            margin: 1.5cm 1.5cm 2cm 1.5cm;
+            margin: 1cm 1.2cm;
             size: A4 portrait;
           }
           body {
@@ -155,17 +147,70 @@ export default function DevisExpressPrintPage() {
           }
           body * { visibility: hidden; }
           .print-area, .print-area * { visibility: visible; }
+
+          /* La zone imprimable occupe toute la hauteur A4 */
           .print-area {
             position: absolute;
             left: 0;
             top: 0;
             width: 100%;
+            min-height: 277mm;
+            display: flex;
+            flex-direction: column;
+            font-size: 9.5pt;
+            line-height: 1.4;
           }
           .no-print { display: none !important; }
-          table { font-size: 10px !important; }
-          table th, table td { padding: 0.3rem 0.5rem !important; }
+
+          /* Container principal : occupe toute la hauteur, layout colonne */
+          .print-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0 !important;
+            max-width: 100% !important;
+          }
+
+          /* En-tête */
+          .print-header { padding-bottom: 0.6rem !important; margin-bottom: 0.8rem !important; }
+          .print-area h1 { font-size: 22pt !important; margin-bottom: 0 !important; }
+          .print-area .text-sm { font-size: 9pt !important; }
+          .print-area .text-base { font-size: 10pt !important; }
+          .print-area .text-xs { font-size: 8pt !important; }
+
+          /* Espacement sections — plus généreux pour remplir la page */
+          .section-mb { margin-bottom: 0.7rem !important; }
+
+          /* Blocs identités */
+          .print-identity { padding: 0.5rem 0.7rem !important; }
+          .print-identity p { margin-bottom: 0.1rem !important; }
+
+          /* Objet */
+          .print-objet { padding: 0.4rem 0.7rem !important; }
+
+          /* Table */
+          table { font-size: 9pt !important; }
+          table th, table td { padding: 4px 7px !important; }
+
+          /* Totaux */
+          .print-totaux { width: 14rem !important; }
+          .print-totaux > div { padding: 4px 10px !important; }
+
+          /* Délais */
+          .print-delais { padding: 0.4rem 0.7rem !important; margin-bottom: 0.7rem !important; }
+
+          /* Les signatures sont poussées vers le bas de la page (flex-grow) */
+          .print-sig-zone {
+            margin-top: auto !important;
+            padding-top: 0.6rem !important;
+          }
+          .print-sig-box { height: 4rem !important; }
+          .print-sig-img { height: 3rem !important; }
+
+          /* Pied de page */
+          .print-footer { margin-top: 0.5rem !important; padding-top: 0.4rem !important; }
+
           .no-break { page-break-inside: avoid; }
-          .section-mb { margin-bottom: 1rem !important; }
         }
       `}</style>
 
@@ -188,10 +233,10 @@ export default function DevisExpressPrintPage() {
 
       {/* ── Zone imprimable ─────────────────────────────────── */}
       <div className="print-area min-h-screen bg-white">
-        <div className="max-w-4xl mx-auto px-8 py-10">
+        <div className="print-main max-w-4xl mx-auto px-8 py-10">
 
           {/* ═══ 1. EN-TÊTE : Logo + titre DEVIS + références ═══ */}
-          <div className="border-b-4 border-[#FF6B00] pb-6 mb-8 no-break">
+          <div className="print-header border-b-4 border-[#FF6B00] pb-6 mb-8 no-break">
             <div className="flex justify-between items-start gap-6">
               {/* Logo gauche */}
               <div className="flex-shrink-0">
@@ -217,7 +262,7 @@ export default function DevisExpressPrintPage() {
           <div className="grid grid-cols-2 gap-8 mb-8 no-break section-mb">
 
             {/* Artisan */}
-            <div className="bg-[#F8F9FA] rounded-lg p-4 border-l-4 border-[#2C3E50]">
+            <div className="print-identity bg-[#F8F9FA] rounded-lg p-4 border-l-4 border-[#2C3E50]">
               <h3 className="text-xs font-bold text-[#6C757D] uppercase tracking-wider mb-3">
                 Prestataire
               </h3>
@@ -244,7 +289,7 @@ export default function DevisExpressPrintPage() {
             </div>
 
             {/* Client */}
-            <div className="bg-[#F8F9FA] rounded-lg p-4 border-l-4 border-[#FF6B00]">
+            <div className="print-identity bg-[#F8F9FA] rounded-lg p-4 border-l-4 border-[#FF6B00]">
               <h3 className="text-xs font-bold text-[#6C757D] uppercase tracking-wider mb-3">
                 Client
               </h3>
@@ -268,16 +313,13 @@ export default function DevisExpressPrintPage() {
           </div>
 
           {/* ═══ 3. OBJET DE L'INTERVENTION ═══ */}
-          <div className="mb-8 bg-orange-50 rounded-lg p-4 border border-[#FF6B00] no-break section-mb">
+          <div className="print-objet mb-8 bg-orange-50 rounded-lg p-4 border border-[#FF6B00] no-break section-mb">
             <h3 className="text-sm font-bold text-[#2C3E50] mb-2 uppercase tracking-wide">
               Objet de l'intervention
             </h3>
             <p className="text-sm font-semibold text-[#FF6B00]">
               {categorieLabel}{sousCategorieLabel ? ` — ${sousCategorieLabel}` : ''}
             </p>
-            {proposition.description && (
-              <p className="text-sm text-gray-700 mt-2 whitespace-pre-wrap">{proposition.description}</p>
-            )}
           </div>
 
           {/* ═══ 4. TABLEAU DES PRESTATIONS ═══ */}
@@ -370,7 +412,7 @@ export default function DevisExpressPrintPage() {
 
           {/* ═══ 5. TOTAUX ═══ */}
           <div className="flex justify-end mb-8 no-break section-mb">
-            <div className="w-80 border border-gray-300 rounded-lg overflow-hidden">
+            <div className="print-totaux w-80 border border-gray-300 rounded-lg overflow-hidden">
               <div className="flex justify-between px-4 py-2.5 bg-gray-50 border-b border-gray-200 text-sm">
                 <span className="text-gray-600">Total HT :</span>
                 <span className="font-semibold">{devis.totaux.totalHT.toFixed(2)} €</span>
@@ -386,23 +428,20 @@ export default function DevisExpressPrintPage() {
             </div>
           </div>
 
-          {/* ═══ 6. DÉLAIS D'EXÉCUTION ═══ */}
+          {/* ═══ 6. DÉLAIS ═══ */}
           {(devis.delaiRealisation || devis.dateDebutPrevue) && (
-            <div className="mb-8 bg-blue-50 rounded-lg p-4 border border-blue-200 no-break section-mb">
-              <h3 className="text-sm font-bold text-[#2C3E50] mb-3 uppercase tracking-wide">
-                ⚡ Délais d'exécution
-              </h3>
+            <div className="print-delais mb-8 bg-blue-50 rounded-lg p-4 border border-blue-200 no-break section-mb">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 {devis.delaiRealisation && (
-                  <div>
+                  <div className="flex items-center gap-1">
                     <span className="font-semibold text-gray-700">Délai d'intervention :</span>
-                    <p className="text-gray-600 mt-0.5">{devis.delaiRealisation}</p>
+                    <span className="text-gray-600">{devis.delaiRealisation}</span>
                   </div>
                 )}
                 {devis.dateDebutPrevue && (
-                  <div>
+                  <div className="flex items-center gap-1">
                     <span className="font-semibold text-gray-700">Date de début prévue :</span>
-                    <p className="text-gray-600 mt-0.5">{devis.dateDebutPrevue}</p>
+                    <span className="text-gray-600">{devis.dateDebutPrevue}</span>
                   </div>
                 )}
               </div>
@@ -420,7 +459,7 @@ export default function DevisExpressPrintPage() {
           )}
 
           {/* ═══ 8. SIGNATURES ═══ */}
-          <div className="mt-10 pt-6 border-t-2 border-gray-300 no-break">
+          <div className="print-sig-zone mt-10 pt-6 border-t-2 border-gray-300 no-break">
             <div className="flex justify-between items-start gap-8">
 
               {/* ── Signature CLIENT (gauche) ── */}
@@ -433,7 +472,7 @@ export default function DevisExpressPrintPage() {
                       <img
                         src={devis.signatureClient.dataURL}
                         alt="Signature client"
-                        className="h-16 w-auto"
+                        className="print-sig-img h-16 w-auto"
                       />
                     </div>
                     <p className="text-xs text-gray-600 mt-1 font-medium">{clientNom}</p>
@@ -444,7 +483,7 @@ export default function DevisExpressPrintPage() {
                     )}
                   </>
                 ) : (
-                  <div className="border-2 border-dashed border-gray-300 rounded p-4 w-full h-28 flex flex-col items-center justify-center bg-gray-50 gap-1">
+                  <div className="print-sig-box border-2 border-dashed border-gray-300 rounded p-4 w-full h-28 flex flex-col items-center justify-center bg-gray-50 gap-1">
                     <p className="text-xs font-bold text-gray-600">Bon pour accord</p>
                     <p className="text-xs text-gray-400 text-center">Signature + date du client</p>
                   </div>
@@ -463,7 +502,7 @@ export default function DevisExpressPrintPage() {
                       <img
                         src={devis.signatureArtisan.dataURL}
                         alt="Signature artisan"
-                        className="h-16 w-auto"
+                        className="print-sig-img h-16 w-auto"
                       />
                     </div>
                     <p className="text-xs text-gray-600 mt-1 font-medium">
@@ -476,7 +515,7 @@ export default function DevisExpressPrintPage() {
                     )}
                   </>
                 ) : (
-                  <div className="border-2 border-dashed border-[#FF6B00] rounded p-4 w-full h-28 flex flex-col items-center justify-center bg-orange-50 gap-1">
+                  <div className="print-sig-box border-2 border-dashed border-[#FF6B00] rounded p-4 w-full h-28 flex flex-col items-center justify-center bg-orange-50 gap-1">
                     <p className="text-xs font-bold text-gray-600">Bon pour accord</p>
                     <p className="text-xs text-gray-500 text-center">Signature / cachet de l'artisan</p>
                   </div>
@@ -486,7 +525,7 @@ export default function DevisExpressPrintPage() {
           </div>
 
           {/* ═══ 9. PIED DE PAGE ═══ */}
-          <div className="mt-10 pt-4 border-t border-gray-200 text-center text-xs text-gray-400">
+          <div className="print-footer mt-10 pt-4 border-t border-gray-200 text-center text-xs text-gray-400">
             <p>
               Devis généré via <strong>ArtisanDispo</strong> — Plateforme de mise en relation artisans / clients
               &nbsp;·&nbsp; Réf. {numeroRef} &nbsp;·&nbsp; Émis le {dateDevis}
