@@ -390,19 +390,19 @@ export default function DevisExpressPrintPage() {
           {(devis.delaiRealisation || devis.dateDebutPrevue) && (
             <div className="mb-8 bg-blue-50 rounded-lg p-4 border border-blue-200 no-break section-mb">
               <h3 className="text-sm font-bold text-[#2C3E50] mb-3 uppercase tracking-wide">
-                📅 Délais d'exécution
+                ⚡ Délais d'exécution
               </h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
-                {devis.dateDebutPrevue && (
-                  <div>
-                    <span className="font-semibold text-gray-700">Date/période de début :</span>
-                    <p className="text-gray-600 mt-0.5">{devis.dateDebutPrevue}</p>
-                  </div>
-                )}
                 {devis.delaiRealisation && (
                   <div>
-                    <span className="font-semibold text-gray-700">Durée estimée :</span>
+                    <span className="font-semibold text-gray-700">Délai d'intervention :</span>
                     <p className="text-gray-600 mt-0.5">{devis.delaiRealisation}</p>
+                  </div>
+                )}
+                {devis.dateDebutPrevue && (
+                  <div>
+                    <span className="font-semibold text-gray-700">Date de début prévue :</span>
+                    <p className="text-gray-600 mt-0.5">{devis.dateDebutPrevue}</p>
                   </div>
                 )}
               </div>

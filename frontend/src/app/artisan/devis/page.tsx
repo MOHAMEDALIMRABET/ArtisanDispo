@@ -36,6 +36,22 @@ type DemandeInfo = {
   ville: string;
 };
 
+/**
+ * Convertit tout format de timestamp (Timestamp Firestore, objet sérialisé {seconds}, Date)
+ * en objet Date JavaScript. Évite les erreurs "toDate/toMillis is not a function".
+ */
+function tsToDate(ts: unknown): Date {
+  if (!ts) return new Date(0);
+  if (ts instanceof Date) return ts;
+  if (typeof (ts as { toDate?: unknown }).toDate === 'function') {
+    return (ts as { toDate: () => Date }).toDate();
+  }
+  if (typeof (ts as { seconds?: unknown }).seconds === 'number') {
+    return new Date((ts as { seconds: number }).seconds * 1000);
+  }
+  return new Date(ts as string | number);
+}
+
 export default function MesDevisPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -1209,7 +1225,7 @@ export default function MesDevisPage() {
                         )}
                       </td>
                       <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {d.dateCreation?.toDate().toLocaleDateString('fr-FR')}
+                        {d.dateCreation ? tsToDate(d.dateCreation).toLocaleDateString('fr-FR') : '—'}
                       </td>
                       <td className="px-3 py-4 text-sm font-medium">
                         {/* ===== Devis Express : bouton unique vers la page d'impression ===== */}

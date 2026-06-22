@@ -510,6 +510,7 @@ export default function DevisExpressForm({ onChange, montantInitial }: DevisExpr
             className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-[#FF6B00]"
           />
         </div>
+
         <div className="col-span-2">
           <label className="text-xs font-medium text-gray-600 block mb-1">
             Conditions particulières
