@@ -64,9 +64,11 @@ import {
 export async function createDemandeExpress(
   data: Omit<DemandeExpress, 'id' | 'statut' | 'createdAt' | 'updatedAt'>
 ): Promise<string> {
-  // Validation budget max 150€
-  if (data.budgetPropose && data.budgetPropose > 150) {
-    throw new Error('Le budget ne peut pas dépasser 150€ pour un travail express');
+  // La validation du plafond est désormais gérée côté formulaire (dynamique par sous-catégorie)
+  // On conserve uniquement un garde-fou strict à 2000€ pour éviter les erreurs de saisie
+
+  if (data.budgetPropose && data.budgetPropose > 2000) {
+    throw new Error('Le budget saisi semble incorrect (supérieur à 2000 €).');
   }
 
   const demandeData = {

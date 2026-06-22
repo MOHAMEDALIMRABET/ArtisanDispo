@@ -93,8 +93,7 @@ export default function DemandeExpressDetailArtisanPage() {
   const [submitting, setSubmitting] = useState(false);
   // Devis joint (obligatoire si montant > 150€)
   const [devisExpress, setDevisExpress] = useState<DevisExpressJoint | undefined>(undefined);
-  // Modale de consultation du devis joint envoyé
-  const [devisModalOpen, setDevisModalOpen] = useState(false);
+  // Ouverture du devis formaté dans un nouvel onglet (page dédiée comme la demande classique)
   // Panneau gauche (détails intervention) visible/masqué quand le devis est affiché
   const [showDetails, setShowDetails] = useState(false);
   // Chargement génération PDF
@@ -307,11 +306,11 @@ export default function DemandeExpressDetailArtisanPage() {
   return (
     <div className="min-h-screen bg-[#F5F7FA]">
 
-      {/* ═══ MODALE DEVIS JOINT ═══ */}
-      {devisModalOpen && maProposition?.devisJoint && (
+      {/* La consultation du devis ouvre la page formatée /devis-express-print/[id] dans un nouvel onglet */}
+      {false && maProposition?.devisJoint && (
         <div
           className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center overflow-y-auto py-8 px-4"
-          onClick={() => setDevisModalOpen(false)}
+          onClick={() => {}}
         >
           <div
             className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl"
@@ -734,11 +733,11 @@ export default function DemandeExpressDetailArtisanPage() {
                   </span>
                 </div>
 
-                {/* Bouton consulter le devis joint (si devis > 150€) */}
+                {/* Bouton consulter le devis joint : ouvre la page formatée */}
                 {maProposition.devisJoint && (
                   <div className="pt-3 border-t border-purple-200">
                     <button
-                      onClick={() => setDevisModalOpen(true)}
+                      onClick={() => window.open(`/devis-express-print/${maProposition.id}`, '_blank')}
                       className="w-full flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-2.5 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold text-sm"
                     >
                       📋 Consulter le devis envoyé
@@ -985,10 +984,10 @@ export default function DemandeExpressDetailArtisanPage() {
                 <Button onClick={handleMarquerEnCours} disabled={submitting}>
                   🚀 Marquer l'intervention comme démarrée
                 </Button>
-                {/* Bouton accès rapide au devis joint (si montant > 150€) */}
+                {/* Bouton accès rapide au devis joint : ouvre la page formatée */}
                 {maProposition?.devisJoint && (
                   <button
-                    onClick={() => setDevisModalOpen(true)}
+                    onClick={() => window.open(`/devis-express-print/${maProposition?.id}`, '_blank')}
                     className="w-full flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-2.5 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold text-sm"
                   >
                     📋 Consulter / Télécharger le devis
@@ -1010,10 +1009,10 @@ export default function DemandeExpressDetailArtisanPage() {
                 <Button onClick={handleMarquerTerminee} disabled={submitting}>
                   ✅ Déclarer la fin des travaux
                 </Button>
-                {/* Bouton accès rapide au devis joint (si montant > 150€) */}
+                {/* Bouton accès rapide au devis joint : ouvre la page formatée */}
                 {maProposition?.devisJoint && (
                   <button
-                    onClick={() => setDevisModalOpen(true)}
+                    onClick={() => window.open(`/devis-express-print/${maProposition?.id}`, '_blank')}
                     className="w-full flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-2.5 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold text-sm"
                   >
                     📋 Consulter / Télécharger le devis
@@ -1032,10 +1031,10 @@ export default function DemandeExpressDetailArtisanPage() {
                 Le client a été notifié. Il doit valider les travaux pour libérer votre paiement.
                 Le paiement sera automatiquement libéré dans 24h si le client ne répond pas.
               </p>
-              {/* Bouton accès rapide au devis joint (si montant > 150€) */}
+              {/* Bouton accès rapide au devis joint : ouvre la page formatée */}
               {maProposition?.devisJoint && (
                 <button
-                  onClick={() => setDevisModalOpen(true)}
+                  onClick={() => window.open(`/devis-express-print/${maProposition?.id}`, '_blank')}
                   className="w-full flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-2.5 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold text-sm"
                 >
                   📋 Consulter / Télécharger le devis
@@ -1052,10 +1051,10 @@ export default function DemandeExpressDetailArtisanPage() {
               <p className="text-[#6C757D] mb-4">
                 Le client a validé les travaux. Votre paiement a été versé.
               </p>
-              {/* Bouton accès rapide au devis joint (si montant > 150€) */}
+              {/* Bouton accès rapide au devis joint : ouvre la page formatée */}
               {maProposition?.devisJoint && (
                 <button
-                  onClick={() => setDevisModalOpen(true)}
+                  onClick={() => window.open(`/devis-express-print/${maProposition?.id}`, '_blank')}
                   className="w-full flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-2.5 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold text-sm"
                 >
                   📋 Consulter / Télécharger le devis

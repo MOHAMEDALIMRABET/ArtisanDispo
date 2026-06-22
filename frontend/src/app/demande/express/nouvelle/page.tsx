@@ -15,6 +15,7 @@ import {
   getExpressCategories,
   getExpressCategorieOption,
   getExpressSousCategorieLabel,
+  parsePrixMax,
   type TypeTravauxExpress,
 } from '@/lib/express-work-taxonomy';
 
@@ -50,6 +51,15 @@ export default function NouvelleDemandeExpressPage() {
   const selectedCategorie = getExpressCategorieOption(typeTravaux, categorieExpress);
   // Prix indicatif de la sous-catégorie sélectionnée (affiché sous le select)
   const prixIndicatif = selectedCategorie?.sousCategories.find((sc) => sc.value === sousCategorie)?.prix ?? null;
+  // Plafond numérique extrait de la taxonomie (ex: "Max 350 €" → 350)
+  const prixMaxTaxonomie = parsePrixMax(prixIndicatif);
+  // Plafond effectif : taxonomie > dépannage sans prix (150€) > petits travaux sans prix (null = pas de limite)
+  const plafondEffectif = prixMaxTaxonomie ?? (typeTravaux === 'depannage-urgence' ? 150 : null);
+  // Vérification en temps réel si le budget saisi dépasse le plafond
+  const budgetVal = budgetPropose ? parseFloat(budgetPropose) : null;
+  const budgetExcede = plafondEffectif !== null && budgetVal !== null && !isNaN(budgetVal) && budgetVal > plafondEffectif;
+  // Signal informatif : à partir de 150€, un devis formel est requis
+  const budgetNecessiteDevis = budgetVal !== null && !isNaN(budgetVal) && budgetVal >= 150;
   const urgence = EXPRESS_WORK_TAXONOMY[typeTravaux].urgenceValue;
   const dateReference = new Date().toISOString().slice(0, 10);
 
@@ -128,10 +138,12 @@ export default function NouvelleDemandeExpressPage() {
     }
 
     const budget = budgetPropose ? parseFloat(budgetPropose) : undefined;
-    if (budget && budget > 150) {
-      alert(t('alerts.express.budgetExceeded'));
+    // Validation : bloquer uniquement si un plafond est défini ET dépassé
+    if (budget && plafondEffectif !== null && budget > plafondEffectif) {
+      alert(`Le budget ne peut pas dépasser ${plafondEffectif} € pour cette prestation${prixIndicatif ? ` (${prixIndicatif})` : ''}.`);
       return;
     }
+
 
     setLoading(true);
 
@@ -383,21 +395,53 @@ export default function NouvelleDemandeExpressPage() {
               <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
                 Budget proposé (optionnel)
               </label>
+              {/* Badge plafond : affiché uniquement quand un plafond est défini (dépannage) */}
+              {plafondEffectif !== null && (
+                <div className={`mb-2 flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${
+                  prixIndicatif
+                    ? 'bg-[#FFF3EA] border border-[#FF6B00]'
+                    : 'bg-gray-50 border border-gray-200'
+                }`}>
+                  <span>💡</span>
+                  <span className="font-semibold text-[#2C3E50]">Plafond pour cette prestation :</span>
+                  <span className="font-bold text-[#FF6B00]">
+                    {prixIndicatif ?? `Max ${plafondEffectif} €`}
+                  </span>
+                </div>
+              )}
               <div className="relative">
                 <input
                   type="number"
                   value={budgetPropose}
                   onChange={(e) => setBudgetPropose(e.target.value)}
                   min="1"
-                  max="150"
+                  {...(plafondEffectif !== null ? { max: plafondEffectif } : {})}
                   step="1"
-                  placeholder="Ex: 120"
-                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none pr-12"
+                  placeholder={plafondEffectif !== null ? `Ex: ${Math.round(plafondEffectif * 0.8)}` : 'Ex: 200'}
+                  className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none pr-12 transition-colors ${
+                    budgetExcede
+                      ? 'border-red-400 focus:border-red-500 bg-red-50'
+                      : 'border-[#E9ECEF] focus:border-[#FF6B00]'
+                  }`}
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6C757D] font-semibold">
                   €
                 </span>
               </div>
+              {/* Erreur : budget dépasse le plafond de la prestation */}
+              {budgetExcede && (
+                <p className="mt-1.5 flex items-center gap-1 text-sm text-red-600 font-semibold">
+                  <span>⚠️</span>
+                  Budget trop élevé — le plafond pour cette prestation est de {plafondEffectif} €
+                </p>
+              )}
+              {/* Info : à partir de 150€, un devis formel sera établi par l'artisan */}
+              {!budgetExcede && budgetNecessiteDevis && (
+                <p className="mt-1.5 flex items-center gap-1 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                  <span>📄</span>
+                  À partir de 150 €, l’artisan vous soumettra un devis formel avant d’intervenir.
+                </p>
+              )}
             </div>
 
             {/* Localisation */}

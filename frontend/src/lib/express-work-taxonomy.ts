@@ -217,3 +217,22 @@ export function getExpressArtisanWindowLabel(input: ExpressTimingInput): string 
   if (input.typeTravauxExpress === 'petits-travaux-maintenance') return '2h';
   return input.urgence === 'immediat' ? '1h' : '6h';
 }
+
+/**
+ * Extrait la valeur numérique maximale d'une chaîne de prix indicatif.
+ * Exemples :
+ *   "Max 350 €"           → 350
+ *   "Max 1 000 € TTC"     → 1000
+ *   "Max 390 € - sur devis" → 390
+ *   "À partir de 120 €"   → null (pas de plafond)
+ *   "Devis sur-mesure"    → null (pas de plafond)
+ *   null / undefined      → null
+ */
+export function parsePrixMax(prix: string | null | undefined): number | null {
+  if (!prix) return null;
+  // Match uniquement les chaînes commençant par "Max" suivi d'un nombre
+  const match = prix.match(/Max\s+([\d\s]+)/i);
+  if (!match) return null;
+  const value = parseInt(match[1].replace(/\s/g, ''), 10);
+  return isNaN(value) ? null : value;
+}

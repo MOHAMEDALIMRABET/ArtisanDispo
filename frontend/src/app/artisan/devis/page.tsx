@@ -12,12 +12,22 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { collection, query, where, getDocs, orderBy, doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { Devis } from '@/types/devis';
-import type { Demande } from '@/types/firestore';
+import type { Demande, PropositionExpress } from '@/types/firestore';
 import { supprimerDevisAnulesExpires } from '@/lib/firebase/devis-service';
+import { getPropositionsByArtisanId } from '@/lib/firebase/demande-express-service';
 import { markNotificationsByTypeAsRead, markNotificationsByLienAsRead } from '@/lib/firebase/notification-service';
 
 type TabType = 'devis' | 'factures';
 type DevisFilter = 'tous' | 'genere' | 'envoye' | 'en_attente_paiement' | 'paye' | 'revision' | 'refuse';
+
+/**
+ * Type étendu pour inclure les devis express (propositions avec devisJoint)
+ * Les champs typeProjet et propositionExpressId identifient les devis issus de propositions_express
+ */
+type DevisAvecExpress = Devis & {
+  typeProjet?: 'express';
+  propositionExpressId?: string;
+};
 
 // Type pour stocker les infos des demandes
 type DemandeInfo = {
@@ -34,7 +44,7 @@ export default function MesDevisPage() {
   const { user, loading: authLoading } = useAuth();
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<TabType>('devis');
-  const [devis, setDevis] = useState<Devis[]>([]);
+  const [devis, setDevis] = useState<DevisAvecExpress[]>([]);
   const [demandesInfo, setDemandesInfo] = useState<Record<string, DemandeInfo>>({});
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<DevisFilter>('tous');
@@ -233,6 +243,81 @@ export default function MesDevisPage() {
       });
 
       setDevis(devisData);
+
+      // ============================================================
+      // DEVIS EXPRESS : Charger les propositions express avec devisJoint
+      // Ces propositions (montant > 150€) contiennent un devis signé joint
+      // et doivent apparaître dans "Mes Devis" > "Tous" et "📤 Envoyés"
+      // ============================================================
+      try {
+        const propositionsExpress = await getPropositionsByArtisanId(user.uid);
+        // Garder uniquement celles avec un devis joint signé
+        const expressAvecDevis = propositionsExpress.filter(p => p.devisJoint);
+
+        if (expressAvecDevis.length > 0) {
+          // Correspondance entre statut proposition_express → statut devis
+          const statutMapping: Record<string, string> = {
+            'en_attente_acceptation':     'envoye',
+            'en_negociation':             'envoye',
+            'proposition_finale_artisan': 'envoye',
+            'acceptee':                   'paye',
+            'refusee_client':             'refuse',
+            'refusee_artisan':            'annule',
+            'contrat_termine':            'termine_valide',
+            'litige':                     'litige',
+          };
+
+          // Mapper chaque proposition express vers un objet compatible DevisAvecExpress
+          const expressDevisData: DevisAvecExpress[] = expressAvecDevis.map(p => ({
+            id: p.id,
+            artisanId: p.artisanId,
+            clientId: p.clientId,
+            demandeId: p.demandeId,
+            statut: (statutMapping[p.statut] ?? 'envoye') as Devis['statut'],
+            dateCreation: p.createdAt,
+            dateEnvoi: p.createdAt,
+            // Validité : 30 jours après création
+            dateValidite: Timestamp.fromMillis(
+              (p.createdAt?.toMillis?.() || Date.now()) + 30 * 24 * 60 * 60 * 1000
+            ),
+            // Numéro de devis express : EXP-XXXXXXXX
+            numeroDevis: `EXP-${p.id.slice(0, 8).toUpperCase()}`,
+            // Marqueurs pour identifier ce devis comme express dans le rendu
+            typeProjet: 'express' as const,
+            propositionExpressId: p.id,
+            // Données client minimales (nom récupéré dynamiquement si besoin)
+            client: { nom: 'Express', prenom: 'Devis', email: '', telephone: '' },
+            // Données financières depuis le devis joint
+            totaux: {
+              totalHT: p.devisJoint!.totaux.totalHT,
+              totalTVA: {},
+              totalTVAGlobal: p.devisJoint!.totaux.totalTVAGlobal,
+              totalTTC: p.devisJoint!.totaux.totalTTC,
+            },
+            // Champs requis par le type Devis (valeurs minimales)
+            artisan: { raisonSociale: '', siret: '', email: '', telephone: '' },
+            lignes: (p.devisJoint!.lignes ?? []) as Devis['lignes'],
+            titre: 'Devis Express',
+            dateDebutPrevue: p.createdAt,
+            historiqueStatuts: [],
+          } as unknown as DevisAvecExpress));
+
+          // Fusionner avec les devis classiques et re-trier par date décroissante
+          setDevis(prev => {
+            const sansDoublons = prev.filter(d => d.typeProjet !== 'express');
+            return [...sansDoublons, ...expressDevisData].sort((a, b) => {
+              const dateA = a.dateCreation?.toMillis?.() || 0;
+              const dateB = b.dateCreation?.toMillis?.() || 0;
+              return dateB - dateA;
+            });
+          });
+
+          console.log(`🚀 ${expressDevisData.length} devis express fusionné(s) dans Mes Devis`);
+        }
+      } catch (expressError) {
+        // Non bloquant : les devis express ne cassent pas l'affichage des devis classiques
+        console.warn('⚠️ Impossible de charger les devis express:', expressError);
+      }
 
       // 🔍 DEBUG : Vérifier les devis NON VUS (système lu/non lu)
       const devisNonVus = devisData.filter(d => {
@@ -1028,6 +1113,12 @@ export default function MesDevisPage() {
                         <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-[#2C3E50]">
                           <div className="flex items-center gap-1.5">
                             <span className="numero-devis">{d.numeroDevis}</span>
+                            {/* Badge Express pour les devis issus de propositions_express */}
+                            {d.typeProjet === 'express' && (
+                              <span className="inline-flex items-center bg-orange-100 text-[#FF6B00] text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-orange-200">
+                                🚀 Express
+                              </span>
+                            )}
                             {devisNotifsInitialIds.has(d.id) && (
                               <span className="inline-flex items-center bg-[#FF6B00] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
                                 🔔
@@ -1036,7 +1127,22 @@ export default function MesDevisPage() {
                           </div>
                         </td>
                         <td className="px-2 py-4 text-sm">
-                        {d.demandeId && demandesInfo[d.demandeId] ? (
+                        {/* Devis express : lien vers la demande express */}
+                        {d.typeProjet === 'express' ? (
+                          <button
+                            onClick={() => router.push(`/artisan/demandes-express/${d.demandeId}`)}
+                            className="text-left hover:bg-orange-50 p-1 rounded transition-colors group"
+                          >
+                            <div className="flex items-center gap-1">
+                              <svg className="w-3 h-3 text-[#FF6B00] flex-shrink-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                              </svg>
+                              <span className="text-xs font-medium text-[#FF6B00] group-hover:text-[#E56100] whitespace-normal leading-snug">
+                                🚀 Demande Express
+                              </span>
+                            </div>
+                          </button>
+                        ) : d.demandeId && demandesInfo[d.demandeId] ? (
                           <button
                             onClick={() => router.push(`/artisan/demandes?demandeId=${d.demandeId}`)}
                             className="text-left hover:bg-orange-50 p-1 rounded transition-colors group"
@@ -1105,7 +1211,18 @@ export default function MesDevisPage() {
                         {d.dateCreation?.toDate().toLocaleDateString('fr-FR')}
                       </td>
                       <td className="px-3 py-4 text-sm font-medium">
-                        {d.statut === 'en_revision' && d.demandeId ? (
+                        {/* ===== Devis Express : bouton unique vers la page d'impression ===== */}
+                        {d.typeProjet === 'express' ? (
+                          <button
+                            onClick={() => window.open(`/devis-express-print/${d.propositionExpressId}`, '_blank')}
+                            className="px-3 py-1 bg-[#FF6B00] text-white rounded hover:bg-[#E56100] text-xs font-semibold flex items-center gap-1"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Consulter le devis
+                          </button>
+                        ) : d.statut === 'en_revision' && d.demandeId ? (
                           <button
                             onClick={() => router.push(`/artisan/devis/nouveau?demandeId=${d.demandeId}&revisionDevisId=${d.id}`)}
                             className="px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 text-xs font-semibold"
