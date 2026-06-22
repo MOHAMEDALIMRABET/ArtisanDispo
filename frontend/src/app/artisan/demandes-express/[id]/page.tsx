@@ -260,6 +260,15 @@ export default function DemandeExpressDetailArtisanPage() {
     : 'Travaux express';
   const categorieLabel = demande.categorieLabel || (demande.categorie.charAt(0).toUpperCase() + demande.categorie.slice(1));
   const sousCategorieLabel = demande.sousCategorieLabel || demande.sousCategorie;
+
+  // Prix indicatif de la sous-catégorie selon la taxonomie (ex: "Max 350 €" ou "À partir de 120 €")
+  // Permet à l'artisan de connaître le plafond de prix attendu pour cette prestation
+  const prixIndicatif = demande.typeTravauxExpress && demande.sousCategorie
+    ? EXPRESS_WORK_TAXONOMY[demande.typeTravauxExpress]?.categories
+        ?.flatMap((c: { sousCategories: { value: string; prix?: string }[] }) => c.sousCategories)
+        ?.find((sc: { value: string }) => sc.value === demande.sousCategorie)
+        ?.prix ?? null
+    : null;
   const interventionWindowHours = Math.round(getExpressArtisanWindowMs(demande) / (60 * 60 * 1000));
 
   const maProposition = propositions.find(p => p.artisanId === firebaseUser?.uid);
@@ -612,6 +621,20 @@ export default function DemandeExpressDetailArtisanPage() {
                     <p className="text-[#6C757D]">{sousCategorieLabel}</p>
                   </div>
                 )}
+
+                {/* Prix indicatif de la taxonomie pour cette sous-catégorie */}
+                {prixIndicatif && (
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-[#2C3E50] mb-1">
+                      💰 Prix indicatif plateforme
+                    </label>
+                    <div className="inline-flex items-center gap-2 bg-[#FFF3EA] border border-[#FF6B00] rounded-lg px-3 py-2">
+                      <span className="text-sm font-bold text-[#FF6B00]">{prixIndicatif}</span>
+                      <span className="text-xs text-[#6C757D]">(fourchette indicative pour cette prestation)</span>
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-sm font-semibold text-[#2C3E50] mb-1">
                     📍 Localisation
