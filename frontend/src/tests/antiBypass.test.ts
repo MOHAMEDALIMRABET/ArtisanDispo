@@ -68,8 +68,8 @@ describe('antiBypassValidator — cas limites (contournements)', () => {
     expect(validateMessage('Contacte-moi en dehors de la plateforme').isValid).toBe(false);
   });
 
-  it('bloque "On peut se voir directement ?"', () => {
-    expect(validateMessage('On peut se voir directement ?').isValid).toBe(false);
+  it('bloque "contacte-moi directement" (contournement explicite)', () => {
+    expect(validateMessage('Contacte-moi directement pour éviter les frais').isValid).toBe(false);
   });
 
   // --- Doit être AUTORISÉ ---

@@ -355,6 +355,9 @@ export async function getDemandesPubliquesForArtisan(
     const demandes = snapshot.docs
       .map(doc => ({ id: doc.id, ...doc.data() } as Demande))
       .filter(d => {
+        // Défense côté client : exclure statuts non visibles (redondant avec la requête Firestore)
+        // Protège contre les mocks de test et les cas limites de sécurité
+        if (!STATUTS_VISIBLES.includes(d.statut)) return false;
         // Filtrer uniquement les demandes publiques (type filtering côté client)
         if (d.type !== 'publique') return false;
         // Exclure les demandes dont la dateExpiration est dépassée

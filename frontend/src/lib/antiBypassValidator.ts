@@ -798,6 +798,14 @@ export function validateMessage(content: string, isPaid: boolean = false): Valid
   if (isPaid) return { isValid: true, blockedPatterns: [] };
 
   const clean = removeWhitelistedContexts(content);
+
+  // Pré-vérification URL avant normalisation des séparateurs :
+  // normalizeAltSeparators() remplace '/' par espace, ce qui casse le pattern https?://...
+  // On teste donc sur 'clean' (avant normalisation) pour attraper les URLs partagées.
+  if (/https?:\/\/\S+/gi.test(clean) || /\bwww\.[a-z0-9\-]+\.[a-z]{2,}/gi.test(clean)) {
+    return { isValid: false, blockedPatterns: ['autres'], message: BLOCKED_MSG };
+  }
+
   const normalized = normalizeAltSeparators(clean).toLowerCase().trim();
   const normalizedHomoglyph = normalizeHomoglyphsInMixedSegments(normalized);
 
@@ -882,7 +890,8 @@ export const BLOCKED_EXAMPLES = [
   // Mots-chiffres
   "zéro six douze trente-quatre cinquante-six soixante-dix-huit",
   "zero six ving trente quarante trois neuf",
-  "z e r o s i x vingt cinq trente deux",
+  // Attaque lettre-espacé : 'z e r o' + mots normaux → 0612345678
+  "z e r o six douze trente quatre cinquante six soixante dix huit",
   // Cross-messages (détecté par validateMessageWithHistory)
   // msg1: "je suis zero six", msg2: "vingt trois quarante sept"
   // Emails
