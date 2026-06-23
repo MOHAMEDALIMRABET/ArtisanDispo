@@ -32,8 +32,17 @@ function extractDemandeIdFromLink(link?: string): string | null {
   return match?.[1] ?? null;
 }
 
+// Ensemble des types de notifications express côté client
+// Évite de dépendre uniquement du champ 'lien' pour la classification
+const EXPRESS_NOTIFICATION_TYPES_CLIENT = new Set([
+  'proposition_express_recue',
+  'intervention_demarree',
+  'travaux_termines_express',
+  'paiement_expire',
+]);
+
 function isExpressNotification(notification: Notification): boolean {
-  return notification.type === 'proposition_express_recue' ||
+  return EXPRESS_NOTIFICATION_TYPES_CLIENT.has(notification.type) ||
     notification.lien?.startsWith('/client/demandes-express') === true;
 }
 
@@ -204,15 +213,22 @@ export default function ClientDemandesHubPage() {
   }
 
   async function openDemandesExpressDirectes() {
-    const latestNotification = expressDirectUnreadNotifications[0];
-    await markNotificationsRead(expressDirectUnreadNotifications);
-    router.push(latestNotification?.lien || '/client/demandes-express?source=directes');
+    // Si une seule notification non lue avec un lien précis → naviguer directement vers la demande.
+    // Sinon → aller sur la liste filtrée pour voir toutes les notifications actives.
+    if (expressDirectUnreadNotifications.length === 1 && expressDirectUnreadNotifications[0].lien) {
+      router.push(expressDirectUnreadNotifications[0].lien);
+    } else {
+      router.push('/client/demandes-express?source=directes');
+    }
   }
 
   async function openDemandesExpressPubliees() {
-    const latestNotification = expressPublishedUnreadNotifications[0];
-    await markNotificationsRead(expressPublishedUnreadNotifications);
-    router.push(latestNotification?.lien || '/client/demandes-express?source=publiees');
+    // Même logique : navigation directe si une seule notification, sinon liste filtrée.
+    if (expressPublishedUnreadNotifications.length === 1 && expressPublishedUnreadNotifications[0].lien) {
+      router.push(expressPublishedUnreadNotifications[0].lien);
+    } else {
+      router.push('/client/demandes-express?source=publiees');
+    }
   }
 
   useEffect(() => {

@@ -12,6 +12,7 @@ import {
   refusePropositionExpress,
   sendContrePropositionExpress,
   deleteDemandeExpress,
+  markTravauxValides,
 } from '@/lib/firebase/demande-express-service';
 import { getUserById } from '@/lib/firebase/user-service';
 import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
@@ -279,6 +280,7 @@ export default function DemandeExpressDetailClientPage() {
     acceptee:               { bg: 'bg-green-100',  color: 'text-green-800',  label: '✅ Acceptée' },
     payee:                  { bg: 'bg-orange-100', color: 'text-orange-800', label: '💳 Payé - En attente de début des travaux' },
     en_cours:               { bg: 'bg-purple-100', color: 'text-purple-800', label: '🔧 En cours' },
+    travaux_termines:       { bg: 'bg-amber-100',  color: 'text-amber-800',  label: '⏳ Travaux terminés — Validation requise' },
     terminee:               { bg: 'bg-gray-100',   color: 'text-gray-700',   label: '🎉 Terminée' },
     annulee:                { bg: 'bg-red-100',    color: 'text-red-700',    label: '❌ Annulée' },
     expiree:                { bg: 'bg-gray-100',   color: 'text-gray-600',   label: '⏰ Expirée' },
@@ -789,6 +791,72 @@ export default function DemandeExpressDetailClientPage() {
                   <p className="text-[#6C757D] text-sm">
                     L'artisan est en train d'effectuer les travaux. Vous serez notifié dès la fin.
                   </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Travaux terminés — validation requise ─────── */}
+          {demande.statut === 'travaux_termines' && (
+            <div className="bg-amber-50 border-2 border-amber-400 rounded-2xl p-6">
+              <div className="flex items-start gap-4">
+                <div className="text-3xl">⏳</div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-[#2C3E50] mb-1">
+                    🔔 Travaux terminés — Votre validation est requise
+                  </h3>
+                  <p className="text-[#6C757D] text-sm mb-2">
+                    L'artisan a déclaré la fin des travaux. Confirmez que tout est conforme
+                    pour libérer le paiement à l'artisan.
+                  </p>
+                  <p className="text-amber-700 text-xs font-semibold mb-4">
+                    ⚠️ Si vous ne répondez pas dans 24h, le paiement sera libéré automatiquement.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    {/* Bouton de validation — libère le paiement à l'artisan */}
+                    <button
+                      onClick={async () => {
+                        if (!confirm("Confirmez-vous la bonne exécution des travaux ? Cela libèrera le paiement à l'artisan.")) return;
+                        setSubmitting(true);
+                        try {
+                          /* Appel API Stripe pour capturer l'autorisation */
+                          const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+                          if (apiUrl) {
+                            const resp = await fetch(`${apiUrl}/stripe-express/capture-payment`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ demandeId: demande.id }),
+                            });
+                            if (!resp.ok) {
+                              const err = await resp.json();
+                              throw new Error(err.error || 'Erreur lors de la libération du paiement');
+                            }
+                          }
+                          /* Mettre à jour le statut Firestore et notifier l'artisan */
+                          await markTravauxValides(demande.id);
+                          alert('✅ Travaux validés ! Le paiement a été libéré à l\'artisan.');
+                          /* Recharger les données pour afficher le statut "terminee" */
+                          await loadData();
+                        } catch (err: any) {
+                          alert(err.message || 'Erreur lors de la validation');
+                        } finally {
+                          setSubmitting(false);
+                        }
+                      }}
+                      disabled={submitting}
+                      className="flex-1 px-5 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 font-bold text-sm shadow-md disabled:opacity-50 transition-all"
+                    >
+                      {submitting ? '⏳ Traitement...' : '✅ Valider les travaux et libérer le paiement'}
+                    </button>
+                    {/* Bouton contestation — redirige vers la liste des demandes */}
+                    <button
+                      onClick={() => router.push('/client/demandes-express')}
+                      disabled={submitting}
+                      className="px-5 py-3 border-2 border-red-400 text-red-600 rounded-xl hover:bg-red-50 font-semibold text-sm transition-all disabled:opacity-50"
+                    >
+                      ⚠️ Signaler un problème
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

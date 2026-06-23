@@ -94,6 +94,9 @@ export default function DemandeExpressDetailArtisanPage() {
   const [submitting, setSubmitting] = useState(false);
   // Devis joint (obligatoire si montant >= 150€)
   const [devisExpress, setDevisExpress] = useState<DevisExpressJoint | undefined>(undefined);
+  // Données initiales du devis pour pré-remplir DevisExpressForm lors d'une reprise après refus
+  // (lignes, main d'œuvre, matières premières, délai, date, conditions — signatures exclues)
+  const [devisInitialData, setDevisInitialData] = useState<Omit<DevisExpressJoint, 'signatureArtisan' | 'signatureClient'> | undefined>(undefined);
   // Ouverture du devis formaté dans un nouvel onglet (page dédiée comme la demande classique)
   // Panneau gauche (détails intervention) visible/masqué quand le devis est affiché
   const [showDetails, setShowDetails] = useState(false);
@@ -160,8 +163,23 @@ export default function DemandeExpressDetailArtisanPage() {
       const propositionsList = await getPropositionsByDemande(demandeId);
       setPropositions(propositionsList);
 
-      // Pré-remplir avec budget client si disponible
-      if (demandeData.budgetPropose && !montantPropose) {
+      // Pré-remplir le formulaire depuis la proposition refusée si elle existe,
+      // sinon utiliser le budget client comme montant par défaut.
+      // La signature client est réinitialisée (elle sera demandée à la nouvelle acceptation).
+      const myRefusedProp = propositionsList.find(
+        p => p.artisanId === firebaseUser.uid && p.statut === 'refusee'
+      );
+      if (myRefusedProp) {
+        setMontantPropose(myRefusedProp.montantPropose.toString());
+        descriptionField.setValue(myRefusedProp.description);
+        if (myRefusedProp.devisJoint) {
+          // Réutiliser le devis existant en effaçant les deux signatures
+          // (l'artisan et le client devront re-signer lors de la nouvelle proposition/acceptation)
+          const { signatureClient: _sc, signatureArtisan: _sa, ...devisBase } = myRefusedProp.devisJoint;
+          setDevisInitialData(devisBase);
+          setDevisExpress(devisBase as typeof myRefusedProp.devisJoint);
+        }
+      } else if (demandeData.budgetPropose && !montantPropose) {
         setMontantPropose(demandeData.budgetPropose.toString());
       }
     } catch (error: any) {
@@ -301,7 +319,12 @@ export default function DemandeExpressDetailArtisanPage() {
 
   const maProposition = propositions.find(p => p.artisanId === firebaseUser?.uid);
   const isPublished = !demande.artisanId;
-  const peutFaireProposition = !maProposition && (
+  // Peut soumettre une proposition si aucune active n'existe, OU si la précédente a été refusée
+  // et que la demande est de nouveau ouverte (statut en_attente_proposition)
+  const peutFaireProposition = (
+    !maProposition ||
+    (maProposition.statut === 'refusee' && demande.statut === 'en_attente_proposition')
+  ) && (
     demande.statut === 'en_attente_proposition' ||
     (isPublished && demande.statut === 'proposition_recue')
   );
@@ -604,9 +627,15 @@ export default function DemandeExpressDetailArtisanPage() {
 
           {/* Ma proposition (si déjà envoyée) */}
           {maProposition && (
-            <div className="bg-purple-50 border-2 border-purple-300 rounded-xl p-6">
-              <h3 className="text-lg font-bold text-[#2C3E50] mb-4">
-                ✅ Votre proposition
+            <div className={`border-2 rounded-xl p-6 ${
+              maProposition.statut === 'refusee'
+                ? 'bg-red-50 border-red-300'
+                : 'bg-purple-50 border-purple-300'
+            }`}>
+              <h3 className={`text-lg font-bold mb-4 ${
+                maProposition.statut === 'refusee' ? 'text-red-700' : 'text-[#2C3E50]'
+              }`}>
+                {maProposition.statut === 'refusee' ? '❌ Proposition refusée' : '✅ Votre proposition'}
               </h3>
               <div className="space-y-3">
                 <div>
@@ -647,6 +676,14 @@ export default function DemandeExpressDetailArtisanPage() {
                      "⏳ En attente d'acceptation"}
                   </span>
                 </div>
+
+                {/* Motif de refus : visible uniquement quand la proposition a été refusée */}
+                {maProposition.statut === 'refusee' && maProposition.motifRefus && (
+                  <div className="bg-white border border-red-100 rounded-lg p-3">
+                    <label className="block text-xs text-red-600 font-semibold mb-1">📝 Motif de refus du client</label>
+                    <p className="text-sm text-gray-700">{maProposition.motifRefus}</p>
+                  </div>
+                )}
 
                 {/* Bouton consulter le devis joint : ouvre la page formatée */}
                 {maProposition.devisJoint && (
@@ -793,11 +830,11 @@ export default function DemandeExpressDetailArtisanPage() {
             </div>
           )}
 
-          {/* Formulaire proposition */}
+          {/* Formulaire proposition — visible si aucune proposition active, ou si la précédente a été refusée */}
           {peutFaireProposition && (
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-xl font-bold text-[#2C3E50] mb-6">
-                💬 Faire une proposition
+                {maProposition?.statut === 'refusee' ? '💬 Faire une nouvelle proposition' : '💬 Faire une proposition'}
               </h3>
 
               <form onSubmit={handleSubmitProposition} className="space-y-6">
@@ -862,6 +899,7 @@ export default function DemandeExpressDetailArtisanPage() {
                       setDevisExpress(devis);
                     }}
                     montantInitial={Math.round((montantVal / 1.20) * 100) / 100}
+                    initialDevis={devisInitialData}
                   />
                 )}
 
@@ -935,15 +973,6 @@ export default function DemandeExpressDetailArtisanPage() {
                 <Button onClick={handleMarquerEnCours} disabled={submitting}>
                   🚀 Marquer l'intervention comme démarrée
                 </Button>
-                {/* Bouton accès rapide au devis joint : ouvre la page formatée */}
-                {maProposition?.devisJoint && (
-                  <button
-                    onClick={() => window.open(`/devis-express-print/${maProposition?.id}`, '_blank')}
-                    className="w-full flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-2.5 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold text-sm"
-                  >
-                    📋 Consulter / Télécharger le devis
-                  </button>
-                )}
               </div>
             </div>
           )}
@@ -960,15 +989,6 @@ export default function DemandeExpressDetailArtisanPage() {
                 <Button onClick={handleMarquerTerminee} disabled={submitting}>
                   ✅ Déclarer la fin des travaux
                 </Button>
-                {/* Bouton accès rapide au devis joint : ouvre la page formatée */}
-                {maProposition?.devisJoint && (
-                  <button
-                    onClick={() => window.open(`/devis-express-print/${maProposition?.id}`, '_blank')}
-                    className="w-full flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-2.5 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold text-sm"
-                  >
-                    📋 Consulter / Télécharger le devis
-                  </button>
-                )}
               </div>
             </div>
           )}
@@ -982,15 +1002,6 @@ export default function DemandeExpressDetailArtisanPage() {
                 Le client a été notifié. Il doit valider les travaux pour libérer votre paiement.
                 Le paiement sera automatiquement libéré dans 24h si le client ne répond pas.
               </p>
-              {/* Bouton accès rapide au devis joint : ouvre la page formatée */}
-              {maProposition?.devisJoint && (
-                <button
-                  onClick={() => window.open(`/devis-express-print/${maProposition?.id}`, '_blank')}
-                  className="w-full flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-2.5 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold text-sm"
-                >
-                  📋 Consulter / Télécharger le devis
-                </button>
-              )}
             </div>
           )}
 
@@ -1002,15 +1013,6 @@ export default function DemandeExpressDetailArtisanPage() {
               <p className="text-[#6C757D] mb-4">
                 Le client a validé les travaux. Votre paiement a été versé.
               </p>
-              {/* Bouton accès rapide au devis joint : ouvre la page formatée */}
-              {maProposition?.devisJoint && (
-                <button
-                  onClick={() => window.open(`/devis-express-print/${maProposition?.id}`, '_blank')}
-                  className="w-full flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-2.5 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold text-sm"
-                >
-                  📋 Consulter / Télécharger le devis
-                </button>
-              )}
             </div>
           )}
 

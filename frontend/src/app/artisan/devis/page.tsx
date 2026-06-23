@@ -273,14 +273,16 @@ export default function MesDevisPage() {
 
         if (expressAvecDevis.length > 0) {
           // Correspondance entre statut proposition_express → statut devis
+          // ⚠️ Les statuts exacts de PropositionExpressStatut sont utilisés ici :
+          //   'refusee' = refusée définitivement par le client (OU après expiration)
+          //   'expiree' = délai de réponse dépassé sans acceptation
           const statutMapping: Record<string, string> = {
             'en_attente_acceptation':     'envoye',
             'en_negociation':             'envoye',
             'proposition_finale_artisan': 'envoye',
             'acceptee':                   'paye',
-            'refusee_client':             'refuse',
-            'refusee_artisan':            'annule',
-            'contrat_termine':            'termine_valide',
+            'refusee':                    'refuse',   // Refusée par le client → sous-menu ❌ Refusés
+            'expiree':                    'refuse',   // Expirée sans réponse → idem ❌ Refusés
             'litige':                     'litige',
           };
 

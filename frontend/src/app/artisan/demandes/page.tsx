@@ -35,7 +35,7 @@ export default function ArtisanDemandesPage() {
   const searchParams = useSearchParams();
   const highlightedDemandeId = searchParams?.get('demandeId');
   const { user: authUser, loading: authLoading } = useAuth();
-  const { markTypeAsRead } = useNotifications(authUser?.uid);
+  const { markTypeAsRead, notifications } = useNotifications(authUser?.uid);
   const { t, language } = useLanguage();
   const [user, setUser] = useState<User | null>(null);
   const [demandes, setDemandes] = useState<Demande[]>([]);
@@ -902,6 +902,21 @@ export default function ArtisanDemandesPage() {
 
   const nbNouvellesExpress = nbNouvellesExpressAttribuees + nbNouvellesExpressPubliees;
 
+  // Nombre de notifications de refus de proposition non lues (pour badge spécifique)
+  const nbRefuseesNonLues = notifications.filter(n => !n.lue && n.type === 'proposition_refusee').length;
+
+  // Badges pour événements express importants non lus
+  // — paiement_recu_express     : client a payé → artisan doit intervenir (onglet "🔧 En traitement")
+  // — proposition_acceptee      : client a accepté la proposition (onglet "🔧 En traitement")
+  // — paiement_libere_express   : client a validé les travaux → paiement versé (onglet "🎉 Validées")
+  // — contre_proposition_recue  : client a fait une contre-offre → réponse artisan requise (onglet "📨 Propositions envoyées")
+  const nbPaiementRecuNonLus = notifications.filter(n => !n.lue && n.type === 'paiement_recu_express').length;
+  const nbPropositionAccepteeNonLues = notifications.filter(n => !n.lue && n.type === 'proposition_acceptee').length;
+  const nbPaiementLibereNonLus = notifications.filter(n => !n.lue && n.type === 'paiement_libere_express').length;
+  const nbContrePropositionNonLues = notifications.filter(n => !n.lue && n.type === 'contre_proposition_recue').length;
+  // Cumul des notifications express importantes (hors refus déjà géré séparément)
+  const nbExpressImportantNonLus = nbPaiementRecuNonLus + nbPropositionAccepteeNonLues + nbPaiementLibereNonLus + nbContrePropositionNonLues;
+
   // Utiliser la bonne liste selon la section active
   const demandesSource = sectionActive === 'mes_demandes' ? demandes : demandesPubliques;
   
@@ -1062,7 +1077,26 @@ export default function ArtisanDemandesPage() {
               onClick={() => {
                 setCategoryActive('express');
                 setSectionActive('demandes_express');
-                // Marquer les notifications de demandes express comme lues
+                setExpressSource('attribuees');
+                // Priorité d'auto-navigation selon les notifications non lues :
+                // 1. Paiement reçu ou proposition acceptée → "🔧 En traitement" → "✅ Acceptées/Payées"
+                // 2. Paiement libéré (travaux validés) → "🎉 Validées"
+                // 3. Proposition refusée → "❌ Refusées"
+                // 4. Par défaut → "🆕 Nouvelles"
+                if (nbPaiementRecuNonLus > 0 || nbPropositionAccepteeNonLues > 0) {
+                  setExpressFilter('acceptees');
+                  setExpressSubFilter('payee');
+                } else if (nbContrePropositionNonLues > 0) {
+                  // Contre-proposition reçue → aller sur l'onglet "Propositions envoyées" pour répondre
+                  setExpressFilter('propositions_envoyees');
+                } else if (nbPaiementLibereNonLus > 0) {
+                  setExpressFilter('validees');
+                } else if (nbRefuseesNonLues > 0) {
+                  setExpressFilter('refusees');
+                } else {
+                  setExpressFilter('nouvelles');
+                }
+                // Marquer toutes les notifications express comme lues
                 markTypeAsRead([
                   'nouvelle_demande_express', 'proposition_acceptee', 'proposition_refusee',
                   'contre_proposition_recue', 'paiement_recu_express',
@@ -1078,22 +1112,60 @@ export default function ArtisanDemandesPage() {
                   <div className="text-white font-bold text-xl">Demandes en urgence</div>
                   <div className="text-orange-100 text-sm">Petits travaux rapides</div>
                 </div>
+                {/* Badge nouvelles demandes */}
                 {nbNouvellesExpress > 0 && (
                   <span className="bg-white text-[#FF6B00] text-xs font-bold px-2.5 py-1 rounded-full animate-pulse">
                     {nbNouvellesExpress} nouvelle{nbNouvellesExpress > 1 ? 's' : ''}
                   </span>
                 )}
+                {/* Badge événements importants (paiement, acceptation, libération) */}
+                {nbExpressImportantNonLus > 0 && (
+                  <span className="bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded-full animate-bounce" title="Nouvelles actions requises">
+                    🔔 {nbExpressImportantNonLus}
+                  </span>
+                )}
               </div>
               {/* Corps */}
               <div className="bg-white px-6 py-5 space-y-4 flex-1">
-                <div className="flex items-center gap-4 p-3 rounded-xl bg-orange-50 border border-orange-200">
+                <div className={`flex items-center gap-4 p-3 rounded-xl border ${nbExpressImportantNonLus > 0 ? 'bg-green-50 border-green-300' : 'bg-orange-50 border-orange-200'}`}>
                   <span className="text-2xl">⚡</span>
                   <div className="flex-1">
                     <div className="font-semibold text-[#2C3E50] text-sm">⚡ Mes demandes express</div>
                   </div>
+                  {/* Badge nouvelles demandes en attente de proposition */}
                   {nbNouvellesExpressAttribuees > 0 && (
                     <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-0.5 rounded-full">
                       {nbNouvellesExpressAttribuees}
+                    </span>
+                  )}
+                  {/* Badge paiement reçu */}
+                  {nbPaiementRecuNonLus > 0 && (
+                    <span className="bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full" title={`${nbPaiementRecuNonLus} paiement(s) reçu(s)`}>
+                      💳 {nbPaiementRecuNonLus}
+                    </span>
+                  )}
+                  {/* Badge proposition acceptée */}
+                  {nbPropositionAccepteeNonLues > 0 && (
+                    <span className="bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full" title={`${nbPropositionAccepteeNonLues} proposition(s) acceptée(s)`}>
+                      ✅ {nbPropositionAccepteeNonLues}
+                    </span>
+                  )}
+                  {/* Badge paiement libéré */}
+                  {nbPaiementLibereNonLus > 0 && (
+                    <span className="bg-purple-600 text-white text-xs font-bold px-2 py-0.5 rounded-full" title={`${nbPaiementLibereNonLus} paiement(s) libéré(s)`}>
+                      💰 {nbPaiementLibereNonLus}
+                    </span>
+                  )}
+                  {/* Badge contre-proposition reçue (action artisan requise) */}
+                  {nbContrePropositionNonLues > 0 && (
+                    <span className="bg-amber-600 text-white text-xs font-bold px-2 py-0.5 rounded-full" title={`${nbContrePropositionNonLues} contre-proposition(s) à traiter`}>
+                      💬 {nbContrePropositionNonLues}
+                    </span>
+                  )}
+                  {/* Badge refus proposition non lus */}
+                  {nbRefuseesNonLues > 0 && (
+                    <span className="bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full" title={`${nbRefuseesNonLues} proposition(s) refusée(s)`}>
+                      ↩️ {nbRefuseesNonLues}
                     </span>
                   )}
                 </div>
@@ -1112,6 +1184,31 @@ export default function ArtisanDemandesPage() {
                   <div className="flex items-center gap-2 text-[#FF6B00] text-sm font-semibold">
                     <span>🔔</span>
                     <span>{nbNouvellesExpress} demande{nbNouvellesExpress > 1 ? 's' : ''} en attente</span>
+                  </div>
+                )}
+                {/* Alerte paiement reçu ou proposition acceptée */}
+                {(nbPaiementRecuNonLus > 0 || nbPropositionAccepteeNonLues > 0) && (
+                  <div className="flex items-center gap-2 text-green-700 text-sm font-semibold">
+                    <span>💳</span>
+                    <span>
+                      {nbPaiementRecuNonLus > 0 && `${nbPaiementRecuNonLus} paiement(s) reçu(s) — intervention à planifier`}
+                      {nbPaiementRecuNonLus > 0 && nbPropositionAccepteeNonLues > 0 && ' · '}
+                      {nbPropositionAccepteeNonLues > 0 && `${nbPropositionAccepteeNonLues} proposition(s) acceptée(s)`}
+                    </span>
+                  </div>
+                )}
+                {/* Alerte paiement libéré */}
+                {nbPaiementLibereNonLus > 0 && (
+                  <div className="flex items-center gap-2 text-purple-700 text-sm font-semibold">
+                    <span>💰</span>
+                    <span>{nbPaiementLibereNonLus} paiement(s) libéré(s) par le client</span>
+                  </div>
+                )}
+                {/* Alerte refus de proposition */}
+                {nbRefuseesNonLues > 0 && (
+                  <div className="flex items-center gap-2 text-red-600 text-sm font-semibold">
+                    <span>↩️</span>
+                    <span>{nbRefuseesNonLues} proposition{nbRefuseesNonLues > 1 ? 's' : ''} refusée{nbRefuseesNonLues > 1 ? 's' : ''} — voir l&apos;onglet ❌</span>
                   </div>
                 )}
                 <div className="flex items-center justify-end pt-1">
@@ -2281,21 +2378,30 @@ export default function ArtisanDemandesPage() {
               <div className="flex gap-2 flex-wrap">
                 {([
                   { key: 'nouvelles' as const, label: '🆕 Nouvelles', count: counts.nouvelles },
-                  { key: 'propositions_envoyees' as const, label: '📨 Propositions envoyées', count: counts.propositions_envoyees },
-                  { key: 'acceptees' as const, label: '🔧 En traitement', count: counts.acceptees },
-                  { key: 'validees' as const, label: '🎉 Validées', count: counts.validees },
-                  { key: 'refusees' as const, label: '❌ Refusées / Expirées', count: counts.refusees },
-                ] as { key: typeof expressFilter; label: string; count: number }[]).map(tab => (
+                  // Bell sur "Propositions envoyées" si contre-proposition client non lue (réponse artisan requise)
+                  { key: 'propositions_envoyees' as const, label: '📨 Propositions envoyées', count: counts.propositions_envoyees, bell: nbContrePropositionNonLues > 0 },
+                  // Bell sur "🔧 En traitement" si paiement reçu ou proposition acceptée non lus
+                  { key: 'acceptees' as const, label: '🔧 En traitement', count: counts.acceptees, bell: (nbPaiementRecuNonLus > 0 || nbPropositionAccepteeNonLues > 0) },
+                  // Bell sur "🎉 Validées" si paiement libéré non lu
+                  { key: 'validees' as const, label: '🎉 Validées', count: counts.validees, bell: nbPaiementLibereNonLus > 0 },
+                  { key: 'refusees' as const, label: '❌ Refusées / Expirées', count: counts.refusees, bell: nbRefuseesNonLues > 0 },
+                ] as { key: typeof expressFilter; label: string; count: number; bell?: boolean }[]).map(tab => (
                   <button
                     key={tab.key}
                     onClick={() => { setExpressFilter(tab.key); setExpressSubFilter('tout'); }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm transition-all border-2 ${
                       expressFilter === tab.key
                         ? 'bg-[#FF6B00] text-white border-[#FF6B00] shadow-md'
-                        : 'bg-white text-[#2C3E50] border-gray-200 hover:border-[#FF6B00] hover:bg-orange-50'
+                        : tab.bell
+                          ? 'bg-red-50 text-red-700 border-red-400 ring-2 ring-red-300 ring-opacity-50 hover:bg-red-100'
+                          : 'bg-white text-[#2C3E50] border-gray-200 hover:border-[#FF6B00] hover:bg-orange-50'
                     }`}
                   >
                     <span>{tab.label}</span>
+                    {/* Badge cloche si des refus non lus existent pour cet onglet */}
+                    {tab.bell && expressFilter !== tab.key && (
+                      <span className="animate-bounce text-sm">🔔</span>
+                    )}
                     <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${
                       expressFilter === tab.key ? 'bg-white text-[#FF6B00]' : 'bg-gray-100 text-gray-600'
                     }`}>{tab.count}</span>
@@ -2593,8 +2699,16 @@ export default function ArtisanDemandesPage() {
 
                         {/* Proposition */}
                         {maProposition ? (
-                          <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 space-y-3">
-                            <h4 className="font-bold text-[#2C3E50]">✅ Votre proposition</h4>
+                          <div className={`rounded-xl p-4 space-y-3 ${
+                            maProposition.statut === 'refusee'
+                              ? 'bg-red-50 border border-red-200'
+                              : 'bg-purple-50 border border-purple-200'
+                          }`}>
+                            <h4 className={`font-bold ${
+                              maProposition.statut === 'refusee' ? 'text-red-700' : 'text-[#2C3E50]'
+                            }`}>
+                              {maProposition.statut === 'refusee' ? '❌ Proposition refusée par le client' : '✅ Votre proposition'}
+                            </h4>
                             
                             {/* Affichage montant : si payé, ne pas répéter le montant (déjà affiché en haut) */}
                             <div className="grid grid-cols-2 gap-3">
@@ -2687,6 +2801,27 @@ export default function ArtisanDemandesPage() {
                               <div className="pt-3 border-t border-purple-200 bg-red-50 -mx-4 -mb-3 px-4 py-3 rounded-b-xl">
                                 <p className="text-sm font-bold text-red-800">⚠️ Litige en cours</p>
                                 <p className="text-xs text-red-700">Le client a signalé un problème. Un administrateur va vous contacter.</p>
+                              </div>
+                            )}
+
+                            {/* Nouvelle proposition possible si le client a refusé et la demande est rouverte */}
+                            {maProposition.statut === 'refusee' && demande.statut === 'en_attente_proposition' && (
+                              <div className="pt-3 border-t border-red-200 space-y-2">
+                                {maProposition.motifRefus && (
+                                  <div className="bg-white border border-red-100 rounded-lg p-3">
+                                    <p className="text-xs text-red-600 font-semibold mb-1">📝 Motif de refus du client</p>
+                                    <p className="text-sm text-gray-700">{maProposition.motifRefus}</p>
+                                  </div>
+                                )}
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); router.push(`/artisan/demandes-express/${demande.id}`); }}
+                                  className="w-full px-5 py-3 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] font-bold transition-all"
+                                >
+                                  💬 Faire une nouvelle proposition
+                                </button>
+                                <p className="text-xs text-gray-500 text-center">
+                                  Votre proposition a été refusée. Soumettez-en une nouvelle en ajustant votre offre.
+                                </p>
                               </div>
                             )}
                           </div>

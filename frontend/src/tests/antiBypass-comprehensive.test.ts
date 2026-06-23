@@ -250,6 +250,12 @@ describe('Vrais bypasses — DOIVENT être bloqués', () => {
     expect(validateMessage('zero six ving trente quarante trois neuf').isValid).toBe(false);
   });
 
+  it('bypass mots-chiffres avec transposition orthographique (vignt au lieu de vingt)', () => {
+    // "vignt deux" = faute de transposition pour "vingt-deux" (22)
+    // "zero six vignt deux 5233 26" = 06 22 52 33 26
+    expect(validateMessage('zero six vignt deux 5233 26').isValid).toBe(false);
+  });
+
   // Emails
   it('email standard', () => {
     expect(validateMessage('Envoie-moi un mail à test@gmail.com').isValid).toBe(false);

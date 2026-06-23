@@ -20,11 +20,12 @@ import { markNotificationsByLienAsRead } from '@/lib/firebase/notification-servi
 import { resendVerificationEmail } from '@/lib/auth-service';
 import { getArtisanByUserId } from '@/lib/firebase/artisan-service';
 
-// Extension du type Devis pour intégrer les propositions express (> 150€ acceptées)
+// Extension du type Devis pour intégrer les propositions express (toutes acceptées et payées)
 type DevisItem = Devis & {
   _isExpress?: boolean;            // Devis issu d'une proposition express
-  _expressPropositionId?: string;  // ID de la proposition (lien page impression)
+  _expressPropositionId?: string;  // ID de la proposition (lien page impression ou détail)
   _expressDemandeId?: string;      // ID de la demande express (lien retour)
+  _expressHasDevisJoint?: boolean; // true si devisJoint présent (> 150€), false pour ≤ 150€
 };
 
 // Helper: Devis considérés comme "acceptés" (en attente de paiement)
@@ -134,10 +135,12 @@ export default function ClientDevisPage() {
           where('clientId', '==', user.uid)
         );
         const expressSnap = await getDocs(qExpress);
-        // Filtrer : devisJoint présent + proposition acceptée par le client
+        // Filtrer : toutes les propositions acceptées par le client
+        // — Avec devisJoint (> 150€) : visibles dès acceptation jusqu'à fin
+        // — Sans devisJoint (≤ 150€) : visibles uniquement après paiement effectif
         const expressPropositions = expressSnap.docs
           .map(docSnap => ({ id: docSnap.id, ...docSnap.data() } as PropositionExpress))
-          .filter(p => p.devisJoint != null && p.statut === 'acceptee');
+          .filter(p => p.statut === 'acceptee');
 
         if (expressPropositions.length > 0) {
           expressItems = (await Promise.all(
@@ -149,8 +152,12 @@ export default function ClientDevisPage() {
                 const demandeData = demandeSnap.data();
                 const demandeStatut: string = demandeData.statut ?? 'payee';
 
-                // N'afficher que les demandes dont le paiement a été effectué ou est en cours
-                const statutsVisibles = ['acceptee', 'payee', 'en_cours', 'travaux_termines', 'terminee', 'litige'];
+                // N'afficher que les demandes dans un état visible selon la présence du devis joint :
+                // — Avec devisJoint (> 150€) : à partir de l'acceptation (avant paiement)
+                // — Sans devisJoint (≤ 150€) : uniquement après paiement effectif
+                const statutsVisibles = prop.devisJoint
+                  ? ['acceptee', 'payee', 'en_cours', 'travaux_termines', 'terminee', 'litige']
+                  : ['payee', 'en_cours', 'travaux_termines', 'terminee', 'litige'];
                 if (!statutsVisibles.includes(demandeStatut)) return null;
 
                 // Mapper statut demande → statut devis (compatible avec les filtres existants)
@@ -180,6 +187,24 @@ export default function ClientDevisPage() {
                 const annee = prop.createdAt?.toDate?.().getFullYear() ?? new Date().getFullYear();
                 const numeroDevis = `EXP-${annee}-${prop.id.slice(0, 8).toUpperCase()}`;
 
+                // Totaux : depuis le devisJoint si présent, sinon depuis montantPropose (≤ 150€)
+                const totaux = prop.devisJoint
+                  ? {
+                      totalHT: prop.devisJoint.totaux.totalHT,
+                      totalTVA: {},
+                      totalTVAGlobal: prop.devisJoint.totaux.totalTVAGlobal,
+                      totalTTC: prop.devisJoint.totaux.totalTTC,
+                    }
+                  : {
+                      totalHT: prop.montantPropose,
+                      totalTVA: {},
+                      totalTVAGlobal: 0,
+                      totalTTC: prop.montantPropose,
+                    };
+
+                // Délai d'intervention : depuis devisJoint si présent, sinon depuis la proposition
+                const delaiRealisation = prop.devisJoint?.delaiRealisation ?? prop.delaiIntervention ?? undefined;
+
                 return {
                   id: prop.id,
                   numeroDevis,
@@ -194,18 +219,14 @@ export default function ClientDevisPage() {
                   artisan: { raisonSociale, siret: '', email: '', telephone: '', prenom: '', nom: '' },
                   client: { nom: '', prenom: '', email: '', telephone: '' },
                   lignes: [] as any,
-                  totaux: {
-                    totalHT: prop.devisJoint!.totaux.totalHT,
-                    totalTVA: {},
-                    totalTVAGlobal: prop.devisJoint!.totaux.totalTVAGlobal,
-                    totalTTC: prop.devisJoint!.totaux.totalTTC,
-                  },
+                  totaux,
                   historiqueStatuts: [] as any,
-                  delaiRealisation: prop.devisJoint!.delaiRealisation,
+                  delaiRealisation,
                   // Champs spécifiques au devis express
                   _isExpress: true,
                   _expressPropositionId: prop.id,
                   _expressDemandeId: prop.demandeId,
+                  _expressHasDevisJoint: !!prop.devisJoint,
                 } as unknown as DevisItem;
               } catch {
                 return null;
@@ -219,7 +240,15 @@ export default function ClientDevisPage() {
 
       // Fusionner devis classiques et express, triés par date décroissante
       const allDevisItems: DevisItem[] = [...devisDataFinal, ...expressItems];
-      allDevisItems.sort((a, b) => (b.dateCreation?.toMillis() || 0) - (a.dateCreation?.toMillis() || 0));
+      // Helper robuste : gère Firestore Timestamp (.toMillis), Date (.getTime) et nombre
+      const getMs = (ts: any): number => {
+        if (!ts) return 0;
+        if (typeof ts.toMillis === 'function') return ts.toMillis();
+        if (typeof ts.getTime === 'function') return ts.getTime();
+        if (typeof ts === 'number') return ts;
+        return 0;
+      };
+      allDevisItems.sort((a, b) => getMs(b.dateCreation) - getMs(a.dateCreation));
       setDevis(allDevisItems);
 
       if (aExpirerIds.length > 0) {
@@ -314,12 +343,17 @@ export default function ClientDevisPage() {
   };
 
   // Naviguer vers le détail d'un devis
-  // — Classique : page /client/devis/{id}
-  // — Express   : page d'impression /devis-express-print/{propositionId} (nouvel onglet)
+  // — Classique            : page /client/devis/{id}
+  // — Express avec devisJoint (> 150€) : page d'impression /devis-express-print/{propositionId} (nouvel onglet)
+  // — Express sans devisJoint (≤ 150€) : page de la demande express /client/demandes-express/{demandeId}
   const handleVoirDetail = (d: DevisItem, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (d._isExpress && d._expressPropositionId) {
+    if (d._isExpress && d._expressHasDevisJoint && d._expressPropositionId) {
+      // Proposition avec devis joint signé → ouvrir la page d'impression PDF
       window.open(`/devis-express-print/${d._expressPropositionId}`, '_blank');
+    } else if (d._isExpress && d._expressDemandeId) {
+      // Proposition simple (≤ 150€, pas de devis joint) → rediriger vers la demande express
+      router.push(`/client/demandes-express/${d._expressDemandeId}`);
     } else {
       naviguerVersDevis(d.id, `returnFilter=${filter}`);
     }

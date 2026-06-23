@@ -12,7 +12,6 @@ import {
   getPaiementExpressByDemande,
   acceptPropositionExpress,
   refusePropositionExpress,
-  sendContrePropositionExpress,
   updateDemandeExpressStatut,
   deleteDemandeExpress,
   markTravauxValides,
@@ -82,13 +81,10 @@ export default function MesDemandesExpressPage() {
   const [propositionsCountMap, setPropositionsCountMap] = useState<Map<string, number>>(new Map());
   const [loadingPropsIds, setLoadingPropsIds] = useState<Set<string>>(new Set());
 
-  // Modales inline refus / contre-proposition
+  // Modale inline refus
   const [refusModal, setRefusModal] = useState<{ id: string; propId: string } | null>(null);
-  const [contreModal, setContreModal] = useState<{ id: string; propId: string; currentMontant: number } | null>(null);
-  /* Champs libres protégés anti-bypass (téléphone/email/adresse interdits avant paiement) */
+  /* Champ libre protégé anti-bypass (téléphone/email/adresse interdits avant paiement) */
   const motifRefusField = useAntiBypassField();
-  const contreMessageField = useAntiBypassField();
-  const [contreMontant, setContreMontant] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [validatingId, setValidatingId] = useState<string | null>(null);
   const [artisanNomMap, setArtisanNomMap] = useState<Map<string, string>>(new Map());
@@ -125,53 +121,120 @@ export default function MesDemandesExpressPage() {
   const [pdfLoading, setPdfLoading] = useState(false);
 
   // Cloches temporaires (nouvelles propositions non lues)
-  const { notifications, markAsRead, markTypeAsRead } = useNotifications(firebaseUser?.uid);
+  const { notifications, markAsRead } = useNotifications(firebaseUser?.uid);
   const [bellDemandeIds, setBellDemandeIds] = useState<Set<string>>(new Set());
   const [showToutsBell, setShowToutsBell] = useState(false);
+  // Cloches pour les demandes dont les travaux sont terminés (action requise : valider)
+  const [bellTravauxIds, setBellTravauxIds] = useState<Set<string>>(new Set());
   // IDs des demandes dont la proposition vient d'être refusée (pour message spécifique)
   const [refusedDemandeIds, setRefusedDemandeIds] = useState<Set<string>>(new Set());
   // Référence pour détecter si c'est le tout premier rendu des notifications (après chargement)
   const isInitialNotifLoad = useRef(true);
 
-  // Marquer les notifications de propositions express comme lues au chargement
-  useEffect(() => {
-    if (!firebaseUser?.uid) return;
-    markTypeAsRead(['proposition_express_recue']);
-  }, [firebaseUser?.uid, markTypeAsRead]);
-
   // Mettre à jour les cloches ET le statut local en temps réel à chaque changement de notifications
   // Quand une notification 'proposition_express_recue' arrive, on met à jour localement le statut
   // de la demande concernée en 'proposition_recue' pour qu'elle bascule immédiatement dans
   // l'onglet "Propositions reçues" sans attendre un rechargement de page.
+  // De même, 'travaux_termines_express' navigue vers "🔧 En traitement" → "⏳ Terminée" car le
+  // client doit valider les travaux pour libérer le paiement.
   useEffect(() => {
     if (loading) return;
-    const expressNotifs = notifications.filter(
+
+    // Notifications "proposition reçue" → bell + onglet "Propositions reçues"
+    const propositionNotifs = notifications.filter(
       n => !n.lue && n.type === 'proposition_express_recue' && n.lien
     );
-    if (expressNotifs.length === 0) {
+
+    // Notifications "travaux terminés" → action client requise (valider) → onglet "🔧 En traitement" → sous-menu "⏳ Terminée"
+    const travauxTerminesNotifs = notifications.filter(
+      n => !n.lue && n.type === 'travaux_termines_express' && n.lien
+    );
+
+    // Notifications "intervention démarrée" → info seulement (artisan est en route)
+    const interventionNotifs = notifications.filter(
+      n => !n.lue && n.type === 'intervention_demarree' && n.lien
+    );
+
+    // Notifications "négo rompue" ou "demande refusée" → bell informatif (demande repart en attente)
+    // proposition_refusee : artisan a refusé la contre-offre du client
+    // demande_refusee     : artisan a refusé la demande directement
+    const negoRompueNotifs = notifications.filter(
+      n => !n.lue && (n.type === 'proposition_refusee' || n.type === 'demande_refusee') &&
+        n.lien?.startsWith('/client/demandes-express/')
+    );
+
+    // Aucune notification → réinitialiser tous les bells
+    if (propositionNotifs.length === 0 && travauxTerminesNotifs.length === 0 &&
+        interventionNotifs.length === 0 && negoRompueNotifs.length === 0) {
       setBellDemandeIds(prev => (prev.size === 0 ? prev : new Set<string>()));
+      setBellTravauxIds(prev => (prev.size === 0 ? prev : new Set<string>()));
       setShowToutsBell(false);
       isInitialNotifLoad.current = true; // réinitialiser si plus de notifs
       return;
     }
-    const ids = new Set<string>(
-      expressNotifs.map(n => n.lien!.split('/').pop() ?? '').filter(Boolean)
-    );
-    setBellDemandeIds(ids);
-    setShowToutsBell(true);
-    // Basculer le statut local vers 'proposition_recue' pour les demandes concernées
-    setDemandes(prev => prev.map(d =>
-      ids.has(d.id) && d.statut === 'en_attente_proposition'
-        ? { ...d, statut: 'proposition_recue' as DemandeExpressStatut }
-        : d
-    ));
-    // Basculer automatiquement sur l'onglet "Propositions reçues" :
-    // - au premier chargement si des notifs non lues existent déjà
-    // - à chaque nouvelle notification qui arrive après le chargement
-    setFiltreStatut('proposition_recue');
-    setSourceFilter('toutes');
-    isInitialNotifLoad.current = false;
-  }, [loading, notifications]);
+
+    // Mettre à jour les bells "proposition reçue"
+    if (propositionNotifs.length > 0) {
+      const ids = new Set<string>(
+        propositionNotifs.map(n => n.lien!.split('/').pop() ?? '').filter(Boolean)
+      );
+      setBellDemandeIds(ids);
+      setShowToutsBell(true);
+      // Basculer le statut local vers 'proposition_recue' pour les demandes concernées
+      setDemandes(prev => prev.map(d =>
+        ids.has(d.id) && d.statut === 'en_attente_proposition'
+          ? { ...d, statut: 'proposition_recue' as DemandeExpressStatut }
+          : d
+      ));
+    } else {
+      setBellDemandeIds(prev => (prev.size === 0 ? prev : new Set<string>()));
+      setShowToutsBell(false);
+    }
+
+    // Mettre à jour les bells "négo rompue" + "demande refusée" → fusionner dans bellDemandeIds
+    // pour afficher le même signal visuel 🔔 sur la carte concernée
+    if (negoRompueNotifs.length > 0) {
+      const negoIds = new Set<string>(
+        negoRompueNotifs.map(n => n.lien!.split('/').pop() ?? '').filter(Boolean)
+      );
+      setBellDemandeIds(prev => {
+        const merged = new Set([...prev, ...negoIds]);
+        return merged.size === prev.size && [...negoIds].every(id => prev.has(id)) ? prev : merged;
+      });
+      setShowToutsBell(true);
+    }
+
+    // Mettre à jour les bells "travaux terminés" + "intervention démarrée"
+    const travauxIds = new Set<string>([
+      ...travauxTerminesNotifs.map(n => n.lien!.split('/').pop() ?? '').filter(Boolean),
+      ...interventionNotifs.map(n => n.lien!.split('/').pop() ?? '').filter(Boolean),
+    ]);
+    if (travauxIds.size > 0) {
+      setBellTravauxIds(travauxIds);
+    } else {
+      setBellTravauxIds((prev: Set<string>) => prev.size === 0 ? prev : new Set<string>());
+    }
+
+    // Navigation automatique UNIQUEMENT au premier chargement.
+    // Priorité : travaux_terminés (action requise) > proposition_recue (choix à faire)
+    if (isInitialNotifLoad.current) {
+      if (travauxTerminesNotifs.length > 0) {
+        // Les travaux sont terminés → naviguer vers "🔧 En traitement" → "⏳ Terminée" pour valider
+        setFiltreStatut('en_cours');
+        setFiltreEnTraitement('travaux_termines');
+      } else if (propositionNotifs.length > 0) {
+        setFiltreStatut('proposition_recue');
+        // Préserver le filtre source issu de l'URL (?source=directes ou ?source=publiees).
+        // Ne réinitialiser à 'toutes' que si aucun filtre source URL n'est actif,
+        // afin de ne pas écraser le contexte de navigation depuis le hub.
+        const urlSource = searchParams.get('source');
+        if (urlSource !== 'directes' && urlSource !== 'publiees') {
+          setSourceFilter('toutes');
+        }
+      }
+      isInitialNotifLoad.current = false;
+    }
+  }, [loading, notifications, searchParams]);
 
   const toggleExpand = async (id: string, statut: DemandeExpressStatut) => {
     const next = new Set(expandedIds);
@@ -322,26 +385,6 @@ export default function MesDemandesExpressPage() {
     }
   }
 
-  async function handleContreInline() {
-    if (!contreModal) return;
-    const montant = parseFloat(contreMontant);
-    if (isNaN(montant) || montant <= 0 || montant > 150) { alert('Montant invalide (1–150€)'); return; }
-    if (!contreMessageField.value.trim()) { alert('Veuillez ajouter un message'); return; }
-    // Validation anti-bypass : bloquer si coordonnées personnelles détectées
-    if (!contreMessageField.validate()) return;
-    setSubmitting(true);
-    try {
-      await sendContrePropositionExpress(contreModal.propId, montant, contreMessageField.value.trim());
-      setDemandes(prev => prev.map(d => d.id === contreModal.id ? { ...d, statut: 'en_attente_proposition' as DemandeExpressStatut } : d));
-      setPropositionsMap(prev => { const m = new Map(prev); m.delete(contreModal.id); return m; });
-      setContreModal(null); setContreMontant(''); contreMessageField.reset();
-      alert('✅ Contre-proposition envoyée !');
-    } catch (err: any) {
-      alert(err.message || 'Erreur');
-    } finally {
-      setSubmitting(false);
-    }
-  }
   async function loadArtisanNom(demandeId: string, artisanUserId: string) {
     try {
       const artisan = await getArtisanByUserId(artisanUserId);
@@ -653,6 +696,18 @@ export default function MesDemandesExpressPage() {
   const demandesDirectesCount = demandes.filter((d) => d.artisanId && !isExclueDesActives(d.statut)).length;
   const demandesPublieesCount = demandes.filter((d) => !d.artisanId && !isExclueDesActives(d.statut)).length;
 
+  // Nombre de cloches actives filtrées selon le filtre source courant.
+  // Evite d'afficher une alerte de proposition publiée quand l'utilisateur
+  // navigue depuis le hub en mode "directes" (et vice-versa).
+  const activeBellCount = sourceFilter === 'toutes'
+    ? bellDemandeIds.size
+    : [...bellDemandeIds].filter(id => {
+        const d = demandes.find(dem => dem.id === id);
+        if (!d) return false;
+        const isPublished = !d.artisanId;
+        return sourceFilter === 'directes' ? !isPublished : isPublished;
+      }).length;
+
   const getStatutBadge = (statut: DemandeExpressStatut) => {
     const classes: Record<DemandeExpressStatut, string> = {
       en_attente_proposition: 'bg-yellow-100 text-yellow-800',
@@ -949,7 +1004,7 @@ export default function MesDemandesExpressPage() {
             className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filtreStatut === 'proposition_recue'
                 ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl scale-105'
-                : bellDemandeIds.size > 0
+                : activeBellCount > 0
                   ? 'bg-blue-50 hover:bg-blue-100 shadow-lg border-2 border-blue-400 ring-2 ring-blue-300 ring-opacity-50'
                   : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
             }`}
@@ -957,13 +1012,13 @@ export default function MesDemandesExpressPage() {
             <div className={`text-3xl font-black mb-1 ${filtreStatut === 'proposition_recue' ? 'text-white' : 'text-blue-600'}`}>
               {demandes.filter(d => d.statut === 'proposition_recue').length}
               {/* Badge 🔔 sur le tab quand des propositions non lues arrivent */}
-              {bellDemandeIds.size > 0 && filtreStatut !== 'proposition_recue' && (
-                <span className="ml-1 animate-bounce text-lg" title={`${bellDemandeIds.size} nouvelle(s) proposition(s)`}>🔔</span>
+              {activeBellCount > 0 && filtreStatut !== 'proposition_recue' && (
+                <span className="ml-1 animate-bounce text-lg" title={`${activeBellCount} nouvelle(s) proposition(s)`}>🔔</span>
               )}
             </div>
             <div className={`text-xs font-semibold uppercase tracking-wide ${
               filtreStatut === 'proposition_recue' ? 'text-white'
-              : bellDemandeIds.size > 0 ? 'text-blue-700'
+              : activeBellCount > 0 ? 'text-blue-700'
               : 'text-gray-600'
             }`}>
               📋 Propositions reçues
@@ -976,13 +1031,23 @@ export default function MesDemandesExpressPage() {
             className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filtreStatut === 'en_cours'
                 ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-xl scale-105'
-                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                : bellTravauxIds.size > 0
+                  ? 'bg-amber-50 hover:bg-amber-100 shadow-lg border-2 border-amber-400 ring-2 ring-amber-300 ring-opacity-50'
+                  : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${filtreStatut === 'en_cours' ? 'text-white' : 'text-indigo-600'}`}>
               {demandes.filter(d => ['payee', 'en_cours', 'travaux_termines', 'refusee_artisan', 'annulee'].includes(d.statut)).length}
+              {/* Badge 🔔 quand les travaux sont terminés (action requise : valider) */}
+              {bellTravauxIds.size > 0 && filtreStatut !== 'en_cours' && (
+                <span className="ml-1 animate-bounce text-lg" title="Travaux terminés — action requise">🔔</span>
+              )}
             </div>
-            <div className={`text-xs font-semibold uppercase tracking-wide ${filtreStatut === 'en_cours' ? 'text-white' : 'text-gray-600'}`}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${
+              filtreStatut === 'en_cours' ? 'text-white'
+              : bellTravauxIds.size > 0 ? 'text-amber-700'
+              : 'text-gray-600'
+            }`}>
               🔧 En traitement
             </div>
           </button>
@@ -1102,6 +1167,14 @@ export default function MesDemandesExpressPage() {
                 {bellDemandeIds.has(demande.id) && (
                   <div className="absolute top-4 left-5 z-10">
                     <span className="animate-bounce text-xl" title="Nouvelle proposition !">🔔</span>
+                  </div>
+                )}
+                {/* Cloche travaux terminés ou intervention démarrée (action ou info) */}
+                {!bellDemandeIds.has(demande.id) && bellTravauxIds.has(demande.id) && (
+                  <div className="absolute top-4 left-5 z-10">
+                    <span className="animate-bounce text-xl" title={demande.statut === 'travaux_termines' ? 'Travaux terminés — validation requise' : 'Artisan en route'}>
+                      {demande.statut === 'travaux_termines' ? '⏳' : '🔧'}
+                    </span>
                   </div>
                 )}
 
@@ -1247,7 +1320,11 @@ export default function MesDemandesExpressPage() {
                                   <>
                                     <p className="font-bold text-orange-900 mb-2 text-lg">Proposition refusée</p>
                                     <p className="text-sm text-orange-800 mb-3">
-                                      Vous avez refusé la proposition. La demande est de nouveau ouverte aux artisans.
+                                      {/* Message adapté selon le type de demande : directe ou publiée */}
+                                      {demande.artisanId
+                                        ? "Vous avez refusé la proposition. L'artisan peut vous soumettre une nouvelle proposition si vous le souhaitez."
+                                        : "Vous avez refusé la proposition. La demande est de nouveau ouverte aux artisans."
+                                      }
                                     </p>
                                   </>
                                 ) : (
@@ -1357,20 +1434,13 @@ export default function MesDemandesExpressPage() {
 
                             {/* Boutons d'action */}
                             {!isPublished || propositionCount <= 1 ? (
-                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-gray-100">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-gray-100">
                                 <button
                                   onClick={(e) => { e.stopPropagation(); motifRefusField.reset(); setRefusModal({ id: demande.id, propId: prop.id }); }}
                                   disabled={submitting}
                                   className="px-4 py-2.5 border-2 border-red-400 text-red-600 rounded-xl hover:bg-red-50 font-semibold text-sm transition-all disabled:opacity-50"
                                 >
                                   ❌ Refuser
-                                </button>
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); setContreMontant(String(demande.budgetPropose || '')); contreMessageField.reset(); setContreModal({ id: demande.id, propId: prop.id, currentMontant: prop.montantPropose }); }}
-                                  disabled={submitting}
-                                  className="px-4 py-2.5 border-2 border-[#FF6B00] text-[#FF6B00] rounded-xl hover:bg-[#FFF5EB] font-semibold text-sm transition-all disabled:opacity-50"
-                                >
-                                  💬 Contre-proposer
                                 </button>
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleAccepterInline(demande.id, prop.id, prop); }}
@@ -1883,68 +1953,6 @@ export default function MesDemandesExpressPage() {
               className="flex-1 px-4 py-2.5 bg-red-500 text-white rounded-xl hover:bg-red-600 font-semibold text-sm disabled:opacity-50"
             >
               {submitting ? '⏳ Envoi…' : 'Confirmer le refus'}
-            </button>
-          </div>
-        </div>
-      </div>
-    )}
-
-    {/* ── Modale Contre-proposition ─────────────────── */}
-    {contreModal && (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-          <h3 className="text-xl font-bold text-[#2C3E50] mb-2">💬 Contre-proposition</h3>
-          <p className="bg-[#FFF5EB] text-[#FF6B00] text-sm font-semibold px-4 py-2 rounded-lg mb-4">
-            Proposition actuelle : {contreModal?.currentMontant ?? 0}€
-          </p>
-          <div className="mb-4">
-            <label className="text-sm font-semibold text-[#2C3E50] mb-1 block">💰 Votre budget souhaité (max 150€)</label>
-            <div className="relative">
-              <input
-                type="number" min="1" max="150"
-                value={contreMontant}
-                onChange={(e) => setContreMontant(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-xl focus:outline-none focus:border-[#FF6B00] pr-10"
-                placeholder="Ex : 80"
-              />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6C757D] font-bold">€</span>
-            </div>
-          </div>
-          <div className="mb-4">
-            <label className="text-sm font-semibold text-[#2C3E50] mb-1 block">📝 Message à l&apos;artisan</label>
-            <textarea
-              value={contreMessageField.value}
-              onChange={contreMessageField.onChange}
-              onBlur={contreMessageField.onBlur}
-              rows={3}
-              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none text-sm transition-colors ${
-                contreMessageField.warning ? 'border-orange-400 focus:border-orange-500' : 'border-[#E9ECEF] focus:border-[#FF6B00]'
-              }`}
-              placeholder="Ex : Je peux aller jusqu'à 80€ car le travail est limité au robinet uniquement."
-            />
-            {contreMessageField.warning ? (
-              <div className="mt-1.5 flex items-start gap-1.5 text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2">
-                <span className="shrink-0">⚠️</span>
-                <span>{contreMessageField.warning}</span>
-              </div>
-            ) : (
-              <p className="mt-1 text-xs text-[#6C757D]">🔒 Coordonnées personnelles non autorisées avant paiement</p>
-            )}
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={() => { setContreModal(null); setContreMontant(''); contreMessageField.reset(); }}
-              disabled={submitting}
-              className="flex-1 px-4 py-2.5 border-2 border-[#E9ECEF] text-[#6C757D] rounded-xl hover:border-[#2C3E50] font-medium text-sm"
-            >
-              Annuler
-            </button>
-            <button
-              onClick={handleContreInline}
-              disabled={submitting || !contreMontant || !contreMessageField.value.trim()}
-              className="flex-1 px-4 py-2.5 bg-[#FF6B00] text-white rounded-xl hover:bg-[#E56100] font-semibold text-sm disabled:opacity-50"
-            >
-              {submitting ? '⏳ Envoi…' : 'Envoyer'}
             </button>
           </div>
         </div>

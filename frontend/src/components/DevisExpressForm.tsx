@@ -19,12 +19,16 @@
 import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { Timestamp } from 'firebase/firestore';
 import type { DevisExpressJoint, LigneDevisExpress } from '@/types/firestore';
+import { useAntiBypassField } from '@/hooks/useAntiBypassField';
+import { validateMessage } from '@/lib/antiBypassValidator';
 
 type TVARate = 0 | 5.5 | 10 | 20;
 
 interface DevisExpressFormProps {
-  /** Montant initialement saisi par l'artisan — pré-remplit la première ligne */
+  /** Montant initialement saisi par l'artisan — pré-remplit la première ligne (ignoré si initialDevis est fourni) */
   montantInitial?: number;
+  /** Devis d'une proposition précédente à pré-remplir (reprise après refus) — les signatures sont exclues, elles seront re-demandées */
+  initialDevis?: Omit<DevisExpressJoint, 'signatureArtisan' | 'signatureClient'>;
   /** Callback appelé à chaque changement valide du devis (undefined = devis incomplet) */
   onChange: (devis: DevisExpressJoint | undefined) => void;
 }
@@ -78,10 +82,14 @@ function calculerTotaux(
 
 // ── Composant principal ──────────────────────────────────────────────────────
 
-export default function DevisExpressForm({ onChange, montantInitial }: DevisExpressFormProps) {
+export default function DevisExpressForm({ onChange, montantInitial, initialDevis }: DevisExpressFormProps) {
   // ── État des lignes de prestation ──
   const [lignes, setLignes] = useState<LigneDevisExpress[]>(() => {
-    // Pré-remplir la première ligne avec le montant proposé (TVA 20% par défaut)
+    // Si un devis initial est fourni (reprise après refus), réutiliser ses lignes de prestation
+    if (initialDevis?.lignes?.length) {
+      return initialDevis.lignes;
+    }
+    // Sinon pré-remplir la première ligne avec le montant proposé (TVA 20% par défaut)
     const prixHT = montantInitial && montantInitial > 0 ? montantInitial : 0;
     const totalHT = prixHT;
     const totalTVA = totalHT * 20 / 100;
@@ -99,27 +107,44 @@ export default function DevisExpressForm({ onChange, montantInitial }: DevisExpr
   });
 
   // ── Main d'œuvre (optionnelle — l'artisan peut l'avoir incluse dans les lignes) ──
-  const [ajouterMO, setAjouterMO] = useState(false);
-  const [mainOeuvre, setMainOeuvre] = useState({
-    quantite: 1,
-    prixHT: 0,
-    tauxTVA: 20 as TVARate,
-    unite: 'h',
-  });
+  // Activée si le devis initial avait une MO avec un prix non nul
+  const [ajouterMO, setAjouterMO] = useState(
+    () => !!(initialDevis?.mainOeuvre?.prixHT && initialDevis.mainOeuvre.prixHT > 0)
+  );
+  const [mainOeuvre, setMainOeuvre] = useState(() =>
+    initialDevis?.mainOeuvre?.prixHT && initialDevis.mainOeuvre.prixHT > 0
+      ? {
+          quantite: initialDevis.mainOeuvre.quantite,
+          prixHT: initialDevis.mainOeuvre.prixHT,
+          tauxTVA: initialDevis.mainOeuvre.tauxTVA as TVARate,
+          unite: initialDevis.mainOeuvre.unite,
+        }
+      : { quantite: 1, prixHT: 0, tauxTVA: 20 as TVARate, unite: 'h' }
+  );
 
   // ── Matières premières (optionnel) ──
-  const [ajouterMP, setAjouterMP] = useState(false);
-  const [matierePremiere, setMatierePremiere] = useState({
-    quantite: 1,
-    prixHT: 0,
-    tauxTVA: 20 as TVARate,
-    unite: 'unité',
-  });
+  // Activées si le devis initial avait des matières premières avec un prix non nul
+  const [ajouterMP, setAjouterMP] = useState(
+    () => !!(initialDevis?.matierePremiere?.prixHT && initialDevis.matierePremiere.prixHT > 0)
+  );
+  const [matierePremiere, setMatierePremiere] = useState(() =>
+    initialDevis?.matierePremiere?.prixHT && initialDevis.matierePremiere.prixHT > 0
+      ? {
+          quantite: initialDevis.matierePremiere.quantite,
+          prixHT: initialDevis.matierePremiere.prixHT,
+          tauxTVA: initialDevis.matierePremiere.tauxTVA as TVARate,
+          unite: initialDevis.matierePremiere.unite,
+        }
+      : { quantite: 1, prixHT: 0, tauxTVA: 20 as TVARate, unite: 'unité' }
+  );
 
-  // ── Conditions d'exécution ──
-  const [delaiRealisation, setDelaiRealisation] = useState('');
-  const [dateDebutPrevue, setDateDebutPrevue] = useState('');
-  const [conditions, setConditions] = useState('');
+  // ── Conditions d'exécution ── (protégées anti-bypass)
+  // Pré-remplies depuis le devis initial si disponible (reprise après refus)
+  const delaiRealisationField = useAntiBypassField(initialDevis?.delaiRealisation ?? '');
+  const conditionsField = useAntiBypassField(initialDevis?.conditions ?? '');
+  const [dateDebutPrevue, setDateDebutPrevue] = useState(initialDevis?.dateDebutPrevue ?? '');
+  // Avertissements anti-bypass par ligne de prestation (id → message d'alerte)
+  const [lignesWarnings, setLignesWarnings] = useState<Map<string, string>>(new Map());
 
   // ── Signature artisan ──
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -145,7 +170,15 @@ export default function DevisExpressForm({ onChange, montantInitial }: DevisExpr
     const moValide = !ajouterMO || mainOeuvre.prixHT > 0;
     const signatureValide = !!signatureDataURL;
 
-    if (!lignesValides || !moValide || !signatureValide) {
+    // Vérification anti-bypass : bloquer si coordonnées personnelles détectées dans les champs texte
+    const hasLignesBypass = lignesWarnings.size > 0;
+    const hasDelaiBypass = delaiRealisationField.value.trim() ? !validateMessage(delaiRealisationField.value).isValid : false;
+    const hasConditionsBypass = conditionsField.value.trim() ? !validateMessage(conditionsField.value).isValid : false;
+
+    // La date de début prévue est obligatoire
+    const dateDebutValide = !!dateDebutPrevue.trim();
+
+    if (!lignesValides || !moValide || !signatureValide || !dateDebutValide || hasLignesBypass || hasDelaiBypass || hasConditionsBypass) {
       onChange(undefined);
       return;
     }
@@ -162,9 +195,9 @@ export default function DevisExpressForm({ onChange, montantInitial }: DevisExpr
       mainOeuvre: ajouterMO ? { ...mainOeuvre } : { quantite: 0, prixHT: 0, tauxTVA: 0 as TVARate, unite: 'h' },
       matierePremiere: ajouterMP ? { ...matierePremiere } : undefined,
       totaux: t,
-      delaiRealisation: delaiRealisation || undefined,
+      delaiRealisation: delaiRealisationField.value || undefined,
       dateDebutPrevue: dateDebutPrevue || undefined,
-      conditions: conditions || undefined,
+      conditions: conditionsField.value || undefined,
       signatureArtisan: {
         dataURL: signatureDataURL,
         date: Timestamp.now(),
@@ -172,7 +205,7 @@ export default function DevisExpressForm({ onChange, montantInitial }: DevisExpr
     };
     onChange(devis);
     // totaux exclu des dépendances : recalculé localement dans l'effet
-  }, [lignes, mainOeuvre, ajouterMO, matierePremiere, ajouterMP, delaiRealisation, dateDebutPrevue, conditions, signatureDataURL]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [lignes, mainOeuvre, ajouterMO, matierePremiere, ajouterMP, delaiRealisationField.value, dateDebutPrevue, conditionsField.value, signatureDataURL, lignesWarnings]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Gestion des lignes ───────────────────────────────────────────────────
 
@@ -192,6 +225,8 @@ export default function DevisExpressForm({ onChange, montantInitial }: DevisExpr
 
   const supprimerLigne = (id: string) => {
     setLignes(prev => prev.filter(l => l.id !== id));
+    // Nettoyage de l'avertissement lié à la ligne supprimée
+    setLignesWarnings(prev => { const m = new Map(prev); m.delete(id); return m; });
   };
 
   const modifierLigne = (id: string, champ: keyof LigneDevisExpress, valeur: string | number) => {
@@ -200,7 +235,25 @@ export default function DevisExpressForm({ onChange, montantInitial }: DevisExpr
       const updated = { ...l, [champ]: valeur };
       return calculerLigne(updated);
     }));
+    // Effacer le warning dès que l'utilisateur retape dans la description
+    if (champ === 'description') {
+      setLignesWarnings(prev => { const m = new Map(prev); m.delete(id); return m; });
+    }
   };
+
+  /** Validation douce anti-bypass au blur sur la description d'une ligne de prestation */
+  const onBlurLigne = useCallback((id: string, value: string) => {
+    if (!value.trim()) {
+      setLignesWarnings(prev => { const m = new Map(prev); m.delete(id); return m; });
+      return;
+    }
+    const result = validateMessage(value);
+    if (!result.isValid) {
+      setLignesWarnings(prev => new Map(prev).set(id, result.message || 'Coordonnées personnelles non autorisées avant paiement'));
+    } else {
+      setLignesWarnings(prev => { const m = new Map(prev); m.delete(id); return m; });
+    }
+  }, []);
 
   // ── Canvas de signature ──────────────────────────────────────────────────
 
@@ -293,7 +346,8 @@ export default function DevisExpressForm({ onChange, montantInitial }: DevisExpr
                   placeholder="Description de la prestation"
                   value={ligne.description}
                   onChange={e => modifierLigne(ligne.id, 'description', e.target.value)}
-                  className="flex-1 border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-[#FF6B00]"
+                  onBlur={e => onBlurLigne(ligne.id, e.target.value)}
+                  className={`flex-1 border rounded px-2 py-1.5 text-sm focus:outline-none ${lignesWarnings.has(ligne.id) ? 'border-orange-400 focus:border-orange-500' : 'border-gray-300 focus:border-[#FF6B00]'}`}
                 />
                 {lignes.length > 1 && (
                   <button
@@ -305,6 +359,13 @@ export default function DevisExpressForm({ onChange, montantInitial }: DevisExpr
                   </button>
                 )}
               </div>
+              {/* Avertissement anti-bypass sur la description de la ligne */}
+              {lignesWarnings.has(ligne.id) && (
+                <div className="mb-2 flex items-start gap-1 text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded px-2 py-1">
+                  <span className="shrink-0">⚠️</span>
+                  <span>{lignesWarnings.get(ligne.id)}</span>
+                </div>
+              )}
               <div className="grid grid-cols-4 gap-2 text-xs">
                 <div>
                   <label className="text-gray-500 block mb-0.5">Qté</label>
@@ -494,21 +555,33 @@ export default function DevisExpressForm({ onChange, montantInitial }: DevisExpr
           <input
             type="text"
             placeholder="ex : 2h, sous 4h, dans la journée"
-            value={delaiRealisation}
-            onChange={e => setDelaiRealisation(e.target.value)}
-            className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-[#FF6B00]"
+            value={delaiRealisationField.value}
+            onChange={delaiRealisationField.onChange}
+            onBlur={delaiRealisationField.onBlur}
+            className={`w-full border rounded px-2 py-1.5 text-sm focus:outline-none ${delaiRealisationField.warning ? 'border-orange-400 focus:border-orange-500' : 'border-gray-300 focus:border-[#FF6B00]'}`}
           />
+          {/* Avertissement anti-bypass sur le délai d'intervention */}
+          {delaiRealisationField.warning && (
+            <div className="mt-1 flex items-start gap-1 text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded px-2 py-1">
+              <span className="shrink-0">⚠️</span><span>{delaiRealisationField.warning}</span>
+            </div>
+          )}
         </div>
         <div>
           <label className="text-xs font-medium text-gray-600 block mb-1">
-            Date de début prévue
+            Date de début prévue <span className="text-red-500">*</span>
           </label>
           <input
             type="date"
             value={dateDebutPrevue}
             onChange={e => setDateDebutPrevue(e.target.value)}
-            className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-[#FF6B00]"
+            required
+            className={`w-full border rounded px-2 py-1.5 text-sm focus:outline-none ${!dateDebutPrevue ? 'border-red-300 focus:border-red-400' : 'border-gray-300 focus:border-[#FF6B00]'}`}
           />
+          {/* Indicateur visuel si champ vide */}
+          {!dateDebutPrevue && (
+            <p className="mt-1 text-xs text-red-500">Champ obligatoire</p>
+          )}
         </div>
 
         <div className="col-span-2">
@@ -517,11 +590,18 @@ export default function DevisExpressForm({ onChange, montantInitial }: DevisExpr
           </label>
           <textarea
             placeholder="Conditions de paiement, matériaux fournis par le client..."
-            value={conditions}
-            onChange={e => setConditions(e.target.value)}
+            value={conditionsField.value}
+            onChange={conditionsField.onChange}
+            onBlur={conditionsField.onBlur}
             rows={2}
-            className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-[#FF6B00] resize-none"
+            className={`w-full border rounded px-2 py-1.5 text-sm focus:outline-none resize-none ${conditionsField.warning ? 'border-orange-400 focus:border-orange-500' : 'border-gray-300 focus:border-[#FF6B00]'}`}
           />
+          {/* Avertissement anti-bypass sur les conditions particulières */}
+          {conditionsField.warning && (
+            <div className="mt-1 flex items-start gap-1 text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded px-2 py-1">
+              <span className="shrink-0">⚠️</span><span>{conditionsField.warning}</span>
+            </div>
+          )}
         </div>
       </div>
 

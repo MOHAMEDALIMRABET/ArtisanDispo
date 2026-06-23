@@ -25,7 +25,7 @@ export interface ValidationResult {
 // MESSAGE D'ERREUR STANDARDISÉ
 // ─────────────────────────────────────────────────────────────────────────────
 const BLOCKED_MSG =
-  "⚠️ Le partage de coordonnées personnelles est interdit avant l'acceptation du devis.";
+  "Le partage de coordonnées personnelles est interdit avant l'acceptation du devis.";
 
 const BLOCKED_PHONE: ValidationResult = {
   isValid: false,
@@ -342,6 +342,8 @@ function normalizeTruncatedNumberWords(text: string): string {
     .replace(/\bhuif\b/gi, 'huit')          // "huif" → "huit" (transposition i/f)
     .replace(/\bnuef\b/gi, 'neuf')          // "nuef" variante
     .replace(/\bsetp\b|\bsetp\b/gi, 'sept') // "setp" transposition
+    .replace(/\bvignt\b/gi, 'vingt')        // "vignt" → transposition g/n de "vingt"
+    .replace(/\bvignt[\s\-]?deux\b/gi, 'vingt-deux') // "vignt deux" → "vingt-deux"
     // ─ Variantes "qurante", "qurant" (quarante sans le 'a' initial) ─
     .replace(/\bqur[ae]?nt[e]?\b/gi, 'quarante')
     .replace(/\bqurant[e]?\b/gi, 'quarante');
