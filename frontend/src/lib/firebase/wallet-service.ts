@@ -719,7 +719,11 @@ export async function getWalletSummary(artisanId: string): Promise<{
 }> {
   const wallet = await getWalletByArtisanId(artisanId);
   const stats = await getWalletStats(artisanId);
-  const recentTransactions = await getWalletTransactions(artisanId, 10);
+  // Charger toutes les transactions (pas de limite) pour que les filtres
+  // "Chiffre d'affaires" et "Séquestre" affichent l'historique complet.
+  // getWalletTransactions lit déjà tous les docs Firestore avant de slicer en JS,
+  // donc le coût réseau est identique quelle que soit la limite passée.
+  const recentTransactions = await getWalletTransactions(artisanId, 10000);
   
   return {
     wallet,

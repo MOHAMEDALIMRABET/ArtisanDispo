@@ -59,8 +59,8 @@ export default function WalletPage() {
   const [virementSuccess, setVirementSuccess] = useState('');
   const [virementRequests, setVirementRequests] = useState<VirementRequest[]>([]);
 
-  // Filtre séquestre
-  const [activeFilter, setActiveFilter] = useState<'all' | 'sequestre'>('all');
+  // Filtre transactions (séquestre ou chiffre d'affaires)
+  const [activeFilter, setActiveFilter] = useState<'all' | 'sequestre' | 'chiffre_affaires' | 'virement'>('all');
   const [sequestreTransactions, setSequestreTransactions] = useState<WalletTransaction[]>([]);
   const [sequestreSeenCount, setSequestreSeenCount] = useState<number>(() => {
     if (typeof window !== 'undefined') {
@@ -68,6 +68,10 @@ export default function WalletPage() {
     }
     return 0;
   });
+
+  // Pagination de l'historique des transactions
+  const TX_PER_PAGE = 10;
+  const [txPage, setTxPage] = useState(0);
 
   // Charger les infos artisan
   useEffect(() => {
@@ -122,6 +126,11 @@ export default function WalletPage() {
       setTimeout(() => setShowAlreadyConfiguredError(false), 8000);
     }
   }, [searchParams]);
+
+  // Remettre à la première page quand le filtre actif change
+  useEffect(() => {
+    setTxPage(0);
+  }, [activeFilter]);
 
   // Charger les données du wallet
   useEffect(() => {
@@ -331,8 +340,15 @@ export default function WalletPage() {
 
         {/* Statistiques */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Chiffre d'affaires */}
-          <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#28A745]">
+          {/* Chiffre d'affaires - cliquable pour historique */}
+          <div
+            onClick={() => setActiveFilter(activeFilter === 'chiffre_affaires' ? 'all' : 'chiffre_affaires')}
+            className={`rounded-lg shadow-md p-6 border-l-4 cursor-pointer transition-all ${
+              activeFilter === 'chiffre_affaires'
+                ? 'bg-green-50 border-[#28A745] ring-2 ring-[#28A745]'
+                : 'bg-white border-[#28A745] hover:bg-green-50'
+            }`}
+          >
             <div className="flex items-center gap-3 mb-2">
               <svg className="w-6 h-6 text-[#28A745]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -347,14 +363,14 @@ export default function WalletPage() {
               </p>
             )}
             <p className="text-sm text-[#6C757D] mt-1">
-              Net après commission{totalCommission > 0 && (
+              {activeFilter === 'chiffre_affaires' ? '👁 Affichage filtré ↓' : "Cliquer pour voir l'historique"}
+              {activeFilter !== 'chiffre_affaires' && totalCommission > 0 && (
                 <span className="ml-1 text-xs text-[#95A5A6]">
-                  (prélevé : {totalCommission.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €)
+                  (commission : {totalCommission.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €)
                 </span>
               )}
             </p>
           </div>
-
           {/* En séquestre — cliquable */}
           <div
             onClick={() => {
@@ -397,8 +413,15 @@ export default function WalletPage() {
             </p>
           </div>
 
-          {/* Bénéfice transféré + boutons */}
-          <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#17A2B8]">
+          {/* Bénéfice transféré + boutons — cliquable pour filtrer l'historique */}
+          <div
+            className={`rounded-lg shadow-md p-6 border-l-4 border-[#17A2B8] transition-all ${
+              activeFilter === 'virement'
+                ? 'bg-cyan-50 ring-2 ring-[#17A2B8] cursor-pointer'
+                : 'bg-white hover:bg-cyan-50 cursor-pointer'
+            }`}
+            onClick={() => setActiveFilter(activeFilter === 'virement' ? 'all' : 'virement')}
+          >
             <div className="flex items-center gap-3 mb-2">
               <svg className="w-6 h-6 text-[#17A2B8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
@@ -412,7 +435,9 @@ export default function WalletPage() {
                 {totalRetire.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
               </p>
             )}
-            <p className="text-sm text-[#6C757D] mt-1">Vers votre banque</p>
+            <p className="text-sm text-[#6C757D] mt-1">
+              {activeFilter === 'virement' ? '👁 Affichage filtré ↓' : 'Vers votre banque · Cliquer pour voir'}
+            </p>
             
             {/* Boutons de transfert - Toujours visibles */}
             <div className="mt-3 space-y-1.5">
@@ -436,7 +461,8 @@ export default function WalletPage() {
               )}
               
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation(); // Empêche de basculer le filtre en cliquant sur le bouton
                   if (stripeOnboardingStatus === 'active' && soldeDisponible > 0) {
                     setVirementAmount(soldeDisponible.toFixed(2));
                     setVirementNote('');
@@ -459,7 +485,8 @@ export default function WalletPage() {
               </button>
               
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation(); // Empêche de basculer le filtre en cliquant sur le bouton
                   if (stripeOnboardingStatus === 'active' && soldeDisponible > 0) {
                     setVirementAmount('');
                     setVirementNote('');
@@ -573,6 +600,17 @@ export default function WalletPage() {
                     </button>
                   </p>
                 )}
+                {activeFilter === 'chiffre_affaires' && (
+                  <p className="text-green-300 text-sm mt-1 flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+                    </svg>
+                    Filtre actif : Chiffre d&apos;affaires —{' '}
+                    <button onClick={() => setActiveFilter('all')} className="underline hover:text-white">
+                      Tout afficher
+                    </button>
+                  </p>
+                )}
               </div>
               
               <button
@@ -620,13 +658,43 @@ export default function WalletPage() {
                 <p className="mt-4 text-[#6C757D]">Chargement des transactions...</p>
               </div>
             ) : (() => {
-              // Vue "Tous" : fusionner transactions + séquestre (dédupliqués par id)
+              // Fusion complète dédupliquée (transactions + séquestre), triée par date
+              const mergedAll = [...transactions, ...sequestreTransactions.filter(s => !transactions.find(t => t.id === s.id))]
+                .sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+
+              // Sélection selon le filtre actif
               const allTransactions = activeFilter === 'sequestre'
-                ? sequestreTransactions
-                : [...transactions, ...sequestreTransactions.filter(s => !transactions.find(t => t.id === s.id))]
-                    .sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
-              const displayedTransactions = allTransactions;
-              if (displayedTransactions.length === 0) {
+                // Séquestre : uniquement les paiements en attente bloqués (🔒 En séquestre)
+                // → statut 'pending' + metadata.phase === 'sequestre'
+                ? mergedAll.filter(t =>
+                    t.statut === 'pending' &&
+                    t.metadata?.phase === 'sequestre'
+                  )
+                // Virement : sommes envoyées vers le compte bancaire (type debit completed)
+                : activeFilter === 'virement'
+                  ? mergedAll.filter(t =>
+                      t.type === 'debit' &&
+                      t.statut === 'completed'
+                    )
+                // Chiffre d'affaires : toutes les transactions complétées liées aux encaissements
+                // → credit completed (séquestre libéré, paiement reçu)
+                // → commission completed (commission plateforme 10% ou 8%)
+                // → debit completed (virements effectués vers la banque)
+                // → bonus completed
+                // Exclus : remboursement (litiges)
+                : activeFilter === 'chiffre_affaires'
+                  ? mergedAll.filter(t =>
+                      t.statut === 'completed' &&
+                      t.type !== 'remboursement'
+                    )
+                  : mergedAll;
+              // Calcul de la pagination côté client
+              const totalPages = Math.ceil(allTransactions.length / TX_PER_PAGE);
+              const displayedTransactions = allTransactions.slice(
+                txPage * TX_PER_PAGE,
+                (txPage + 1) * TX_PER_PAGE
+              );
+              if (allTransactions.length === 0) {
                 return (
                   <div className="text-center">
                     <div className="inline-block bg-[#F8F9FA] rounded-full p-6 mb-4">
@@ -635,12 +703,18 @@ export default function WalletPage() {
                       </svg>
                     </div>
                     <h3 className="text-xl font-semibold text-[#2C3E50] mb-2">
-                      {activeFilter === 'sequestre' ? 'Aucun montant en séquestre' : t('artisanWallet.transactions.empty')}
+                      {activeFilter === 'sequestre'
+                        ? 'Aucun montant en séquestre'
+                        : activeFilter === 'chiffre_affaires'
+                          ? 'Aucun encaissement validé'
+                          : t('artisanWallet.transactions.empty')}
                     </h3>
                     <p className="text-[#6C757D] max-w-md mx-auto">
                       {activeFilter === 'sequestre'
                         ? 'Aucun devis payé en attente de validation. Les montants apparaissent ici dès qu\'un client signe et paie un devis.'
-                        : t('artisanWallet.transactions.emptyMessage')}
+                        : activeFilter === 'chiffre_affaires'
+                          ? 'Aucun encaissement validé pour le moment. Les paiements libérés par vos clients apparaîtront ici.'
+                          : t('artisanWallet.transactions.emptyMessage')}
                     </p>
                     {activeFilter === 'all' && (
                       <p className="text-sm text-[#95A5A6] mt-4">
@@ -651,6 +725,7 @@ export default function WalletPage() {
                 );
               }
               return (
+                <>
                 <div className="divide-y divide-gray-200">
                   {displayedTransactions.map((transaction) => {
                     const isCredit = transaction.type === 'credit' || transaction.type === 'bonus';
@@ -766,6 +841,33 @@ export default function WalletPage() {
                     );
                   })}
                 </div>
+                {/* Contrôles de pagination — affichés uniquement si plus d'une page */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between px-4 py-4 border-t border-gray-100 bg-[#F8F9FA]">
+                    <p className="text-sm text-[#6C757D]">
+                      {allTransactions.length} transaction{allTransactions.length > 1 ? 's' : ''} — Page {txPage + 1} / {totalPages}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      {/* Bouton page précédente */}
+                      <button
+                        onClick={() => setTxPage(p => Math.max(0, p - 1))}
+                        disabled={txPage === 0}
+                        className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm font-semibold text-[#2C3E50] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition"
+                      >
+                        ← Précédent
+                      </button>
+                      {/* Bouton page suivante */}
+                      <button
+                        onClick={() => setTxPage(p => Math.min(totalPages - 1, p + 1))}
+                        disabled={txPage >= totalPages - 1}
+                        className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm font-semibold text-[#2C3E50] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition"
+                      >
+                        Suivant →
+                      </button>
+                    </div>
+                  </div>
+                )}
+                </>
               );
             })()}
           </div>
