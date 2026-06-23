@@ -58,6 +58,8 @@ import {
   getExpressArtisanWindowMs,
   getExpressPaymentWindowMinutes,
 } from '@/lib/express-work-taxonomy';
+// Défense côté service : deuxième couche de protection anti-bypass
+import { validateMessage } from '@/lib/antiBypassValidator';
 
 /**
  * Créer une demande de travaux express
@@ -70,6 +72,14 @@ export async function createDemandeExpress(
 
   if (data.budgetPropose && data.budgetPropose > 2000) {
     throw new Error('Le budget saisi semble incorrect (supérieur à 2000 €).');
+  }
+
+  // Défense service : vérification anti-bypass sur la description (deuxième couche)
+  if (data.description) {
+    const descValidation = validateMessage(data.description);
+    if (!descValidation.isValid) {
+      throw new Error(descValidation.message ?? 'Coordonnées personnelles interdites dans la description avant paiement');
+    }
   }
 
   const demandeData = {
@@ -296,6 +306,14 @@ export async function createPropositionExpress(
     }
     if (!data.devisJoint.lignes || data.devisJoint.lignes.length === 0) {
       throw new Error('Le devis doit contenir au moins une ligne de prestation');
+    }
+  }
+
+  // Défense service : vérification anti-bypass sur la description de la proposition
+  if (data.description) {
+    const descValidation = validateMessage(data.description);
+    if (!descValidation.isValid) {
+      throw new Error(descValidation.message ?? 'Coordonnées personnelles interdites dans la description avant paiement');
     }
   }
 

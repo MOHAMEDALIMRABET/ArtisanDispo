@@ -18,6 +18,7 @@ import {
   parsePrixMax,
   type TypeTravauxExpress,
 } from '@/lib/express-work-taxonomy';
+import { useAntiBypassField } from '@/hooks/useAntiBypassField';
 
 export default function NouvelleDemandeExpressPage() {
   const router = useRouter();
@@ -40,7 +41,8 @@ export default function NouvelleDemandeExpressPage() {
   const [typeTravaux, setTypeTravaux] = useState<TypeTravauxExpress>(typeTravauxParam);
   const [categorieExpress, setCategorieExpress] = useState(categorieExpressParam || categorieMetierParam || '');
   const [sousCategorie, setSousCategorie] = useState(sousCategorieParam);
-  const [description, setDescription] = useState('');
+  /* Champ description protégé anti-bypass (coordonnées avant paiement) */
+  const descriptionField = useAntiBypassField();
   const [budgetPropose, setBudgetPropose] = useState('');
   const [ville, setVille] = useState(villeParam);
   const [codePostal, setCodePostal] = useState(codePostalParam);
@@ -132,10 +134,13 @@ export default function NouvelleDemandeExpressPage() {
       return;
     }
 
-    if (!selectedCategorie || !description || !ville || !codePostal) {
+    if (!selectedCategorie || !descriptionField.value || !ville || !codePostal) {
       alert(t('alerts.express.fillRequired'));
       return;
     }
+
+    /* Blocage dur anti-bypass : coordonnées personnelles interdites avant paiement */
+    if (!descriptionField.validate()) return;
 
     const budget = budgetPropose ? parseFloat(budgetPropose) : undefined;
     // Validation : bloquer uniquement si un plafond est défini ET dépassé
@@ -181,7 +186,7 @@ export default function NouvelleDemandeExpressPage() {
         categorieLabel: selectedCategorie.label,
         sousCategorie: sousCategorie || undefined,
         sousCategorieLabel: getExpressSousCategorieLabel(typeTravaux, categorieExpress, sousCategorie) || undefined,
-        description,
+        description: descriptionField.value.trim(),
         budgetPropose: budget,
         ville,
         codePostal,
@@ -336,16 +341,29 @@ export default function NouvelleDemandeExpressPage() {
                 Description des travaux <span className="text-red-500">*</span>
               </label>
               <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                value={descriptionField.value}
+                onChange={descriptionField.onChange}
+                onBlur={descriptionField.onBlur}
                 required
                 rows={4}
                 placeholder="Décrivez en détail les travaux à réaliser..."
-                className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none resize-none"
+                className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none resize-none ${
+                  descriptionField.warning
+                    ? 'border-orange-400 focus:border-orange-400'
+                    : 'border-[#E9ECEF] focus:border-[#FF6B00]'
+                }`}
               />
-              <p className="text-xs text-[#6C757D] mt-1">
-                Soyez précis pour que l'artisan puisse vous faire une proposition adaptée
-              </p>
+              {/* Avertissement anti-bypass (orange, non-bloquant) */}
+              {descriptionField.warning ? (
+                <div className="mt-1.5 flex items-start gap-1.5 text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2">
+                  <span className="shrink-0">⚠️</span>
+                  <span>{descriptionField.warning}</span>
+                </div>
+              ) : (
+                <p className="text-xs text-[#6C757D] mt-1">
+                  🔒 Coordonnées personnelles non autorisées avant paiement
+                </p>
+              )}
             </div>
 
             {/* Photos */}

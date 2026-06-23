@@ -27,6 +27,7 @@ import type { DemandeExpress, PropositionExpress, User, DemandeExpressStatut } f
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { getExpressArtisanWindowLabel } from '@/lib/express-work-taxonomy';
+import { useAntiBypassField } from '@/hooks/useAntiBypassField';
 
 
 /**
@@ -84,9 +85,10 @@ export default function MesDemandesExpressPage() {
   // Modales inline refus / contre-proposition
   const [refusModal, setRefusModal] = useState<{ id: string; propId: string } | null>(null);
   const [contreModal, setContreModal] = useState<{ id: string; propId: string; currentMontant: number } | null>(null);
-  const [motifRefus, setMotifRefus] = useState('');
+  /* Champs libres protégés anti-bypass (téléphone/email/adresse interdits avant paiement) */
+  const motifRefusField = useAntiBypassField();
+  const contreMessageField = useAntiBypassField();
   const [contreMontant, setContreMontant] = useState('');
-  const [contreMessage, setContreMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [validatingId, setValidatingId] = useState<string | null>(null);
   const [artisanNomMap, setArtisanNomMap] = useState<Map<string, string>>(new Map());
@@ -301,16 +303,18 @@ export default function MesDemandesExpressPage() {
   };
 
   async function handleRefuserInline() {
-    if (!refusModal || !motifRefus.trim()) { alert('Veuillez indiquer le motif'); return; }
+    if (!refusModal || !motifRefusField.value.trim()) { alert('Veuillez indiquer le motif'); return; }
+    // Validation anti-bypass : bloquer si coordonnées personnelles détectées
+    if (!motifRefusField.validate()) return;
     setSubmitting(true);
     try {
-      await refusePropositionExpress(refusModal.propId, motifRefus.trim());
+      await refusePropositionExpress(refusModal.propId, motifRefusField.value.trim());
       // Mettre à jour la demande localement + mémoriser l'ID pour afficher le bon message
       const refusedId = refusModal.id;
       setDemandes(prev => prev.map(d => d.id === refusedId ? { ...d, statut: 'en_attente_proposition' as DemandeExpressStatut } : d));
       setPropositionsMap(prev => { const m = new Map(prev); m.delete(refusedId); return m; });
       setRefusedDemandeIds(prev => new Set(prev).add(refusedId));
-      setRefusModal(null); setMotifRefus('');
+      setRefusModal(null); motifRefusField.reset();
     } catch (err: any) {
       alert(err.message || 'Erreur');
     } finally {
@@ -322,13 +326,15 @@ export default function MesDemandesExpressPage() {
     if (!contreModal) return;
     const montant = parseFloat(contreMontant);
     if (isNaN(montant) || montant <= 0 || montant > 150) { alert('Montant invalide (1–150€)'); return; }
-    if (!contreMessage.trim()) { alert('Veuillez ajouter un message'); return; }
+    if (!contreMessageField.value.trim()) { alert('Veuillez ajouter un message'); return; }
+    // Validation anti-bypass : bloquer si coordonnées personnelles détectées
+    if (!contreMessageField.validate()) return;
     setSubmitting(true);
     try {
-      await sendContrePropositionExpress(contreModal.propId, montant, contreMessage.trim());
+      await sendContrePropositionExpress(contreModal.propId, montant, contreMessageField.value.trim());
       setDemandes(prev => prev.map(d => d.id === contreModal.id ? { ...d, statut: 'en_attente_proposition' as DemandeExpressStatut } : d));
       setPropositionsMap(prev => { const m = new Map(prev); m.delete(contreModal.id); return m; });
-      setContreModal(null); setContreMontant(''); setContreMessage('');
+      setContreModal(null); setContreMontant(''); contreMessageField.reset();
       alert('✅ Contre-proposition envoyée !');
     } catch (err: any) {
       alert(err.message || 'Erreur');
@@ -1353,14 +1359,14 @@ export default function MesDemandesExpressPage() {
                             {!isPublished || propositionCount <= 1 ? (
                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-gray-100">
                                 <button
-                                  onClick={(e) => { e.stopPropagation(); setMotifRefus(''); setRefusModal({ id: demande.id, propId: prop.id }); }}
+                                  onClick={(e) => { e.stopPropagation(); motifRefusField.reset(); setRefusModal({ id: demande.id, propId: prop.id }); }}
                                   disabled={submitting}
                                   className="px-4 py-2.5 border-2 border-red-400 text-red-600 rounded-xl hover:bg-red-50 font-semibold text-sm transition-all disabled:opacity-50"
                                 >
                                   ❌ Refuser
                                 </button>
                                 <button
-                                  onClick={(e) => { e.stopPropagation(); setContreMontant(String(demande.budgetPropose || '')); setContreMessage(''); setContreModal({ id: demande.id, propId: prop.id, currentMontant: prop.montantPropose }); }}
+                                  onClick={(e) => { e.stopPropagation(); setContreMontant(String(demande.budgetPropose || '')); contreMessageField.reset(); setContreModal({ id: demande.id, propId: prop.id, currentMontant: prop.montantPropose }); }}
                                   disabled={submitting}
                                   className="px-4 py-2.5 border-2 border-[#FF6B00] text-[#FF6B00] rounded-xl hover:bg-[#FFF5EB] font-semibold text-sm transition-all disabled:opacity-50"
                                 >
@@ -1846,15 +1852,26 @@ export default function MesDemandesExpressPage() {
           <h3 className="text-xl font-bold text-[#2C3E50] mb-2">❌ Refuser la proposition</h3>
           <p className="text-[#6C757D] text-sm mb-4">Indiquez pourquoi vous refusez (l&apos;artisan sera notifié). La demande reviendra en attente.</p>
           <textarea
-            value={motifRefus}
-            onChange={(e) => setMotifRefus(e.target.value)}
+            value={motifRefusField.value}
+            onChange={motifRefusField.onChange}
+            onBlur={motifRefusField.onBlur}
             rows={4}
-            className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-xl focus:outline-none focus:border-red-400 mb-4 text-sm"
+            className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none mb-1 text-sm transition-colors ${
+              motifRefusField.warning ? 'border-orange-400 focus:border-orange-500' : 'border-[#E9ECEF] focus:border-red-400'
+            }`}
             placeholder="Ex : Le tarif est trop élevé pour ce travail…"
           />
+          {motifRefusField.warning ? (
+            <div className="mb-3 flex items-start gap-1.5 text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2">
+              <span className="shrink-0">⚠️</span>
+              <span>{motifRefusField.warning}</span>
+            </div>
+          ) : (
+            <p className="mb-3 text-xs text-[#6C757D]">🔒 Coordonnées personnelles non autorisées avant paiement</p>
+          )}
           <div className="flex gap-3">
             <button
-              onClick={() => { setRefusModal(null); setMotifRefus(''); }}
+              onClick={() => { setRefusModal(null); motifRefusField.reset(); }}
               disabled={submitting}
               className="flex-1 px-4 py-2.5 border-2 border-[#E9ECEF] text-[#6C757D] rounded-xl hover:border-[#2C3E50] font-medium text-sm"
             >
@@ -1862,7 +1879,7 @@ export default function MesDemandesExpressPage() {
             </button>
             <button
               onClick={handleRefuserInline}
-              disabled={submitting || !motifRefus.trim()}
+              disabled={submitting || !motifRefusField.value.trim()}
               className="flex-1 px-4 py-2.5 bg-red-500 text-white rounded-xl hover:bg-red-600 font-semibold text-sm disabled:opacity-50"
             >
               {submitting ? '⏳ Envoi…' : 'Confirmer le refus'}
@@ -1896,16 +1913,27 @@ export default function MesDemandesExpressPage() {
           <div className="mb-4">
             <label className="text-sm font-semibold text-[#2C3E50] mb-1 block">📝 Message à l&apos;artisan</label>
             <textarea
-              value={contreMessage}
-              onChange={(e) => setContreMessage(e.target.value)}
+              value={contreMessageField.value}
+              onChange={contreMessageField.onChange}
+              onBlur={contreMessageField.onBlur}
               rows={3}
-              className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-xl focus:outline-none focus:border-[#FF6B00] text-sm"
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none text-sm transition-colors ${
+                contreMessageField.warning ? 'border-orange-400 focus:border-orange-500' : 'border-[#E9ECEF] focus:border-[#FF6B00]'
+              }`}
               placeholder="Ex : Je peux aller jusqu'à 80€ car le travail est limité au robinet uniquement."
             />
+            {contreMessageField.warning ? (
+              <div className="mt-1.5 flex items-start gap-1.5 text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2">
+                <span className="shrink-0">⚠️</span>
+                <span>{contreMessageField.warning}</span>
+              </div>
+            ) : (
+              <p className="mt-1 text-xs text-[#6C757D]">🔒 Coordonnées personnelles non autorisées avant paiement</p>
+            )}
           </div>
           <div className="flex gap-3">
             <button
-              onClick={() => { setContreModal(null); setContreMontant(''); setContreMessage(''); }}
+              onClick={() => { setContreModal(null); setContreMontant(''); contreMessageField.reset(); }}
               disabled={submitting}
               className="flex-1 px-4 py-2.5 border-2 border-[#E9ECEF] text-[#6C757D] rounded-xl hover:border-[#2C3E50] font-medium text-sm"
             >
@@ -1913,7 +1941,7 @@ export default function MesDemandesExpressPage() {
             </button>
             <button
               onClick={handleContreInline}
-              disabled={submitting || !contreMontant || !contreMessage.trim()}
+              disabled={submitting || !contreMontant || !contreMessageField.value.trim()}
               className="flex-1 px-4 py-2.5 bg-[#FF6B00] text-white rounded-xl hover:bg-[#E56100] font-semibold text-sm disabled:opacity-50"
             >
               {submitting ? '⏳ Envoi…' : 'Envoyer'}

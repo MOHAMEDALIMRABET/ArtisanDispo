@@ -20,6 +20,7 @@ import type { Timestamp } from 'firebase/firestore';
 import { EXPRESS_WORK_TAXONOMY, getExpressArtisanWindowMs, parsePrixMax } from '@/lib/express-work-taxonomy';
 import DevisExpressForm from '@/components/DevisExpressForm';
 import type { DevisExpressJoint } from '@/types/firestore';
+import { useAntiBypassField } from '@/hooks/useAntiBypassField';
 
 
 /**
@@ -88,7 +89,8 @@ export default function DemandeExpressDetailArtisanPage() {
 
   // Form state
   const [montantPropose, setMontantPropose] = useState('');
-  const [description, setDescription] = useState('');
+  /* Champs liberté de texte protégés anti-bypass (coordonnées avant paiement) */
+  const descriptionField = useAntiBypassField();
   const [submitting, setSubmitting] = useState(false);
   // Devis joint (obligatoire si montant >= 150€)
   const [devisExpress, setDevisExpress] = useState<DevisExpressJoint | undefined>(undefined);
@@ -105,7 +107,7 @@ export default function DemandeExpressDetailArtisanPage() {
   // Réponse à la contre-proposition client
   const [negoAction, setNegoAction] = useState<'accepter_prix_client' | 'refuser' | 'proposition_finale' | null>(null);
   const [negoMontantFinal, setNegoMontantFinal] = useState('');
-  const [negoMessageFinal, setNegoMessageFinal] = useState('');
+  const negoMessageField = useAntiBypassField();
 
   useEffect(() => {
     if (authLoading) return;
@@ -204,6 +206,9 @@ export default function DemandeExpressDetailArtisanPage() {
       return;
     }
 
+    /* Blocage dur anti-bypass : coordonnées personnelles interdites avant paiement */
+    if (!descriptionField.validate()) return;
+
     setSubmitting(true);
     try {
       await createPropositionExpress({
@@ -211,7 +216,7 @@ export default function DemandeExpressDetailArtisanPage() {
         artisanId: firebaseUser.uid,
         clientId: demande.clientId,
         montantPropose: montant,
-        description: description.trim(),
+        description: descriptionField.value.trim(),
         devisJoint: devisExpress,
       });
 
@@ -307,7 +312,9 @@ export default function DemandeExpressDetailArtisanPage() {
       const montant = parseFloat(negoMontantFinal);
       if (isNaN(montant) || montant <= 0) { alert('Montant invalide'); return; }
       if (montant > 150) { alert('Maximum 150€'); return; }
-      if (!negoMessageFinal.trim()) { alert('Veuillez décrire ce qui est inclus'); return; }
+      if (!negoMessageField.value.trim()) { alert('Veuillez décrire ce qui est inclus'); return; }
+      /* Blocage dur anti-bypass sur le message de négociation */
+      if (!negoMessageField.validate()) return;
     }
     setSubmitting(true);
     try {
@@ -315,7 +322,7 @@ export default function DemandeExpressDetailArtisanPage() {
         maProposition.id,
         negoAction,
         negoAction === 'proposition_finale' ? parseFloat(negoMontantFinal) : undefined,
-        negoAction === 'proposition_finale' ? negoMessageFinal.trim() : undefined,
+        negoAction === 'proposition_finale' ? negoMessageField.value.trim() : undefined,
       );
       const msgs: Record<string, string> = {
         accepter_prix_client: '✅ Vous avez accepté le budget du client. Il va recevoir une notification.',
@@ -325,7 +332,7 @@ export default function DemandeExpressDetailArtisanPage() {
       alert(msgs[negoAction]);
       setNegoAction(null);
       setNegoMontantFinal('');
-      setNegoMessageFinal('');
+      negoMessageField.reset();
       await loadData();
     } catch (error: any) {
       console.error('Erreur réponse négociation:', error);
@@ -755,16 +762,29 @@ export default function DemandeExpressDetailArtisanPage() {
                   <div>
                     <label className="text-sm font-semibold text-[#2C3E50] mb-1 block">Justification / détail inclus</label>
                     <textarea
-                      value={negoMessageFinal}
-                      onChange={e => setNegoMessageFinal(e.target.value)}
+                      value={negoMessageField.value}
+                      onChange={negoMessageField.onChange}
+                      onBlur={negoMessageField.onBlur}
                       rows={3}
-                      className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-xl focus:outline-none focus:border-[#FF6B00] text-sm"
+                      className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none text-sm ${
+                        negoMessageField.warning
+                          ? 'border-orange-400 focus:border-orange-400'
+                          : 'border-[#E9ECEF] focus:border-[#FF6B00]'
+                      }`}
                       placeholder="Ex : Je ne peux pas descendre plus bas à cause des pièces à fournir. Ce tarif comprend tout."
                     />
+                    {negoMessageField.warning ? (
+                      <div className="mt-1.5 flex items-start gap-1.5 text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2">
+                        <span className="shrink-0">⚠️</span>
+                        <span>{negoMessageField.warning}</span>
+                      </div>
+                    ) : (
+                      <p className="mt-1 text-xs text-[#6C757D]">🔒 Coordonnées personnelles non autorisées avant paiement</p>
+                    )}
                   </div>
                   <div className="flex gap-3">
                     <button onClick={() => setNegoAction(null)} className="flex-1 px-4 py-2.5 border-2 border-gray-200 text-[#6C757D] rounded-xl text-sm hover:border-[#2C3E50]">Retour</button>
-                    <button onClick={handleRepondreNegociation} disabled={submitting || !negoMontantFinal || !negoMessageFinal.trim()} className="flex-1 px-4 py-2.5 bg-[#FF6B00] text-white rounded-xl text-sm font-semibold hover:bg-[#E56100] disabled:opacity-50">
+                    <button onClick={handleRepondreNegociation} disabled={submitting || !negoMontantFinal || !negoMessageField.value.trim()} className="flex-1 px-4 py-2.5 bg-[#FF6B00] text-white rounded-xl text-sm font-semibold hover:bg-[#E56100] disabled:opacity-50">
                       {submitting ? '⏳…' : '🔔 Envoyer proposition finale'}
                     </button>
                   </div>
@@ -851,15 +871,27 @@ export default function DemandeExpressDetailArtisanPage() {
                   </label>
                   <textarea
                     id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={descriptionField.value}
+                    onChange={descriptionField.onChange}
+                    onBlur={descriptionField.onBlur}
                     rows={4}
-                    className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:outline-none focus:border-[#FF6B00]"
+                    className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none ${
+                      descriptionField.warning
+                        ? 'border-orange-400 focus:border-orange-400'
+                        : 'border-[#E9ECEF] focus:border-[#FF6B00]'
+                    }`}
                     placeholder="Ex: Fourniture des pièces, main d'œuvre, déplacement inclus..."
                   />
-                  <p className="text-sm text-[#6C757D] mt-1">
-                    Soyez précis sur ce qui est inclus dans votre tarif
-                  </p>
+                  {descriptionField.warning ? (
+                    <div className="mt-1.5 flex items-start gap-1.5 text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2">
+                      <span className="shrink-0">⚠️</span>
+                      <span>{descriptionField.warning}</span>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-[#6C757D] mt-1">
+                      🔒 Coordonnées personnelles non autorisées avant paiement
+                    </p>
+                  )}
                 </div>
 
                 <div className="bg-gray-50 border-2 border-gray-200 rounded-lg p-4">
