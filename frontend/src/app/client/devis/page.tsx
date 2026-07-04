@@ -35,6 +35,19 @@ const isDevisAccepte = (statut: string) => statut === 'en_attente_paiement';
 const isDevisPaye = (statut: string) => 
   ['paye', 'en_cours', 'travaux_termines', 'termine_valide', 'termine_auto_valide', 'litige'].includes(statut);
 
+/**
+ * Convertit n'importe quel format de date Firestore en objet Date JS.
+ * Gère : Timestamp Firestore (.toDate()), Date JS, number (ms), string ISO.
+ */
+function toDate(value: unknown): Date | null {
+  if (!value) return null;
+  if (typeof (value as any).toDate === 'function') return (value as any).toDate();
+  if (value instanceof Date) return value;
+  if (typeof value === 'number') return new Date(value);
+  if (typeof value === 'string') { const d = new Date(value); return isNaN(d.getTime()) ? null : d; }
+  return null;
+}
+
 export default function ClientDevisPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -786,13 +799,13 @@ export default function ClientDevisPage() {
                     <div>
                       <span className="text-gray-500">{t('quotes.date')} :</span>
                       <p className="font-semibold">
-                        {d.dateCreation?.toDate().toLocaleDateString('fr-FR')}
+                        {toDate(d.dateCreation)?.toLocaleDateString('fr-FR')}
                       </p>
                     </div>
                     <div>
                       <span className="text-gray-500">{t('quotes.validUntil')} :</span>
                       <p className="font-semibold">
-                        {d.dateValidite?.toDate().toLocaleDateString('fr-FR')}
+                        {toDate(d.dateValidite)?.toLocaleDateString('fr-FR')}
                       </p>
                     </div>
                     <div>

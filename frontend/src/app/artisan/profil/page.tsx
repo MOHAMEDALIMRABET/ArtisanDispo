@@ -541,7 +541,7 @@ export default function ProfilArtisanPage() {
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-lg">🚨</span>
                 <h3 className="font-semibold text-gray-800">Dépannage en urgence</h3>
-                <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Urgent (30 min – 1h)</span>
+                <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">⚡ Immédiat (30 min – 1h)</span>
               </div>
               <p className="text-xs text-gray-400 mb-3 italic">En sélectionnant une catégorie, toutes ses sous-catégories sont sélectionnées automatiquement. Vous pouvez en désélectionner certaines selon vos compétences.</p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -590,7 +590,7 @@ export default function ProfilArtisanPage() {
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-lg">🛠️</span>
                 <h3 className="font-semibold text-gray-800">Petits travaux &amp; maintenance</h3>
-                <span className="text-xs bg-orange-100 text-[#FF6B00] px-2 py-0.5 rounded-full">Immédiat (2h)</span>
+                <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">🚨 En urgence (2h)</span>
               </div>
               <p className="text-xs text-gray-400 mb-3 italic">En sélectionnant une catégorie, toutes ses sous-catégories sont sélectionnées automatiquement. Vous pouvez en désélectionner certaines selon vos compétences.</p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">

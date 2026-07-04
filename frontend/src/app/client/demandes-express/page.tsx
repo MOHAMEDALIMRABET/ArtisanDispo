@@ -225,11 +225,24 @@ export default function MesDemandesExpressPage() {
       } else if (propositionNotifs.length > 0) {
         setFiltreStatut('proposition_recue');
         // Préserver le filtre source issu de l'URL (?source=directes ou ?source=publiees).
-        // Ne réinitialiser à 'toutes' que si aucun filtre source URL n'est actif,
-        // afin de ne pas écraser le contexte de navigation depuis le hub.
         const urlSource = searchParams.get('source');
-        if (urlSource !== 'directes' && urlSource !== 'publiees') {
-          setSourceFilter('toutes');
+        if (urlSource === 'directes' || urlSource === 'publiees') {
+          // Filtre URL prioritaire — ne pas écraser
+        } else {
+          // Déduire le bon filtre source à partir des demandes concernées par les notifications.
+          // Une demande est « publique » tant qu'elle n'a pas d'artisanId assigné.
+          const notifIds = propositionNotifs
+            .map(n => n.lien!.split('/').pop() ?? '')
+            .filter(Boolean);
+          const notifDemandes = notifIds
+            .map(id => demandes.find(d => d.id === id))
+            .filter(Boolean) as DemandeExpress[];
+          const hasPublished = notifDemandes.some(d => !d.artisanId);
+          const hasDirect = notifDemandes.some(d => !!d.artisanId);
+          // Régler le filtre source : publiées si toutes publiques, directes si toutes directes, sinon toutes
+          if (hasPublished && !hasDirect) setSourceFilter('publiees');
+          else if (hasDirect && !hasPublished) setSourceFilter('directes');
+          else setSourceFilter('toutes');
         }
       }
       isInitialNotifLoad.current = false;
@@ -681,13 +694,14 @@ export default function MesDemandesExpressPage() {
     if (filtreStatut === 'expiree') return isExpiree(d.statut);
     if (filtreStatut === 'en_cours') {
       // Application du sous-filtre "En traitement"
-      if (filtreEnTraitement === 'payee') return d.statut === 'payee';
+      // 'acceptee' = proposition acceptée par le client, paiement en attente
+      if (filtreEnTraitement === 'payee') return d.statut === 'acceptee' || d.statut === 'payee';
       if (filtreEnTraitement === 'en_cours') return d.statut === 'en_cours';
       if (filtreEnTraitement === 'travaux_termines') return d.statut === 'travaux_termines';
       // Sous-filtre "Refusée" : refus artisan + annulation client
       if (filtreEnTraitement === 'refusee') return isRefuseeOuAnnulee(d.statut);
-      // Tous les sous-statuts "En traitement" (y compris refusées)
-      return ['payee', 'en_cours', 'travaux_termines'].includes(d.statut) || isRefuseeOuAnnulee(d.statut);
+      // Tous les sous-statuts "En traitement" (acceptée + payée + en cours + terminée + refusées)
+      return ['acceptee', 'payee', 'en_cours', 'travaux_termines'].includes(d.statut) || isRefuseeOuAnnulee(d.statut);
     }
     return d.statut === filtreStatut;
   });
@@ -731,12 +745,12 @@ export default function MesDemandesExpressPage() {
   };
 
   const getUrgenceBadge = (urgence: 'immediat' | 'urgent', typeTravauxExpress?: string) => {
-    // Dépannage urgence → 30 min - 1h (rouge)
+    // Dépannage urgence → Immédiat 30 min - 1h (orange vif)
     if (typeTravauxExpress === 'depannage-urgence') {
-      return <span className="px-2 py-1 rounded text-xs font-semibold bg-red-100 text-red-700">🚨 Urgent (30 min - 1h)</span>;
+      return <span className="px-2 py-1 rounded text-xs font-semibold bg-orange-100 text-orange-700">⚡ Immédiat (30 min - 1h)</span>;
     }
-    // Petits travaux / legacy → Immédiat 2h
-    return <span className="px-2 py-1 rounded text-xs font-semibold bg-orange-100 text-orange-700">⚡ Immédiat (2h)</span>;
+    // Petits travaux / legacy → En urgence 2h (rouge)
+    return <span className="px-2 py-1 rounded text-xs font-semibold bg-red-100 text-red-700">🚨 En urgence (2h)</span>;
   };
 
   if (authLoading || loading) {
@@ -1037,7 +1051,7 @@ export default function MesDemandesExpressPage() {
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${filtreStatut === 'en_cours' ? 'text-white' : 'text-indigo-600'}`}>
-              {demandes.filter(d => ['payee', 'en_cours', 'travaux_termines', 'refusee_artisan', 'annulee'].includes(d.statut)).length}
+              {demandes.filter(d => ['acceptee', 'payee', 'en_cours', 'travaux_termines', 'refusee_artisan', 'annulee'].includes(d.statut)).length}
               {/* Badge 🔔 quand les travaux sont terminés (action requise : valider) */}
               {bellTravauxIds.size > 0 && filtreStatut !== 'en_cours' && (
                 <span className="ml-1 animate-bounce text-lg" title="Travaux terminés — action requise">🔔</span>
@@ -1083,7 +1097,7 @@ export default function MesDemandesExpressPage() {
                   : 'bg-white text-[#2C3E50] border border-gray-200 hover:bg-[#FFF3EA]'
               }`}
             >
-              Tous ({demandes.filter(d => ['payee', 'en_cours', 'travaux_termines', 'refusee_artisan', 'annulee'].includes(d.statut)).length})
+              Tous ({demandes.filter(d => ['acceptee', 'payee', 'en_cours', 'travaux_termines', 'refusee_artisan', 'annulee'].includes(d.statut)).length})
             </button>
             <button
               onClick={() => setFiltreEnTraitement('payee')}
@@ -1093,7 +1107,7 @@ export default function MesDemandesExpressPage() {
                   : 'bg-white text-purple-700 border border-purple-200 hover:bg-purple-50'
               }`}
             >
-              💳 Payé - Attente début Travaux ({demandes.filter(d => d.statut === 'payee').length})
+              ✅ Acceptée / Payée — Attente travaux ({demandes.filter(d => d.statut === 'acceptee' || d.statut === 'payee').length})
             </button>
             <button
               onClick={() => setFiltreEnTraitement('en_cours')}
@@ -1157,9 +1171,21 @@ export default function MesDemandesExpressPage() {
               <div
                 key={demande.id}
                 className={`bg-white rounded-2xl shadow-md transition-all duration-300 relative border-2 overflow-hidden ${
-                  canExpand && isExpanded ? 'border-[#FF6B00] ring-1 ring-[#FF6B00] ring-opacity-30' : 'border-transparent hover:border-gray-200 hover:shadow-xl'
+                  canExpand && isExpanded
+                    ? 'border-[#FF6B00] ring-1 ring-[#FF6B00] ring-opacity-30'
+                    : demande.statut === 'proposition_recue' && !isExpanded
+                      ? 'border-blue-400 ring-2 ring-blue-300 ring-opacity-50 shadow-lg'
+                      : 'border-transparent hover:border-gray-200 hover:shadow-xl'
                 }`}
               >
+                {/* Bandeau "Nouvelle proposition" — visible uniquement sur les cartes non déployées */}
+                {demande.statut === 'proposition_recue' && !isExpanded && (
+                  <div className="bg-blue-500 text-white text-xs font-bold px-4 py-1.5 flex items-center gap-2">
+                    <span className="animate-bounce">🔔</span>
+                    <span>Nouvelle proposition reçue — dépliez pour consulter et répondre</span>
+                  </div>
+                )}
+
                 {/* Barre latérale orange */}
                 <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-[#FF6B00] to-[#E56100]" />
 
@@ -1178,15 +1204,23 @@ export default function MesDemandesExpressPage() {
                   </div>
                 )}
 
-                {/* Bouton expand/collapse */}
+                {/* Bouton expand/collapse avec libellé explicite */}
                 {canExpand && (
                 <button
                   onClick={() => toggleExpand(demande.id, demande.statut)}
-                  className="absolute top-5 right-5 p-2.5 rounded-xl hover:bg-gray-100 transition-all duration-200 group"
-                  title={isExpanded ? 'Réduire' : 'Voir les détails'}
+                  className={`absolute top-4 right-4 flex items-center gap-1.5 px-3 py-2 rounded-xl transition-all duration-200 group border ${
+                    isExpanded ? 'bg-orange-50 border-[#FF6B00]' : 'bg-white border-gray-200 hover:border-[#FF6B00] hover:bg-orange-50'
+                  }`}
                 >
+                  <span className={`text-xs font-semibold transition-colors ${
+                    isExpanded ? 'text-[#FF6B00]' : 'text-gray-500 group-hover:text-[#FF6B00]'
+                  }`}>
+                    {isExpanded ? 'Réduire' : 'Afficher détails'}
+                  </span>
                   <svg
-                    className={`w-5 h-5 text-gray-400 group-hover:text-[#FF6B00] transition-all duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                    className={`w-4 h-4 transition-all duration-200 ${
+                      isExpanded ? 'rotate-180 text-[#FF6B00]' : 'text-gray-400 group-hover:text-[#FF6B00]'
+                    }`}
                     fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -1196,7 +1230,7 @@ export default function MesDemandesExpressPage() {
 
                 {/* Contenu principal - toujours visible */}
                 <div
-                  className={`p-6 pl-8 ${canExpand ? 'pr-14 cursor-pointer' : 'pr-6'}`}
+                  className={`p-6 pl-8 ${canExpand ? 'pr-40 cursor-pointer' : 'pr-6'}`}
                   onClick={canExpand ? () => toggleExpand(demande.id, demande.statut) : undefined}
                 >
                   <div className="flex items-center gap-3 mb-3 flex-wrap">
@@ -1458,6 +1492,25 @@ export default function MesDemandesExpressPage() {
                         {demande.statut === 'proposition_recue' && !loadingProp && !prop && (
                           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-700 font-medium">
                             💬 Une proposition a été reçue. Cliquez sur &quot;Voir détails&quot; pour la consulter.
+                          </div>
+                        )}
+
+                        {/* Acceptée — en attente de paiement client */}
+                        {demande.statut === 'acceptee' && (
+                          <div className="flex items-center gap-3 bg-purple-50 border-2 border-purple-300 rounded-xl p-4">
+                            <span className="text-2xl">✅</span>
+                            <div className="flex-1">
+                              <p className="text-sm text-purple-900 font-semibold">Proposition acceptée — en attente de paiement</p>
+                              <p className="text-xs text-purple-700 mt-1">Le paiement sécurise l&apos;intervention. L&apos;artisan interviendra dès réception.</p>
+                            </div>
+                            {prop && (
+                              <button
+                                onClick={(e) => { e.stopPropagation(); router.push(`/client/paiement-express/${prop.id}`); }}
+                                className="shrink-0 px-4 py-2 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] text-sm font-semibold transition-all"
+                              >
+                                💳 Payer maintenant
+                              </button>
+                            )}
                           </div>
                         )}
 

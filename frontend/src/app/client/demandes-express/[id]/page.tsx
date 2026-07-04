@@ -417,8 +417,8 @@ export default function DemandeExpressDetailClientPage() {
                   <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">🔥 Urgence</p>
                   <p className="text-[#2C3E50] font-medium text-sm">
                     {demande.typeTravauxExpress === 'depannage-urgence'
-                      ? '🚨 Urgent (30 min - 1h)'
-                      : demande.urgence === 'immediat' ? '⚡ Immédiat (2h)' : '🚨 Urgent (24h)'}
+                      ? '⚡ Immédiat (30 min - 1h)'
+                      : demande.urgence === 'immediat' ? '🚨 En urgence (2h)' : '🚨 Urgent (24h)'}
                   </p>
                 </div>
                 <div>
@@ -729,11 +729,11 @@ export default function DemandeExpressDetailClientPage() {
                       <p className="text-xs text-orange-700">
                         {demande.typeTravauxExpress === 'depannage-urgence' ? (
                           <>
-                            🚨 <strong>Intervention urgente (30 min - 1h)</strong> → Paiement requis sous <strong>15 minutes</strong>
+                            ⚡ <strong>Intervention immédiate (30 min - 1h)</strong> → Paiement requis sous <strong>15 minutes</strong>
                           </>
                         ) : demande.urgence === 'immediat' ? (
                           <>
-                            ⚡ <strong>Intervention immédiate (2h)</strong> → Paiement requis sous <strong>15 minutes</strong>
+                            🚨 <strong>Intervention en urgence (2h)</strong> → Paiement requis sous <strong>15 minutes</strong>
                           </>
                         ) : (
                           <>

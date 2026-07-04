@@ -213,11 +213,13 @@ export default function ClientDemandesHubPage() {
   }
 
   async function openDemandesExpressDirectes() {
-    // Si une seule notification non lue avec un lien précis → naviguer directement vers la demande.
-    // Sinon → aller sur la liste filtrée pour voir toutes les notifications actives.
-    if (expressDirectUnreadNotifications.length === 1 && expressDirectUnreadNotifications[0].lien) {
+    // totalDirectes = notifications classifiées "directes" + celles non-résolues (réseau lent)
+    const totalDirectes = expressDirectUnreadNotifications.length + unresolvedExpressCount;
+    // Navigation directe uniquement si 1 notification résolue et aucune non-résolue en attente
+    if (totalDirectes === 1 && expressDirectUnreadNotifications.length === 1 && expressDirectUnreadNotifications[0].lien) {
       router.push(expressDirectUnreadNotifications[0].lien);
     } else {
+      // Plusieurs notifications ou non-résolues → liste complète filtrée
       router.push('/client/demandes-express?source=directes');
     }
   }
@@ -370,20 +372,28 @@ export default function ClientDemandesHubPage() {
             <div className="bg-white px-8 py-7 space-y-5 flex-1">
               <button
                 onClick={openDemandesExpressDirectes}
-                className="w-full flex items-center gap-5 p-5 rounded-xl bg-orange-50 border border-orange-200 hover:border-[#FF6B00] hover:bg-orange-100 transition"
+                className={`w-full flex items-center gap-5 p-5 rounded-xl border transition ${
+                  (nbExpressDirectes + unresolvedExpressCount) > 0
+                    ? 'bg-orange-50 border-[#FF6B00] ring-2 ring-[#FF6B00]/30'
+                    : 'bg-orange-50 border-orange-200 hover:border-[#FF6B00] hover:bg-orange-100'
+                }`}
               >
-                <span className="text-3xl">⚡</span>
+                <span className="text-3xl">{(nbExpressDirectes + unresolvedExpressCount) > 0 ? '🔔' : '⚡'}</span>
                 <div className="flex-1 text-left">
                   <div className="font-semibold text-[#2C3E50] text-base">Mes demandes express directes</div>
-                  <div className="text-sm text-gray-500 mt-1">
-                    {nbExpressDirectes > 0
-                      ? `${nbExpressDirectes} notification${nbExpressDirectes > 1 ? 's' : ''} concernent vos demandes express directes.`
-                      : 'Suivre vos demandes en urgence envoyées à vos artisans.'}
+                  <div className="text-sm mt-1">
+                    {(nbExpressDirectes + unresolvedExpressCount) > 0 ? (
+                      <span className="text-[#FF6B00] font-semibold">
+                        {nbExpressDirectes + unresolvedExpressCount} nouvelle{(nbExpressDirectes + unresolvedExpressCount) > 1 ? 's proposition(s)' : ' proposition'} reçue{(nbExpressDirectes + unresolvedExpressCount) > 1 ? 's' : ''} — cliquez pour consulter
+                      </span>
+                    ) : (
+                      <span className="text-gray-500">Suivre vos demandes en urgence envoyées à vos artisans.</span>
+                    )}
                   </div>
                 </div>
-                {nbExpressDirectes > 0 && (
-                  <span className="bg-[#FF6B00] text-white text-sm font-bold px-3 py-1.5 rounded-full min-w-[32px] text-center">
-                    {nbExpressDirectes}
+                {(nbExpressDirectes + unresolvedExpressCount) > 0 && (
+                  <span className="bg-[#FF6B00] text-white text-sm font-bold px-3 py-1.5 rounded-full min-w-[32px] text-center animate-bounce">
+                    {nbExpressDirectes + unresolvedExpressCount}
                   </span>
                 )}
               </button>

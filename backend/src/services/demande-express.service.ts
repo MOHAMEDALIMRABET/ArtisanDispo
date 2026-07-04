@@ -71,7 +71,7 @@ export async function getDemandeExpressById(id: string): Promise<DemandeExpress 
 
 export async function markDemandePaid(demandeId: string) {
   try {
-    // Récupérer la demande pour obtenir artisanId et le montant
+    // Récupérer la demande pour obtenir artisanId
     const demandeDoc = await db.collection('demandes_express').doc(demandeId).get();
     const demande = demandeDoc.exists ? (demandeDoc.data() as any) : null;
 
@@ -83,8 +83,23 @@ export async function markDemandePaid(demandeId: string) {
 
     // Envoyer une notification à l'artisan pour l'informer que le paiement est confirmé
     if (demande?.artisanId) {
-      const montant = demande.montantPropose ?? demande.montantAccepte ?? null;
-      const montantStr = montant ? ` (${montant}€ sécurisé)` : '';
+      // Le montant se trouve sur la proposition acceptée, pas sur la demande elle-même
+      let montantStr = '';
+      try {
+        const propSnapshot = await db.collection('propositions_express')
+          .where('demandeId', '==', demandeId)
+          .where('statut', '==', 'acceptee')
+          .get();
+        if (!propSnapshot.empty) {
+          const propData = propSnapshot.docs[0].data() as any;
+          // Pour les devis joints (> 150€), utiliser le totalTTC du devis
+          const montant = propData.devisJoint?.totaux?.totalTTC ?? propData.montantPropose ?? null;
+          if (montant) montantStr = ` (${montant}€ sécurisé)`;
+        }
+      } catch (e) {
+        // Montant non critique — ne pas bloquer la notification
+        console.warn('Impossible de récupérer le montant de la proposition:', e);
+      }
 
       await db.collection('notifications').add({
         userId: demande.artisanId,
@@ -95,7 +110,7 @@ export async function markDemandePaid(demandeId: string) {
         lue: false,
         dateCreation: Timestamp.now(),
       });
-      console.log(`🔔 Notification envoyée à l'artisan ${demande.artisanId}`);
+      console.log(`🔔 Notification envoyée à l'artisan ${demande.artisanId}${montantStr}`);
     }
 
     console.log(`✅ Demande ${demandeId} marquée comme payée`);

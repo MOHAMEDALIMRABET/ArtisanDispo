@@ -2492,14 +2492,22 @@ export default function ArtisanDemandesPage() {
                   >
                     <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-[#FF6B00] to-[#E56100]" />
 
-                    {/* Bouton expand/collapse */}
+                    {/* Bouton expand/collapse avec libellé explicite */}
                     <button
                       onClick={() => toggleExpressCard(demande.id)}
-                      className="absolute top-5 right-5 p-2.5 rounded-xl hover:bg-gray-100 transition-all duration-200 group"
-                      title={isExpanded ? 'Réduire' : 'Voir les détails'}
+                      className={`absolute top-4 right-4 flex items-center gap-1.5 px-3 py-2 rounded-xl transition-all duration-200 group border ${
+                        isExpanded ? 'bg-orange-50 border-[#FF6B00]' : 'bg-white border-gray-200 hover:border-[#FF6B00] hover:bg-orange-50'
+                      }`}
                     >
+                      <span className={`text-xs font-semibold transition-colors ${
+                        isExpanded ? 'text-[#FF6B00]' : 'text-gray-500 group-hover:text-[#FF6B00]'
+                      }`}>
+                        {isExpanded ? 'Réduire' : 'Afficher détails'}
+                      </span>
                       <svg
-                        className={`w-5 h-5 text-gray-400 group-hover:text-[#FF6B00] transition-all duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                        className={`w-4 h-4 transition-all duration-200 ${
+                          isExpanded ? 'rotate-180 text-[#FF6B00]' : 'text-gray-400 group-hover:text-[#FF6B00]'
+                        }`}
                         fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -2508,7 +2516,7 @@ export default function ArtisanDemandesPage() {
 
                     {/* Contenu principal (toujours visible) */}
                     <div
-                      className="p-6 pl-8 pr-14 cursor-pointer"
+                      className="p-6 pl-8 pr-40 cursor-pointer"
                       onClick={() => toggleExpressCard(demande.id)}
                     >
                       <div className="flex items-center gap-2 mb-2">
@@ -2521,7 +2529,7 @@ export default function ArtisanDemandesPage() {
                           demande.urgence === 'immediat' ? 'bg-orange-100 text-orange-700' :
                           'bg-red-100 text-red-700'
                         }`}>
-                          {demande.typeTravauxExpress === 'depannage-urgence' ? '🚨 Urgent (30 min - 1h)' : demande.urgence === 'immediat' ? '⚡ Immédiat (2h)' : '🚨 Urgent (24h)'}
+                          {demande.typeTravauxExpress === 'depannage-urgence' ? '⚡ Immédiat (30 min - 1h)' : demande.urgence === 'immediat' ? '🚨 En urgence (2h)' : '🚨 Urgent (24h)'}
                         </span>
                         <span className={`ml-auto mr-2 px-3 py-1 rounded-full text-xs font-bold ${
                           demande.statut === 'en_attente_proposition' ? 'bg-yellow-100 text-yellow-700' :
@@ -2583,6 +2591,18 @@ export default function ArtisanDemandesPage() {
                           demande.budgetPropose && <span>💰 {demande.budgetPropose}€</span>
                         )}
                       </div>
+
+                      {/* Bouton CTA directement visible — masqué dès que la carte est dépliée (doublon avec le bouton de la zone étendue) */}
+                      {demande.statut === 'en_attente_proposition' && !isExpanded && (
+                        <div className="mt-4 pt-3 border-t border-gray-100">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); router.push(`/artisan/demandes-express/${demande.id}`); }}
+                            className="px-5 py-2.5 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] text-sm font-bold transition-all shadow-sm"
+                          >
+                            💬 Faire une proposition
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     {/* Zone dépliée - détails complets + proposition */}

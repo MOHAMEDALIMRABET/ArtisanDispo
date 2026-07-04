@@ -293,7 +293,7 @@ export default function DemandesExpressArtisanPage() {
                                 ? 'bg-red-100 text-red-800'
                                 : 'bg-orange-100 text-orange-800'
                             }`}>
-                              {demande.typeTravauxExpress === 'depannage-urgence' ? '🚨 Urgent (30 min - 1h)' : '⚡ Immédiat (2h)'}
+                              {demande.typeTravauxExpress === 'depannage-urgence' ? '⚡ Immédiat (30 min - 1h)' : '🚨 En urgence (2h)'}
                             </span>
                           )}
                         </div>
