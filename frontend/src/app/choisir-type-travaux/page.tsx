@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { ArrowRight, CalendarDays, Clock, Zap } from 'lucide-react';
+import { PageHeader, Container } from '@/components/ui';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Page intermédiaire : choix du type de recherche
@@ -13,174 +14,79 @@ import { useLanguage } from '@/contexts/LanguageContext';
 //   - Travaux en urgence → /petits-travaux-express
 // ─────────────────────────────────────────────────────────────────────────────
 
+const options = [
+  {
+    href: '/recherche?from=dashboard',
+    icon: CalendarDays,
+    title: 'Travaux standard',
+    description:
+      "Planifiez vos travaux à votre rythme. Comparez les devis d'artisans qualifiés et choisissez le meilleur professionnel pour votre projet.",
+    badge: 'Sous quelques jours',
+    cta: 'Rechercher un artisan',
+    // Accent orange (marque)
+    iconBox: 'bg-brand-50 text-brand-700 ring-brand-100 group-hover:bg-brand-700 group-hover:text-white',
+    badgeClass: 'bg-brand-50 text-brand-800 ring-brand-200',
+    ctaClass: 'text-brand-700',
+    hoverBorder: 'hover:border-brand-300',
+  },
+  {
+    href: '/petits-travaux-express',
+    icon: Zap,
+    title: 'Travaux en urgence',
+    description:
+      "Besoin d'une intervention rapide ? Trouvez un artisan disponible immédiatement pour vos urgences : fuite, panne électrique, serrurerie...",
+    badge: 'Intervention rapide',
+    cta: 'Trouver un artisan en urgence',
+    // Accent rouge (urgence), cohérent avec la page Petits travaux express
+    iconBox: 'bg-red-50 text-red-700 ring-red-100 group-hover:bg-red-700 group-hover:text-white',
+    badgeClass: 'bg-red-50 text-red-800 ring-red-200',
+    ctaClass: 'text-red-700',
+    hoverBorder: 'hover:border-red-300',
+  },
+];
+
 export default function ChoisirTypeTravauxPage() {
   const router = useRouter();
-  const { t } = useLanguage();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-full">
+      <PageHeader
+        title="Trouver un artisan"
+        subtitle="Quel type de travaux souhaitez-vous réaliser ?"
+        backLabel="Retour au tableau de bord"
+        onBack={() => router.push('/dashboard')}
+      />
 
-      {/* ── En-tête bleu avec retour (identique à /recherche?from=dashboard) ── */}
-      <header className="bg-navy-800 text-white py-8">
-        <div className="container mx-auto px-4">
-          {/* Bouton retour vers le dashboard */}
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="flex items-center gap-2 text-white hover:text-brand-300 mb-4"
-            aria-label="Retour au tableau de bord"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Retour au tableau de bord
-          </button>
-
-          {/* Titre et sous-titre */}
-          <div>
-            <h1 className="text-3xl font-bold">Trouver un artisan</h1>
-            <p className="text-slate-300 mt-2">Quel type de travaux souhaitez-vous réaliser ?</p>
-          </div>
-        </div>
-      </header>
-
-      {/* ── Contenu principal ────────────────────────────────────────── */}
-      <main className="flex-1 relative flex flex-col items-center justify-start px-4 pt-8 pb-12">
-
-        {/* Image de fond — balise img native pour rendu sans flou Next.js */}
-        <div className="absolute top-0 left-0 right-0 bottom-0 pointer-events-none z-0" aria-hidden="true">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/Trv_urgence_std.png"
-            alt=""
-            className="w-full h-full object-cover object-center"
-            style={{ imageRendering: 'crisp-edges' }}
-          />
-        </div>
-
-        {/* Vagues SVG décoratives — bas de page (identique au dashboard) */}
-        <svg
-          className="absolute bottom-0 left-0 w-full pointer-events-none z-0"
-          viewBox="0 0 1440 180"
-          preserveAspectRatio="none"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <path
-            d="M0,120 C200,160 400,60 600,100 C800,140 1000,80 1200,110 C1320,130 1400,100 1440,90 L1440,180 L0,180 Z"
-            fill="#2C3E50"
-            fillOpacity="0.08"
-          />
-        </svg>
-        <svg
-          className="absolute bottom-0 left-0 w-full pointer-events-none z-0"
-          viewBox="0 0 1440 140"
-          preserveAspectRatio="none"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <path
-            d="M0,80 C180,40 360,120 600,80 C840,40 1100,110 1300,70 C1380,50 1420,65 1440,60 L1440,140 L0,140 Z"
-            fill="#2C3E50"
-            fillOpacity="0.13"
-          />
-        </svg>
-
-        {/* Contenu au-dessus des vagues */}
-        <div className="relative z-10 w-full flex flex-col items-center">
-
-          {/* ── Cartes de choix ─────────────────────────────────────────── */}
-          <div className="grid md:grid-cols-2 gap-8 w-full max-w-5xl">
-
-          {/* Option 1 : Travaux standard */}
-          <Link href="/recherche?from=dashboard">
-            <div className="
-              group bg-white/80 backdrop-blur-sm rounded-2xl shadow-md p-10 cursor-pointer
-              border-2 border-transparent
-              hover:border-brand-500 hover:shadow-xl
-              transition-all duration-200
-              flex flex-col items-center text-center gap-4
-            ">
-              {/* Icône calendrier / travaux planifiés */}
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center group-hover:bg-brand-700 transition-colors duration-200">
-                <svg
-                  className="w-8 h-8 text-brand-700 group-hover:text-white transition-colors duration-200"
-                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-
-              <div>
-                {/* Titre de l'option */}
-                <h2 className="text-xl font-bold text-navy-800 mb-2">
-                  Travaux standard
-                </h2>
-                {/* Description */}
-                <p className="text-slate-500 text-sm leading-relaxed">
-                  Planifiez vos travaux à votre rythme. Comparez les devis d'artisans qualifiés et choisissez le meilleur professionnel pour votre projet.
-                </p>
-              </div>
-
-              {/* Badge délai */}
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-brand-700 text-xs font-semibold">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Sous quelques jours
+      <Container className="py-8 sm:py-12">
+        {/* ── Cartes de choix (même hauteur, actions alignées en bas) ── */}
+        <div className="grid gap-6 md:grid-cols-2">
+          {options.map(({ href, icon: Icon, title, description, badge, cta, iconBox, badgeClass, ctaClass, hoverBorder }) => (
+            <Link
+              key={href}
+              href={href}
+              className={`group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:p-8 ${hoverBorder}`}
+            >
+              <span className={`flex h-14 w-14 items-center justify-center rounded-xl ring-1 transition-colors ${iconBox}`}>
+                <Icon className="h-7 w-7" aria-hidden="true" />
               </span>
-            </div>
-          </Link>
 
-          {/* Option 2 : Travaux en urgence */}
-          <Link href="/petits-travaux-express">
-            <div className="
-              group bg-white/80 backdrop-blur-sm rounded-2xl shadow-md p-10 cursor-pointer
-              border-2 border-transparent
-              hover:border-red-600 hover:shadow-xl
-              transition-all duration-200
-              flex flex-col items-center text-center gap-4
-            ">
-              {/* Icône éclair / urgence */}
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center group-hover:bg-red-700 transition-colors duration-200">
-                <svg
-                  className="w-8 h-8 text-red-700 group-hover:text-white transition-colors duration-200"
-                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
+              <h2 className="mt-5 text-xl font-semibold text-navy-900">{title}</h2>
+              <p className="mt-2 flex-1 text-[15px] leading-relaxed text-slate-600">{description}</p>
+
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-5">
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${badgeClass}`}>
+                  <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                  {badge}
+                </span>
+                <span className={`inline-flex items-center gap-1.5 text-sm font-semibold ${ctaClass}`}>
+                  {cta}
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                </span>
               </div>
-
-              <div>
-                {/* Titre de l'option */}
-                <h2 className="text-xl font-bold text-navy-800 mb-2">
-                  Travaux en urgence
-                </h2>
-                {/* Description */}
-                <p className="text-slate-500 text-sm leading-relaxed">
-                  Besoin d'une intervention rapide ? Trouvez un artisan disponible immédiatement pour vos urgences : fuite, panne électrique, serrurerie...
-                </p>
-              </div>
-
-              {/* Badge urgence */}
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-semibold">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Intervention rapide
-              </span>
-            </div>
-          </Link>
-
+            </Link>
+          ))}
         </div>
-
-        </div>{/* fin div z-10 */}
-
-      </main>
-
+      </Container>
     </div>
   );
 }
