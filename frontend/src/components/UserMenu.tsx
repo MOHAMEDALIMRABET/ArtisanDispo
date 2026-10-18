@@ -8,6 +8,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ChevronDown, LayoutDashboard, LogOut, MessageSquare } from 'lucide-react';
 import { authService } from '@/lib/auth-service';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useContratsANoter } from '@/hooks/useContratsANoter';
@@ -249,85 +250,75 @@ export default function UserMenu({ user, isArtisan = false }: UserMenuProps) {
     ? `${user.prenom[0]}${user.nom[0]}`.toUpperCase()
     : user.email[0].toUpperCase();
 
+  const menuItemClass =
+    'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100';
+
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Bouton avatar */}
+      {/* Bouton avatar (initiales) */}
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 hover:opacity-80 transition-opacity relative"
+        className="relative flex items-center gap-1 rounded-full p-0.5 transition-colors hover:bg-slate-100"
         aria-label="Menu utilisateur"
+        aria-expanded={isOpen}
       >
-        {/* Avatar avec icône utilisateur */}
-        <div className="w-10 h-10 rounded-full bg-[#FF6B00] text-white flex items-center justify-center font-semibold text-sm border-2 border-[#FF6B00] shadow-md relative">
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-            <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
-          </svg>
-          
+        <span className="relative flex h-9 w-9 items-center justify-center rounded-full bg-navy-800 text-sm font-semibold text-white">
+          {initials}
           {/* Badge notification total */}
           {totalNotifications > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white">
+            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-[10px] font-bold text-white">
               {totalNotifications > 9 ? '9+' : totalNotifications}
             </span>
           )}
-        </div>
-
-        {/* Flèche */}
-        <svg
-          className={`w-4 h-4 text-gray-600 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
+        </span>
+        <ChevronDown className={`h-4 w-4 text-slate-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
       </button>
 
-      {/* Dropdown menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden">
+        <div className="animate-slideDown absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
           {/* En-tête avec info utilisateur */}
-          <div className="bg-gradient-to-r from-[#2C3E50] to-[#34495E] text-white px-4 py-3">
-            <div className="flex items-center gap-3">
-              {/* Avatar avec icône utilisateur */}
-              <div className="w-12 h-12 rounded-full bg-[#FF6B00] text-white flex items-center justify-center font-bold text-lg border-2 border-white shadow-md">
-                <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                  <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437.695z" clipRule="evenodd" />
-                </svg>
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold truncate">
-                  {user.prenom} {user.nom}
-                </p>
-                <p className="text-xs text-gray-300 truncate">
-                  {user.email}
-                </p>
-              </div>
+          <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3">
+            <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-navy-800 text-sm font-semibold text-white">
+              {initials}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-slate-900">
+                {user.prenom} {user.nom}
+              </p>
+              <p className="truncate text-xs text-slate-500">{user.email}</p>
             </div>
           </div>
 
-          {/* Menu items */}
-          <div className="py-2">
-
-            {/* Déconnexion */}
+          <div className="p-1.5">
             <button
-              onClick={handleSignOut}
-              className="w-full px-4 py-3 text-left hover:bg-red-50 transition flex items-center gap-3 text-red-600"
+              type="button"
+              onClick={() => handleNavigation(isArtisan ? '/artisan/dashboard' : '/dashboard')}
+              className={menuItemClass}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                />
-              </svg>
-              <span className="font-medium">{t('common.logout')}</span>
+              <LayoutDashboard className="h-4 w-4 text-slate-500" aria-hidden="true" />
+              {t('nav.dashboard')}
+            </button>
+            <button type="button" onClick={handleMessagesNavigation} className={menuItemClass}>
+              <MessageSquare className="h-4 w-4 text-slate-500" aria-hidden="true" />
+              {t('nav.messages')}
+              {unreadMessagesCount > 0 && (
+                <span className="ml-auto rounded-full bg-red-600 px-1.5 py-0.5 text-xs font-bold text-white">
+                  {unreadMessagesCount}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Déconnexion */}
+          <div className="border-t border-slate-100 p-1.5">
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-700 transition-colors hover:bg-red-50"
+            >
+              <LogOut className="h-4 w-4" aria-hidden="true" />
+              {t('common.logout')}
             </button>
           </div>
         </div>

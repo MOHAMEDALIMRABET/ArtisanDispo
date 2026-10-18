@@ -1,52 +1,50 @@
 import Link from 'next/link';
-import Image from 'next/image';
 
 interface LogoProps {
   variant?: 'full' | 'icon';
   size?: 'sm' | 'md' | 'lg';
   href?: string;
   onClick?: () => void;
+  className?: string;
 }
 
-export function Logo({ variant = 'full', size = 'md', href = '/', onClick }: LogoProps) {
-  const sizes = {
-    sm: { width: 200, height: 50 },
-    md: { width: 300, height: 75 },
-    lg: { width: 400, height: 100 },
-  };
+const sizes = {
+  sm: { width: 200, height: 50, className: 'h-10 w-auto' },
+  md: { width: 300, height: 75, className: 'h-14 w-auto' },
+  lg: { width: 400, height: 100, className: 'h-20 w-auto' },
+};
 
-  const { width, height } = sizes[size];
+export function Logo({ size = 'md', href = '/', onClick, className }: LogoProps) {
+  const { width, height, className: sizeClass } = sizes[size];
 
-  const LogoContent = () => {
-    return (
-      <div className="flex items-center">
-        <img
-          src="/images/Logo-artisandispo.png"
-          alt="ArtisanDispo - Trouvez votre artisan de confiance"
-          width={width}
-          height={height}
-          className="h-auto object-contain"
-        />
-      </div>
-    );
-  };
+  const content = (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/images/Logo-artisandispo.png"
+      alt="ArtisanDispo - Trouvez votre artisan de confiance"
+      width={width}
+      height={height}
+      className={`${className ?? sizeClass} object-contain`}
+    />
+  );
 
-  // Si onClick personnalisé fourni, l'utiliser
+  const wrapperClass = 'inline-flex items-center rounded-md transition-opacity hover:opacity-90';
+
   if (onClick) {
     return (
-      <button onClick={onClick} className="inline-block hover:opacity-90 transition-opacity">
-        <LogoContent />
+      <button type="button" onClick={onClick} className={wrapperClass} aria-label="Accueil ArtisanDispo">
+        {content}
       </button>
     );
   }
 
   if (href) {
     return (
-      <Link href={href} className="inline-block hover:opacity-90 transition-opacity">
-        <LogoContent />
+      <Link href={href} className={wrapperClass}>
+        {content}
       </Link>
     );
   }
 
-  return <LogoContent />;
+  return content;
 }

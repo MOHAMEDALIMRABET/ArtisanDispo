@@ -7,7 +7,7 @@ import ArtisanSidebar from '@/components/ArtisanSidebar';
  */
 export default function ArtisanLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#F5F7FA] flex relative overflow-hidden">
+    <div className="flex min-h-[calc(100vh-4rem)] bg-slate-50">
       {/* Barre latérale artisan (s'affiche uniquement si connecté en tant qu'artisan) */}
       <ArtisanSidebar />
 
