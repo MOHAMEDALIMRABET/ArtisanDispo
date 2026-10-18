@@ -111,7 +111,7 @@ export default function Header() {
     'flex min-h-12 items-center gap-3 rounded-lg px-3 text-[15px] font-medium text-slate-800 transition-colors hover:bg-slate-100';
 
   return (
-    <header className="no-print sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
+    <header className="no-print sticky top-0 z-50 border-b border-slate-200 bg-white">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Logo size="sm" onClick={handleLogoClick} className="h-9 w-auto sm:h-10" />

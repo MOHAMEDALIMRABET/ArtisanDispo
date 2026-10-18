@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { LifeBuoy, Menu, PanelLeftClose, PanelLeftOpen, X } from 'lucide-react';
 
 const DESKTOP_QUERY = '(min-width: 1024px)';
@@ -19,7 +18,6 @@ interface SidebarShellProps {
  * - Mobile : tiroir fermé par défaut, ouvert via le bouton « Menu ».
  */
 export function SidebarShell({ title, children, helpHref }: SidebarShellProps) {
-  const pathname = usePathname();
   const [isDesktop, setIsDesktop] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -33,11 +31,6 @@ export function SidebarShell({ title, children, helpHref }: SidebarShellProps) {
     mq.addEventListener('change', sync);
     return () => mq.removeEventListener('change', sync);
   }, []);
-
-  // Fermer le tiroir mobile après navigation
-  useEffect(() => {
-    if (!isDesktop) setOpen(false);
-  }, [pathname, isDesktop]);
 
   // Bloquer le défilement de la page quand le tiroir mobile est ouvert
   useEffect(() => {
@@ -64,7 +57,15 @@ export function SidebarShell({ title, children, helpHref }: SidebarShellProps) {
         </button>
       </div>
 
-      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">{children}</nav>
+      {/* Sur mobile, un clic sur un lien referme le tiroir */}
+      <nav
+        className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4"
+        onClick={(e) => {
+          if (!isDesktop && (e.target as HTMLElement).closest('a, button')) setOpen(false);
+        }}
+      >
+        {children}
+      </nav>
 
       <div className="m-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
         <div className="flex items-start gap-3">
