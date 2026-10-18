@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Button } from '@/components/ui';
+import { BadgeCheck, CalendarClock, CalendarDays, Check, Hammer, Lock, MapPin, Radar, Receipt, Repeat, Search, ShieldCheck, Star, Wrench } from 'lucide-react';
+import { buttonClasses } from '@/components/ui';
 import type { Categorie } from '@/types/firestore';
 import { METIERS_AVEC_ICONES } from '@/lib/constants/metiers';
 import { fetchCategories } from '@/lib/firebase/category-service';
@@ -17,42 +18,6 @@ export default function Home() {
   const [villeSuggestions, setVilleSuggestions] = useState<Array<{nom: string, codePostal: string, departement: string}>>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedCodePostal, setSelectedCodePostal] = useState('');
-  const [currentCardIndex, setCurrentCardIndex] = useState(0); // État pour le carrousel
-  const carouselFlexRef = useRef<HTMLDivElement>(null);
-  const [stepPx, setStepPx] = useState(0);
-  const [cardWidthPx, setCardWidthPx] = useState(0);
-  const [isCarouselHovered, setIsCarouselHovered] = useState(false);
-
-  useEffect(() => {
-    const measure = () => {
-      if (carouselFlexRef.current) {
-        // Mesurer le conteneur visible (parent du flex div = div overflow-hidden)
-        const conteneurVisible = carouselFlexRef.current.parentElement;
-        if (conteneurVisible) {
-          const largeurConteneur = conteneurVisible.offsetWidth;
-          const gap = 24; // gap-6 = 24px
-          const cartesVisibles = 4;
-          const largeurCarte = (largeurConteneur - (cartesVisibles - 1) * gap) / cartesVisibles;
-          setCardWidthPx(largeurCarte);
-          setStepPx(largeurCarte + gap); // un pas = largeur carte + gap
-        }
-      }
-    };
-    measure();
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, []);
-
-  // Auto-défilement toutes les 3.5 secondes, pause au survol
-  useEffect(() => {
-    if (isCarouselHovered) return;
-    const MAX_INDEX = 3; // 7 cartes - 4 visibles = 3 positions
-    const interval = setInterval(() => {
-      setCurrentCardIndex(prev => (prev >= MAX_INDEX ? 0 : prev + 1));
-    }, 3500);
-    return () => clearInterval(interval);
-  }, [isCarouselHovered]);
-  
   // État du formulaire de recherche
   const [searchForm, setSearchForm] = useState({
     metier: 'plomberie' as Categorie,
@@ -219,552 +184,289 @@ export default function Home() {
     loadCategories();
   }, []);
 
-  return (
-    <div className="min-h-screen bg-navy-800 ">
-      {/* Hero Section avec Bannière de Recherche */}
-      <div id="recherche-section" className="container mx-auto px-4 py-16">
-        {/* Bannière principale avec image de fond */}
-        <div className="relative rounded-2xl overflow-hidden shadow-lg mb-16 h-[500px]">
-          {/* Image de fond */}
-          <div className="absolute inset-0">
-            <Image 
-              src="/images/artisan-banner.png" 
-              alt="Artisans au travail - BTP" 
-              fill
-              className="object-cover"
-              priority
-            />
-            {/* Overlay gradient pour lisibilité */}
-            <div className="absolute inset-0 bg-navy-800/90 "></div>
-          </div>
+  // Cartes "Vos garanties" (contenu traduit inchangé)
+  const garanties = [
+    { href: '/confiance/paiement-securise', icon: Lock, tone: 'bg-green-50 text-green-700', title: 'home.securePayment', items: ['home.securePaymentItem1', 'home.securePaymentItem2', 'home.securePaymentItem3'] },
+    { href: '/confiance/verification-artisans', icon: BadgeCheck, tone: 'bg-blue-50 text-blue-700', title: 'home.verifiedArtisans', items: ['home.verifiedArtisansItem1', 'home.verifiedArtisansItem2', 'home.verifiedArtisansItem3'] },
+    { href: '/confiance/planning-flexibilite', icon: CalendarClock, tone: 'bg-brand-50 text-brand-700', title: 'home.flexiblePlanning', items: ['home.flexiblePlanningItem1', 'home.flexiblePlanningItem2', 'home.flexiblePlanningItem3'] },
+    { href: '/confiance/devis-gratuits', icon: Receipt, tone: 'bg-green-50 text-green-700', title: 'home.freeQuotes', items: ['home.freeQuotesItem1', 'home.freeQuotesItem2', 'home.freeQuotesItem3'] },
+    { href: '/petits-travaux', icon: Wrench, tone: 'bg-amber-50 text-amber-700', title: 'home.quickWorks', items: ['home.quickWorksItem1', 'home.quickWorksItem2', 'home.quickWorksItem3'] },
+    { href: '/confiance/avis-certifies', icon: Star, tone: 'bg-amber-50 text-amber-700', title: 'home.certifiedReviews', items: ['home.certifiedReviewsItem1', 'home.certifiedReviewsItem2', 'home.certifiedReviewsItem3'] },
+    { href: '/confiance/protection-mediation', icon: ShieldCheck, tone: 'bg-red-50 text-red-700', title: 'home.protectionMediation', items: ['home.protectionMediationItem1', 'home.protectionMediationItem2', 'home.protectionMediationItem3'] },
+  ];
 
-          <div className="relative z-10 py-12 px-6 md:px-12 h-full flex flex-col justify-center">
-            {/* Slogan accrocheur */}
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-3 text-center drop-shadow-lg">
+  const fieldBox = 'flex h-12 items-center gap-2.5 rounded-lg border border-slate-200 bg-slate-50 px-3 transition-colors focus-within:border-brand-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-brand-500/20 hover:border-slate-300';
+  const fieldLabel = 'mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500';
+  const fieldControl = 'w-full min-w-0 bg-transparent text-[15px] font-medium text-slate-900 outline-none placeholder:text-slate-400';
+
+  return (
+    <div className="bg-white">
+      {/* ── HERO + RECHERCHE ── */}
+      <section id="recherche-section" className="relative isolate overflow-hidden bg-navy-900">
+        <Image
+          src="/images/artisan-banner.png"
+          alt="Artisans au travail - BTP"
+          fill
+          className="-z-10 object-cover opacity-30"
+          priority
+        />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-navy-900/60 via-navy-900/80 to-navy-900" aria-hidden="true" />
+
+        <div className="mx-auto max-w-6xl px-4 pb-16 pt-14 sm:px-6 sm:pt-20 lg:px-8 lg:pb-24">
+          <div className="max-w-3xl">
+            <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white ring-1 ring-inset ring-white/20">
+              <ShieldCheck className="h-4 w-4 text-brand-400" aria-hidden="true" />
+              Artisans vérifiés · Paiement protégé
+            </p>
+            <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl">
               {t('home.heroTitle')}
             </h1>
-            <p className="text-center text-white text-lg mb-8 drop-shadow-md">
+            <p className="mt-4 max-w-2xl text-base text-navy-100 sm:text-lg">
               {t('home.heroSubtitle')}
             </p>
+          </div>
 
-            {/* Formulaire de recherche */}
-            <div className="max-w-screen-xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
-              <div className="grid md:grid-cols-24 gap-2">
-                {/* Type de travaux */}
-                <div className="relative md:col-span-4">
-                  <label className="block text-xs font-medium text-slate-500 mb-1 ml-3">
-                    {t('home.searchTypeOfWork')}
-                  </label>
-                  <div className="flex items-center bg-slate-50 rounded-xl px-3 h-11 hover:bg-slate-100 transition-colors cursor-pointer">
-                    <svg className="w-5 h-5 text-brand-700 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                    <select 
-                      className="bg-transparent border-none outline-none w-full text-navy-800 font-medium cursor-pointer"
-                      value={searchForm.metier}
-                      onChange={(e) => setSearchForm({...searchForm, metier: e.target.value as Categorie})}
-                    >
-                      {METIERS_AVEC_ICONES.map((m) => (
-                        <option key={m.value} value={m.value}>{m.icon} {m.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Ville */}
-              <div className="relative md:col-span-6">
-                  <label className="block text-xs font-medium text-slate-500 mb-1 ml-3">{t('home.searchLocation')}</label>
-                  <div className={`flex items-center rounded-xl px-3 h-11 transition-colors ${
-                    blinkingFields.ville 
-                      ? 'animate-blink-once' 
-                      : 'bg-slate-50 hover:bg-slate-100'
-                  }`}>
-                    <style jsx>{`
-                      @keyframes blink-once {
-                        0%, 100% { background-color: #F8F9FA; }
-                        50% { background-color: #D1D5DB; }
-                      }
-                      .animate-blink-once {
-                        animation: blink-once 0.6s ease-in-out 1;
-                        background-color: #F8F9FA;
-                      }
-                    `}</style>
-                    <svg className="w-5 h-5 text-brand-700 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <input 
-                      type="text" 
-                      placeholder={t('home.locationPlaceholder')}
-                      className="bg-transparent border-none outline-none w-full text-navy-800 font-medium placeholder-slate-400"
-                      value={searchForm.ville}
-                      onChange={(e) => {
-                        const nextValue = e.target.value;
-                        setSearchForm({...searchForm, ville: nextValue});
-                        setSelectedCodePostal('');
-                        searchVilles(nextValue);
-                      }}
-                      onFocus={() => {
-                        if (villeSuggestions.length > 0) setShowSuggestions(true);
-                      }}
-                    />
-                  </div>
-
-                  {/* Liste des suggestions */}
-                  {showSuggestions && villeSuggestions.length > 0 && (
-                    <div className="absolute z-50 w-full mt-1 bg-white border-2 border-brand-500 rounded-lg shadow-lg max-h-60 overflow-y-auto top-full">
-                      {villeSuggestions.map((suggestion, index) => (
-                        <button
-                          key={`${suggestion.nom}-${suggestion.codePostal}-${index}`}
-                          type="button"
-                          onClick={() => selectVille(suggestion)}
-                          className="w-full text-left px-4 py-3 hover:bg-brand-50 transition-colors border-b border-slate-200 last:border-b-0"
-                        >
-                          <div className="flex justify-between items-center">
-                            <span className="font-medium text-navy-800">{suggestion.nom}</span>
-                            <span className="text-sm text-slate-500">{suggestion.codePostal}</span>
-                          </div>
-                          <span className="text-xs text-slate-400">{t('home.department')} {suggestion.departement}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Rayon de recherche */}
-                <div className="relative md:col-span-3">
-                  <label className="block text-xs font-medium text-slate-500 mb-1 ml-3">
-                    {t('home.searchRadius')}
-                  </label>
-                  <div className="flex items-center bg-slate-50 rounded-xl px-3 h-11 hover:bg-slate-100 transition-colors cursor-pointer">
-                    <svg className="w-5 h-5 text-brand-700 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c1.657 0 3-1.343 3-3S13.657 2 12 2 9 3.343 9 5s1.343 3 3 3zm0 0v14m6-6H6" />
-                    </svg>
-                    <select 
-                      className="bg-transparent border-none outline-none w-full text-navy-800 font-medium cursor-pointer"
-                      value={searchForm.rayonMax}
-                      onChange={(e) => setSearchForm({...searchForm, rayonMax: e.target.value})}
-                    >
-                      <option value="10">10 km</option>
-                      <option value="20">20 km</option>
-                      <option value="30">30 km</option>
-                      <option value="50">50 km</option>
-                      <option value="80">80 km</option>
-                      <option value="100">100 km</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Date souhaitée */}
-                <div className="relative md:col-span-4">
-                  <label className="block text-xs font-medium text-slate-500 mb-1 ml-3">
-                    {t('home.searchDate')}
-                  </label>
-                  <div className={`flex items-center rounded-xl px-3 h-11 transition-colors ${
-                    blinkingFields.date 
-                      ? 'animate-blink-once' 
-                      : 'bg-slate-50 hover:bg-slate-100'
-                  }`}>
-                    <svg className="w-5 h-5 text-brand-700 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <input 
-                      type="date" 
-                      placeholder={t('home.datePlaceholder')} 
-                      className="bg-transparent border-none outline-none w-full text-navy-800 font-medium placeholder-slate-400"
-                      value={searchForm.date}
-                      onChange={(e) => setSearchForm({...searchForm, date: e.target.value})}
-                    />
-                  </div>
-                </div>
-
-                {/* Flexibilité */}
-                <div className="relative md:col-span-3">
-                  <label className="block text-xs font-medium text-slate-500 mb-1 ml-3">
-                    {t('home.flexibility')}
-                  </label>
-                  <div className="flex items-center bg-slate-50 rounded-xl px-3 h-11 hover:bg-slate-100 transition-colors cursor-pointer">
-                    <svg className="w-5 h-5 text-brand-700 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                    </svg>
-                    <select 
-                      className="bg-transparent border-none outline-none w-full text-navy-800 font-medium cursor-pointer"
-                      value={searchForm.flexibiliteDays}
-                      onChange={(e) => {
-                        setSearchForm({...searchForm, flexible: e.target.value !== '0', flexibiliteDays: e.target.value});
-                      }}
-                    >
-                      <option value="0">{t('home.flexibilityOption0')}</option>
-                      <option value="1">{t('home.flexibilityOption1')}</option>
-                      <option value="3">{t('home.flexibilityOption3')}</option>
-                      <option value="7">{t('home.flexibilityOption7')}</option>
-                      <option value="14">{t('home.flexibilityOption14')}</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Bouton Rechercher */}
-                <div className="relative min-w-0 md:col-span-3">
-                  <label className="block text-xs font-medium text-slate-500 mb-1 ml-3">&nbsp;</label>
-                  <button 
-                    onClick={handleSearch}
-                    className="w-full h-11 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl px-6 transition-all duration-200 shadow-lg hover:shadow-md flex items-center justify-center"
+          {/* Formulaire de recherche */}
+          <div className="mt-8 rounded-2xl bg-white p-4 shadow-xl ring-1 ring-black/5 sm:p-5">
+            <style jsx>{`
+              @keyframes blink-once {
+                0%, 100% { border-color: #e2e8f0; }
+                50% { border-color: #dc2626; background-color: #fef2f2; }
+              }
+              .animate-blink-once {
+                animation: blink-once 0.6s ease-in-out 1;
+              }
+            `}</style>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-12">
+              {/* Type de travaux */}
+              <div className="lg:col-span-3">
+                <label className={fieldLabel}>{t('home.searchTypeOfWork')}</label>
+                <div className={fieldBox}>
+                  <Hammer className="h-5 w-5 flex-shrink-0 text-brand-600" aria-hidden="true" />
+                  <select
+                    className={`${fieldControl} cursor-pointer`}
+                    value={searchForm.metier}
+                    onChange={(e) => setSearchForm({...searchForm, metier: e.target.value as Categorie})}
                   >
-                    {t('home.searchButton')}
-                  </button>
+                    {METIERS_AVEC_ICONES.map((m) => (
+                      <option key={m.value} value={m.value}>{m.label}</option>
+                    ))}
+                  </select>
                 </div>
+              </div>
+
+              {/* Ville */}
+              <div className="relative lg:col-span-3">
+                <label className={fieldLabel}>{t('home.searchLocation')}</label>
+                <div className={`${fieldBox} ${blinkingFields.ville ? 'animate-blink-once' : ''}`}>
+                  <MapPin className="h-5 w-5 flex-shrink-0 text-brand-600" aria-hidden="true" />
+                  <input
+                    type="text"
+                    placeholder={t('home.locationPlaceholder')}
+                    className={fieldControl}
+                    value={searchForm.ville}
+                    onChange={(e) => {
+                      const nextValue = e.target.value;
+                      setSearchForm({...searchForm, ville: nextValue});
+                      setSelectedCodePostal('');
+                      searchVilles(nextValue);
+                    }}
+                    onFocus={() => {
+                      if (villeSuggestions.length > 0) setShowSuggestions(true);
+                    }}
+                  />
+                </div>
+
+                {/* Liste des suggestions */}
+                {showSuggestions && villeSuggestions.length > 0 && (
+                  <div className="absolute top-full z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
+                    {villeSuggestions.map((suggestion, index) => (
+                      <button
+                        key={`${suggestion.nom}-${suggestion.codePostal}-${index}`}
+                        type="button"
+                        onClick={() => selectVille(suggestion)}
+                        className="w-full px-4 py-2.5 text-left transition-colors hover:bg-slate-50"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-slate-900">{suggestion.nom}</span>
+                          <span className="text-sm text-slate-500">{suggestion.codePostal}</span>
+                        </div>
+                        <span className="text-xs text-slate-400">{t('home.department')} {suggestion.departement}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Rayon de recherche */}
+              <div className="lg:col-span-2">
+                <label className={fieldLabel}>{t('home.searchRadius')}</label>
+                <div className={fieldBox}>
+                  <Radar className="h-5 w-5 flex-shrink-0 text-brand-600" aria-hidden="true" />
+                  <select
+                    className={`${fieldControl} cursor-pointer`}
+                    value={searchForm.rayonMax}
+                    onChange={(e) => setSearchForm({...searchForm, rayonMax: e.target.value})}
+                  >
+                    <option value="10">10 km</option>
+                    <option value="20">20 km</option>
+                    <option value="30">30 km</option>
+                    <option value="50">50 km</option>
+                    <option value="80">80 km</option>
+                    <option value="100">100 km</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Date souhaitée */}
+              <div className="lg:col-span-2">
+                <label className={fieldLabel}>{t('home.searchDate')}</label>
+                <div className={`${fieldBox} ${blinkingFields.date ? 'animate-blink-once' : ''}`}>
+                  <CalendarDays className="h-5 w-5 flex-shrink-0 text-brand-600" aria-hidden="true" />
+                  <input
+                    type="date"
+                    placeholder={t('home.datePlaceholder')}
+                    className={fieldControl}
+                    value={searchForm.date}
+                    onChange={(e) => setSearchForm({...searchForm, date: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              {/* Flexibilité */}
+              <div className="lg:col-span-2">
+                <label className={fieldLabel}>{t('home.flexibility')}</label>
+                <div className={fieldBox}>
+                  <Repeat className="h-5 w-5 flex-shrink-0 text-brand-600" aria-hidden="true" />
+                  <select
+                    className={`${fieldControl} cursor-pointer`}
+                    value={searchForm.flexibiliteDays}
+                    onChange={(e) => {
+                      setSearchForm({...searchForm, flexible: e.target.value !== '0', flexibiliteDays: e.target.value});
+                    }}
+                  >
+                    <option value="0">{t('home.flexibilityOption0')}</option>
+                    <option value="1">{t('home.flexibilityOption1')}</option>
+                    <option value="3">{t('home.flexibilityOption3')}</option>
+                    <option value="7">{t('home.flexibilityOption7')}</option>
+                    <option value="14">{t('home.flexibilityOption14')}</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Bouton Rechercher */}
+              <div className="sm:col-span-2 lg:col-span-12 lg:flex lg:justify-end">
+                <button
+                  type="button"
+                  onClick={handleSearch}
+                  className={buttonClasses('primary', 'lg', 'w-full lg:w-auto lg:min-w-64')}
+                >
+                  <Search className="h-5 w-5" aria-hidden="true" />
+                  {t('home.searchButton')}
+                </button>
               </div>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Nouvelle section : Vos garanties ArtisanDispo */}
-        <div className="mt-24 mb-8">
-          <div className="text-center mb-12">
-            <h2 className="text-5xl md:text-6xl font-extrabold text-navy-800 mb-6 leading-tight">
+      {/* ── VOS GARANTIES ── */}
+      <section className="bg-slate-50 py-16 sm:py-24">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-navy-900 sm:text-4xl">
               {t('home.whyChoose')}
             </h2>
-            <p className="text-lg md:text-xl font-semibold text-brand-400 max-w-4xl mx-auto leading-relaxed">
+            <p className="mt-4 text-base text-slate-600 sm:text-lg">
               {t('home.whyChooseSubtitle')}
             </p>
           </div>
 
-          {/* Carrousel de cartes avec navigation */}
-          <div
-            className="relative max-w-7xl mx-auto px-14"
-            onMouseEnter={() => setIsCarouselHovered(true)}
-            onMouseLeave={() => setIsCarouselHovered(false)}
-          >
-            {/* Bouton flèche gauche */}
-            <button
-              onClick={() => setCurrentCardIndex(Math.max(0, currentCardIndex - 1))}
-              disabled={currentCardIndex === 0}
-              className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-3 hover:bg-brand-700 hover:text-white transition-all duration-300 ${
-                currentCardIndex === 0 ? 'opacity-30 cursor-not-allowed' : 'opacity-100 hover:scale-105'
-              }`}
-              aria-label={t('home.previousCard')}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-
-            {/* Conteneur de défilement - pt-3 pour que hover:-translate-y-2 ne soit pas coupé */}
-            <div className="overflow-hidden pt-3 -mt-3">
-              <div 
-                ref={carouselFlexRef}
-                className="flex transition-transform duration-500 ease-in-out gap-6"
-                style={{ 
-                  transform: `translateX(-${currentCardIndex * stepPx}px)` 
-                }}
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {garanties.map(({ href, icon: Icon, tone, title, items }) => (
+              <Link
+                key={href}
+                href={href}
+                className="group flex flex-col rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md"
               >
-                {/* Carte 1 : Paiement sécurisé */}
-                <Link href="/confiance/paiement-securise" className="group flex-shrink-0" style={{ width: cardWidthPx ? `${cardWidthPx}px` : undefined }}>
-                  <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-lg transition-all duration-300 cursor-pointer h-full border-2 border-transparent hover:border-brand-500 transform hover:-translate-y-0.5">
-                    <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:scale-105 transition-transform">
-                      <span className="text-4xl">🔒</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-navy-800 mb-3 text-center">
-                      {t('home.securePayment')}
-                    </h3>
-                    <ul className="text-sm text-slate-500 space-y-2 mb-4">
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.securePaymentItem1')}</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.securePaymentItem2')}</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.securePaymentItem3')}</span>
-                      </li>
-                    </ul>
-                    <div className="text-center">
-                      <span className="text-brand-700 font-semibold text-sm group-hover:underline">
-                        {t('home.learnMore')}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-
-                {/* Carte 2 : Vérification artisans */}
-                <Link href="/confiance/verification-artisans" className="group flex-shrink-0" style={{ width: cardWidthPx ? `${cardWidthPx}px` : undefined }}>
-                  <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-lg transition-all duration-300 cursor-pointer h-full border-2 border-transparent hover:border-brand-500 transform hover:-translate-y-0.5">
-                    <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:scale-105 transition-transform">
-                      <span className="text-4xl">✓</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-navy-800 mb-3 text-center">
-                      {t('home.verifiedArtisans')}
-                    </h3>
-                    <ul className="text-sm text-slate-500 space-y-2 mb-4">
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.verifiedArtisansItem1')}</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.verifiedArtisansItem2')}</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.verifiedArtisansItem3')}</span>
-                      </li>
-                    </ul>
-                    <div className="text-center">
-                      <span className="text-brand-700 font-semibold text-sm group-hover:underline">
-                        {t('home.learnMore')}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-
-                {/* Carte 3 : Planning flexible */}
-                <Link href="/confiance/planning-flexibilite" className="group flex-shrink-0" style={{ width: cardWidthPx ? `${cardWidthPx}px` : undefined }}>
-                  <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-lg transition-all duration-300 cursor-pointer h-full border-2 border-transparent hover:border-brand-500 transform hover:-translate-y-0.5">
-                    <div className="w-16 h-16 bg-brand-50 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:scale-105 transition-transform">
-                      <span className="text-4xl">📅</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-navy-800 mb-3 text-center">
-                      {t('home.flexiblePlanning')}
-                    </h3>
-                    <ul className="text-sm text-slate-500 space-y-2 mb-4">
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.flexiblePlanningItem1')}</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.flexiblePlanningItem2')}</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.flexiblePlanningItem3')}</span>
-                      </li>
-                    </ul>
-                    <div className="text-center">
-                      <span className="text-brand-700 font-semibold text-sm group-hover:underline">
-                        {t('home.learnMore')}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-
-                {/* Carte 4 : Devis gratuits */}
-                <Link href="/confiance/devis-gratuits" className="group flex-shrink-0" style={{ width: cardWidthPx ? `${cardWidthPx}px` : undefined }}>
-                  <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-lg transition-all duration-300 cursor-pointer h-full border-2 border-transparent hover:border-brand-500 transform hover:-translate-y-0.5">
-                    <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:scale-105 transition-transform">
-                      <span className="text-4xl">💰</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-navy-800 mb-3 text-center">
-                      {t('home.freeQuotes')}
-                    </h3>
-                    <ul className="text-sm text-slate-500 space-y-2 mb-4">
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.freeQuotesItem1')}</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.freeQuotesItem2')}</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.freeQuotesItem3')}</span>
-                      </li>
-                    </ul>
-                    <div className="text-center">
-                      <span className="text-brand-700 font-semibold text-sm group-hover:underline">
-                        {t('home.learnMore')}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-
-                {/* Carte 5 : Petits travaux */}
-                <Link href="/petits-travaux" className="group flex-shrink-0" style={{ width: cardWidthPx ? `${cardWidthPx}px` : undefined }}>
-                  <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-lg transition-all duration-300 cursor-pointer h-full border-2 border-transparent hover:border-brand-500 transform hover:-translate-y-0.5">
-                    <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:scale-105 transition-transform">
-                      <span className="text-4xl">🔧</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-navy-800 mb-3 text-center">
-                      {t('home.quickWorks')}
-                    </h3>
-                    <ul className="text-sm text-slate-500 space-y-2 mb-4">
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.quickWorksItem1')}</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.quickWorksItem2')}</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.quickWorksItem3')}</span>
-                      </li>
-                    </ul>
-                    <div className="text-center">
-                      <span className="text-brand-700 font-semibold text-sm group-hover:underline">
-                        {t('home.learnMore')}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-
-                {/* Carte 6 : Avis certifiés */}
-                <Link href="/confiance/avis-certifies" className="group flex-shrink-0" style={{ width: cardWidthPx ? `${cardWidthPx}px` : undefined }}>
-                  <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-lg transition-all duration-300 cursor-pointer h-full border-2 border-transparent hover:border-brand-500 transform hover:-translate-y-0.5">
-                    <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:scale-105 transition-transform">
-                      <span className="text-4xl">⭐</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-navy-800 mb-3 text-center">
-                      {t('home.certifiedReviews')}
-                    </h3>
-                    <ul className="text-sm text-slate-500 space-y-2 mb-4">
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.certifiedReviewsItem1')}</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.certifiedReviewsItem2')}</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.certifiedReviewsItem3')}</span>
-                      </li>
-                    </ul>
-                    <div className="text-center">
-                      <span className="text-brand-700 font-semibold text-sm group-hover:underline">
-                        {t('home.learnMore')}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-
-                {/* Carte 7 : Protection & médiation */}
-                <Link href="/confiance/protection-mediation" className="group flex-shrink-0" style={{ width: cardWidthPx ? `${cardWidthPx}px` : undefined }}>
-                  <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-lg transition-all duration-300 cursor-pointer h-full border-2 border-transparent hover:border-brand-500 transform hover:-translate-y-0.5">
-                    <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:scale-105 transition-transform">
-                      <span className="text-4xl">🛡️</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-navy-800 mb-3 text-center">
-                      {t('home.protectionMediation')}
-                    </h3>
-                    <ul className="text-sm text-slate-500 space-y-2 mb-4">
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.protectionMediationItem1')}</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.protectionMediationItem2')}</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-700 mt-0.5">✓</span>
-                        <span>{t('home.protectionMediationItem3')}</span>
-                      </li>
-                    </ul>
-                    <div className="text-center">
-                      <span className="text-brand-700 font-semibold text-sm group-hover:underline">
-                        {t('home.learnMore')}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              </div>
-            </div>
-
-            {/* Bouton flèche droite */}
-            <button
-              onClick={() => setCurrentCardIndex(Math.min(3, currentCardIndex + 1))}
-              disabled={currentCardIndex === 3}
-              className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-3 hover:bg-brand-700 hover:text-white transition-all duration-300 ${
-                currentCardIndex === 3 ? 'opacity-30 cursor-not-allowed' : 'opacity-100 hover:scale-105'
-              }`}
-              aria-label={t('home.nextCard')}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            {/* Indicateurs de position - 4 points pour 4 positions (7 cartes, 4 visibles) */}
-            <div className="flex justify-center gap-2 mt-8">
-              {[0, 1, 2, 3].map((idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentCardIndex(idx)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    currentCardIndex === idx ? 'w-8 bg-brand-700' : 'w-2 bg-slate-300 hover:bg-slate-400'
-                  }`}
-                  aria-label={`Voir cartes ${idx + 1} à ${idx + 3}`}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-
-
-        <section className="mb-20 mt-20">
-          <div className="mb-10 text-center">
-            <div className="premium-pill mx-auto mb-4 w-fit text-xs font-semibold uppercase tracking-[0.18em]">Preuve sociale</div>
-            <h2 className="text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl">Une plateforme qui inspire confiance dès les premiers écrans</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-slate-600">Des retours clients courts, lisibles et premium renforcent la crédibilité et la conversion.</p>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-3">
-            {testimonials.map((item) => (
-              <div key={item.author} className="premium-card rounded-[28px] p-8">
-                <div className="mb-5 flex items-center gap-1 text-orange-500">
-                  <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-                </div>
-                <p className="text-base leading-7 text-slate-700">“{item.quote}”</p>
-                <p className="mt-6 text-sm font-semibold text-slate-900">{item.author}</p>
-              </div>
+                <span className={`flex h-11 w-11 items-center justify-center rounded-lg ${tone}`}>
+                  <Icon className="h-6 w-6" aria-hidden="true" />
+                </span>
+                <h3 className="mt-4 text-base font-semibold text-navy-900">{t(title)}</h3>
+                <ul className="mt-3 flex-1 space-y-2 text-sm text-slate-600">
+                  {items.map((item) => (
+                    <li key={item} className="flex items-start gap-2">
+                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-700" aria-hidden="true" />
+                      <span>{t(item)}</span>
+                    </li>
+                  ))}
+                </ul>
+                <span className="mt-5 text-sm font-semibold text-brand-700 group-hover:underline">
+                  {t('home.learnMore')}
+                </span>
+              </Link>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* CTA Double - Artisans et Particuliers */}
-        <div className="mt-20 grid md:grid-cols-2 gap-6">
-          {/* CTA Particuliers */}
-          <div className=" bg-navy-800 rounded-2xl p-8 md:p-12 text-white">
-            <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                {t('home.areYouClient')}
-              </h2>
-              <p className="text-lg mb-6 text-slate-200">
-                Décrivez votre projet, comparez les profils les plus pertinents et avancez avec plus de sérénité.
-              </p>
-              <Link href="/inscription?role=client">
-                <button className="bg-white text-navy-800 hover:bg-slate-100 hover:text-navy-900 px-6 py-3 text-lg font-medium rounded-xl transition-all duration-200 shadow-sm border border-slate-200 hover:shadow-md">
-                  {t('home.createClientProfile')}
-                </button>
-              </Link>
-            </div>
+      {/* ── TÉMOIGNAGES ── */}
+      <section className="py-16 sm:py-24">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">Avis clients</p>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight text-navy-900 sm:text-4xl">
+              Une plateforme qui inspire confiance dès les premiers écrans
+            </h2>
+            <p className="mt-4 text-slate-600">Ils ont trouvé leur artisan sur ArtisanDispo.</p>
           </div>
 
-          {/* CTA Artisans */}
-          <div className=" bg-brand-600 rounded-2xl p-8 md:p-12 text-white">
-            <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                {t('home.areYouArtisan')}
-              </h2>
-              <p className="text-lg mb-6 text-orange-100">
-                Présentez votre savoir-faire avec une image plus premium et recevez des demandes mieux qualifiées.
-              </p>
-              <Link href="/inscription?role=artisan">
-                <button className="bg-white text-brand-700 hover:bg-slate-100 hover:text-brand-800 px-6 py-3 text-lg font-medium rounded-xl transition-all duration-200 shadow-sm border border-slate-200 hover:shadow-md">
-                  {t('home.createArtisanProfile')}
-                </button>
-              </Link>
-            </div>
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {testimonials.map((item) => (
+              <figure key={item.author} className="flex flex-col rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+                <div className="flex gap-0.5 text-amber-400" aria-label="5 étoiles sur 5">
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <Star key={i} className="h-4 w-4 fill-current" aria-hidden="true" />
+                  ))}
+                </div>
+                <blockquote className="mt-4 flex-1 text-base leading-7 text-slate-700">“{item.quote}”</blockquote>
+                <figcaption className="mt-6 text-sm font-semibold text-navy-900">{item.author}</figcaption>
+              </figure>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* ── CTA PARTICULIERS / ARTISANS ── */}
+      <section className="pb-16 sm:pb-24">
+        <div className="mx-auto grid max-w-6xl gap-6 px-4 sm:px-6 md:grid-cols-2 lg:px-8">
+          <div className="rounded-2xl bg-navy-800 p-8 text-white sm:p-10">
+            <h2 className="text-2xl font-bold sm:text-3xl">{t('home.areYouClient')}</h2>
+            <p className="mt-3 text-navy-100">
+              Décrivez votre projet, comparez les profils les plus pertinents et avancez avec plus de sérénité.
+            </p>
+            <Link
+              href="/inscription?role=client"
+              className="mt-6 inline-flex min-h-12 items-center justify-center rounded-lg bg-white px-6 font-semibold text-navy-800 transition-colors hover:bg-navy-50"
+            >
+              {t('home.createClientProfile')}
+            </Link>
+          </div>
+
+          <div className="rounded-2xl bg-brand-700 p-8 text-white sm:p-10">
+            <h2 className="text-2xl font-bold sm:text-3xl">{t('home.areYouArtisan')}</h2>
+            <p className="mt-3 text-brand-50">
+              Présentez votre savoir-faire avec une image plus premium et recevez des demandes mieux qualifiées.
+            </p>
+            <Link
+              href="/inscription?role=artisan"
+              className="mt-6 inline-flex min-h-12 items-center justify-center rounded-lg bg-white px-6 font-semibold text-brand-800 transition-colors hover:bg-brand-50"
+            >
+              {t('home.createArtisanProfile')}
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

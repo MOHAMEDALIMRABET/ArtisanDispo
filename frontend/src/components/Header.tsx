@@ -146,10 +146,10 @@ export default function Header() {
 
           {!isLoading && !user && (
             <>
-              <Link href="/inscription?role=client" className={`hidden lg:inline-flex ${buttonClasses('outline', 'sm')}`}>
+              <Link href="/inscription?role=client" className={`max-lg:hidden ${buttonClasses('outline', 'sm')}`}>
                 {t('nav.individual')}
               </Link>
-              <Link href="/inscription?role=artisan" className={`hidden lg:inline-flex ${buttonClasses('primary', 'sm')}`}>
+              <Link href="/inscription?role=artisan" className={`max-lg:hidden ${buttonClasses('primary', 'sm')}`}>
                 {t('nav.tradesperson')}
               </Link>
               <LanguageSelector />
