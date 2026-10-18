@@ -7,7 +7,7 @@ export default function PaiementSecurisePage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <div className=" bg-navy-800 text-white py-20">
+      <div className="bg-navy-800 text-white py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-block bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
@@ -144,7 +144,7 @@ export default function PaiementSecurisePage() {
                     5
                   </div>
                 </div>
-                <div className=" bg-green-700 rounded-xl shadow-lg p-6 flex-1 text-white">
+                <div className="bg-green-700 rounded-xl shadow-lg p-6 flex-1 text-white">
                   <h3 className="text-xl font-bold mb-2">Déblocage du paiement</h3>
                   <p className="mb-3 text-green-50">
                     L'argent est transféré à l'artisan uniquement après validation (manuelle ou automatique après 7 jours).
@@ -241,7 +241,7 @@ export default function PaiementSecurisePage() {
       </div>
 
       {/* CTA Retour / Recherche */}
-      <div className=" bg-brand-600 py-12">
+      <div className="bg-brand-600 py-12">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">Prêt à trouver votre artisan ?</h2>
           <p className="text-white/90 mb-6 text-lg">

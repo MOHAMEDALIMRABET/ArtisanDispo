@@ -500,7 +500,7 @@ export default function ArtisanDashboardPage() {
           {/* Vérification du Profil - Position 1 */}
           {!isFullyVerified && (
             <Link href="/artisan/verification" prefetch={false}>
-              <div className=" bg-orange-50 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-orange-200 hover:border-brand-500">
+              <div className="bg-orange-50 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-orange-200 hover:border-brand-500">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center animate-pulse">
                     <svg className="w-6 h-6 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">

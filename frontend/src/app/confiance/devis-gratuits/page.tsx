@@ -93,7 +93,7 @@ export default function DevisGratuitsPage() {
         </div>
 
         {/* Avantages */}
-        <div className=" bg-brand-600 rounded-2xl shadow-md p-8 md:p-12 mb-12 text-white max-w-5xl mx-auto">
+        <div className="bg-brand-600 rounded-2xl shadow-md p-8 md:p-12 mb-12 text-white max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold mb-8 text-center">
             Pourquoi nos devis sont-ils vraiment gratuits ?
           </h2>

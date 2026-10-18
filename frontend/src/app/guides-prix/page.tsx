@@ -663,7 +663,7 @@ export default function GuidesPrixPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <div className=" bg-navy-800 text-white py-16">
+      <div className="bg-navy-800 text-white py-16">
         <div className="container mx-auto px-4">
           <h1 className="text-5xl font-bold mb-4 text-center">Guides des prix</h1>
           <p className="text-xl text-slate-200 max-w-3xl mx-auto text-center">
@@ -715,7 +715,7 @@ export default function GuidesPrixPage() {
                   <h3 className="text-2xl font-bold text-navy-800 mb-4">{guide.titre}</h3>
                   
                   {/* Prix */}
-                  <div className=" bg-brand-600 text-white p-4 rounded-lg mb-4">
+                  <div className="bg-brand-600 text-white p-4 rounded-lg mb-4">
                     <p className="text-sm opacity-90 mb-1">Prix estimé</p>
                     <p className="text-3xl font-bold">
                       {guide.prixMin}€ - {guide.prixMax}€
@@ -853,7 +853,7 @@ export default function GuidesPrixPage() {
       </div>
 
       {/* CTA Bottom */}
-      <div className=" bg-brand-600 text-white py-16">
+      <div className="bg-brand-600 text-white py-16">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-4">Prêt à lancer vos travaux ?</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">

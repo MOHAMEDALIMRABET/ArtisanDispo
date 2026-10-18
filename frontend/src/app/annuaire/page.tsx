@@ -43,7 +43,7 @@ export default function AnnuairePage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <div className=" bg-navy-800 text-white py-16">
+      <div className="bg-navy-800 text-white py-16">
         <div className="container mx-auto px-4">
           <h1 className="text-5xl font-bold mb-4 text-center">Trouvez des artisans près de chez vous</h1>
           <p className="text-xl text-slate-200 max-w-3xl mx-auto text-center">
@@ -194,7 +194,7 @@ export default function AnnuairePage() {
       </main>
 
       {/* CTA Bottom */}
-      <div className=" bg-brand-600 text-white py-16">
+      <div className="bg-brand-600 text-white py-16">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-4">Vous ne trouvez pas ce que vous cherchez ?</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">

@@ -56,7 +56,7 @@ export default function CommentCaMarchePage() {
             </div>
             <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
               Comment engager<br />
-              <span className="text-brand-700">le bon artisan ?</span>
+              <span className="text-brand-400">le bon artisan ?</span>
             </h1>
             <p className="text-xl md:text-2xl text-slate-300 mb-10 max-w-3xl mx-auto leading-relaxed">
               Publiez votre projet gratuitement et soyez mis en relation avec des artisans vérifiés qui réaliseront vos travaux.
@@ -65,15 +65,15 @@ export default function CommentCaMarchePage() {
             {/* Stats en temps réel */}
             <div className="grid md:grid-cols-3 gap-6 mb-10">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 hover:bg-white/20 transition-all">
-                <div className="text-4xl font-bold text-brand-700 mb-2">{stats.artisans}+</div>
+                <div className="text-4xl font-bold text-brand-400 mb-2">{stats.artisans}+</div>
                 <div className="text-sm text-slate-300">Artisans disponibles</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 hover:bg-white/20 transition-all">
-                <div className="text-4xl font-bold text-brand-700 mb-2">{stats.devis}</div>
+                <div className="text-4xl font-bold text-brand-400 mb-2">{stats.devis}</div>
                 <div className="text-sm text-slate-300">Devis envoyés ce mois</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 hover:bg-white/20 transition-all">
-                <div className="text-4xl font-bold text-brand-700 mb-2">{stats.projets}</div>
+                <div className="text-4xl font-bold text-brand-400 mb-2">{stats.projets}</div>
                 <div className="text-sm text-slate-300">Projets réalisés</div>
               </div>
             </div>
@@ -170,7 +170,7 @@ export default function CommentCaMarchePage() {
 
         {/* Pour les Particuliers - Design moderne */}
         <section className="mb-24">
-          <div className=" bg-brand-600 rounded-2xl p-12 text-white mb-12">
+          <div className="bg-brand-600 rounded-2xl p-12 text-white mb-12">
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-4xl md:text-5xl font-bold mb-4">
                 Comment engager le bon artisan
@@ -296,7 +296,7 @@ export default function CommentCaMarchePage() {
           <div className="text-center mt-12">
             <Button
               onClick={() => router.push('/inscription?role=client')}
-              className="!!bg-brand-600 hover:!bg-brand-700 !text-white text-xl px-12 py-5 shadow-lg transform hover:scale-105 transition-all"
+              className="!bg-brand-600 hover:!bg-brand-700 !text-white text-xl px-12 py-5 shadow-lg transform hover:scale-105 transition-all"
             >
               Publiez votre projet
             </Button>
@@ -313,7 +313,7 @@ export default function CommentCaMarchePage() {
 
         {/* Pour les Artisans */}
         <section className="mb-24">
-          <div className=" bg-navy-800 rounded-2xl p-12 text-white mb-12">
+          <div className="bg-navy-800 rounded-2xl p-12 text-white mb-12">
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-4xl md:text-5xl font-bold mb-4">
                 Vous cherchez des chantiers ?
@@ -327,7 +327,7 @@ export default function CommentCaMarchePage() {
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Étape 1 Artisan */}
             <Card className="p-8 hover:shadow-lg transition-all border-2 border-transparent hover:border-navy-800">
-              <div className=" bg-navy-800 text-white rounded-full w-20 h-20 flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-md">
+              <div className="bg-navy-800 text-white rounded-full w-20 h-20 flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-md">
                 1
               </div>
               <h3 className="text-2xl font-bold text-navy-800 mb-4 text-center">
@@ -360,14 +360,14 @@ export default function CommentCaMarchePage() {
 
             {/* Étape 2 Artisan */}
             <Card className="p-8 hover:shadow-lg transition-all border-2 border-transparent hover:border-navy-800">
-              <div className=" bg-navy-800 text-white rounded-full w-20 h-20 flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-md">
+              <div className="bg-navy-800 text-white rounded-full w-20 h-20 flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-md">
                 2
               </div>
               <h3 className="text-2xl font-bold text-navy-800 mb-4 text-center">
                 Recevez des demandes
               </h3>
               <div className="space-y-4">
-                <div className=" bg-orange-50 border-l-4 border-brand-500 p-4 rounded-lg">
+                <div className="bg-orange-50 border-l-4 border-brand-500 p-4 rounded-lg">
                   <p className="text-sm font-semibold text-brand-700 mb-2">
                     🎯 Matching intelligent
                   </p>
@@ -395,7 +395,7 @@ export default function CommentCaMarchePage() {
 
             {/* Étape 3 Artisan */}
             <Card className="p-8 hover:shadow-lg transition-all border-2 border-transparent hover:border-navy-800">
-              <div className=" bg-navy-800 text-white rounded-full w-20 h-20 flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-md">
+              <div className="bg-navy-800 text-white rounded-full w-20 h-20 flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-md">
                 3
               </div>
               <h3 className="text-2xl font-bold text-navy-800 mb-4 text-center">
@@ -435,7 +435,7 @@ export default function CommentCaMarchePage() {
           <div className="text-center mt-12">
             <Button
               onClick={() => router.push('/inscription?role=artisan')}
-              className="!!bg-navy-800 hover:!bg-navy-900 !text-white text-xl px-12 py-5 shadow-lg transform hover:scale-105 transition-all"
+              className="!bg-navy-800 hover:!bg-navy-900 !text-white text-xl px-12 py-5 shadow-lg transform hover:scale-105 transition-all"
             >
               Professionnels, inscrivez-vous gratuitement
             </Button>
@@ -447,13 +447,13 @@ export default function CommentCaMarchePage() {
 
         {/* Section Sécurité & Confiance */}
         <section className="mb-24">
-          <div className=" bg-white rounded-2xl shadow-sm border border-slate-200 p-12">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12">
             <h2 className="text-4xl font-bold text-center text-navy-800 mb-12">
               Pourquoi choisir ArtisanDispo ?
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               <div className="text-center group">
-                <div className=" bg-green-100 w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform shadow-lg">
+                <div className="bg-green-100 w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform shadow-lg">
                   <span className="text-5xl">✓</span>
                 </div>
                 <h3 className="font-bold text-navy-800 mb-2 text-lg">Artisans vérifiés</h3>
@@ -462,7 +462,7 @@ export default function CommentCaMarchePage() {
                 </p>
               </div>
               <div className="text-center group">
-                <div className=" bg-blue-100 w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform shadow-lg">
+                <div className="bg-blue-100 w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform shadow-lg">
                   <span className="text-5xl">🔒</span>
                 </div>
                 <h3 className="font-bold text-navy-800 mb-2 text-lg">Paiement sécurisé</h3>
@@ -471,7 +471,7 @@ export default function CommentCaMarchePage() {
                 </p>
               </div>
               <div className="text-center group">
-                <div className=" bg-purple-100 w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform shadow-lg">
+                <div className="bg-purple-100 w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform shadow-lg">
                   <span className="text-5xl">⚖️</span>
                 </div>
                 <h3 className="font-bold text-navy-800 mb-2 text-lg">Médiation gratuite</h3>
@@ -480,7 +480,7 @@ export default function CommentCaMarchePage() {
                 </p>
               </div>
               <div className="text-center group">
-                <div className=" bg-yellow-100 w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform shadow-lg">
+                <div className="bg-yellow-100 w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform shadow-lg">
                   <span className="text-5xl">⭐</span>
                 </div>
                 <h3 className="font-bold text-navy-800 mb-2 text-lg">Avis certifiés</h3>
@@ -546,7 +546,7 @@ export default function CommentCaMarchePage() {
 
         {/* CTA Final Premium */}
         <section className="text-center">
-          <div className=" bg-brand-600 rounded-2xl p-12 md:p-16 text-white shadow-lg relative overflow-hidden">
+          <div className="bg-brand-600 rounded-2xl p-12 md:p-16 text-white shadow-lg relative overflow-hidden">
             {/* Pattern de fond */}
             <div className="absolute inset-0 opacity-10">
               <div className="absolute inset-0" style={{

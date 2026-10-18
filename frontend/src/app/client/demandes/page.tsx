@@ -858,7 +858,7 @@ export default function MesDemandesPage() {
         <div className="container mx-auto px-4">
           <button
             onClick={() => router.push('/client/demandes-hub')}
-            className="flex items-center gap-2 text-white hover:text-brand-700 mb-4"
+            className="flex items-center gap-2 text-white hover:text-brand-300 mb-4"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -896,7 +896,7 @@ export default function MesDemandesPage() {
       {/* Message de succès */}
       {successMessage && (
         <div className="container mx-auto px-4 pt-6 max-w-6xl">
-          <div className=" bg-green-50 border-l-4 border-green-500 p-5 rounded-lg shadow-lg flex items-start gap-4 animate-fade-in">
+          <div className="bg-green-50 border-l-4 border-green-500 p-5 rounded-lg shadow-lg flex items-start gap-4 animate-fade-in">
             <div className="flex-shrink-0 bg-green-500 rounded-full p-2">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -1019,7 +1019,7 @@ export default function MesDemandesPage() {
             </p>
             <Button
               onClick={() => router.push('/recherche')}
-              className=" bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
+              className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
             >
               {t('clientDemandes.empty.searchArtisan')}
             </Button>
@@ -2086,7 +2086,7 @@ export default function MesDemandesPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={() => setShowExpirationHelp(false)}>
           <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-lg" onClick={(e) => e.stopPropagation()}>
             {/* Header */}
-            <div className=" bg-blue-600 text-white p-6 rounded-t-2xl">
+            <div className="bg-blue-600 text-white p-6 rounded-t-2xl">
               <div className="flex items-start justify-between">
                 <div>
                   <h2 className="text-2xl font-bold mb-2 flex items-center gap-3">

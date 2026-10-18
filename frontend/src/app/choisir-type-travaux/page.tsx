@@ -26,7 +26,7 @@ export default function ChoisirTypeTravauxPage() {
           {/* Bouton retour vers le dashboard */}
           <button
             onClick={() => router.push('/dashboard')}
-            className="flex items-center gap-2 text-white hover:text-brand-700 mb-4"
+            className="flex items-center gap-2 text-white hover:text-brand-300 mb-4"
             aria-label="Retour au tableau de bord"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

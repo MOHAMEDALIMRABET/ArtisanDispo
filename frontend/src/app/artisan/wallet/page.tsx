@@ -230,7 +230,7 @@ export default function WalletPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className=" bg-navy-800 text-white py-8 px-4">
+      <div className="bg-navy-800 text-white py-8 px-4">
         <div className="max-w-7xl mx-auto">
           <button
             onClick={() => router.back()}
@@ -304,7 +304,7 @@ export default function WalletPage() {
         )}
 
         {/* Solde disponible */}
-        <div className=" bg-brand-600 rounded-xl shadow-lg p-8 text-white mb-8">
+        <div className="bg-brand-600 rounded-xl shadow-lg p-8 text-white mb-8">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm opacity-90 mb-2">{t('artisanWallet.balance.available')}</p>
@@ -514,7 +514,7 @@ export default function WalletPage() {
         {/* Demandes de virement */}
         {virementRequests.length > 0 && (
           <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-            <div className=" bg-navy-800 text-white px-6 py-4">
+            <div className="bg-navy-800 text-white px-6 py-4">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -580,7 +580,7 @@ export default function WalletPage() {
 
         {/* Historique des transactions */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className=" bg-navy-800 text-white px-6 py-4">
+          <div className="bg-navy-800 text-white px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold flex items-center gap-2">
@@ -875,7 +875,7 @@ export default function WalletPage() {
 
         {/* Section Configuration compte bancaire */}
         <div className="mt-8 bg-white rounded-lg shadow-md overflow-hidden">
-          <div className=" bg-navy-800 text-white px-6 py-4">
+          <div className="bg-navy-800 text-white px-6 py-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold flex items-center gap-2">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1111,7 +1111,7 @@ export default function WalletPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-md">
             {/* Header */}
-            <div className=" bg-navy-800 text-white px-6 py-4 rounded-t-xl">
+            <div className="bg-navy-800 text-white px-6 py-4 rounded-t-xl">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-bold flex items-center gap-2">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

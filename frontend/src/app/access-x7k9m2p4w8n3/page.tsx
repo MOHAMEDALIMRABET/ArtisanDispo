@@ -164,7 +164,7 @@ export default function SecureAdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-navy-800 flex items-center justify-center p-4">
+    <div className="min-h-[calc(100vh-4rem)] bg-slate-50 flex items-center justify-center px-4 py-12">
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 w-full max-w-md">
         {/* Logo et titre */}
         <div className="text-center mb-8">

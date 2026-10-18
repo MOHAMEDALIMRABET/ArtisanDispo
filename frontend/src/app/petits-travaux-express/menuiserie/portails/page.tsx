@@ -80,7 +80,7 @@ export default function PortailsPage() {
                 className="group"
               >
                 <div 
-                  className="bg-slate-200 hover:bg-slate-300 rounded-xl p-8 transition-all duration-300 flex items-center justify-center text-center cursor-pointer shadow-sm hover:shadow-lg transform hover:-translate-y-0.5 border-2 border-transparent hover:border-navy-800"
+                  className="flex h-full min-h-20 items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-5 py-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md"
                 >
                   <h3 
                     className="text-xl font-bold group-hover:underline"
@@ -118,7 +118,7 @@ export default function PortailsPage() {
       </div>
 
       {/* Section CTA */}
-      <div className=" bg-brand-600 py-12 mt-16">
+      <div className="bg-brand-600 py-12 mt-16">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
             Besoin d&apos;installer ou remplacer votre portail ?

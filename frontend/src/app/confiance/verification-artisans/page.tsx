@@ -7,7 +7,7 @@ export default function VerificationArtisansPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <div className=" bg-green-700 text-white py-20">
+      <div className="bg-green-700 text-white py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-block bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
@@ -167,7 +167,7 @@ export default function VerificationArtisansPage() {
             </div>
 
             {/* Étape 5 */}
-            <div className=" bg-green-700 rounded-xl shadow-lg p-6 flex gap-6 items-start text-white">
+            <div className="bg-green-700 rounded-xl shadow-lg p-6 flex gap-6 items-start text-white">
               <div className="flex-shrink-0">
                 <div className="w-14 h-14 bg-white text-green-700 rounded-full flex items-center justify-center font-bold text-xl">
                   5
@@ -294,7 +294,7 @@ export default function VerificationArtisansPage() {
       </div>
 
       {/* CTA */}
-      <div className=" bg-brand-600 py-12">
+      <div className="bg-brand-600 py-12">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">Trouvez un artisan vérifié près de chez vous</h2>
           <p className="text-white/90 mb-6 text-lg">

@@ -54,7 +54,7 @@ export default function PetitsTravauxPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <div className=" bg-navy-800 text-white py-16">
+      <div className="bg-navy-800 text-white py-16">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
@@ -142,7 +142,7 @@ export default function PetitsTravauxPage() {
         </div>
 
         {/* CTA Principal */}
-        <div className=" bg-brand-600 rounded-2xl shadow-lg p-8 md:p-12 text-white text-center mb-12">
+        <div className="bg-brand-600 rounded-2xl shadow-lg p-8 md:p-12 text-white text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Besoin d'une intervention rapide ?
           </h2>

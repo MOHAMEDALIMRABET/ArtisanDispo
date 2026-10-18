@@ -218,7 +218,7 @@ export default function StripeOnboardingPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className=" bg-navy-800 text-white py-8 px-4">
+      <div className="bg-navy-800 text-white py-8 px-4">
         <div className="max-w-3xl mx-auto">
           <button
             onClick={() => router.back()}

@@ -7,7 +7,7 @@ export default function AvisCertifiesPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <div className=" bg-amber-400 text-navy-800 py-20">
+      <div className="bg-amber-400 text-navy-800 py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
@@ -399,7 +399,7 @@ export default function AvisCertifiesPage() {
       </div>
 
       {/* CTA */}
-      <div className=" bg-brand-600 py-12">
+      <div className="bg-brand-600 py-12">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">Consultez les avis certifiés de nos artisans</h2>
           <p className="text-white/90 mb-6 text-lg">

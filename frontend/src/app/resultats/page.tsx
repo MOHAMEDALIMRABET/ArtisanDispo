@@ -572,7 +572,7 @@ function ResultatsContent() {
           <div className="space-y-4">
             {/* Bandeau pour visiteurs non connectés - MASQUÉ */}
             {/* {!user && (
-              <div className=" bg-navy-800 border-2 border-brand-500 p-6 rounded-lg shadow-lg">
+              <div className="bg-navy-800 border-2 border-brand-500 p-6 rounded-lg shadow-lg">
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0 bg-brand-700 rounded-full p-3">
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

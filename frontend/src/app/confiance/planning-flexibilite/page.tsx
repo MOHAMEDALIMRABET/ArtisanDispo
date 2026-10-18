@@ -7,7 +7,7 @@ export default function PlanningFlexibilitePage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <div className=" bg-sky-700 text-white py-20">
+      <div className="bg-sky-700 text-white py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-block bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
@@ -54,7 +54,7 @@ export default function PlanningFlexibilitePage() {
 
           <div className="space-y-8">
             {/* Côté client */}
-            <div className=" bg-navy-800 rounded-xl shadow-lg p-8 text-white">
+            <div className="bg-navy-800 rounded-xl shadow-lg p-8 text-white">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-16 h-16 bg-brand-700 rounded-full flex items-center justify-center text-3xl">
                   👤
@@ -97,7 +97,7 @@ export default function PlanningFlexibilitePage() {
             </div>
 
             {/* Côté artisan */}
-            <div className=" bg-brand-600 rounded-xl shadow-lg p-8 text-white">
+            <div className="bg-brand-600 rounded-xl shadow-lg p-8 text-white">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-16 h-16 bg-white text-brand-700 rounded-full flex items-center justify-center text-3xl">
                   🛠️
@@ -332,7 +332,7 @@ export default function PlanningFlexibilitePage() {
       </div>
 
       {/* CTA */}
-      <div className=" bg-brand-600 py-12">
+      <div className="bg-brand-600 py-12">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">Trouvez un artisan disponible maintenant</h2>
           <p className="text-white/90 mb-6 text-lg">

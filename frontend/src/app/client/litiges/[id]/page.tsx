@@ -232,7 +232,7 @@ export default function ClientLitigeDetailPage() {
 
       {/* Proposition de résolution */}
       {hasProposition && !clientAlreadyAccepted && (
-        <div className=" bg-purple-50 border-2 border-purple-300 rounded-lg p-6 mb-6">
+        <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-6 mb-6">
           <div className="flex items-start gap-4">
             <AlertTriangle className="w-8 h-8 text-purple-600 flex-shrink-0" />
             <div className="flex-1">

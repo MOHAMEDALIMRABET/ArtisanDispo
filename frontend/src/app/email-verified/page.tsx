@@ -97,7 +97,7 @@ export default function EmailVerifiedPage() {
   }, [router, searchParams]);
 
   return (
-    <div className="min-h-screen bg-navy-800 flex items-center justify-center p-4">
+    <div className="min-h-[calc(100vh-4rem)] bg-slate-50 flex items-center justify-center px-4 py-12">
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 max-w-md w-full text-center">
         <div className="flex justify-center mb-6">
           <Logo size="lg" />

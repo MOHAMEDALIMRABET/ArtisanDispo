@@ -256,7 +256,7 @@ export default function InscriptionPage() {
   // Étape 1 : Choix du rôle
   if (!role) {
     return (
-      <div className="min-h-screen bg-navy-800 ">
+      <div className="min-h-screen bg-slate-50">
         <div className="flex items-center justify-center p-4 py-16">
           <Card className="max-w-2xl w-full">
           <h1 className="text-3xl font-bold text-center text-slate-800 mb-2">
