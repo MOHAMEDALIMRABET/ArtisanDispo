@@ -426,7 +426,7 @@ export default function NouvelleDemandePubliquePage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold text-navy-800 mb-2">
-                📢 Publier une Demande Ouverte
+                Publier une Demande Ouverte
               </h1>
               <p className="text-slate-600 text-lg">
                 Recevez plusieurs devis d'artisans qualifiés dans votre zone

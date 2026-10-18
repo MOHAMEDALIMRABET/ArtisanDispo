@@ -280,7 +280,7 @@ export default function ClientDemandesHubPage() {
             </svg>
             Retour au tableau de bord
           </button>
-          <h1 className="text-2xl font-bold">📋 Mes Demandes</h1>
+          <h1 className="text-2xl font-bold">Mes Demandes</h1>
           <p className="text-slate-300 text-sm mt-1">Gérez vos demandes de travaux</p>
         </div>
       </div>

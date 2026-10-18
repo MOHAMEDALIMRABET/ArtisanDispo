@@ -31,7 +31,7 @@ export default function ChoisirTypeDemanPage() {
         {/* En-tête */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-navy-800 mb-4">
-            📝 Créer une Demande de Devis
+            Créer une Demande de Devis
           </h1>
           <p className="text-slate-600 text-lg">
             Choisissez la méthode qui correspond le mieux à votre besoin

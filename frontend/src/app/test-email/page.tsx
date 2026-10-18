@@ -47,7 +47,7 @@ export default function TestEmailPage() {
     <div className="min-h-screen bg-slate-50 py-8">
       <div className="container mx-auto px-4 max-w-3xl">
         <h1 className="text-3xl font-bold text-navy-800 mb-6">
-          🧪 Test Email de Vérification Firebase
+          Test Email de Vérification Firebase
         </h1>
 
         <div className="space-y-6">

@@ -339,7 +339,7 @@ export default function ArtisanDashboardPage() {
         <div className="container mx-auto max-w-4xl">
           <p className="text-sm text-slate-300 mb-1 font-medium uppercase tracking-wide">Tableau de bord Artisan</p>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            👋 Bienvenue {user?.prenom || ''} {user?.nom || ''}
+            Bienvenue {user?.prenom || ''} {user?.nom || ''}
             {artisan?.verified && (
               <span className="inline-flex items-center gap-1 text-green-400 text-sm font-medium">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

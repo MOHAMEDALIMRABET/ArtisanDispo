@@ -90,7 +90,7 @@ export default function MesLitigesPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-navy-800 mb-2">
-            ⚠️ Mes Litiges
+            Mes Litiges
           </h1>
           <p className="text-slate-500">
             Suivez l'état de vos litiges et échangez avec notre équipe de médiation

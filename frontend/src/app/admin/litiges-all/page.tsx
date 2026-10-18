@@ -381,7 +381,7 @@ export default function AdminLitigesAllPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
           <h1 className="text-3xl font-bold text-navy-800 mb-2">
-            🛡️ Gestion des Litiges et Historique
+            Gestion des Litiges et Historique
           </h1>
           <p className="text-slate-500">
             Toutes les conversations (même grisées) et litiges formels accessibles pour l'admin

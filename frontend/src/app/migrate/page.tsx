@@ -132,7 +132,7 @@ export default function MigrateMetiersPage() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-xl shadow-lg p-8">
           <h1 className="text-3xl font-bold text-navy-800 mb-6">
-            🔧 Migration des Métiers
+            Migration des Métiers
           </h1>
 
           <div className="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">

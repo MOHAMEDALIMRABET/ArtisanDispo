@@ -773,13 +773,13 @@ export default function MessagesPage() {
             </svg>
             {t('messaging.backToDashboard')}
           </button>
-          <h1 className="text-3xl font-bold">💬 {t('messaging.pageTitle')}</h1>
+          <h1 className="text-3xl font-bold">{t('messaging.pageTitle')}</h1>
           <p className="text-slate-300 mt-2">{t('messaging.pageSubtitle')}</p>
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 py-8">
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-320px)]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 h-[calc(100dvh-15rem)] min-h-[480px]">
           {/* Liste des conversations */}
           <div className="lg:col-span-1 bg-white rounded-lg shadow-md overflow-hidden">
             <div className="bg-navy-800 text-white p-4">

@@ -564,7 +564,7 @@ export default function AdminLitigesPage() {
         {/* Header */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
           <h1 className="text-3xl font-bold text-navy-800 mb-2">
-            🛡️ Gestion des Litiges et Historique
+            Gestion des Litiges et Historique
           </h1>
           <p className="text-slate-600">
             Consultation de toutes les conversations entre clients et artisans pour résolution de litiges

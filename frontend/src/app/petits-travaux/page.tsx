@@ -58,7 +58,7 @@ export default function PetitsTravauxPage() {
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
-              🔧 Petits travaux à la demande
+              Petits travaux à la demande
             </h1>
             <p className="text-xl md:text-2xl text-white/90 mb-6 max-w-3xl mx-auto">
               Intervention rapide • Sans devis si &lt; 150€ • Facturation transparente

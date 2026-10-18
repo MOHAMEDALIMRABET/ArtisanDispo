@@ -384,7 +384,7 @@ export default function DemandeExpressDetailArtisanPage() {
           </nav>
 
           <h1 className="text-2xl md:text-3xl font-bold text-navy-800">
-            🚀 Demande express
+            Demande express
           </h1>
         </div>
       </div>

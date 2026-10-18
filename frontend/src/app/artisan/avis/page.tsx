@@ -224,7 +224,7 @@ export default function AvisArtisanPage() {
             </svg>
             {t('artisanReviews.backToDashboard')}
           </Link>
-          <h1 className="text-3xl font-bold">⭐ {t('artisanReviews.pageTitle')}</h1>
+          <h1 className="text-3xl font-bold">{t('artisanReviews.pageTitle')}</h1>
           <p className="text-slate-300 mt-2">{t('artisanReviews.pageDescription')}</p>
         </div>
       </div>

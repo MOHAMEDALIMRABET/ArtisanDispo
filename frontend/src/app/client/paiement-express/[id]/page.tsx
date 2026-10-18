@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { AlertTriangle, Check, ChevronRight, ClipboardList, CreditCard, Headphones, Lock, Scale, ShieldCheck, Wallet } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { loadStripe } from '@stripe/stripe-js';
@@ -364,16 +365,16 @@ export default function PaiementExpressPage() {
             <Link href="/client/dashboard" className="text-navy-800 hover:text-brand-700">
               Dashboard
             </Link>
-            <span className="text-slate-500">&gt;</span>
+            <ChevronRight className="h-4 w-4 text-slate-400" aria-hidden="true" />
             <Link href={`/client/demandes-express/${demande.id}`} className="text-navy-800 hover:text-brand-700">
               Ma demande
             </Link>
-            <span className="text-slate-500">&gt;</span>
+            <ChevronRight className="h-4 w-4 text-slate-400" aria-hidden="true" />
             <span className="text-navy-800 font-semibold">Paiement</span>
           </nav>
 
           <h1 className="text-2xl md:text-3xl font-bold text-navy-800">
-            💳 Paiement sécurisé
+            Paiement sécurisé
           </h1>
         </div>
       </div>
@@ -385,8 +386,9 @@ export default function PaiementExpressPage() {
           {/* ── GAUCHE : Récapitulatif ── */}
           <div className="space-y-6">
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <h2 className="text-xl font-bold text-navy-800 mb-6">
-                📋 Récapitulatif
+              <h2 className="mb-6 flex items-center gap-2 text-lg font-semibold text-navy-900">
+                <ClipboardList className="h-5 w-5 text-slate-400" aria-hidden="true" />
+                Récapitulatif
               </h2>
 
               <div className="space-y-4">
@@ -428,49 +430,72 @@ export default function PaiementExpressPage() {
 
                 <div className="flex justify-between items-center pb-4 border-b border-slate-200">
                   <p className="text-sm text-slate-500">Montant de la prestation</p>
-                  <p className="text-2xl font-bold text-navy-800">{proposition.montantPropose}€</p>
+                  <p className="tabular-nums text-2xl font-bold text-navy-900">{proposition.montantPropose}€</p>
                 </div>
 
-                <div className="bg-blue-50 rounded-lg p-4">
-                  <p className="text-sm text-navy-800 mb-2">
-                    <strong>🔒 Paiement sécurisé avec séquestre</strong>
+                <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
+                  <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-navy-900">
+                    <Lock className="h-4 w-4 text-blue-700" aria-hidden="true" />
+                    Paiement sécurisé avec séquestre
                   </p>
-                  <ul className="text-sm text-slate-500 space-y-1">
-                    <li>✅ Votre argent est bloqué sur un compte séquestre</li>
-                    <li>✅ L'artisan ne le reçoit qu'après la fin de l'intervention</li>
-                    <li>✅ Vous pouvez demander un remboursement en cas de litige</li>
+                  <ul className="space-y-1.5 text-sm text-slate-600">
+                    {[
+                      'Votre argent est bloqué sur un compte séquestre',
+                      "L'artisan ne le reçoit qu'après la fin de l'intervention",
+                      'Vous pouvez demander un remboursement en cas de litige',
+                    ].map((item) => (
+                      <li key={item} className="flex items-start gap-2">
+                        <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-700" aria-hidden="true" />
+                        {item}
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </div>
             </div>
 
             {/* Garanties */}
-            <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6">
-              <h3 className="font-bold text-navy-800 mb-3">✅ Vos garanties</h3>
-              <ul className="space-y-2 text-sm text-slate-500">
-                <li>🔐 Paiement 100% sécurisé par Stripe</li>
-                <li>💰 Argent bloqué jusqu'à la fin des travaux</li>
-                <li>🛡️ Protection acheteur incluse</li>
-                <li>📞 Service client disponible 7j/7</li>
-                <li>⚖️ Médiation en cas de litige</li>
+            <div className="rounded-xl border border-green-200 bg-green-50 p-6">
+              <h3 className="mb-4 flex items-center gap-2 font-semibold text-green-900">
+                <ShieldCheck className="h-5 w-5 text-green-700" aria-hidden="true" />
+                Vos garanties
+              </h3>
+              <ul className="grid gap-3 text-sm text-green-900 sm:grid-cols-2">
+                {[
+                  { icon: Lock, label: 'Paiement 100% sécurisé par Stripe' },
+                  { icon: Wallet, label: "Argent bloqué jusqu'à la fin des travaux" },
+                  { icon: ShieldCheck, label: 'Protection acheteur incluse' },
+                  { icon: Headphones, label: 'Service client disponible 7j/7' },
+                  { icon: Scale, label: 'Médiation en cas de litige' },
+                ].map(({ icon: Icon, label }) => (
+                  <li key={label} className="flex items-start gap-2">
+                    <Icon className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-700" aria-hidden="true" />
+                    {label}
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
 
           {/* ── DROITE : Mode de paiement ── */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 lg:sticky lg:top-8">
-            <h2 className="text-xl font-bold text-navy-800 mb-6">
-              💳 Mode de paiement
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 lg:sticky lg:top-24">
+            <h2 className="mb-2 flex items-center gap-2 text-lg font-semibold text-navy-900">
+              <CreditCard className="h-5 w-5 text-slate-400" aria-hidden="true" />
+              Mode de paiement
             </h2>
+            <p className="mb-6 flex items-center gap-1.5 text-xs text-slate-500">
+              <Lock className="h-3.5 w-3.5 text-green-700" aria-hidden="true" />
+              Connexion chiffrée · paiement traité par Stripe
+            </p>
 
             {error ? (
               <div className="bg-red-50 border-2 border-red-200 rounded-xl p-5 text-center">
-                <p className="text-3xl mb-3">⚠️</p>
+                <AlertTriangle className="mx-auto mb-3 h-8 w-8 text-red-600" aria-hidden="true" />
                 <p className="text-red-800 font-semibold mb-1">Paiement indisponible</p>
                 <p className="text-sm text-red-700 mb-4">{error}</p>
                 <button
                   onClick={() => { setError(null); createPaymentIntent(propositionId, demande?.id); }}
-                  className="px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-brand-800 text-sm font-semibold"
+                  className="inline-flex min-h-10 items-center rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white hover:bg-brand-800"
                 >
                   Réessayer
                 </button>

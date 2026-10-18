@@ -236,7 +236,7 @@ export default function NouvelleDemandeExpressPage() {
           </nav>
 
           <h1 className="text-2xl md:text-3xl font-bold text-navy-800">
-            🚀 Nouvelle demande express
+            Nouvelle demande express
           </h1>
           <p className="text-slate-500 mt-2">
             Intervention rapide — moins de 150€ • Sans devis formel

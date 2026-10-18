@@ -352,7 +352,7 @@ export default function ProfilArtisanPage() {
             </svg>
             {t('profile.backToDashboard')}
           </button>
-          <h1 className="text-3xl font-bold">👤 {t('profile.pageTitle')}</h1>
+          <h1 className="text-3xl font-bold">{t('profile.pageTitle')}</h1>
           <p className="text-slate-300 mt-2">{t('profile.pageDescription')}</p>
         </div>
       </div>

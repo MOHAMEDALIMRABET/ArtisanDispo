@@ -978,7 +978,7 @@ export default function ArtisanDemandesPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">
-                📬 {t('artisanRequests.pageTitle')}
+                {t('artisanRequests.pageTitle')}
               </h1>
               <p className="text-slate-300 mt-2">{t('artisanRequests.pageDescription')}</p>
             </div>

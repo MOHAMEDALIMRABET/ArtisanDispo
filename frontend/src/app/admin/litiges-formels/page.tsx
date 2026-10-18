@@ -154,7 +154,7 @@ export default function LitigesFormelsPage() {
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-navy-800 mb-2">
-            ⚖️ Gestion des Litiges
+            Gestion des Litiges
           </h1>
           <p className="text-slate-500">
             Litiges formels déclarés par les clients ou artisans

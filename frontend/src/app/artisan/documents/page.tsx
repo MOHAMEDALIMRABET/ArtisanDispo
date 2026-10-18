@@ -427,7 +427,7 @@ export default function DocumentsUploadPage() {
             </svg>
             {t('documents.backToDashboard')}
           </button>
-          <h1 className="text-3xl font-bold">📄 {t('documents.pageTitle')}</h1>
+          <h1 className="text-3xl font-bold">{t('documents.pageTitle')}</h1>
           <p className="text-slate-300 mt-2">{t('documents.pageDescription')}</p>
         </div>
       </div>

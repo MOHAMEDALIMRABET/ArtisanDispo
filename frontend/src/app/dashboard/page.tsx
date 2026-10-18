@@ -329,7 +329,7 @@ export default function DashboardPage() {
         <div className="container mx-auto max-w-4xl">
           <p className="text-sm text-slate-300 mb-1 font-medium uppercase tracking-wide">Tableau de bord Client</p>
           <h1 className="text-2xl font-bold">
-            👋 Bienvenue {user?.prenom || ''} {user?.nom || ''}
+            Bienvenue {user?.prenom || ''} {user?.nom || ''}
           </h1>
         </div>
       </div>

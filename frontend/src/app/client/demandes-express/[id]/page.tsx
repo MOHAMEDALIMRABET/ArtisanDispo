@@ -328,7 +328,7 @@ export default function DemandeExpressDetailClientPage() {
           </nav>
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
-              <h1 className="text-2xl font-bold">🚀 Demande express</h1>
+              <h1 className="text-2xl font-bold">Demande express</h1>
               <p className="text-white/70 text-sm mt-0.5">
                 {typeTravauxLabel} · {categorieLabel}
                 {sousCategorieLabel && ` · ${sousCategorieLabel}`}
