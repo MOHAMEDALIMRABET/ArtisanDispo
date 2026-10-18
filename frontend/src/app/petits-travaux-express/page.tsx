@@ -144,7 +144,7 @@ export default function PetitsTravauxExpressPage() {
             <div className="px-4 py-3 flex flex-col flex-1">
               {/* Accroche */}
               <p className="text-navy-800 font-semibold text-sm text-center mb-1">Un problème urgent ?</p>
-              <p className="text-slate-500 text-xs text-center mb-4">
+              <p className="text-slate-500 text-xs text-center mb-4 min-h-8">
                 Intervention rapide par un artisan qualifié, disponible près de chez vous.
               </p>
 
@@ -165,7 +165,7 @@ export default function PetitsTravauxExpressPage() {
               {/* CTA - mt-4 fixe identique au bloc travaux */}
               <button
                 onClick={() => router.push('/petits-travaux-express/recherche?typeTravaux=depannage-urgence')}
-                className="w-full mt-4 bg-red-700 hover:bg-red-800 text-white font-bold py-3 rounded-xl text-sm transition-colors duration-200 flex items-center justify-center gap-2"
+                className="w-full mt-auto bg-red-700 hover:bg-red-800 text-white font-bold py-3 rounded-xl text-sm transition-colors duration-200 flex items-center justify-center gap-2"
               >
                 {t('expressPages.landing.depannageCTA')}
               </button>
@@ -194,7 +194,7 @@ export default function PetitsTravauxExpressPage() {
             <div className="px-4 py-3 flex flex-col flex-1">
               {/* Accroche */}
               <p className="text-navy-800 font-semibold text-sm text-center mb-1">Un projet ou des travaux à réaliser ?</p>
-              <p className="text-slate-500 text-xs text-center mb-4">
+              <p className="text-slate-500 text-xs text-center mb-4 min-h-8">
                 Trouvez un artisan disponible près de chez vous pour vos travaux du quotidien.
               </p>
 
@@ -215,7 +215,7 @@ export default function PetitsTravauxExpressPage() {
               {/* CTA - mt-4 fixe identique au bloc urgence */}
               <button
                 onClick={() => router.push('/petits-travaux-express/recherche?typeTravaux=petits-travaux-maintenance')}
-                className="w-full mt-4 bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 rounded-xl text-sm transition-colors duration-200 flex items-center justify-center gap-2"
+                className="w-full mt-auto bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 rounded-xl text-sm transition-colors duration-200 flex items-center justify-center gap-2"
               >
                 {t('expressPages.landing.petitsTravauxCTA')}
               </button>

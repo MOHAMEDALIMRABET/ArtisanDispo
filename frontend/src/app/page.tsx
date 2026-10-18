@@ -440,27 +440,27 @@ export default function Home() {
       {/* ── CTA PARTICULIERS / ARTISANS ── */}
       <section className="pb-16 sm:pb-24">
         <div className="mx-auto grid max-w-6xl gap-6 px-4 sm:px-6 md:grid-cols-2 lg:px-8">
-          <div className="rounded-2xl bg-navy-800 p-8 text-white sm:p-10">
+          <div className="flex flex-col rounded-2xl bg-navy-800 p-8 text-white sm:p-10">
             <h2 className="text-2xl font-bold sm:text-3xl">{t('home.areYouClient')}</h2>
-            <p className="mt-3 text-navy-100">
+            <p className="mt-3 flex-1 text-navy-100">
               Décrivez votre projet, comparez les profils les plus pertinents et avancez avec plus de sérénité.
             </p>
             <Link
               href="/inscription?role=client"
-              className="mt-6 inline-flex min-h-12 items-center justify-center rounded-lg bg-white px-6 font-semibold text-navy-800 transition-colors hover:bg-navy-50"
+              className="mt-6 inline-flex min-h-12 self-start items-center justify-center rounded-lg bg-white px-6 font-semibold text-navy-800 transition-colors hover:bg-navy-50"
             >
               {t('home.createClientProfile')}
             </Link>
           </div>
 
-          <div className="rounded-2xl bg-brand-700 p-8 text-white sm:p-10">
+          <div className="flex flex-col rounded-2xl bg-brand-700 p-8 text-white sm:p-10">
             <h2 className="text-2xl font-bold sm:text-3xl">{t('home.areYouArtisan')}</h2>
-            <p className="mt-3 text-brand-50">
+            <p className="mt-3 flex-1 text-brand-50">
               Présentez votre savoir-faire avec une image plus premium et recevez des demandes mieux qualifiées.
             </p>
             <Link
               href="/inscription?role=artisan"
-              className="mt-6 inline-flex min-h-12 items-center justify-center rounded-lg bg-white px-6 font-semibold text-brand-800 transition-colors hover:bg-brand-50"
+              className="mt-6 inline-flex min-h-12 self-start items-center justify-center rounded-lg bg-white px-6 font-semibold text-brand-800 transition-colors hover:bg-brand-50"
             >
               {t('home.createArtisanProfile')}
             </Link>
