@@ -196,8 +196,8 @@ export default function AdminSupportTicketsPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto mb-4"></div>
-          <p className="text-[#6C757D]">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
+          <p className="text-slate-500">Chargement...</p>
         </div>
       </div>
     );
@@ -215,21 +215,21 @@ export default function AdminSupportTicketsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-[#2C3E50] text-white py-6">
+      <div className="bg-navy-800 text-white py-6">
         <div className="max-w-7xl mx-auto px-4">
           <h1 className="text-3xl font-bold mb-2">🎫 Support Tickets</h1>
-          <p className="text-gray-300">Gestion des demandes utilisateurs</p>
+          <p className="text-slate-300">Gestion des demandes utilisateurs</p>
         </div>
       </div>
 
       {/* Stats */}
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow p-4">
-            <p className="text-[#6C757D] text-sm mb-1">Total tickets</p>
-            <p className="text-2xl font-bold text-[#2C3E50]">{statsTickets.total}</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+            <p className="text-slate-500 text-sm mb-1">Total tickets</p>
+            <p className="text-2xl font-bold text-navy-800">{statsTickets.total}</p>
           </div>
           <div className="bg-blue-50 rounded-lg shadow p-4">
             <p className="text-blue-700 text-sm mb-1">Ouverts</p>
@@ -246,14 +246,14 @@ export default function AdminSupportTicketsPage() {
         </div>
 
         {/* Filtres */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
           <div className="flex flex-wrap gap-4 items-center">
             <div>
-              <label className="block text-xs text-[#6C757D] mb-1">Statut</label>
+              <label className="block text-xs text-slate-500 mb-1">Statut</label>
               <select
                 value={filterStatut}
                 onChange={(e) => setFilterStatut(e.target.value as any)}
-                className="px-3 py-2 border border-gray-300 rounded text-sm"
+                className="px-3 py-2 border border-slate-300 rounded text-sm"
               >
                 <option value="tous">Tous</option>
                 <option value="ouvert">Ouvert</option>
@@ -264,11 +264,11 @@ export default function AdminSupportTicketsPage() {
             </div>
 
             <div>
-              <label className="block text-xs text-[#6C757D] mb-1">Catégorie</label>
+              <label className="block text-xs text-slate-500 mb-1">Catégorie</label>
               <select
                 value={filterCategorie}
                 onChange={(e) => setFilterCategorie(e.target.value as any)}
-                className="px-3 py-2 border border-gray-300 rounded text-sm"
+                className="px-3 py-2 border border-slate-300 rounded text-sm"
               >
                 <option value="tous">Toutes</option>
                 <option value="modification_iban">Modification IBAN</option>
@@ -286,14 +286,14 @@ export default function AdminSupportTicketsPage() {
                 id="nonVus"
                 checked={showOnlyNonVus}
                 onChange={(e) => setShowOnlyNonVus(e.target.checked)}
-                className="w-4 h-4 text-[#FF6B00] rounded"
+                className="w-4 h-4 text-brand-700 rounded"
               />
-              <label htmlFor="nonVus" className="text-sm text-[#2C3E50]">
+              <label htmlFor="nonVus" className="text-sm text-navy-800">
                 Seulement non vus
               </label>
             </div>
 
-            <div className="ml-auto text-sm text-[#6C757D]">
+            <div className="ml-auto text-sm text-slate-500">
               {ticketsFiltres.length} ticket(s) affiché(s)
             </div>
           </div>
@@ -305,29 +305,29 @@ export default function AdminSupportTicketsPage() {
           <div className="md:col-span-1">
             <div className="bg-white rounded-lg shadow max-h-[calc(100vh-400px)] overflow-y-auto">
               {ticketsFiltres.length === 0 ? (
-                <p className="text-center text-[#6C757D] py-8">Aucun ticket</p>
+                <p className="text-center text-slate-500 py-8">Aucun ticket</p>
               ) : (
                 <div className="divide-y">
                   {ticketsFiltres.map((ticket) => (
                     <button
                       key={ticket.id}
                       onClick={() => handleOpenTicket(ticket)}
-                      className={`w-full p-4 text-left hover:bg-gray-50 transition ${
-                        selectedTicket?.id === ticket.id ? 'bg-blue-50 border-l-4 border-[#FF6B00]' : ''
+                      className={`w-full p-4 text-left hover:bg-slate-50 transition ${
+                        selectedTicket?.id === ticket.id ? 'bg-blue-50 border-l-4 border-brand-500' : ''
                       }`}
                     >
                       <div className="flex items-start justify-between mb-2">
-                        <span className="text-xs font-mono text-[#6C757D]">{ticket.numero}</span>
+                        <span className="text-xs font-mono text-slate-500">{ticket.numero}</span>
                         {!ticket.vueParAdmin && (
                           <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
 nouvelle
                           </span>
                         )}
                       </div>
-                      <p className="font-semibold text-[#2C3E50] text-sm mb-1 line-clamp-2">
+                      <p className="font-semibold text-navy-800 text-sm mb-1 line-clamp-2">
                         {ticket.sujet}
                       </p>
-                      <p className="text-xs text-[#6C757D] mb-2">
+                      <p className="text-xs text-slate-500 mb-2">
                         {getCategorieLabel(ticket.categorie)}
                       </p>
                       <div className="flex items-center justify-between text-xs">
@@ -350,11 +350,11 @@ nouvelle
           {/* Détail ticket (2/3) */}
           <div className="md:col-span-2">
             {!selectedTicket ? (
-              <div className="bg-white rounded-lg shadow p-8 text-center">
-                <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center">
+                <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
-                <p className="text-[#6C757D]">Sélectionnez un ticket pour voir les détails</p>
+                <p className="text-slate-500">Sélectionnez un ticket pour voir les détails</p>
               </div>
             ) : (
               <div className="bg-white rounded-lg shadow">
@@ -362,8 +362,8 @@ nouvelle
                 <div className="border-b p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <span className="text-sm font-mono text-[#6C757D]">{selectedTicket.numero}</span>
-                      <h2 className="text-2xl font-bold text-[#2C3E50] mt-1">{selectedTicket.sujet}</h2>
+                      <span className="text-sm font-mono text-slate-500">{selectedTicket.numero}</span>
+                      <h2 className="text-2xl font-bold text-navy-800 mt-1">{selectedTicket.sujet}</h2>
                     </div>
                     <div className="flex gap-2">
                       <select
@@ -390,7 +390,7 @@ nouvelle
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-4 text-sm text-[#6C757D]">
+                  <div className="flex flex-wrap gap-4 text-sm text-slate-500">
                     <div>
                       <strong>De:</strong> {selectedTicket.userNom} ({selectedTicket.userEmail})
                     </div>
@@ -404,20 +404,20 @@ nouvelle
                 </div>
 
                 {/* Message initial */}
-                <div className="p-6 bg-gray-50 border-b">
+                <div className="p-6 bg-slate-50 border-b">
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold flex-shrink-0">
                       {selectedTicket.userNom.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1">
-                      <div className="bg-white rounded-lg p-4 shadow-sm">
+                      <div className="bg-white rounded-xl p-4 shadow-sm">
                         <div className="flex items-center justify-between mb-2">
-                          <strong className="text-[#2C3E50]">{selectedTicket.userNom}</strong>
-                          <span className="text-xs text-[#6C757D]">
+                          <strong className="text-navy-800">{selectedTicket.userNom}</strong>
+                          <span className="text-xs text-slate-500">
                             {selectedTicket.createdAt.toDate().toLocaleString('fr-FR')}
                           </span>
                         </div>
-                        <p className="text-[#2C3E50] whitespace-pre-wrap">{selectedTicket.message}</p>
+                        <p className="text-navy-800 whitespace-pre-wrap">{selectedTicket.message}</p>
                       </div>
                     </div>
                   </div>
@@ -429,7 +429,7 @@ nouvelle
                     {selectedTicket.reponses.map((reponse, index) => (
                       <div key={index} className={`flex items-start gap-3 ${reponse.auteurRole === 'admin' ? 'flex-row-reverse' : ''}`}>
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold flex-shrink-0 ${
-                          reponse.auteurRole === 'admin' ? 'bg-[#FF6B00] text-white' : 'bg-blue-500 text-white'
+                          reponse.auteurRole === 'admin' ? 'bg-brand-700 text-white' : 'bg-blue-500 text-white'
                         }`}>
                           {reponse.auteurNom.charAt(0).toUpperCase()}
                         </div>
@@ -438,12 +438,12 @@ nouvelle
                             reponse.auteurRole === 'admin' ? 'bg-orange-50' : 'bg-white'
                           }`}>
                             <div className="flex items-center justify-between mb-2">
-                              <strong className="text-[#2C3E50]">{reponse.auteurNom}</strong>
-                              <span className="text-xs text-[#6C757D]">
+                              <strong className="text-navy-800">{reponse.auteurNom}</strong>
+                              <span className="text-xs text-slate-500">
                                 {reponse.dateReponse.toDate().toLocaleString('fr-FR')}
                               </span>
                             </div>
-                            <p className="text-[#2C3E50] whitespace-pre-wrap">{reponse.message}</p>
+                            <p className="text-navy-800 whitespace-pre-wrap">{reponse.message}</p>
                           </div>
                         </div>
                       </div>
@@ -453,22 +453,22 @@ nouvelle
 
                 {/* Formulaire réponse (seulement si pas fermé) */}
                 {selectedTicket.statut !== 'ferme' && (
-                  <div className="p-6 border-t bg-gray-50">
+                  <div className="p-6 border-t bg-slate-50">
                     <textarea
                       value={reponseMessage}
                       onChange={(e) => setReponseMessage(e.target.value)}
                       placeholder="Votre réponse à l'artisan..."
                       rows={4}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent resize-none"
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
                     />
                     <div className="flex items-center justify-between mt-3">
-                      <p className="text-xs text-[#6C757D]">
+                      <p className="text-xs text-slate-500">
                         💡 L'artisan recevra une notification par email
                       </p>
                       <button
                         onClick={handleSendReponse}
                         disabled={!reponseMessage.trim() || submittingReponse}
-                        className="bg-[#FF6B00] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#E56100] disabled:bg-gray-300 disabled:cursor-not-allowed transition"
+                        className="bg-brand-700 text-white px-6 py-2 rounded-lg font-semibold hover:bg-brand-800 disabled:bg-slate-300 disabled:cursor-not-allowed transition"
                       >
                         {submittingReponse ? 'Envoi...' : '📨 Envoyer la réponse'}
                       </button>

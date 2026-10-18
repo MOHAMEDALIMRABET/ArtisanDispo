@@ -1150,10 +1150,10 @@ export default function NouveauDevisPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
-          <p className="mt-4 text-[#6C757D]">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
+          <p className="mt-4 text-slate-500">Chargement...</p>
         </div>
       </div>
     );
@@ -1167,7 +1167,7 @@ export default function NouveauDevisPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-[#F5F7FA] flex">
+      <div className="min-h-screen bg-slate-50 flex">
       {/* PARTIE GAUCHE : FORMULAIRE */}
       <div className="w-1/2 overflow-y-auto p-8">
         <div className="max-w-2xl">
@@ -1175,14 +1175,14 @@ export default function NouveauDevisPage() {
           <div className="mb-8">
             <button
               onClick={() => router.back()}
-              className="text-[#FF6B00] hover:underline mb-4"
+              className="text-brand-700 hover:underline mb-4"
             >
               ← Retour {modeEdition ? 'aux devis' : 'aux demandes'}
             </button>
-            <h1 className="text-3xl font-bold text-[#2C3E50]">
+            <h1 className="text-3xl font-bold text-navy-800">
               {modeEdition ? '📝 Modifier le brouillon' : 'Créer un devis'}
             </h1>
-            <p className="text-[#6C757D] mt-2">
+            <p className="text-slate-500 mt-2">
               {modeEdition ? (
                 <span>
                   Modification en cours • Client : {clientInfo?.prenom} {clientInfo?.nom}
@@ -1251,11 +1251,11 @@ export default function NouveauDevisPage() {
 
           {/* Informations générales */}
           <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
-            <h2 className="text-xl font-semibold text-[#2C3E50] mb-4">Informations générales</h2>
+            <h2 className="text-xl font-semibold text-navy-800 mb-4">Informations générales</h2>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[#2C3E50] mb-1">
+                <label className="block text-sm font-medium text-navy-800 mb-1">
                   Titre du devis *
                 </label>
                 <input
@@ -1270,17 +1270,17 @@ export default function NouveauDevisPage() {
                     setErreurValidation(null);
                     setTitre(e.target.value);
                   }}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   placeholder="Ex: Rénovation salle de bain"
                 />
               </div>
 
-              <div className="grid grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div className="col-span-3">
-                  <label className="block text-sm font-medium text-[#2C3E50] mb-1">
+                  <label className="block text-sm font-medium text-navy-800 mb-1">
                     Date de début prévue *
                     {demande?.datesSouhaitees?.dates && demande.datesSouhaitees.dates.length > 0 && (
-                      <span className="font-normal text-[#6C757D]">
+                      <span className="font-normal text-slate-500">
                         {' '}: {demande.datesSouhaitees.dates[0].toDate().toLocaleDateString('fr-FR')}
                         {demande.datesSouhaitees.flexible && demande.datesSouhaitees.flexibiliteDays && (
                           <span> (±{demande.datesSouhaitees.flexibiliteDays} jours)</span>
@@ -1292,7 +1292,7 @@ export default function NouveauDevisPage() {
                     type="date"
                     value={dateDebutPrevue}
                     onChange={(e) => setDateDebutPrevue(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                     required
                   />
                   {(() => {
@@ -1323,7 +1323,7 @@ export default function NouveauDevisPage() {
                 </div>
 
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium text-[#2C3E50] mb-1">
+                  <label className="block text-sm font-medium text-navy-800 mb-1">
                     Délai de réalisation (en jours) *
                   </label>
                   <input
@@ -1332,21 +1332,21 @@ export default function NouveauDevisPage() {
                     step="1"
                     value={delaiRealisation}
                     onChange={(e) => setDelaiRealisation(e.target.value ? parseInt(e.target.value) : '')}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                     placeholder="Ex: 15"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Nombre de jours nécessaires pour réaliser les travaux</p>
+                  <p className="text-xs text-slate-500 mt-1">Nombre de jours nécessaires pour réaliser les travaux</p>
                 </div>
 
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium text-[#2C3E50] mb-1">
+                  <label className="block text-sm font-medium text-navy-800 mb-1">
                     Validité de devis (jours)
                   </label>
                   <input
                     type="number"
                     value={dateValidite}
                     onChange={(e) => setDateValidite(parseInt(e.target.value) || 30)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                     min="1"
                   />
                 </div>
@@ -1356,7 +1356,7 @@ export default function NouveauDevisPage() {
 
           {/* Devis Alternatifs (Variantes) */}
           {(!estPremierDevis || revisionDevisId) && (variantesExistantes.length > 0 || demandeId) ? (
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-lg p-6 shadow-sm mb-6">
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 shadow-sm mb-6">
               {revisionDevisId ? (
                 // Mode révision : affichage spécial automatique
                 <div className="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-4 rounded">
@@ -1393,16 +1393,16 @@ export default function NouveauDevisPage() {
                     }
                     
                     return (
-                      <div className="bg-orange-50 border-l-4 border-[#FF6B00] p-4 mb-4 rounded">
+                      <div className="bg-orange-50 border-l-4 border-brand-500 p-4 mb-4 rounded">
                         <div className="flex items-start gap-3">
-                          <svg className="w-6 h-6 text-[#FF6B00] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-6 h-6 text-brand-700 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg>
                           <div className="flex-1">
-                            <p className="font-semibold text-[#2C3E50] mb-1">
+                            <p className="font-semibold text-navy-800 mb-1">
                               📋 Création d'une nouvelle variante
                             </p>
-                            <p className="text-sm text-[#2C3E50]">
+                            <p className="text-sm text-navy-800">
                               Ce devis sera automatiquement créé comme <strong>variante {prochaineLettreReference}</strong> pour permettre au client de comparer vos différentes propositions.
                             </p>
                           </div>
@@ -1412,17 +1412,17 @@ export default function NouveauDevisPage() {
                   })()}
 
                   {variantesExistantes.length > 0 && (
-                <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
-                  <h3 className="font-medium text-[#2C3E50] mb-2">
+                <div className="bg-white rounded-lg p-4 mb-4 border border-slate-200">
+                  <h3 className="font-medium text-navy-800 mb-2">
                     📊 Devis existants ({variantesExistantes.length})
                   </h3>
                   <div className="space-y-2">
                     {variantesExistantes.map((v) => (
-                      <div key={v.id} className="flex items-center justify-between text-sm bg-gray-100 px-3 py-2 rounded">
-                        <span className="font-mono font-semibold text-[#2C3E50]">
+                      <div key={v.id} className="flex items-center justify-between text-sm bg-slate-100 px-3 py-2 rounded">
+                        <span className="font-mono font-semibold text-navy-800">
                           {v.numeroDevis}
                         </span>
-                        <span className="text-[#6C757D]">
+                        <span className="text-slate-500">
                           {v.totaux?.totalTTC ? `${v.totaux.totalTTC.toFixed(2)} €` : '—'}
                         </span>
                       </div>
@@ -1438,10 +1438,10 @@ export default function NouveauDevisPage() {
           {/* Prestations */}
           <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-[#2C3E50]">Prestations</h2>
+              <h2 className="text-xl font-semibold text-navy-800">Prestations</h2>
               <button
                 onClick={ajouterLigne}
-                className="bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition"
+                className="bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 transition"
               >
                 + Ajouter une ligne
               </button>
@@ -1449,15 +1449,15 @@ export default function NouveauDevisPage() {
 
             <div className="space-y-4">
               {/* Main d'œuvre - OBLIGATOIRE */}
-              <div className="border-2 border-[#FF6B00] rounded-lg p-4 bg-orange-50">
+              <div className="border-2 border-brand-500 rounded-lg p-4 bg-orange-50">
                 <div className="flex justify-between items-start mb-3">
-                  <span className="text-sm font-semibold text-[#FF6B00]">Main d'œuvre *</span>
-                  <span className="text-xs bg-[#FF6B00] text-white px-2 py-1 rounded">OBLIGATOIRE</span>
+                  <span className="text-sm font-semibold text-brand-700">Main d'œuvre *</span>
+                  <span className="text-xs bg-brand-700 text-white px-2 py-1 rounded">OBLIGATOIRE</span>
                 </div>
 
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                   <div>
-                    <label className="block text-xs text-[#6C757D] mb-1">Quantité</label>
+                    <label className="block text-xs text-slate-500 mb-1">Quantité</label>
                     <input
                       type="number"
                       value={mainOeuvreQuantite || ''}
@@ -1474,18 +1474,18 @@ export default function NouveauDevisPage() {
                           setMainOeuvreQuantite(0);
                         }
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       min="0"
                       step="0.01"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs text-[#6C757D] mb-1">Unité</label>
+                    <label className="block text-xs text-slate-500 mb-1">Unité</label>
                     <select
                       value={mainOeuvreUnite}
                       onChange={(e) => setMainOeuvreUnite(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                     >
                       <option value="h">h</option>
                       <option value="j">j</option>
@@ -1493,7 +1493,7 @@ export default function NouveauDevisPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs text-[#6C757D] mb-1">Prix U. HT (€)</label>
+                    <label className="block text-xs text-slate-500 mb-1">Prix U. HT (€)</label>
                     <input
                       type="number"
                       value={mainOeuvrePrixHT || ''}
@@ -1510,7 +1510,7 @@ export default function NouveauDevisPage() {
                           setMainOeuvrePrixHT(0);
                         }
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       min="0"
                       step="0.01"
                       required
@@ -1518,11 +1518,11 @@ export default function NouveauDevisPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs text-[#6C757D] mb-1">TVA (%)</label>
+                    <label className="block text-xs text-slate-500 mb-1">TVA (%)</label>
                     <select
                       value={mainOeuvreTVA}
                       onChange={(e) => setMainOeuvreTVA(parseFloat(e.target.value) as TVARate)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                     >
                       <option value="0">0%</option>
                       <option value="5.5">5.5%</option>
@@ -1533,15 +1533,15 @@ export default function NouveauDevisPage() {
                 </div>
 
                 <div className="flex justify-end text-sm mt-2">
-                  <span className="text-[#6C757D]">Total : </span>
-                  <span className="font-semibold text-[#2C3E50] ml-2">
+                  <span className="text-slate-500">Total : </span>
+                  <span className="font-semibold text-navy-800 ml-2">
                     {(mainOeuvreQuantite * mainOeuvrePrixHT * (1 + mainOeuvreTVA / 100)).toFixed(2)} € TTC
                   </span>
                 </div>
               </div>
 
               {/* Matière première - OPTIONNELLE */}
-              <div className={`border rounded-lg p-4 ${ajouterMatierePremiere ? 'border-[#2C3E50] bg-gray-100' : 'border-gray-200 bg-gray-50'}`}>
+              <div className={`border rounded-lg p-4 ${ajouterMatierePremiere ? 'border-navy-800 bg-slate-100' : 'border-slate-200 bg-slate-50'}`}>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <input
@@ -1552,31 +1552,31 @@ export default function NouveauDevisPage() {
                         setAjouterMatierePremiere(e.target.checked);
                         if (e.target.checked) setMatierePremiereQuantite(1);
                       }}
-                      className="w-4 h-4 text-[#FF6B00] focus:ring-[#FF6B00] border-gray-300 rounded"
+                      className="w-4 h-4 text-brand-700 focus:ring-brand-500 border-slate-300 rounded"
                     />
-                    <label htmlFor="ajouterMatierePremiere" className="text-sm font-medium text-[#2C3E50] cursor-pointer">
+                    <label htmlFor="ajouterMatierePremiere" className="text-sm font-medium text-navy-800 cursor-pointer">
                       Matière première (optionnel)
                     </label>
                   </div>
                   {ajouterMatierePremiere && (
-                    <span className="text-xs bg-gray-500 text-white px-2 py-1 rounded">OPTIONNEL</span>
+                    <span className="text-xs bg-slate-500 text-white px-2 py-1 rounded">OPTIONNEL</span>
                   )}
                 </div>
 
                 {ajouterMatierePremiere && (
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-xs text-[#6C757D] mb-1">Quantité</label>
+                      <label className="block text-xs text-slate-500 mb-1">Quantité</label>
                       <input
                         type="number"
                         value={1}
                         readOnly
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed"
+                        className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-100 text-slate-500 cursor-not-allowed"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs text-[#6C757D] mb-1">Prix U. HT (€)</label>
+                      <label className="block text-xs text-slate-500 mb-1">Prix U. HT (€)</label>
                       <input
                         type="number"
                         value={matierePremierePrixHT || ''}
@@ -1593,18 +1593,18 @@ export default function NouveauDevisPage() {
                             setMatierePremierePrixHT(0);
                           }
                         }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                         min="0"
                         step="0.01"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs text-[#6C757D] mb-1">TVA (%)</label>
+                      <label className="block text-xs text-slate-500 mb-1">TVA (%)</label>
                       <select
                         value={mpTvaRate}
                         onChange={(e) => setMpTvaRate(parseFloat(e.target.value) as TVARate)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       >
                         <option value="0">0%</option>
                         <option value="5.5">5.5%</option>
@@ -1617,8 +1617,8 @@ export default function NouveauDevisPage() {
 
                 {ajouterMatierePremiere && (
                   <div className="flex justify-end text-sm mt-2">
-                    <span className="text-[#6C757D]">Total : </span>
-                    <span className="font-semibold text-[#2C3E50] ml-2">
+                    <span className="text-slate-500">Total : </span>
+                    <span className="font-semibold text-navy-800 ml-2">
                       {(matierePremiereQuantite * matierePremierePrixHT * (1 + mpTvaRate / 100)).toFixed(2)} € TTC
                     </span>
                   </div>
@@ -1627,9 +1627,9 @@ export default function NouveauDevisPage() {
 
               {/* Lignes de prestations personnalisées */}
               {lignes.map((ligne, index) => (
-                <div key={ligne.id} className="border border-gray-200 rounded-lg p-4">
+                <div key={ligne.id} className="border border-slate-200 rounded-lg p-4">
                   <div className="flex justify-between items-start mb-3">
-                    <span className="text-sm font-medium text-[#6C757D]">Ligne {index + 1}</span>
+                    <span className="text-sm font-medium text-slate-500">Ligne {index + 1}</span>
                     <button
                       onClick={() => supprimerLigne(ligne.id)}
                       className="text-red-600 hover:text-red-800 text-sm"
@@ -1651,13 +1651,13 @@ export default function NouveauDevisPage() {
                         setErreurValidation(null);
                         mettreAJourLigne(ligne.id, { description: e.target.value });
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       placeholder="Description de la prestation"
                     />
 
-                    <div className="grid grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                       <div>
-                        <label className="block text-xs text-[#6C757D] mb-1">Quantité</label>
+                        <label className="block text-xs text-slate-500 mb-1">Quantité</label>
                         <input
                           type="number"
                           value={ligne.quantite || ''}
@@ -1674,18 +1674,18 @@ export default function NouveauDevisPage() {
                               mettreAJourLigne(ligne.id, { quantite: 0 });
                             }
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                           min="0"
                           step="0.01"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs text-[#6C757D] mb-1">Unité</label>
+                        <label className="block text-xs text-slate-500 mb-1">Unité</label>
                         <select
                           value={ligne.unite}
                           onChange={(e) => mettreAJourLigne(ligne.id, { unite: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                         >
                           <option value="h">h</option>
                           <option value="j">j</option>
@@ -1697,7 +1697,7 @@ export default function NouveauDevisPage() {
                       </div>
 
                       <div>
-                        <label className="block text-xs text-[#6C757D] mb-1">Prix U. HT (€)</label>
+                        <label className="block text-xs text-slate-500 mb-1">Prix U. HT (€)</label>
                         <input
                           type="number"
                           value={ligne.prixUnitaireHT || ''}
@@ -1714,18 +1714,18 @@ export default function NouveauDevisPage() {
                               mettreAJourLigne(ligne.id, { prixUnitaireHT: 0 });
                             }
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                           min="0"
                           step="0.01"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs text-[#6C757D] mb-1">TVA (%)</label>
+                        <label className="block text-xs text-slate-500 mb-1">TVA (%)</label>
                         <select
                           value={ligne.tauxTVA}
                           onChange={(e) => mettreAJourLigne(ligne.id, { tauxTVA: parseFloat(e.target.value) as TVARate })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                         >
                           <option value="0">0%</option>
                           <option value="5.5">5.5%</option>
@@ -1736,8 +1736,8 @@ export default function NouveauDevisPage() {
                     </div>
 
                     <div className="flex justify-end text-sm">
-                      <span className="text-[#6C757D]">Total ligne : </span>
-                      <span className="font-semibold text-[#2C3E50] ml-2">
+                      <span className="text-slate-500">Total ligne : </span>
+                      <span className="font-semibold text-navy-800 ml-2">
                         {ligne.totalTTC.toFixed(2)} € TTC
                       </span>
                     </div>
@@ -1752,21 +1752,21 @@ export default function NouveauDevisPage() {
             <button
               onClick={() => router.push('/artisan/devis')}
               disabled={savingBrouillon || savingEnvoi}
-              className="px-5 py-3 rounded-lg font-semibold border-2 border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-3 rounded-lg font-semibold border-2 border-navy-800 text-navy-800 hover:bg-navy-800 hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               ✕ Annuler
             </button>
             <button
               onClick={sauvegarderBrouillon}
               disabled={savingBrouillon || savingEnvoi || (demande?.type === 'publique' && (demande?.devisRecus || 0) >= 10)}
-              className="flex-1 bg-gray-200 text-[#2C3E50] px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-slate-200 text-navy-800 px-6 py-3 rounded-lg font-semibold hover:bg-slate-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {savingBrouillon ? '⏳ Génération...' : '📄 Générer le devis'}
             </button>
             <button
               onClick={envoyerDevis}
               disabled={savingBrouillon || savingEnvoi || (demande?.type === 'publique' && (demande?.devisRecus || 0) >= 10)}
-              className="flex-1 bg-[#FF6B00] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#E56100] transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-brand-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {savingEnvoi ? '⏳ Envoi...' : '📨 Envoyer le devis'}
             </button>
@@ -1787,7 +1787,7 @@ export default function NouveauDevisPage() {
       </div>
 
       {/* PARTIE DROITE : PRÉVISUALISATION */}
-      <div className="w-1/2 bg-white border-l border-gray-200 overflow-y-auto p-8">
+      <div className="w-1/2 bg-white border-l border-slate-200 overflow-y-auto p-8">
         <div className="max-w-2xl mx-auto">
           {/* En-tête devis */}
           <div className="mb-8">
@@ -1799,15 +1799,15 @@ export default function NouveauDevisPage() {
 
               {/* Titre DEVIS au centre */}
               <div className="flex-1 text-center">
-                <h1 className="text-4xl font-bold text-[#2C3E50] mb-2">DEVIS</h1>
-                <p className="text-[#6C757D]">N° {numeroDevisPreview}</p>
+                <h1 className="text-4xl font-bold text-navy-800 mb-2">DEVIS</h1>
+                <p className="text-slate-500">N° {numeroDevisPreview}</p>
               </div>
 
               {/* Dates à droite */}
               <div className="text-right flex-shrink-0">
-                <p className="text-sm text-[#6C757D]">Date</p>
+                <p className="text-sm text-slate-500">Date</p>
                 <p className="font-semibold">{dateCreation.toLocaleDateString('fr-FR')}</p>
-                <p className="text-sm text-[#6C757D] mt-2">Validité</p>
+                <p className="text-sm text-slate-500 mt-2">Validité</p>
                 <p className="font-semibold">{dateValidite} jours</p>
               </div>
             </div>
@@ -1815,30 +1815,30 @@ export default function NouveauDevisPage() {
             {/* Informations artisan et client */}
             <div className="grid grid-cols-2 gap-8 mb-8">
               <div>
-                <h3 className="text-sm font-semibold text-[#2C3E50] mb-2">DE :</h3>
+                <h3 className="text-sm font-semibold text-navy-800 mb-2">DE :</h3>
                 <div className="text-sm">
                   <p className="font-semibold">{artisanInfo?.raisonSociale}</p>
-                  <p className="text-[#6C757D]">SIRET : {artisanInfo?.siret}</p>
+                  <p className="text-slate-500">SIRET : {artisanInfo?.siret}</p>
                   {artisanInfo?.adresse && (
-                    <p className="text-[#6C757D]">
+                    <p className="text-slate-500">
                       {artisanInfo.adresse.rue}, {artisanInfo.adresse.codePostal} {artisanInfo.adresse.ville}
                     </p>
                   )}
-                  <p className="text-[#6C757D]">{artisanInfo?.telephone}</p>
+                  <p className="text-slate-500">{artisanInfo?.telephone}</p>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold text-[#2C3E50] mb-2">POUR :</h3>
+                <h3 className="text-sm font-semibold text-navy-800 mb-2">POUR :</h3>
                 <div className="text-sm">
                   <p className="font-semibold">{clientInfo?.prenom} {clientInfo?.nom}</p>
                   {clientInfo?.telephone && (
-                    <p className="text-[#6C757D] mt-1">
+                    <p className="text-slate-500 mt-1">
                       📞 {masquerTelephone(clientInfo.telephone)}
                     </p>
                   )}
                   {clientInfo?.adresse && (
-                    <p className="text-[#6C757D] mt-2">
+                    <p className="text-slate-500 mt-2">
                       {clientInfo.adresse.rue}<br />
                       {clientInfo.adresse.codePostal} {clientInfo.adresse.ville}
                     </p>
@@ -1850,12 +1850,12 @@ export default function NouveauDevisPage() {
             {/* Titre et description */}
             {titre && (
               <div className="mb-6">
-                <h2 className="text-2xl font-bold text-[#2C3E50] mb-2">{titre}</h2>
+                <h2 className="text-2xl font-bold text-navy-800 mb-2">{titre}</h2>
               </div>
             )}
 
             {dateDebutPrevue && (
-              <div className="bg-gray-50 border-l-4 border-[#2C3E50] p-4 mb-4">
+              <div className="bg-slate-50 border-l-4 border-navy-800 p-4 mb-4">
                 <p className="text-sm">
                   <span className="font-semibold">📅 Date de début des travaux prévue :</span>{' '}
                   {new Date(dateDebutPrevue).toLocaleDateString('fr-FR', { 
@@ -1869,7 +1869,7 @@ export default function NouveauDevisPage() {
             )}
 
             {delaiRealisation && dateDebutPrevue && (
-              <div className="bg-[#FFF3E0] border-l-4 border-[#FF6B00] p-4 mb-6">
+              <div className="bg-brand-50 border-l-4 border-brand-500 p-4 mb-6">
                 <p className="text-sm">
                   <span className="font-semibold">📅 Date de fin des travaux prévue :</span>{' '}
                   {(() => {
@@ -1888,9 +1888,9 @@ export default function NouveauDevisPage() {
           </div>
 
           {/* Tableau des prestations */}
-          <div className="border border-gray-200 rounded-lg overflow-hidden mb-6">
+          <div className="border border-slate-200 rounded-lg overflow-hidden mb-6">
             <table className="w-full table-fixed">
-              <thead className="bg-[#2C3E50] text-white">
+              <thead className="bg-navy-800 text-white">
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-semibold w-[40%]">Description</th>
                   <th className="px-4 py-3 text-center text-sm font-semibold w-[12%]">Qté</th>
@@ -1901,9 +1901,9 @@ export default function NouveauDevisPage() {
               </thead>
               <tbody>
                 {/* Main d'œuvre (toujours affichée) */}
-                <tr className="border-t border-gray-200 bg-orange-50">
+                <tr className="border-t border-slate-200 bg-orange-50">
                   <td className="px-4 py-3 text-sm break-words">
-                    <span className="font-semibold text-[#FF6B00]">⚡ Main d'œuvre</span>
+                    <span className="font-semibold text-brand-700">⚡ Main d'œuvre</span>
                   </td>
                   <td className="px-4 py-3 text-sm text-center">
                     {mainOeuvreQuantite} j
@@ -1925,9 +1925,9 @@ export default function NouveauDevisPage() {
 
                 {/* Matière première (si activée) */}
                 {ajouterMatierePremiere && (
-                  <tr className="border-t border-gray-200 bg-gray-50">
+                  <tr className="border-t border-slate-200 bg-slate-50">
                     <td className="px-4 py-3 text-sm break-words">
-                      <span className="font-semibold text-[#2C3E50]">🛠️ Matière première</span>
+                      <span className="font-semibold text-navy-800">🛠️ Matière première</span>
                     </td>
                     <td className="px-4 py-3 text-sm text-center">
                       {matierePremiereQuantite}
@@ -1949,9 +1949,9 @@ export default function NouveauDevisPage() {
                 )}
 
                 {lignes.filter(ligne => ligne.description.trim() || ligne.prixUnitaireHT > 0).map((ligne) => (
-                  <tr key={ligne.id} className="border-t border-gray-200">
+                  <tr key={ligne.id} className="border-t border-slate-200">
                     <td className="px-4 py-3 text-sm break-words">
-                      {ligne.description || <span className="text-gray-400 italic">Description...</span>}
+                      {ligne.description || <span className="text-slate-400 italic">Description...</span>}
                     </td>
                     <td className="px-4 py-3 text-sm text-center">
                       {ligne.quantite} {ligne.unite}
@@ -1972,42 +1972,42 @@ export default function NouveauDevisPage() {
           </div>
 
           {/* Totaux */}
-          <div className="bg-[#F5F7FA] rounded-lg p-6 mb-6">
+          <div className="bg-slate-50 rounded-lg p-6 mb-6">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-[#6C757D]">Total HT</span>
+                <span className="text-slate-500">Total HT</span>
                 <span className="font-semibold">{totaux.totalHT.toFixed(2)} €</span>
               </div>
               {Object.entries(totaux.totalTVA).map(([taux, montant]) => (
                 <div key={taux} className="flex justify-between text-sm">
-                  <span className="text-[#6C757D]">TVA {taux}%</span>
+                  <span className="text-slate-500">TVA {taux}%</span>
                   <span className="font-semibold">{montant?.toFixed(2)} €</span>
                 </div>
               ))}
-              <div className="border-t border-gray-300 pt-2 mt-2">
+              <div className="border-t border-slate-300 pt-2 mt-2">
                 <div className="flex justify-between">
-                  <span className="text-lg font-bold text-[#2C3E50]">Total TTC</span>
-                  <span className="text-2xl font-bold text-[#FF6B00]">{totaux.totalTTC.toFixed(2)} €</span>
+                  <span className="text-lg font-bold text-navy-800">Total TTC</span>
+                  <span className="text-2xl font-bold text-brand-700">{totaux.totalTTC.toFixed(2)} €</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Signature artisan - indicateur visuel uniquement (déclenchée par les boutons) */}
-          <div className="mt-6 pt-4 border-t border-gray-200 flex justify-end">
+          <div className="mt-6 pt-4 border-t border-slate-200 flex justify-end">
             <div className="text-right">
-              <p className="text-xs text-gray-500 mb-2">Signature de l'artisan :</p>
+              <p className="text-xs text-slate-500 mb-2">Signature de l'artisan :</p>
               {signatureArtisanDataURL ? (
                 <div>
                   <img
                     src={signatureArtisanDataURL}
                     alt="Signature artisan"
-                    className="h-16 border border-gray-200 rounded bg-white mb-1 ml-auto"
+                    className="h-16 border border-slate-200 rounded bg-white mb-1 ml-auto"
                   />
-                  <p className="text-xs text-[#28A745]">✅ Signé</p>
+                  <p className="text-xs text-green-700">✅ Signé</p>
                 </div>
               ) : (
-                <p className="text-xs text-gray-400 italic">Signature apposée lors de l'envoi</p>
+                <p className="text-xs text-slate-400 italic">Signature apposée lors de l'envoi</p>
               )}
             </div>
           </div>
@@ -2018,9 +2018,9 @@ export default function NouveauDevisPage() {
     {/* Modal signature artisan */}
     {showSignatureArtisan && (
       <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6">
-          <h3 className="text-lg font-bold text-[#2C3E50] mb-1">✍️ Signature électronique requise</h3>
-          <p className="text-sm text-gray-500 mb-4">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 w-full max-w-lg p-6">
+          <h3 className="text-lg font-bold text-navy-800 mb-1">✍️ Signature électronique requise</h3>
+          <p className="text-sm text-slate-500 mb-4">
             {pendingActionRef.current === 'envoyer'
               ? 'Signez pour confirmer et envoyer ce devis au client. Si vous annulez, le devis ne sera pas envoyé.'
               : 'Signez pour confirmer et générer ce devis. Si vous annulez, le devis ne sera pas généré.'}

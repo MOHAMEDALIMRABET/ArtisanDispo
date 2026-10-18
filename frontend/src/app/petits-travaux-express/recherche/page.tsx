@@ -340,44 +340,44 @@ export default function RechercheExpressPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#F8F9FA] to-white">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
       {/* ── Breadcrumb ── */}
-      <div className="bg-white border-b border-[#E9ECEF]">
+      <div className="bg-white border-b border-slate-200">
         <div className="container mx-auto px-4 py-3">
-          <nav className="flex items-center gap-2 text-sm text-[#6C757D]">
-            <Link href="/" className="hover:text-[#FF6B00] transition-colors flex items-center gap-1">
+          <nav className="flex items-center gap-2 text-sm text-slate-500">
+            <Link href="/" className="hover:text-brand-700 transition-colors flex items-center gap-1">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
               </svg>
               {t('expressPages.landing.breadcrumbHome')}
             </Link>
             <span>&gt;</span>
-            <Link href="/petits-travaux-express" className="text-[#2C3E50] hover:text-[#FF6B00] transition-colors">
+            <Link href="/petits-travaux-express" className="text-navy-800 hover:text-brand-700 transition-colors">
               {t('expressPages.landing.breadcrumb')}
             </Link>
             <span>&gt;</span>
-            <span className="text-[#2C3E50] font-semibold">{t('expressPages.recherche.breadcrumb')}</span>
+            <span className="text-navy-800 font-semibold">{t('expressPages.recherche.breadcrumb')}</span>
           </nav>
         </div>
       </div>
 
       {/* ── Bannière ── */}
-      <section className={`text-white py-3 md:py-4 ${typeTravaux === 'depannage-urgence' ? 'bg-[#DC3545]' : 'bg-[#FF6B00]'}`}>
+      <section className={`text-white py-3 md:py-4 ${typeTravaux === 'depannage-urgence' ? 'bg-red-700' : 'bg-brand-700'}`}>
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-2xl md:text-3xl font-bold leading-tight">
             {typeTravaux === 'depannage-urgence'
               ? t('expressPages.recherche.bannerDepannage')
               : t('expressPages.recherche.bannerPetitsTravaux')}
           </h1>
-          <p className={`text-sm md:text-base mt-1 ${typeTravaux === 'depannage-urgence' ? 'text-red-100' : 'text-[#4A4A4A]'}`}>
+          <p className={`text-sm md:text-base mt-1 ${typeTravaux === 'depannage-urgence' ? 'text-red-100' : 'text-slate-700'}`}>
             {t('expressPages.recherche.bannerSubtitle')}
           </p>
         </div>
       </section>
 
       {/* Section formulaire — style hero pro */}
-      <div className="relative bg-[#eef0f8] min-h-[620px] flex items-center overflow-hidden">
+      <div className="relative bg-slate-100 min-h-[620px] flex items-center overflow-hidden">
 
         {/* Vague décorative — couche arrière */}
         <svg
@@ -434,14 +434,14 @@ export default function RechercheExpressPage() {
         <div className="relative z-10 w-full container mx-auto px-4 py-12">
         <div className={searched ? 'md:flex md:gap-6 md:items-start' : 'max-w-xl mx-auto'}>
           <div className={searched ? 'md:w-96 md:flex-shrink-0 md:sticky md:top-6' : ''}>
-          <form onSubmit={handleSearch} className="bg-white rounded-xl shadow-lg p-6 md:p-8 space-y-6">
+          <form onSubmit={handleSearch} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-6">
             {/* Type de travaux */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+              <label className="block text-sm font-semibold text-navy-800 mb-2">
                 {t('expressPages.recherche.typeLabel')} <span className="text-red-500">*</span>
               </label>
               {isTypeLocked ? (
-                <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
+                <div className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg bg-slate-50 text-navy-800 font-semibold">
                   {typeTravaux === 'depannage-urgence' ? t('expressPages.recherche.depannageOption') : t('expressPages.recherche.petitsTravauxOption')}
                 </div>
               ) : (
@@ -453,7 +453,7 @@ export default function RechercheExpressPage() {
                     setSousCategorie('');
                   }}
                   required
-                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-brand-500 focus:outline-none transition-colors"
                 >
                   <option value="depannage-urgence">{t('expressPages.recherche.depannageOption')}</option>
                   <option value="petits-travaux-maintenance">{t('expressPages.recherche.petitsTravauxOption')}</option>
@@ -462,7 +462,7 @@ export default function RechercheExpressPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+              <label className="block text-sm font-semibold text-navy-800 mb-2">
                 {t('expressPages.recherche.categorieLabel')} <span className="text-red-500">*</span>
               </label>
               <select
@@ -472,7 +472,7 @@ export default function RechercheExpressPage() {
                   setSousCategorie('');
                 }}
                 required
-                className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
+                className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-brand-500 focus:outline-none transition-colors"
               >
                 <option value="">{t('expressPages.recherche.selectCategorie')}</option>
                 {categorieOptions.map((cat) => (
@@ -484,13 +484,13 @@ export default function RechercheExpressPage() {
             {/* Sous-catégorie */}
             {selectedCategorie && (
               <div>
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                <label className="block text-sm font-semibold text-navy-800 mb-2">
                   {t('expressPages.recherche.sousCategorieLabel')}
                 </label>
                 <select
                   value={sousCategorie}
                   onChange={(e) => setSousCategorie(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-brand-500 focus:outline-none transition-colors"
                 >
                   <option value="">{t('expressPages.recherche.allSubCategories')}</option>
                   {selectedCategorie.sousCategories.map((sc) => (
@@ -501,10 +501,10 @@ export default function RechercheExpressPage() {
                 </select>
                 {/* Badge prix indicatif : affiché dès qu'une sous-catégorie avec un prix est sélectionnée */}
                 {prixIndicatif && (
-                  <div className="mt-2 flex items-center gap-2 bg-[#FFF3EA] border border-[#FF6B00] rounded-lg px-3 py-2">
+                  <div className="mt-2 flex items-center gap-2 bg-brand-50 border border-brand-500 rounded-lg px-3 py-2">
                     <span className="text-lg">💰</span>
-                    <span className="text-sm font-semibold text-[#FF6B00]">Prix indicatif :</span>
-                    <span className="text-sm font-bold text-[#2C3E50]">{prixIndicatif}</span>
+                    <span className="text-sm font-semibold text-brand-700">Prix indicatif :</span>
+                    <span className="text-sm font-bold text-navy-800">{prixIndicatif}</span>
                   </div>
                 )}
               </div>
@@ -513,7 +513,7 @@ export default function RechercheExpressPage() {
             {/* Localisation */}
             <div className="grid grid-cols-1 gap-4">
               <div className="relative">
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                <label className="block text-sm font-semibold text-navy-800 mb-2">
                   {t('expressPages.recherche.villeLabel')} <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -528,21 +528,21 @@ export default function RechercheExpressPage() {
                   onBlur={() => setTimeout(() => setActiveField(null), 200)}
                   required
                   placeholder={t('expressPages.recherche.villePlaceholder')}
-                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-brand-500 focus:outline-none transition-colors"
                 />
                 
                 {/* Suggestions de villes */}
                 {activeField === 'ville' && villeSuggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border-2 border-[#E9ECEF] rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  <div className="absolute z-10 w-full mt-1 bg-white border-2 border-slate-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                     {villeSuggestions.map((suggestion, index) => (
                       <button
                         key={index}
                         type="button"
                         onClick={() => selectVille(suggestion)}
-                        className="w-full text-left px-4 py-2 hover:bg-[#F5F7FA] transition-colors"
+                        className="w-full text-left px-4 py-2 hover:bg-slate-50 transition-colors"
                       >
-                        <div className="font-semibold text-[#2C3E50]">{suggestion.nom}</div>
-                        <div className="text-sm text-[#6C757D]">
+                        <div className="font-semibold text-navy-800">{suggestion.nom}</div>
+                        <div className="text-sm text-slate-500">
                           {suggestion.codePostal} • Dép. {suggestion.departement}
                         </div>
                       </button>
@@ -552,7 +552,7 @@ export default function RechercheExpressPage() {
               </div>
 
               <div className="relative">
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                <label className="block text-sm font-semibold text-navy-800 mb-2">
                   {t('expressPages.recherche.codePostalLabel')} <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -568,21 +568,21 @@ export default function RechercheExpressPage() {
                   required
                   placeholder={t('expressPages.recherche.codePostalPlaceholder')}
                   pattern="[0-9]{5}"
-                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-brand-500 focus:outline-none transition-colors"
                 />
 
                 {/* Suggestions depuis le champ code postal */}
                 {activeField === 'codePostal' && villeSuggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border-2 border-[#E9ECEF] rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  <div className="absolute z-10 w-full mt-1 bg-white border-2 border-slate-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                     {villeSuggestions.map((suggestion, index) => (
                       <button
                         key={index}
                         type="button"
                         onClick={() => selectVille(suggestion)}
-                        className="w-full text-left px-4 py-2 hover:bg-[#F5F7FA] transition-colors"
+                        className="w-full text-left px-4 py-2 hover:bg-slate-50 transition-colors"
                       >
-                        <div className="font-semibold text-[#2C3E50]">{suggestion.nom}</div>
-                        <div className="text-sm text-[#6C757D]">
+                        <div className="font-semibold text-navy-800">{suggestion.nom}</div>
+                        <div className="text-sm text-slate-500">
                           {suggestion.codePostal} • Dép. {suggestion.departement}
                         </div>
                       </button>
@@ -594,17 +594,17 @@ export default function RechercheExpressPage() {
 
             {/* Urgence auto */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+              <label className="block text-sm font-semibold text-navy-800 mb-2">
                 {t('expressPages.recherche.urgenceLabel')}
               </label>
-              <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
+              <div className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg bg-slate-50 text-navy-800 font-semibold">
                 {EXPRESS_WORK_TAXONOMY[typeTravaux].urgenceLabel}
               </div>
             </div>
 
             {/* Rayon de recherche */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+              <label className="block text-sm font-semibold text-navy-800 mb-2">
                 {t('expressPages.recherche.rayonLabel')} : {rayonMax} {t('expressPages.recherche.km')}
               </label>
               <input
@@ -613,9 +613,9 @@ export default function RechercheExpressPage() {
                 max="50"
                 value={rayonMax}
                 onChange={(e) => setRayonMax(parseInt(e.target.value))}
-                className="w-full h-2 bg-[#E9ECEF] rounded-lg appearance-none cursor-pointer accent-[#FF6B00]"
+                className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-brand-500"
               />
-              <div className="flex justify-between text-xs text-[#6C757D] mt-1">
+              <div className="flex justify-between text-xs text-slate-500 mt-1">
                 <span>5 {t('expressPages.recherche.km')}</span>
                 <span>50 {t('expressPages.recherche.km')}</span>
               </div>
@@ -625,7 +625,7 @@ export default function RechercheExpressPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#FF6B00] hover:bg-[#E56100] text-white py-4 text-lg font-bold rounded-lg transition-colors"
+              className="w-full bg-brand-700 hover:bg-brand-800 text-white py-4 text-lg font-bold rounded-lg transition-colors"
             >
               {loading ? t('expressPages.recherche.searching') : t('expressPages.recherche.searchButton')}
             </Button>
@@ -636,21 +636,21 @@ export default function RechercheExpressPage() {
           {searched && (
             <div ref={resultsRef} className={searched ? 'flex-1 mt-8 md:mt-0' : 'mt-8'}>
               {loading ? (
-                <div className="bg-white rounded-xl shadow-lg p-10 flex flex-col items-center justify-center gap-4">
-                  <div className="w-12 h-12 border-4 border-[#FF6B00] border-t-transparent rounded-full animate-spin" />
-                  <p className="text-[#2C3E50] font-semibold text-lg">{t('expressPages.recherche.searchingTitle')}</p>
-                  <p className="text-[#6C757D] text-sm">{t('expressPages.recherche.searchingDesc')}</p>
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-10 flex flex-col items-center justify-center gap-4">
+                  <div className="w-12 h-12 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
+                  <p className="text-navy-800 font-semibold text-lg">{t('expressPages.recherche.searchingTitle')}</p>
+                  <p className="text-slate-500 text-sm">{t('expressPages.recherche.searchingDesc')}</p>
                 </div>
               ) : (
               results.length > 0 ? (
                 <>
                   <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-[#2C3E50]">
+                    <h2 className="text-2xl font-bold text-navy-800">
                       {results.length} artisan{results.length > 1 ? 's' : ''} disponible{results.length > 1 ? 's' : ''}
                     </h2>
                     
                     {totalPages > 1 && (
-                      <p className="text-sm text-[#6C757D]">
+                      <p className="text-sm text-slate-500">
                         Page {currentPage} {t('expressPages.recherche.pageSur')} {totalPages}
                       </p>
                     )}
@@ -662,21 +662,21 @@ export default function RechercheExpressPage() {
                       return (
                       <div
                         key={result.artisanId}
-                        className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow border-2 border-transparent hover:border-[#FF6B00]"
+                        className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow border-2 border-transparent hover:border-brand-500"
                       >
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                           <div className="flex-1">
                             <a
                               href={`/artisan/${result.artisanId}`}
-                              className="text-xl font-bold text-[#2C3E50] hover:text-[#FF6B00] transition-colors mb-2 inline-block"
+                              className="text-xl font-bold text-navy-800 hover:text-brand-700 transition-colors mb-2 inline-block"
                             >
                               {result.artisan.raisonSociale}
                             </a>
                             
-                            <div className="space-y-2 text-sm text-[#6C757D]">
+                            <div className="space-y-2 text-sm text-slate-500">
                               {zone && (
                               <div className="flex items-center gap-2">
-                                <svg className="w-5 h-5 text-[#FF6B00]" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="w-5 h-5 text-brand-700" fill="currentColor" viewBox="0 0 20 20">
                                   <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                                 </svg>
                                 <span>{zone.ville} {zone.codePostal ? `(${zone.codePostal})` : ''}</span>
@@ -685,7 +685,7 @@ export default function RechercheExpressPage() {
                               
                               {result.distance && (
                                 <div className="flex items-center gap-2">
-                                  <svg className="w-5 h-5 text-[#FF6B00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <svg className="w-5 h-5 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                                   </svg>
                               <span>À {result.distance.toFixed(1)} {t('expressPages.recherche.kmAway')}</span>
@@ -695,22 +695,22 @@ export default function RechercheExpressPage() {
                               {result.artisan.notation > 0 ? (
                                 <a
                                   href={`/artisan/${result.artisanId}`}
-                                  className="flex items-center gap-2 hover:text-[#FF6B00] transition-colors group"
+                                  className="flex items-center gap-2 hover:text-brand-700 transition-colors group"
                                 >
                                   <svg className="w-5 h-5 flex-shrink-0" fill="#FFC107" stroke="#2C3E50" strokeWidth="1" viewBox="0 0 20 20">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                   </svg>
-                                  <span className="font-medium text-[#2C3E50] group-hover:text-[#FF6B00]">
+                                  <span className="font-medium text-navy-800 group-hover:text-brand-700">
                                     {result.artisan.notation.toFixed(1)}/5
                                   </span>
-                                  <span className="text-[#6C757D] group-hover:text-[#FF6B00]">
+                                  <span className="text-slate-500 group-hover:text-brand-700">
                                     ({result.artisan.nombreAvis} {t('expressPages.recherche.reviewsCount')}) — {t('expressPages.recherche.seeReviews')}
                                   </span>
                                 </a>
                               ) : (
                                 <a
                                   href={`/artisan/${result.artisanId}`}
-                                  className="flex items-center gap-1 text-[#6C757D] hover:text-[#FF6B00] transition-colors"
+                                  className="flex items-center gap-1 text-slate-500 hover:text-brand-700 transition-colors"
                                 >
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -724,7 +724,7 @@ export default function RechercheExpressPage() {
                           <div className="flex flex-col gap-2">
                             <Button
                               onClick={() => handleDemanderDevis(result.artisanId)}
-                              className="bg-[#FF6B00] hover:bg-[#E56100] text-white px-6 py-3 rounded-lg font-semibold transition-colors whitespace-nowrap"
+                              className="bg-brand-700 hover:bg-brand-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors whitespace-nowrap"
                             >
                               {t('expressPages.recherche.requestIntervention')}
                             </Button>
@@ -744,7 +744,7 @@ export default function RechercheExpressPage() {
                           window.scrollTo({ top: 0, behavior: 'smooth' });
                         }}
                         disabled={currentPage === 1}
-                        className="px-4 py-2 rounded-lg border-2 border-[#E9ECEF] text-[#2C3E50] hover:border-[#FF6B00] hover:bg-[#FF6B00] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-[#E9ECEF] disabled:hover:bg-transparent disabled:hover:text-[#2C3E50]"
+                        className="px-4 py-2 rounded-lg border-2 border-slate-200 text-navy-800 hover:border-brand-500 hover:bg-brand-700 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-200 disabled:hover:bg-transparent disabled:hover:text-navy-800"
                       >
                         {t('expressPages.recherche.prev')}
                       </button>
@@ -763,7 +763,7 @@ export default function RechercheExpressPage() {
                             (pageNum === currentPage + 2 && currentPage < totalPages - 2);
 
                           if (showEllipsis) {
-                            return <span key={pageNum} className="px-2 py-2 text-[#6C757D]">...</span>;
+                            return <span key={pageNum} className="px-2 py-2 text-slate-500">...</span>;
                           }
 
                           if (!showPage) return null;
@@ -777,8 +777,8 @@ export default function RechercheExpressPage() {
                               }}
                               className={`w-10 h-10 rounded-lg border-2 font-semibold transition-colors ${
                                 currentPage === pageNum
-                                  ? 'bg-[#FF6B00] text-white border-[#FF6B00]'
-                                  : 'border-[#E9ECEF] text-[#2C3E50] hover:border-[#FF6B00] hover:bg-[#FFF5EE]'
+                                  ? 'bg-brand-700 text-white border-brand-500'
+                                  : 'border-slate-200 text-navy-800 hover:border-brand-500 hover:bg-brand-50'
                               }`}
                             >
                               {pageNum}
@@ -794,7 +794,7 @@ export default function RechercheExpressPage() {
                           window.scrollTo({ top: 0, behavior: 'smooth' });
                         }}
                         disabled={currentPage === totalPages}
-                        className="px-4 py-2 rounded-lg border-2 border-[#E9ECEF] text-[#2C3E50] hover:border-[#FF6B00] hover:bg-[#FF6B00] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-[#E9ECEF] disabled:hover:bg-transparent disabled:hover:text-[#2C3E50]"
+                        className="px-4 py-2 rounded-lg border-2 border-slate-200 text-navy-800 hover:border-brand-500 hover:bg-brand-700 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-200 disabled:hover:bg-transparent disabled:hover:text-navy-800"
                       >
                         {t('expressPages.recherche.next')}
                       </button>
@@ -802,19 +802,19 @@ export default function RechercheExpressPage() {
                   )}
                 </>
               ) : (
-                <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center">
                   <div className="text-6xl mb-4">😔</div>
-                  <h2 className="text-2xl font-bold text-[#2C3E50] mb-4">
+                  <h2 className="text-2xl font-bold text-navy-800 mb-4">
                     {t('expressPages.recherche.noResults')}
                   </h2>
-                  <p className="text-[#6C757D] mb-6">
+                  <p className="text-slate-500 mb-6">
                     {t('expressPages.recherche.noResultsDesc1')}
                     <br />
                     {t('expressPages.recherche.noResultsDesc2')}
                   </p>
                   <button
                     onClick={handlePublierDemande}
-                    className="bg-[#FF6B00] text-white hover:bg-[#E56100] px-6 py-3 rounded-lg font-semibold transition-colors"
+                    className="bg-brand-700 text-white hover:bg-brand-800 px-6 py-3 rounded-lg font-semibold transition-colors"
                   >
                     {t('expressPages.recherche.publishDemande')}
                   </button>

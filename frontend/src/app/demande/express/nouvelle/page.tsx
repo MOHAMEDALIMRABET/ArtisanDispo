@@ -211,34 +211,34 @@ export default function NouvelleDemandeExpressPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto mb-4"></div>
-          <p className="text-[#6C757D]">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
+          <p className="text-slate-500">Chargement...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#F8F9FA] to-white">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-[#E9ECEF]">
+      <div className="bg-white shadow-sm border-b border-slate-200">
         <div className="container mx-auto px-4 py-6">
           <nav className="flex items-center gap-2 text-sm mb-4">
-            <Link href="/" className="text-[#2C3E50] hover:text-[#FF6B00]">
+            <Link href="/" className="text-navy-800 hover:text-brand-700">
               Accueil
             </Link>
-            <span className="text-[#6C757D]">&gt;</span>
-            <Link href="/petits-travaux-express/recherche" className="text-[#2C3E50] hover:text-[#FF6B00]">
+            <span className="text-slate-500">&gt;</span>
+            <Link href="/petits-travaux-express/recherche" className="text-navy-800 hover:text-brand-700">
               Travaux express
             </Link>
-            <span className="text-[#6C757D]">&gt;</span>
-            <span className="text-[#2C3E50] font-semibold">Nouvelle demande</span>
+            <span className="text-slate-500">&gt;</span>
+            <span className="text-navy-800 font-semibold">Nouvelle demande</span>
           </nav>
 
-          <h1 className="text-2xl md:text-3xl font-bold text-[#2C3E50]">
+          <h1 className="text-2xl md:text-3xl font-bold text-navy-800">
             🚀 Nouvelle demande express
           </h1>
-          <p className="text-[#6C757D] mt-2">
+          <p className="text-slate-500 mt-2">
             Intervention rapide — moins de 150€ • Sans devis formel
           </p>
         </div>
@@ -247,14 +247,14 @@ export default function NouvelleDemandeExpressPage() {
       {/* Formulaire */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">
-          <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-6 md:p-8 space-y-6">
+          <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-6">
             {/* Catégorie */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+              <label className="block text-sm font-semibold text-navy-800 mb-2">
                 Type de travaux <span className="text-red-500">*</span>
               </label>
               {typeTravauxParam ? (
-                <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
+                <div className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg bg-slate-50 text-navy-800 font-semibold">
                   {typeTravaux === 'depannage-urgence' ? '🚨 Dépannage en urgence' : '🛠️ Petits travaux & maintenance'}
                 </div>
               ) : (
@@ -266,7 +266,7 @@ export default function NouvelleDemandeExpressPage() {
                     setSousCategorie('');
                   }}
                   required
-                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
+                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-brand-500 focus:outline-none"
                 >
                   <option value="depannage-urgence">🚨 Dépannage en urgence</option>
                   <option value="petits-travaux-maintenance">🛠️ Petits travaux & maintenance</option>
@@ -275,11 +275,11 @@ export default function NouvelleDemandeExpressPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+              <label className="block text-sm font-semibold text-navy-800 mb-2">
                 Catégorie <span className="text-red-500">*</span>
               </label>
               {categorieExpressParam ? (
-                <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
+                <div className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg bg-slate-50 text-navy-800 font-semibold">
                   {selectedCategorie?.label ?? categorieExpress}
                 </div>
               ) : (
@@ -290,7 +290,7 @@ export default function NouvelleDemandeExpressPage() {
                     setSousCategorie('');
                   }}
                   required
-                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
+                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-brand-500 focus:outline-none"
                 >
                   <option value="">Sélectionnez une catégorie</option>
                   {categorieOptions.map((cat) => (
@@ -303,18 +303,18 @@ export default function NouvelleDemandeExpressPage() {
             {/* Sous-catégorie */}
             {selectedCategorie && (
               <div>
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                <label className="block text-sm font-semibold text-navy-800 mb-2">
                   Sous catégorie
                 </label>
                 {sousCategorieParam ? (
-                  <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
+                  <div className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg bg-slate-50 text-navy-800 font-semibold">
                     {selectedCategorie.sousCategories.find(sc => sc.value === sousCategorie)?.label ?? sousCategorie}
                   </div>
                 ) : (
                   <select
                     value={sousCategorie}
                     onChange={(e) => setSousCategorie(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
+                    className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-brand-500 focus:outline-none"
                   >
                     <option value="">-- Choisir une sous-catégorie --</option>
                     {selectedCategorie.sousCategories.map((sc) => (
@@ -326,10 +326,10 @@ export default function NouvelleDemandeExpressPage() {
                 )}
                 {/* Badge prix indicatif : affiché dès qu'une sous-catégorie avec un prix est sélectionnée */}
                 {prixIndicatif && (
-                  <div className="mt-2 flex items-center gap-2 bg-[#FFF3EA] border border-[#FF6B00] rounded-lg px-3 py-2">
+                  <div className="mt-2 flex items-center gap-2 bg-brand-50 border border-brand-500 rounded-lg px-3 py-2">
                     <span className="text-lg">💰</span>
-                    <span className="text-sm font-semibold text-[#FF6B00]">Prix indicatif :</span>
-                    <span className="text-sm font-bold text-[#2C3E50]">{prixIndicatif}</span>
+                    <span className="text-sm font-semibold text-brand-700">Prix indicatif :</span>
+                    <span className="text-sm font-bold text-navy-800">{prixIndicatif}</span>
                   </div>
                 )}
               </div>
@@ -337,7 +337,7 @@ export default function NouvelleDemandeExpressPage() {
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+              <label className="block text-sm font-semibold text-navy-800 mb-2">
                 Description des travaux <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -350,7 +350,7 @@ export default function NouvelleDemandeExpressPage() {
                 className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none resize-none ${
                   descriptionField.warning
                     ? 'border-orange-400 focus:border-orange-400'
-                    : 'border-[#E9ECEF] focus:border-[#FF6B00]'
+                    : 'border-slate-200 focus:border-brand-500'
                 }`}
               />
               {/* Avertissement anti-bypass (orange, non-bloquant) */}
@@ -360,7 +360,7 @@ export default function NouvelleDemandeExpressPage() {
                   <span>{descriptionField.warning}</span>
                 </div>
               ) : (
-                <p className="text-xs text-[#6C757D] mt-1">
+                <p className="text-xs text-slate-500 mt-1">
                   🔒 Coordonnées personnelles non autorisées avant paiement
                 </p>
               )}
@@ -368,10 +368,10 @@ export default function NouvelleDemandeExpressPage() {
 
             {/* Photos */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+              <label className="block text-sm font-semibold text-navy-800 mb-2">
                 Photos du chantier (optionnel)
               </label>
-              <div className="border-2 border-dashed border-[#E9ECEF] rounded-lg p-6 text-center hover:border-[#FF6B00] transition-colors">
+              <div className="border-2 border-dashed border-slate-200 rounded-lg p-6 text-center hover:border-brand-500 transition-colors">
                 <input
                   type="file"
                   accept="image/*"
@@ -382,8 +382,8 @@ export default function NouvelleDemandeExpressPage() {
                 />
                 <label htmlFor="photo-upload-express" className="cursor-pointer">
                   <div className="text-5xl mb-3">📷</div>
-                  <p className="text-[#2C3E50] font-semibold mb-1">Cliquez pour ajouter des photos</p>
-                  <p className="text-sm text-[#6C757D]">Maximum 5 photos • 5MB par photo • JPG, PNG</p>
+                  <p className="text-navy-800 font-semibold mb-1">Cliquez pour ajouter des photos</p>
+                  <p className="text-sm text-slate-500">Maximum 5 photos • 5MB par photo • JPG, PNG</p>
                 </label>
               </div>
               {photos.length > 0 && (
@@ -393,12 +393,12 @@ export default function NouvelleDemandeExpressPage() {
                       <img
                         src={URL.createObjectURL(photo)}
                         alt={`Photo ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg border border-[#E9ECEF]"
+                        className="w-full h-24 object-cover rounded-lg border border-slate-200"
                       />
                       <button
                         type="button"
                         onClick={() => removePhoto(index)}
-                        className="absolute top-1 right-1 bg-[#DC3545] text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                        className="absolute top-1 right-1 bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
                       >
                         ✕
                       </button>
@@ -410,19 +410,19 @@ export default function NouvelleDemandeExpressPage() {
 
             {/* Budget proposé */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+              <label className="block text-sm font-semibold text-navy-800 mb-2">
                 Budget proposé (optionnel)
               </label>
               {/* Badge plafond : affiché uniquement quand un plafond est défini (dépannage) */}
               {plafondEffectif !== null && (
                 <div className={`mb-2 flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${
                   prixIndicatif
-                    ? 'bg-[#FFF3EA] border border-[#FF6B00]'
-                    : 'bg-gray-50 border border-gray-200'
+                    ? 'bg-brand-50 border border-brand-500'
+                    : 'bg-slate-50 border border-slate-200'
                 }`}>
                   <span>💡</span>
-                  <span className="font-semibold text-[#2C3E50]">Plafond pour cette prestation :</span>
-                  <span className="font-bold text-[#FF6B00]">
+                  <span className="font-semibold text-navy-800">Plafond pour cette prestation :</span>
+                  <span className="font-bold text-brand-700">
                     {prixIndicatif ?? `Max ${plafondEffectif} €`}
                   </span>
                 </div>
@@ -439,10 +439,10 @@ export default function NouvelleDemandeExpressPage() {
                   className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none pr-12 transition-colors ${
                     budgetExcede
                       ? 'border-red-400 focus:border-red-500 bg-red-50'
-                      : 'border-[#E9ECEF] focus:border-[#FF6B00]'
+                      : 'border-slate-200 focus:border-brand-500'
                   }`}
                 />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6C757D] font-semibold">
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-semibold">
                   €
                 </span>
               </div>
@@ -465,11 +465,11 @@ export default function NouvelleDemandeExpressPage() {
             {/* Localisation */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                <label className="block text-sm font-semibold text-navy-800 mb-2">
                   Ville <span className="text-red-500">*</span>
                 </label>
                 {villeParam ? (
-                  <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
+                  <div className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg bg-slate-50 text-navy-800 font-semibold">
                     {ville}
                   </div>
                 ) : (
@@ -479,17 +479,17 @@ export default function NouvelleDemandeExpressPage() {
                     onChange={(e) => setVille(e.target.value)}
                     required
                     placeholder="Ex: Paris"
-                    className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
+                    className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-brand-500 focus:outline-none"
                   />
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                <label className="block text-sm font-semibold text-navy-800 mb-2">
                   Code postal <span className="text-red-500">*</span>
                 </label>
                 {codePostalParam ? (
-                  <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
+                  <div className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg bg-slate-50 text-navy-800 font-semibold">
                     {codePostal}
                   </div>
                 ) : (
@@ -500,30 +500,30 @@ export default function NouvelleDemandeExpressPage() {
                     required
                     pattern="[0-9]{5}"
                     placeholder="Ex: 75001"
-                    className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:outline-none"
+                    className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-brand-500 focus:outline-none"
                   />
                 )}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+              <label className="block text-sm font-semibold text-navy-800 mb-2">
                 Urgence
               </label>
-              <div className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg bg-[#F8F9FA] text-[#2C3E50] font-semibold">
+              <div className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg bg-slate-50 text-navy-800 font-semibold">
                 {typeTravaux === 'depannage-urgence' ? '🚨' : '⚡'} {EXPRESS_WORK_TAXONOMY[typeTravaux].urgenceLabel}
               </div>
             </div>
 
             {/* Info */}
-            <div className="bg-[#FFF5EE] border-2 border-[#FF6B00] rounded-lg p-4">
+            <div className="bg-brand-50 border-2 border-brand-500 rounded-lg p-4">
               <div className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[#FF6B00] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-6 h-6 text-brand-700 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-[#2C3E50] mb-1">Comment ça marche ?</h4>
-                  <ul className="text-sm text-[#6C757D] space-y-1">
+                  <h4 className="font-semibold text-navy-800 mb-1">Comment ça marche ?</h4>
+                  <ul className="text-sm text-slate-500 space-y-1">
                     <li>1️⃣ Vous envoyez votre demande à l'artisan</li>
                     <li>2️⃣ L'artisan vous fait une proposition de prix</li>
                     <li>3️⃣ Vous acceptez et payez directement</li>
@@ -546,7 +546,7 @@ export default function NouvelleDemandeExpressPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-[#FF6B00] hover:bg-[#E56100] text-white py-3 rounded-lg font-semibold"
+                className="flex-1 bg-brand-700 hover:bg-brand-800 text-white py-3 rounded-lg font-semibold"
               >
                 {loading ? '⏳ Envoi...' : '✉️ Envoyer ma demande'}
               </Button>

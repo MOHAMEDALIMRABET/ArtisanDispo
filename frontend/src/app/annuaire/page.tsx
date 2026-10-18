@@ -41,12 +41,12 @@ export default function AnnuairePage() {
   const metiersUniques = Array.from(new Set(artisans.flatMap((a) => a.metiers))).sort();
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-[#2C3E50] to-[#3D5A73] text-white py-16">
+      <div className=" bg-navy-800 text-white py-16">
         <div className="container mx-auto px-4">
           <h1 className="text-5xl font-bold mb-4 text-center">Trouvez des artisans près de chez vous</h1>
-          <p className="text-xl text-gray-200 max-w-3xl mx-auto text-center">
+          <p className="text-xl text-slate-200 max-w-3xl mx-auto text-center">
             {artisans.length} professionnels vérifiés partout en France
           </p>
         </div>
@@ -58,13 +58,13 @@ export default function AnnuairePage() {
           <div className="grid md:grid-cols-3 gap-4">
             {/* Filtre métier */}
             <div>
-              <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+              <label className="block text-sm font-medium text-navy-800 mb-2">
                 Métier
               </label>
               <select
                 value={metierFilter}
                 onChange={(e) => setMetierFilter(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               >
                 <option value="tous">Tous les métiers</option>
                 {metiersUniques.map((metier) => (
@@ -77,7 +77,7 @@ export default function AnnuairePage() {
 
             {/* Filtre ville */}
             <div>
-              <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+              <label className="block text-sm font-medium text-navy-800 mb-2">
                 Ville
               </label>
               <input
@@ -85,15 +85,15 @@ export default function AnnuairePage() {
                 placeholder="Rechercher par ville..."
                 value={villeFilter}
                 onChange={(e) => setVilleFilter(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               />
             </div>
 
             {/* Résultats */}
             <div className="flex items-end">
-              <div className="w-full bg-[#FFF3E0] border-l-4 border-[#FF6B00] px-4 py-2 rounded-lg">
-                <p className="text-sm text-[#6C757D]">Résultats</p>
-                <p className="text-2xl font-bold text-[#2C3E50]">{artisansFiltres.length}</p>
+              <div className="w-full bg-brand-50 border-l-4 border-brand-500 px-4 py-2 rounded-lg">
+                <p className="text-sm text-slate-500">Résultats</p>
+                <p className="text-2xl font-bold text-navy-800">{artisansFiltres.length}</p>
               </div>
             </div>
           </div>
@@ -104,16 +104,16 @@ export default function AnnuairePage() {
       <main className="container mx-auto px-4 py-12">
         {loading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00]"></div>
-            <p className="mt-4 text-[#6C757D]">Chargement des artisans...</p>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500"></div>
+            <p className="mt-4 text-slate-500">Chargement des artisans...</p>
           </div>
         ) : artisansFiltres.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🔍</div>
-            <h2 className="text-2xl font-bold text-[#2C3E50] mb-2">
+            <h2 className="text-2xl font-bold text-navy-800 mb-2">
               Aucun artisan trouvé
             </h2>
-            <p className="text-[#6C757D] mb-6">
+            <p className="text-slate-500 mb-6">
               Essayez de modifier vos critères de recherche
             </p>
             <button
@@ -121,7 +121,7 @@ export default function AnnuairePage() {
                 setMetierFilter('tous');
                 setVilleFilter('');
               }}
-              className="bg-[#FF6B00] text-white px-6 py-2 rounded-lg hover:bg-[#E56100] transition-colors"
+              className="bg-brand-700 text-white px-6 py-2 rounded-lg hover:bg-brand-800 transition-colors"
             >
               Réinitialiser les filtres
             </button>
@@ -129,11 +129,11 @@ export default function AnnuairePage() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {artisansFiltres.map((artisan) => (
-              <Card key={artisan.userId} className="p-6 hover:shadow-xl transition-shadow">
+              <Card key={artisan.userId} className="p-6 hover:shadow-md transition-shadow">
                 {/* En-tête */}
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="text-xl font-bold text-[#2C3E50] mb-1">
+                    <h3 className="text-xl font-bold text-navy-800 mb-1">
                       {artisan.raisonSociale}
                     </h3>
                     {artisan.verified && (
@@ -149,10 +149,10 @@ export default function AnnuairePage() {
                     {artisan.notation ? (
                       <div className="flex items-center gap-1">
                         <span className="text-yellow-500">⭐</span>
-                        <span className="font-bold text-[#2C3E50]">{artisan.notation.toFixed(1)}</span>
+                        <span className="font-bold text-navy-800">{artisan.notation.toFixed(1)}</span>
                       </div>
                     ) : (
-                      <span className="text-sm text-gray-400">Nouveau</span>
+                      <span className="text-sm text-slate-400">Nouveau</span>
                     )}
                   </div>
                 </div>
@@ -163,13 +163,13 @@ export default function AnnuairePage() {
                     {artisan.metiers.slice(0, 3).map((metier) => (
                       <span
                         key={metier}
-                        className="bg-[#FFF3E0] text-[#FF6B00] px-3 py-1 rounded-full text-sm font-medium"
+                        className="bg-brand-50 text-brand-700 px-3 py-1 rounded-full text-sm font-medium"
                       >
                         {metier.charAt(0).toUpperCase() + metier.slice(1)}
                       </span>
                     ))}
                     {artisan.metiers.length > 3 && (
-                      <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm">
+                      <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-sm">
                         +{artisan.metiers.length - 3}
                       </span>
                     )}
@@ -177,7 +177,7 @@ export default function AnnuairePage() {
                 </div>
 
                 {/* Localisation */}
-                <div className="mb-4 flex items-start gap-2 text-[#6C757D]">
+                <div className="mb-4 flex items-start gap-2 text-slate-500">
                   <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -194,7 +194,7 @@ export default function AnnuairePage() {
       </main>
 
       {/* CTA Bottom */}
-      <div className="bg-gradient-to-r from-[#FF6B00] to-[#E56100] text-white py-16">
+      <div className=" bg-brand-600 text-white py-16">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-4">Vous ne trouvez pas ce que vous cherchez ?</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
@@ -202,7 +202,7 @@ export default function AnnuairePage() {
           </p>
           <Link
             href="/inscription?role=client"
-            className="inline-block bg-white text-[#FF6B00] px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg"
+            className="inline-block bg-white text-brand-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-100 transition-colors shadow-sm border border-slate-200"
           >
             Publier ma demande gratuitement
           </Link>

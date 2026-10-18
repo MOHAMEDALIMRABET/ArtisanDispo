@@ -417,7 +417,7 @@ export default function ClientDevisPage() {
 
   const getStatutBadge = (statut: string) => {
     const styles: { [key: string]: string } = {
-      genere: 'bg-gray-100 text-gray-800',
+      genere: 'bg-slate-100 text-slate-800',
       envoye: 'bg-purple-100 text-purple-700',
       en_revision: 'bg-purple-100 text-purple-800',
       accepte: 'bg-yellow-100 text-yellow-800',
@@ -430,8 +430,8 @@ export default function ClientDevisPage() {
       litige: 'bg-red-600 text-white',
       refuse: 'bg-red-100 text-red-800',
       expire: 'bg-orange-100 text-orange-800',
-      remplace: 'bg-gray-200 text-gray-600',
-      annule: 'bg-gray-300 text-gray-700',
+      remplace: 'bg-slate-200 text-slate-600',
+      annule: 'bg-slate-300 text-slate-700',
     };
 
     const labels: { [key: string]: string } = {
@@ -453,7 +453,7 @@ export default function ClientDevisPage() {
     };
 
     return (
-      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${styles[statut] || 'bg-gray-100 text-gray-800'}`}>
+      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${styles[statut] || 'bg-slate-100 text-slate-800'}`}>
         {labels[statut] || statut}
       </span>
     );
@@ -461,10 +461,10 @@ export default function ClientDevisPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
-          <p className="mt-4 text-[#6C757D]">{t('quotes.loading')}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
+          <p className="mt-4 text-slate-500">{t('quotes.loading')}</p>
         </div>
       </div>
     );
@@ -508,13 +508,13 @@ export default function ClientDevisPage() {
   const countLitige = devisPayes.filter(d => d.statut === 'litige').length; // Total tous devis visibles (hors brouillons)
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-[#2C3E50] text-white py-8">
+      <div className="bg-navy-800 text-white py-8">
         <div className="container mx-auto px-4">
           <button
             onClick={() => router.push('/dashboard')}
-            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4"
+            className="flex items-center gap-2 text-white hover:text-brand-700 mb-4"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -522,7 +522,7 @@ export default function ClientDevisPage() {
             {t('quotes.backToDashboard')}
           </button>
           <h1 className="text-3xl font-bold">{t('quotes.myReceivedQuotes')}</h1>
-          <p className="text-gray-300 mt-2">{t('quotes.consultManage')}</p>
+          <p className="text-slate-300 mt-2">{t('quotes.consultManage')}</p>
         </div>
       </div>
 
@@ -533,19 +533,19 @@ export default function ClientDevisPage() {
             onClick={() => setFilter('tous')}
             className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filter === 'tous'
-                ? 'bg-gradient-to-br from-[#FF6B00] to-[#E56100] text-white shadow-xl scale-105'
-                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                ? ' bg-brand-600 text-white shadow-md scale-105'
+                : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
             }`}
           >
-            <div className={`text-3xl font-black mb-1 ${filter === 'tous' ? 'text-white' : 'text-[#FF6B00]'}`}>
+            <div className={`text-3xl font-black mb-1 ${filter === 'tous' ? 'text-white' : 'text-brand-700'}`}>
               {totalDevis}
             </div>
-            <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'tous' ? 'text-white' : 'text-gray-600'}`}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'tous' ? 'text-white' : 'text-slate-600'}`}>
               📋 {t('quotes.all')}
             </div>
             {devisNotifsInitialIds.size > 0 && (
               <span className={`mt-1 text-xs font-bold px-2 py-0.5 rounded-full ${
-                filter === 'tous' ? 'bg-white text-[#FF6B00]' : 'bg-[#FF6B00] text-white'
+                filter === 'tous' ? 'bg-white text-brand-700' : 'bg-brand-700 text-white'
               }`}>
                 🔔 {devisNotifsInitialIds.size}
               </span>
@@ -556,14 +556,14 @@ export default function ClientDevisPage() {
             onClick={() => setFilter('en_attente')}
             className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filter === 'en_attente'
-                ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl scale-105'
-                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                ? ' bg-blue-500 text-white shadow-md scale-105'
+                : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${filter === 'en_attente' ? 'text-white' : 'text-blue-600'}`}>
               {devisEnAttente.length}
             </div>
-            <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'en_attente' ? 'text-white' : 'text-gray-600'}`}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'en_attente' ? 'text-white' : 'text-slate-600'}`}>
               🆕 {t('quotes.newPlural')}
             </div>
           </button>
@@ -573,14 +573,14 @@ export default function ClientDevisPage() {
             onClick={() => setFilter('en_revision')}
             className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filter === 'en_revision'
-                ? 'bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-xl scale-105'
-                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                ? ' bg-purple-500 text-white shadow-md scale-105'
+                : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${filter === 'en_revision' ? 'text-white' : 'text-purple-600'}`}>
               {devisEnRevision.length}
             </div>
-            <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'en_revision' ? 'text-white' : 'text-gray-600'}`}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'en_revision' ? 'text-white' : 'text-slate-600'}`}>
               🔄 En révision
             </div>
             {devis.some(d => devisNotifsInitialIds.has(d.id) && d.statut === 'en_revision') && (
@@ -594,14 +594,14 @@ export default function ClientDevisPage() {
             onClick={() => setFilter('acceptes')}
             className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filter === 'acceptes'
-                ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-xl scale-105'
-                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                ? ' bg-amber-500 text-white shadow-md scale-105'
+                : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${filter === 'acceptes' ? 'text-white' : 'text-amber-600'}`}>
               {devisAcceptes.length}
             </div>
-            <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'acceptes' ? 'text-white' : 'text-gray-600'}`}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'acceptes' ? 'text-white' : 'text-slate-600'}`}>
               ✅ {t('quotes.acceptedPending')}
             </div>
           </button>
@@ -610,14 +610,14 @@ export default function ClientDevisPage() {
             onClick={() => setFilter('payes')}
             className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filter === 'payes'
-                ? 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-xl scale-105'
-                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                ? ' bg-green-500 text-white shadow-md scale-105'
+                : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${filter === 'payes' ? 'text-white' : 'text-green-600'}`}>
               {devisPayes.length}
             </div>
-            <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'payes' ? 'text-white' : 'text-gray-600'}`}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'payes' ? 'text-white' : 'text-slate-600'}`}>
               💰 {t('quotes.paidPlural')}
             </div>
             {devis.some(d => devisNotifsInitialIds.has(d.id) && isDevisPaye(d.statut)) && (
@@ -631,14 +631,14 @@ export default function ClientDevisPage() {
             onClick={() => setFilter('refuses')}
             className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
               filter === 'refuses'
-                ? 'bg-gradient-to-br from-red-500 to-red-600 text-white shadow-xl scale-105'
-                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                ? ' bg-red-500 text-white shadow-md scale-105'
+                : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${filter === 'refuses' ? 'text-white' : 'text-red-600'}`}>
               {devisRefuses.length}
             </div>
-            <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'refuses' ? 'text-white' : 'text-gray-600'}`}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'refuses' ? 'text-white' : 'text-slate-600'}`}>
               ❌ {t('quotes.refusedExpired')}
             </div>
           </button>
@@ -646,8 +646,8 @@ export default function ClientDevisPage() {
 
         {/* Sous-filtres pour la carte 💰 Payés */}
         {filter === 'payes' && devisPayes.length > 0 && (
-          <div className="bg-white rounded-xl shadow-md p-4 mb-6 border border-gray-100">
-            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">
+          <div className="bg-white rounded-xl shadow-md p-4 mb-6 border border-slate-100">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">
               Filtrer par statut
             </p>
             <div className="flex flex-wrap gap-2">
@@ -655,8 +655,8 @@ export default function ClientDevisPage() {
                 onClick={() => setSousFiltrePayes('tout')}
                 className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                   sousFiltrePayes === 'tout'
-                    ? 'bg-[#2C3E50] text-white shadow-lg transform scale-105'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-navy-800 text-white shadow-lg transform scale-105'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
                 {t('quotes.subFiltersPayes.all')} ({devisPayes.length})
@@ -667,7 +667,7 @@ export default function ClientDevisPage() {
                   onClick={() => setSousFiltrePayes('paye')}
                   className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                     sousFiltrePayes === 'paye'
-                      ? 'bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg transform scale-105'
+                      ? ' bg-green-500 text-white shadow-lg transform scale-105'
                       : 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-200'
                   }`}
                 >
@@ -680,7 +680,7 @@ export default function ClientDevisPage() {
                   onClick={() => setSousFiltrePayes('en_cours')}
                   className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                     sousFiltrePayes === 'en_cours'
-                      ? 'bg-gradient-to-r from-amber-400 to-amber-600 text-white shadow-lg transform scale-105'
+                      ? ' bg-amber-400 text-white shadow-lg transform scale-105'
                       : 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200'
                   }`}
                 >
@@ -693,7 +693,7 @@ export default function ClientDevisPage() {
                   onClick={() => setSousFiltrePayes('travaux_termines')}
                   className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                     sousFiltrePayes === 'travaux_termines'
-                      ? 'bg-gradient-to-r from-orange-400 to-orange-600 text-white shadow-lg transform scale-105'
+                      ? ' bg-orange-400 text-white shadow-lg transform scale-105'
                       : 'bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200'
                   }`}
                 >
@@ -706,8 +706,8 @@ export default function ClientDevisPage() {
                   onClick={() => setSousFiltrePayes('valides')}
                   className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                     sousFiltrePayes === 'valides'
-                      ? 'bg-gradient-to-r from-gray-600 to-gray-800 text-white shadow-lg transform scale-105'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                      ? ' bg-slate-600 text-white shadow-lg transform scale-105'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300'
                   }`}
                 >
                   {t('quotes.subFiltersPayes.validated')} ({countValides})
@@ -719,7 +719,7 @@ export default function ClientDevisPage() {
                   onClick={() => setSousFiltrePayes('litige')}
                   className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                     sousFiltrePayes === 'litige'
-                      ? 'bg-gradient-to-r from-red-500 to-red-700 text-white shadow-lg transform scale-105'
+                      ? ' bg-red-500 text-white shadow-lg transform scale-105'
                       : 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200'
                   }`}
                 >
@@ -733,12 +733,12 @@ export default function ClientDevisPage() {
         {/* Liste des devis */}
         {filteredDevis.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-16 h-16 text-slate-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <p className="text-gray-600 mb-4">{t('quotes.noQuotesYet')}</p>
+            <p className="text-slate-600 mb-4">{t('quotes.noQuotesYet')}</p>
             <Link href="/client/demandes">
-              <button className="bg-[#FF6B00] text-white px-6 py-2 rounded-lg hover:bg-[#E56100]">
+              <button className="bg-brand-700 text-white px-6 py-2 rounded-lg hover:bg-brand-800">
                 {t('quotes.viewMyRequests')}
               </button>
             </Link>
@@ -752,13 +752,13 @@ export default function ClientDevisPage() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2 flex-wrap">
-                        <h3 className="text-xl font-bold text-[#2C3E50]">
+                        <h3 className="text-xl font-bold text-navy-800">
                           {d.titre}
                         </h3>
                         {getStatutBadge(d.statut)}
                         {/* Badge ⚡ Express pour les propositions express (> 150€ avec devis joint) */}
                         {d._isExpress && (
-                          <span className="inline-flex items-center gap-1 bg-[#FF6B00]/10 border border-[#FF6B00]/40 text-[#FF6B00] text-xs font-bold px-2.5 py-1 rounded-full">
+                          <span className="inline-flex items-center gap-1 bg-brand-700/10 border border-brand-500/40 text-brand-700 text-xs font-bold px-2.5 py-1 rounded-full">
                             ⚡ Express
                           </span>
                         )}
@@ -768,48 +768,48 @@ export default function ClientDevisPage() {
                           </span>
                         )}
                         {devisNotifsInitialIds.has(d.id) && (
-                          <span className="inline-flex items-center gap-1 bg-[#FF6B00] text-white text-xs font-bold px-2.5 py-1 rounded-full animate-pulse">
+                          <span className="inline-flex items-center gap-1 bg-brand-700 text-white text-xs font-bold px-2.5 py-1 rounded-full animate-pulse">
                             🔔
                           </span>
                         )}
                       </div>
                       {demande && (
-                        <p className="text-sm text-gray-600 mb-2">
+                        <p className="text-sm text-slate-600 mb-2">
                           📋 {t('quotes.request')} : {demande.titre || demande.categorie}
                         </p>
                       )}
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-slate-600">
                         👷 {t('quotes.craftsman')} : {d.artisan.prenom} {d.artisan.nom}
                         {d.artisan.raisonSociale && ` - ${d.artisan.raisonSociale}`}
                       </p>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-[#FF6B00]">
+                      <div className="text-2xl font-bold text-brand-700">
                         {d.totaux.totalTTC.toFixed(2)} €
                       </div>
-                      <div className="text-xs text-gray-500">{t('quotes.ttc')}</div>
+                      <div className="text-xs text-slate-500">{t('quotes.ttc')}</div>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
                     <div>
-                      <span className="text-gray-500">{t('quotes.quoteNumber')} :</span>
+                      <span className="text-slate-500">{t('quotes.quoteNumber')} :</span>
                       <p className="font-semibold">{d.numeroDevis}</p>
                     </div>
                     <div>
-                      <span className="text-gray-500">{t('quotes.date')} :</span>
+                      <span className="text-slate-500">{t('quotes.date')} :</span>
                       <p className="font-semibold">
                         {toDate(d.dateCreation)?.toLocaleDateString('fr-FR')}
                       </p>
                     </div>
                     <div>
-                      <span className="text-gray-500">{t('quotes.validUntil')} :</span>
+                      <span className="text-slate-500">{t('quotes.validUntil')} :</span>
                       <p className="font-semibold">
                         {toDate(d.dateValidite)?.toLocaleDateString('fr-FR')}
                       </p>
                     </div>
                     <div>
-                      <span className="text-gray-500">{t('quotes.deadline')} :</span>
+                      <span className="text-slate-500">{t('quotes.deadline')} :</span>
                       <p className="font-semibold">{d.delaiRealisation || t('quotes.notSpecified')}</p>
                     </div>
                   </div>
@@ -830,7 +830,7 @@ export default function ClientDevisPage() {
                             className={`flex-1 px-4 py-2 rounded-lg transition text-center font-medium ${
                               user?.emailVerified
                                 ? 'bg-green-600 text-white hover:bg-green-700 cursor-pointer'
-                                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                             }`}
                           >
                             ✅ {t('quotes.accept')}
@@ -845,7 +845,7 @@ export default function ClientDevisPage() {
                             className={`flex-1 px-4 py-2 rounded-lg transition text-center font-medium ${
                               user?.emailVerified
                                 ? 'bg-red-600 text-white hover:bg-red-700 cursor-pointer'
-                                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                             }`}
                           >
                             ❌ {t('quotes.refuse')}
@@ -858,7 +858,7 @@ export default function ClientDevisPage() {
                               e.preventDefault();
                               naviguerVersDevis(d.id, `returnFilter=${filter}`);
                             }}
-                            className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
+                            className="flex-1 bg-navy-800 text-white px-4 py-2 rounded-lg hover:bg-navy-900 transition text-center font-medium cursor-pointer"
                           >
                             📄 {t('quotes.viewDetails')}
                           </div>
@@ -869,7 +869,7 @@ export default function ClientDevisPage() {
                                 e.preventDefault();
                                 router.push(`/client/demandes?demandeId=${d.demandeId}`);
                               }}
-                              className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
+                              className="flex-1 bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 transition text-center font-medium cursor-pointer"
                             >
                               📋 Voir demande associée
                             </div>
@@ -916,7 +916,7 @@ export default function ClientDevisPage() {
                                 naviguerVersDevis(d.id, `action=payer&returnFilter=${filter}`);
                               }
                             }}
-                            className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition font-medium"
+                            className="flex-1 bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 transition font-medium"
                           >
                             💳 {t('quotes.proceedPayment')}
                           </button>
@@ -935,7 +935,7 @@ export default function ClientDevisPage() {
                           )}
                           <div
                             onClick={(e) => handleVoirDetail(d, e)}
-                            className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
+                            className="flex-1 bg-navy-800 text-white px-4 py-2 rounded-lg hover:bg-navy-900 transition text-center font-medium cursor-pointer"
                           >
                             📄 {d._isExpress ? '🖶️ Imprimer' : t('quotes.viewDetails')}
                           </div>
@@ -943,7 +943,7 @@ export default function ClientDevisPage() {
                         {hasDemandeLink(d) && (
                           <div
                             onClick={(e) => handleVoirDemande(d, e)}
-                            className="w-full bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer mt-3"
+                            className="w-full bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 transition text-center font-medium cursor-pointer mt-3"
                           >
                             📋 {d._isExpress ? 'Voir la demande express' : 'Voir demande associée'}
                           </div>
@@ -956,14 +956,14 @@ export default function ClientDevisPage() {
                       <div className="flex gap-3">
                         <div
                           onClick={(e) => handleVoirDetail(d, e)}
-                          className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
+                          className="flex-1 bg-navy-800 text-white px-4 py-2 rounded-lg hover:bg-navy-900 transition text-center font-medium cursor-pointer"
                         >
                           📄 {d._isExpress ? '🖶️ Imprimer / PDF' : t('quotes.viewDetails')}
                         </div>
                         {hasDemandeLink(d) && (
                           <div
                             onClick={(e) => handleVoirDemande(d, e)}
-                            className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
+                            className="flex-1 bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 transition text-center font-medium cursor-pointer"
                           >
                             📋 {d._isExpress ? 'Voir la demande express' : 'Voir demande associée'}
                           </div>
@@ -976,14 +976,14 @@ export default function ClientDevisPage() {
                       <div className="flex gap-3">
                         <div
                           onClick={(e) => handleVoirDetail(d, e)}
-                          className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
+                          className="flex-1 bg-navy-800 text-white px-4 py-2 rounded-lg hover:bg-navy-900 transition text-center font-medium cursor-pointer"
                         >
                           📄 {d._isExpress ? '🖶️ Imprimer / PDF' : t('quotes.viewDetails')}
                         </div>
                         {hasDemandeLink(d) && (
                           <div
                             onClick={(e) => handleVoirDemande(d, e)}
-                            className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
+                            className="flex-1 bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 transition text-center font-medium cursor-pointer"
                           >
                             📋 {d._isExpress ? 'Voir la demande express' : 'Voir demande associée'}
                           </div>
@@ -996,14 +996,14 @@ export default function ClientDevisPage() {
                       <div className="flex gap-3">
                         <div
                           onClick={(e) => handleVoirDetail(d, e)}
-                          className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
+                          className="flex-1 bg-navy-800 text-white px-4 py-2 rounded-lg hover:bg-navy-900 transition text-center font-medium cursor-pointer"
                         >
                           📄 {d._isExpress ? '🖶️ Imprimer / PDF' : t('quotes.viewDetails')}
                         </div>
                         {hasDemandeLink(d) && (
                           <div
                             onClick={(e) => handleVoirDemande(d, e)}
-                            className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
+                            className="flex-1 bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 transition text-center font-medium cursor-pointer"
                           >
                             📋 {d._isExpress ? 'Voir la demande express' : 'Voir demande associée'}
                           </div>
@@ -1023,7 +1023,7 @@ export default function ClientDevisPage() {
                               e.stopPropagation();
                               naviguerVersDevis(d.id, `returnFilter=${filter}`);
                             }}
-                            className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
+                            className="flex-1 bg-navy-800 text-white px-4 py-2 rounded-lg hover:bg-navy-900 transition text-center font-medium cursor-pointer"
                           >
                             📄 Voir le détail
                           </div>
@@ -1034,7 +1034,7 @@ export default function ClientDevisPage() {
                                 e.preventDefault();
                                 router.push(`/client/demandes?demandeId=${d.demandeId}`);
                               }}
-                              className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
+                              className="flex-1 bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 transition text-center font-medium cursor-pointer"
                             >
                               📋 Voir demande associée
                             </div>
@@ -1048,14 +1048,14 @@ export default function ClientDevisPage() {
                       <div className="flex gap-3">
                         <div
                           onClick={(e) => handleVoirDetail(d, e)}
-                          className="flex-1 bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C] transition text-center font-medium cursor-pointer"
+                          className="flex-1 bg-navy-800 text-white px-4 py-2 rounded-lg hover:bg-navy-900 transition text-center font-medium cursor-pointer"
                         >
                           📄 {d._isExpress ? '🖶️ Imprimer / PDF' : t('quotes.viewDetails')}
                         </div>
                         {hasDemandeLink(d) && (
                           <div
                             onClick={(e) => handleVoirDemande(d, e)}
-                            className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition text-center font-medium cursor-pointer"
+                            className="flex-1 bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 transition text-center font-medium cursor-pointer"
                           >
                             📋 {d._isExpress ? 'Voir la demande express' : 'Voir demande associée'}
                           </div>

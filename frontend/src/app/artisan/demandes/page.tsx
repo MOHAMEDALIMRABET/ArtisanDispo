@@ -352,11 +352,11 @@ export default function ArtisanDemandesPage() {
                 console.log(`   ✅ Demande ${d.id} auto-validée - Paiement libéré à l'artisan`);
               } else {
                 const err = await resp.json();
-                console.error(`   ❌ Erreur capture paiement ${d.id}:`, err);
+                console.error(` ❌ Erreur capture paiement ${d.id}:`, err);
               }
             }
           } catch (e) {
-            console.error('   ❌ Auto-validation échouée pour', d.id, e);
+            console.error(' ❌ Auto-validation échouée pour', d.id, e);
           }
         }
         
@@ -834,31 +834,31 @@ export default function ArtisanDemandesPage() {
     
     // Section "📬 Nouvelles demandes" → Orange
     if (filter === 'nouvelles') {
-      return 'bg-gradient-to-b from-[#FF6B00] to-[#E56100]';
+      return 'bg-brand-600';
     }
     
     // Section "⏳ En traitement" → Bleu
     if (filter === 'en_traitement') {
-      return 'bg-gradient-to-b from-blue-400 to-blue-600';
+      return 'bg-blue-400';
     }
     
     // Section "✅ Traitées" → couleur selon statut
     if (filter === 'traitees') {
       // Travaux en cours → Jaune
       if (devisPaye?.statut === 'en_cours') {
-        return 'bg-gradient-to-b from-yellow-400 to-yellow-600';
+        return 'bg-yellow-400';
       }
       // Terminés (validés) → Gris foncé
       if (devisPaye && ['travaux_termines', 'termine_valide', 'termine_auto_valide'].includes(devisPaye.statut)) {
-        return 'bg-gradient-to-b from-gray-700 to-gray-900';
+        return 'bg-slate-700';
       }
       // Devis payé (signé) → Vert
       if (devisPaye?.statut === 'paye') {
-        return 'bg-gradient-to-b from-green-400 to-green-600';
+        return 'bg-green-400';
       }
       // Refusées → Rouge
       if (demande.statut === 'annulee') {
-        return 'bg-gradient-to-b from-red-400 to-red-600';
+        return 'bg-red-400';
       }
       // Expirées → Rouge rayé
       if (demande.statut === 'expiree' || (demande.dateExpiration && isDemandeExpired(demande.dateExpiration))) {
@@ -867,7 +867,7 @@ export default function ArtisanDemandesPage() {
     }
     
     // Fallback (section "Toutes") - Orange par défaut
-    return 'bg-gradient-to-b from-[#FF6B00] to-[#E56100]';
+    return 'bg-brand-600';
   };
 
   // Helper : sauvegarder des IDs comme vus dans localStorage
@@ -906,10 +906,10 @@ export default function ArtisanDemandesPage() {
   const nbRefuseesNonLues = notifications.filter(n => !n.lue && n.type === 'proposition_refusee').length;
 
   // Badges pour événements express importants non lus
-  // — paiement_recu_express     : client a payé → artisan doit intervenir (onglet "🔧 En traitement")
-  // — proposition_acceptee      : client a accepté la proposition (onglet "🔧 En traitement")
-  // — paiement_libere_express   : client a validé les travaux → paiement versé (onglet "🎉 Validées")
-  // — contre_proposition_recue  : client a fait une contre-offre → réponse artisan requise (onglet "📨 Propositions envoyées")
+  // — paiement_recu_express : client a payé → artisan doit intervenir (onglet "🔧 En traitement")
+  // — proposition_acceptee : client a accepté la proposition (onglet "🔧 En traitement")
+  // — paiement_libere_express : client a validé les travaux → paiement versé (onglet "🎉 Validées")
+  // — contre_proposition_recue : client a fait une contre-offre → réponse artisan requise (onglet "📨 Propositions envoyées")
   const nbPaiementRecuNonLus = notifications.filter(n => !n.lue && n.type === 'paiement_recu_express').length;
   const nbPropositionAccepteeNonLues = notifications.filter(n => !n.lue && n.type === 'proposition_acceptee').length;
   const nbPaiementLibereNonLus = notifications.filter(n => !n.lue && n.type === 'paiement_libere_express').length;
@@ -930,12 +930,12 @@ export default function ArtisanDemandesPage() {
     demandesFiltrees = toutesLesDemandes.filter(d => d.id === highlightedDemandeId);
     
     console.log(`🔍 Filtrage pour demandeId=${highlightedDemandeId}:`);
-    console.log('   demandes.length:', demandes.length);
-    console.log('   demandesPubliques.length:', demandesPubliques.length);
-    console.log('   toutesLesDemandes.length:', toutesLesDemandes.length);
-    console.log('   demandesFiltrees.length:', demandesFiltrees.length);
+    console.log(' demandes.length:', demandes.length);
+    console.log(' demandesPubliques.length:', demandesPubliques.length);
+    console.log(' toutesLesDemandes.length:', toutesLesDemandes.length);
+    console.log(' demandesFiltrees.length:', demandesFiltrees.length);
     if (demandesFiltrees.length === 0) {
-      console.log('   ❌ DEMANDE NON TROUVÉE - Vérifier dans Firestore si la demande existe et si elle est assignée à cet artisan');
+      console.log(' ❌ DEMANDE NON TROUVÉE - Vérifier dans Firestore si la demande existe et si elle est assignée à cet artisan');
     }
   } else if (sectionActive === 'mes_demandes') {
     // Filtrage par onglet uniquement pour "Mes demandes"
@@ -952,23 +952,23 @@ export default function ArtisanDemandesPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('artisanRequests.loading')}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
+          <p className="text-slate-600">{t('artisanRequests.loading')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-[#2C3E50] text-white py-8">
+      <div className="bg-navy-800 text-white py-8">
         <div className="container mx-auto px-4 max-w-6xl">
           <button
             onClick={() => router.push('/artisan/dashboard')}
-            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4"
+            className="flex items-center gap-2 text-white hover:text-brand-700 mb-4"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -980,12 +980,12 @@ export default function ArtisanDemandesPage() {
               <h1 className="text-3xl font-bold">
                 📬 {t('artisanRequests.pageTitle')}
               </h1>
-              <p className="text-gray-300 mt-2">{t('artisanRequests.pageDescription')}</p>
+              <p className="text-slate-300 mt-2">{t('artisanRequests.pageDescription')}</p>
             </div>
             {highlightedDemandeId && (
               <button
                 onClick={() => router.push('/artisan/demandes')}
-                className="flex items-center gap-2 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100]"
+                className="flex items-center gap-2 bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -1021,17 +1021,17 @@ export default function ArtisanDemandesPage() {
                   'litige_escalade', 'litige_resolu', 'litige_abandonne',
                 ]);
               }}
-              className="group text-left bg-[#2C3E50] rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col"
+              className="group text-left bg-navy-800 rounded-2xl shadow-md hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col"
             >
               {/* Bandeau */}
-              <div className="bg-[#2C3E50] px-6 py-4 flex items-center gap-3">
+              <div className="bg-navy-800 px-6 py-4 flex items-center gap-3">
                 <span className="text-3xl">🏗️</span>
                 <div className="flex-1">
                   <div className="text-white font-bold text-xl">Demandes Classiques</div>
-                  <div className="text-gray-300 text-sm">Devis personnalisés</div>
+                  <div className="text-slate-300 text-sm">Devis personnalisés</div>
                 </div>
                 {nbNouvellesClassiques > 0 && (
-                  <span className="bg-[#FF6B00] text-white text-xs font-bold px-2.5 py-1 rounded-full animate-pulse">
+                  <span className="bg-brand-700 text-white text-xs font-bold px-2.5 py-1 rounded-full animate-pulse">
                     {nbNouvellesClassiques} nouvelle{nbNouvellesClassiques > 1 ? 's' : ''}
                   </span>
                 )}
@@ -1041,10 +1041,10 @@ export default function ArtisanDemandesPage() {
                 <div className="flex items-center gap-4 p-3 rounded-xl bg-orange-50 border border-orange-200">
                   <span className="text-2xl">📋</span>
                   <div className="flex-1">
-                    <div className="font-semibold text-[#2C3E50] text-sm">{t('artisanRequests.tabs.myRequests')}</div>
+                    <div className="font-semibold text-navy-800 text-sm">{t('artisanRequests.tabs.myRequests')}</div>
                   </div>
                   {getDemandesNouvelles(demandes).filter(d => !demandesVuesSet.has(d.id)).length > 0 && (
-                    <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    <span className="bg-brand-700 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                       {getDemandesNouvelles(demandes).filter(d => !demandesVuesSet.has(d.id)).length}
                     </span>
                   )}
@@ -1052,7 +1052,7 @@ export default function ArtisanDemandesPage() {
                 <div className="flex items-center gap-4 p-3 rounded-xl bg-purple-50 border border-purple-200">
                   <span className="text-2xl">📢</span>
                   <div className="flex-1">
-                    <div className="font-semibold text-[#2C3E50] text-sm">{t('artisanRequests.tabs.publicRequests')}</div>
+                    <div className="font-semibold text-navy-800 text-sm">{t('artisanRequests.tabs.publicRequests')}</div>
                   </div>
                   {demandesPubliques.filter(d => d.statut !== 'annulee' && !(d.dateExpiration && isDemandeExpired(d.dateExpiration)) && !demandesVuesSet.has(d.id)).length > 0 && (
                     <span className="bg-purple-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
@@ -1061,13 +1061,13 @@ export default function ArtisanDemandesPage() {
                   )}
                 </div>
                 {nbNouvellesClassiques > 0 && (
-                  <div className="flex items-center gap-2 text-[#FF6B00] text-sm font-semibold">
+                  <div className="flex items-center gap-2 text-brand-700 text-sm font-semibold">
                     <span>🔔</span>
                     <span>{nbNouvellesClassiques} demande{nbNouvellesClassiques > 1 ? 's' : ''} en attente</span>
                   </div>
                 )}
                 <div className="flex items-center justify-end pt-1">
-                  <span className="text-sm font-semibold text-[#FF6B00] group-hover:underline">Accéder →</span>
+                  <span className="text-sm font-semibold text-brand-700 group-hover:underline">Accéder →</span>
                 </div>
               </div>
             </button>
@@ -1103,10 +1103,10 @@ export default function ArtisanDemandesPage() {
                   'acceptation_expiree', 'paiement_libere_express',
                 ]);
               }}
-              className="group text-left bg-[#FF6B00] rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col"
+              className="group text-left bg-brand-700 rounded-2xl shadow-md hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col"
             >
               {/* Bandeau */}
-              <div className="bg-[#FF6B00] px-6 py-4 flex items-center gap-3">
+              <div className="bg-brand-700 px-6 py-4 flex items-center gap-3">
                 <span className="text-3xl">⚡</span>
                 <div className="flex-1">
                   <div className="text-white font-bold text-xl">Demandes en urgence</div>
@@ -1114,7 +1114,7 @@ export default function ArtisanDemandesPage() {
                 </div>
                 {/* Badge nouvelles demandes */}
                 {nbNouvellesExpress > 0 && (
-                  <span className="bg-white text-[#FF6B00] text-xs font-bold px-2.5 py-1 rounded-full animate-pulse">
+                  <span className="bg-white text-brand-700 text-xs font-bold px-2.5 py-1 rounded-full animate-pulse">
                     {nbNouvellesExpress} nouvelle{nbNouvellesExpress > 1 ? 's' : ''}
                   </span>
                 )}
@@ -1130,11 +1130,11 @@ export default function ArtisanDemandesPage() {
                 <div className={`flex items-center gap-4 p-3 rounded-xl border ${nbExpressImportantNonLus > 0 ? 'bg-green-50 border-green-300' : 'bg-orange-50 border-orange-200'}`}>
                   <span className="text-2xl">⚡</span>
                   <div className="flex-1">
-                    <div className="font-semibold text-[#2C3E50] text-sm">⚡ Mes demandes express</div>
+                    <div className="font-semibold text-navy-800 text-sm">⚡ Mes demandes express</div>
                   </div>
                   {/* Badge nouvelles demandes en attente de proposition */}
                   {nbNouvellesExpressAttribuees > 0 && (
-                    <span className="bg-[#FF6B00] text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    <span className="bg-brand-700 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                       {nbNouvellesExpressAttribuees}
                     </span>
                   )}
@@ -1172,7 +1172,7 @@ export default function ArtisanDemandesPage() {
                 <div className="flex items-center gap-4 p-3 rounded-xl bg-amber-50 border border-amber-200">
                   <span className="text-2xl">📢</span>
                   <div className="flex-1">
-                    <div className="font-semibold text-[#2C3E50] text-sm">📢 Demandes publiées (0-30 km)</div>
+                    <div className="font-semibold text-navy-800 text-sm">📢 Demandes publiées (0-30 km)</div>
                   </div>
                   {nbNouvellesExpressPubliees > 0 && (
                     <span className="bg-amber-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
@@ -1181,7 +1181,7 @@ export default function ArtisanDemandesPage() {
                   )}
                 </div>
                 {nbNouvellesExpress > 0 && (
-                  <div className="flex items-center gap-2 text-[#FF6B00] text-sm font-semibold">
+                  <div className="flex items-center gap-2 text-brand-700 text-sm font-semibold">
                     <span>🔔</span>
                     <span>{nbNouvellesExpress} demande{nbNouvellesExpress > 1 ? 's' : ''} en attente</span>
                   </div>
@@ -1212,7 +1212,7 @@ export default function ArtisanDemandesPage() {
                   </div>
                 )}
                 <div className="flex items-center justify-end pt-1">
-                  <span className="text-sm font-semibold text-[#FF6B00] group-hover:underline">Accéder →</span>
+                  <span className="text-sm font-semibold text-brand-700 group-hover:underline">Accéder →</span>
                 </div>
               </div>
             </button>
@@ -1226,12 +1226,12 @@ export default function ArtisanDemandesPage() {
         {!highlightedDemandeId && categoryActive === 'classiques' && (
           <div className="mb-6">
             {/* Fil d'Ariane + retour */}
-            <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
-              <button onClick={() => setCategoryActive(null)} className="hover:text-[#FF6B00] transition flex items-center gap-1">
+            <div className="flex items-center gap-2 mb-4 text-sm text-slate-500">
+              <button onClick={() => setCategoryActive(null)} className="hover:text-brand-700 transition flex items-center gap-1">
                 Demandes
               </button>
               <span>/</span>
-              <span className="font-semibold text-[#2C3E50]">🏗️ Demandes Classiques</span>
+              <span className="font-semibold text-navy-800">🏗️ Demandes Classiques</span>
             </div>
             {/* Sous-onglets */}
             <div className="flex gap-4">
@@ -1239,15 +1239,15 @@ export default function ArtisanDemandesPage() {
                 onClick={() => setSectionActive('mes_demandes')}
                 className={`flex-1 py-4 px-6 rounded-xl font-bold text-lg transition-all shadow-md ${
                   sectionActive === 'mes_demandes'
-                    ? 'bg-[#FF6B00] text-white ring-4 ring-[#FF6B00] ring-opacity-30'
-                    : 'bg-white text-gray-700 hover:bg-orange-50'
+                    ? 'bg-brand-700 text-white ring-4 ring-brand-500 ring-opacity-30'
+                    : 'bg-white text-slate-700 hover:bg-orange-50'
                 }`}
               >
                 <div className="flex items-center justify-center gap-3">
                   <span className="text-2xl">📋</span>
                   <div className="text-left">
                     <div>{t('artisanRequests.tabs.myRequests')}</div>
-                    <div className={`text-sm font-normal ${sectionActive === 'mes_demandes' ? 'text-white opacity-90' : 'text-gray-500'}`}>
+                    <div className={`text-sm font-normal ${sectionActive === 'mes_demandes' ? 'text-white opacity-90' : 'text-slate-500'}`}>
                       {demandes.filter(d => d.statut !== 'expiree').length} demande{demandes.filter(d => d.statut !== 'expiree').length > 1 ? 's' : ''}
                     </div>
                   </div>
@@ -1258,14 +1258,14 @@ export default function ArtisanDemandesPage() {
                 className={`flex-1 py-4 px-6 rounded-xl font-bold text-lg transition-all shadow-md ${
                   sectionActive === 'demandes_publiques'
                     ? 'bg-purple-600 text-white ring-4 ring-purple-600 ring-opacity-30'
-                    : 'bg-white text-gray-700 hover:bg-purple-50'
+                    : 'bg-white text-slate-700 hover:bg-purple-50'
                 }`}
               >
                 <div className="flex items-center justify-center gap-3">
                   <span className="text-2xl">📢</span>
                   <div className="text-left">
                     <div>{t('artisanRequests.tabs.publicRequests')}</div>
-                    <div className={`text-sm font-normal ${sectionActive === 'demandes_publiques' ? 'text-white opacity-90' : 'text-gray-500'}`}>
+                    <div className={`text-sm font-normal ${sectionActive === 'demandes_publiques' ? 'text-white opacity-90' : 'text-slate-500'}`}>
                       {demandesPubliques.length} demande{demandesPubliques.length > 1 ? 's' : ''}
                     </div>
                   </div>
@@ -1280,12 +1280,12 @@ export default function ArtisanDemandesPage() {
         ══════════════════════════════════════════════ */}
         {!highlightedDemandeId && categoryActive === 'express' && (
           <div className="mb-6">
-            <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
-              <button onClick={() => setCategoryActive(null)} className="hover:text-[#FF6B00] transition flex items-center gap-1">
+            <div className="flex items-center gap-2 mb-4 text-sm text-slate-500">
+              <button onClick={() => setCategoryActive(null)} className="hover:text-brand-700 transition flex items-center gap-1">
                 Demandes
               </button>
               <span>/</span>
-              <span className="font-semibold text-[#2C3E50]">⚡ Demandes Express</span>
+              <span className="font-semibold text-navy-800">⚡ Demandes Express</span>
             </div>
           </div>
         )}
@@ -1299,14 +1299,14 @@ export default function ArtisanDemandesPage() {
                 onClick={() => setFilter('toutes')}
                 className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
                   filter === 'toutes'
-                    ? 'bg-gradient-to-br from-[#FF6B00] to-[#E56100] text-white shadow-xl scale-105'
-                    : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                    ? ' bg-brand-600 text-white shadow-md scale-105'
+                    : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
                 }`}
               >
-                <div className={`text-3xl font-black mb-1 ${filter === 'toutes' ? 'text-white' : 'text-[#FF6B00]'}`}>
+                <div className={`text-3xl font-black mb-1 ${filter === 'toutes' ? 'text-white' : 'text-brand-700'}`}>
                   {demandes.length}
                 </div>
-                <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'toutes' ? 'text-white' : 'text-gray-600'}`}>
+                <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'toutes' ? 'text-white' : 'text-slate-600'}`}>
                   {t('artisanRequests.filters.all')}
                 </div>
               </button>
@@ -1316,14 +1316,14 @@ export default function ArtisanDemandesPage() {
                 onClick={() => setFilter('nouvelles')}
                 className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
                   filter === 'nouvelles'
-                    ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-xl scale-105'
-                    : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                    ? ' bg-orange-500 text-white shadow-md scale-105'
+                    : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
                 }`}
               >
                 <div className={`text-3xl font-black mb-1 ${filter === 'nouvelles' ? 'text-white' : 'text-orange-500'}`}>
                   {getDemandesNouvelles(demandes).length}
                 </div>
-                <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'nouvelles' ? 'text-white' : 'text-gray-600'}`}>
+                <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'nouvelles' ? 'text-white' : 'text-slate-600'}`}>
                   📬 {t('artisanRequests.filters.new')}
                 </div>
               </button>
@@ -1333,14 +1333,14 @@ export default function ArtisanDemandesPage() {
                 onClick={() => setFilter('en_traitement')}
                 className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
                   filter === 'en_traitement'
-                    ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl scale-105'
-                    : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                    ? ' bg-blue-500 text-white shadow-md scale-105'
+                    : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
                 }`}
               >
                 <div className={`text-3xl font-black mb-1 ${filter === 'en_traitement' ? 'text-white' : 'text-blue-600'}`}>
                   {getDemandesEnTraitement(demandes).length}
                 </div>
-                <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'en_traitement' ? 'text-white' : 'text-gray-600'}`}>
+                <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'en_traitement' ? 'text-white' : 'text-slate-600'}`}>
                   ⏳ En traitement
                 </div>
               </button>
@@ -1350,14 +1350,14 @@ export default function ArtisanDemandesPage() {
                 onClick={() => setFilter('traitees')}
                 className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
                   filter === 'traitees'
-                    ? 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-xl scale-105'
-                    : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                    ? ' bg-green-500 text-white shadow-md scale-105'
+                    : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
                 }`}
               >
                 <div className={`text-3xl font-black mb-1 ${filter === 'traitees' ? 'text-white' : 'text-green-600'}`}>
                   {getToutesDemandesTraitees(demandes).length}
                 </div>
-                <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'traitees' ? 'text-white' : 'text-gray-600'}`}>
+                <div className={`text-xs font-semibold uppercase tracking-wide ${filter === 'traitees' ? 'text-white' : 'text-slate-600'}`}>
                   ✅ Traitées
                 </div>
               </button>
@@ -1365,7 +1365,7 @@ export default function ArtisanDemandesPage() {
 
             {/* Sous-filtres pour la section "Traitées" */}
             {filter === 'traitees' && getToutesDemandesTraitees(demandes).length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-6 bg-white rounded-xl shadow-sm p-3 border border-gray-100">
+              <div className="flex flex-wrap gap-2 mb-6 bg-white rounded-xl shadow-sm p-3 border border-slate-100">
                 {([
                   { key: 'tout', label: '🔍 Tout', count: getToutesDemandesTraitees(demandes).length },
                   { key: 'payees', label: '💰 Payées', count: getToutesDemandesTraitees(demandes).filter(d => devisMap.get(d.id)?.some(v => v.statut === 'paye')).length },
@@ -1380,7 +1380,7 @@ export default function ArtisanDemandesPage() {
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                       sousFiltreTraitees === key
                         ? 'bg-green-600 text-white shadow-sm'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                     }`}
                   >
                     {label} <span className="opacity-75">({count})</span>
@@ -1394,13 +1394,13 @@ export default function ArtisanDemandesPage() {
         {/* Liste des demandes (hors express) */}
         {(categoryActive === 'classiques' || highlightedDemandeId) && sectionActive !== 'demandes_express' && (demandesFiltrees.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <svg className="w-24 h-24 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-24 h-24 mx-auto mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
             </svg>
-            <h3 className="text-xl font-bold text-gray-700 mb-2">
+            <h3 className="text-xl font-bold text-slate-700 mb-2">
               {t('artisanRequests.empty.noRequests')}
             </h3>
-            <p className="text-gray-600">
+            <p className="text-slate-600">
               {t('artisanRequests.empty.description')}
             </p>
           </div>
@@ -1418,10 +1418,10 @@ export default function ArtisanDemandesPage() {
                 onClick={() => toggleExpandDemande(demande.id)}
                 className={`bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer relative border-2 overflow-hidden group ${
                   isExpanded
-                    ? 'border-[#FF6B00] ring-1 ring-[#FF6B00] ring-opacity-30'
+                    ? 'border-brand-500 ring-1 ring-brand-500 ring-opacity-30'
                     : isNouveau && filter !== 'nouvelles'
-                    ? 'border-orange-200 hover:border-[#FF6B00]'
-                    : 'border-transparent hover:border-gray-200'
+                    ? 'border-orange-200 hover:border-brand-500'
+                    : 'border-transparent hover:border-slate-200'
                 }`}
               >
                 {/* Barre latérale colorée selon section et statut */}
@@ -1433,11 +1433,11 @@ export default function ArtisanDemandesPage() {
                     e.stopPropagation();
                     toggleExpandDemande(demande.id);
                   }}
-                  className="absolute top-5 right-5 p-2.5 rounded-xl hover:bg-gray-100 transition-all duration-200 group"
+                  className="absolute top-5 right-5 p-2.5 rounded-xl hover:bg-slate-100 transition-all duration-200 group"
                   title={isExpanded ? t('artisanRequests.card.hideDetails') : t('artisanRequests.card.viewDetails')}
                 >
                   <svg 
-                    className={`w-5 h-5 text-gray-400 group-hover:text-[#FF6B00] transition-all duration-200 ${
+                    className={`w-5 h-5 text-slate-400 group-hover:text-brand-700 transition-all duration-200 ${
                       isExpanded ? 'rotate-180' : ''
                     }`} 
                     fill="none" 
@@ -1454,13 +1454,13 @@ export default function ArtisanDemandesPage() {
                   const client = clientsInfo.get(demande.clientId);
                   if (client) {
                     return (
-                      <div className="mb-4 bg-[#F5F7FA] p-4 rounded-lg border border-gray-200">
+                      <div className="mb-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
                         <div className="flex items-center gap-3">
-                          <p className="text-sm font-bold text-gray-700">{t('artisanRequests.card.requester')}</p>
-                          <div className="w-8 h-8 bg-[#2C3E50] text-white rounded-full flex items-center justify-center font-bold text-sm">
+                          <p className="text-sm font-bold text-slate-700">{t('artisanRequests.card.requester')}</p>
+                          <div className="w-8 h-8 bg-navy-800 text-white rounded-full flex items-center justify-center font-bold text-sm">
                             {client.prenom?.[0]?.toUpperCase() || 'C'}{client.nom?.[0]?.toUpperCase() || ''}
                           </div>
-                          <p className="font-semibold text-[#2C3E50]">
+                          <p className="font-semibold text-navy-800">
                             {client.prenom} {client.nom}
                           </p>
                         </div>
@@ -1471,24 +1471,24 @@ export default function ArtisanDemandesPage() {
                 })()}
 
                 {/* Titre principal + Dates + Badge statut */}
-                <div className="flex items-start justify-between mb-4 pb-4 border-b border-gray-200 pr-12">
+                <div className="flex items-start justify-between mb-4 pb-4 border-b border-slate-200 pr-12">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2 flex-wrap">
-                      <h2 className="text-2xl font-bold text-[#2C3E50] break-words break-all">
+                      <h2 className="text-2xl font-bold text-navy-800 break-words break-all">
                         {demande.titre}
                       </h2>
                       {isNouveau && (
                         <span
-                          className="inline-flex items-center gap-1 bg-[#FF6B00] text-white text-xs font-bold px-2.5 py-1 rounded-full shrink-0"
+                          className="inline-flex items-center gap-1 bg-brand-700 text-white text-xs font-bold px-2.5 py-1 rounded-full shrink-0"
                           style={{ animation: 'pulse 0.7s ease-in-out 4' }}
                         >
                           🔔
                         </span>
                       )}
                     </div>
-                    <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600">
                       <div className="flex items-center gap-1">
-                        <span className="text-[#FF6B00]">🏷️</span>
+                        <span className="text-brand-700">🏷️</span>
                         <span className="font-semibold">{t('artisanRequests.card.category')}</span>
                         <span>{demande.categorie}</span>
                       </div>
@@ -1562,7 +1562,7 @@ export default function ArtisanDemandesPage() {
                       // Travaux validés par le client
                       if (devisPaye && ['termine_valide', 'termine_auto_valide'].includes(devisPaye.statut)) {
                         return (
-                          <span className="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold border-2 border-gray-400">
+                          <span className="bg-slate-100 text-slate-800 px-4 py-2 rounded-lg text-sm font-bold border-2 border-slate-400">
                             ✅ Travaux validés
                           </span>
                         );
@@ -1616,7 +1616,7 @@ export default function ArtisanDemandesPage() {
                         + ' ' + demande.dateExpiration.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
                       return (
                         <div className={`flex flex-col items-end gap-0.5 px-3 py-1.5 rounded-lg border-2 ${
-                          isUrgent ? 'bg-red-50 border-red-400 text-red-700' : 'bg-orange-50 border-[#FF6B00] text-[#FF6B00]'
+                          isUrgent ? 'bg-red-50 border-red-400 text-red-700' : 'bg-orange-50 border-brand-500 text-brand-700'
                         }`}>
                           <span className={`text-xs font-black ${isUrgent ? 'animate-pulse' : ''}`}>⏱️ Expire dans {minuteLabel}</span>
                           <span className="text-[10px] font-bold opacity-80 tabular-nums">{secLabel}</span>
@@ -1629,8 +1629,8 @@ export default function ArtisanDemandesPage() {
 
                 {/* Description (toujours visible, retour à la ligne pour texte long) */}
                 <div className="mb-4">
-                  <p className="text-sm font-bold text-gray-700 mb-2">{t('artisanRequests.card.description')}</p>
-                  <p className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
+                  <p className="text-sm font-bold text-slate-700 mb-2">{t('artisanRequests.card.description')}</p>
+                  <p className="text-slate-700 leading-relaxed whitespace-pre-wrap break-words">
                     {demande.description}
                   </p>
                 </div>
@@ -1649,7 +1649,7 @@ export default function ArtisanDemandesPage() {
                   
                   return (
                     <div className="mb-4">
-                      <p className="text-sm font-semibold text-gray-700 mb-2">
+                      <p className="text-sm font-semibold text-slate-700 mb-2">
                         {t('artisanRequests.card.projectPhotos').replace('{count}', validPhotos.length.toString())}
                       </p>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -1661,7 +1661,7 @@ export default function ArtisanDemandesPage() {
                           return (
                             <div
                               key={idx}
-                              className="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-200 hover:border-[#FF6B00] transition-all shadow-sm"
+                              className="relative aspect-square rounded-lg overflow-hidden border-2 border-slate-200 hover:border-brand-500 transition-all shadow-sm"
                               style={{ backgroundColor: '#ffffff' }}
                             >
                               <a
@@ -1686,12 +1686,12 @@ export default function ArtisanDemandesPage() {
                                     const container = img.parentElement?.parentElement;
                                     if (container && !container.querySelector('.photo-error')) {
                                       const errorDiv = document.createElement('div');
-                                      errorDiv.className = 'photo-error absolute inset-0 flex flex-col items-center justify-center bg-gray-100';
+                                      errorDiv.className = 'photo-error absolute inset-0 flex flex-col items-center justify-center bg-slate-100';
                                       errorDiv.innerHTML = `
-                                        <svg class="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-10 h-10 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                         </svg>
-                                        <span class="text-xs text-gray-500 text-center px-2">${displayName}</span>
+                                        <span class="text-xs text-slate-500 text-center px-2">${displayName}</span>
                                       `;
                                       container.appendChild(errorDiv);
                                     }
@@ -1713,16 +1713,16 @@ export default function ArtisanDemandesPage() {
                   {/* Localisation et Dates souhaitées côte à côte */}
                   <div className="mb-6 grid md:grid-cols-2 gap-4">
                     {/* Localisation */}
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                      <p className="text-sm font-bold text-[#2C3E50] mb-3 flex items-center gap-2">
+                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                      <p className="text-sm font-bold text-navy-800 mb-3 flex items-center gap-2">
                         <span>📍</span>
                         {t('artisanRequests.card.location')}
                       </p>
                       <div className="space-y-1">
-                        <p className="text-[#2C3E50]">
+                        <p className="text-navy-800">
                           <span className="font-semibold">{t('artisanRequests.card.city')}</span> {demande.localisation?.ville || t('common.notSpecified')}
                         </p>
-                        <p className="text-[#2C3E50]">
+                        <p className="text-navy-800">
                           <span className="font-semibold">{t('artisanRequests.card.postalCode')}</span> {demande.localisation?.codePostal || 'N/A'}
                         </p>
                       </div>
@@ -1845,7 +1845,7 @@ export default function ArtisanDemandesPage() {
                                 hour: '2-digit', minute: '2-digit'
                               })}
                             </p>
-                            <p className="text-xs text-gray-600 mt-0.5">
+                            <p className="text-xs text-slate-600 mt-0.5">
                               Délai estimé : {delaiTexte}
                             </p>
                           </div>
@@ -1888,7 +1888,7 @@ export default function ArtisanDemandesPage() {
                             const isUrgent = diffMs < 60 * 60 * 1000;
                             return (
                               <p className={`mt-1 text-sm font-black tabular-nums ${
-                                isUrgent ? 'text-red-600 animate-pulse' : 'text-[#FF6B00]'
+                                isUrgent ? 'text-red-600 animate-pulse' : 'text-brand-700'
                               }`}>
                                 ⏱️ {parts.join(' ')}
                               </p>
@@ -1898,10 +1898,10 @@ export default function ArtisanDemandesPage() {
                       </div>
                     ) : demande.dateExpiration ? null : !demandesAvecDevisPayeIds.has(demande.id) ? (
                       <div className="flex items-start gap-2">
-                        <span className="text-gray-400 mt-0.5">⏳</span>
+                        <span className="text-slate-400 mt-0.5">⏳</span>
                         <div>
                           <p className="font-semibold text-blue-900">Date / heure d'expiration</p>
-                          <p className="text-gray-500 italic">Non définie</p>
+                          <p className="text-slate-500 italic">Non définie</p>
                         </div>
                       </div>
                     ) : null}
@@ -2040,7 +2040,7 @@ export default function ArtisanDemandesPage() {
                                 handleFinTravaux(devisPaye.id, devisPaye.numeroDevis);
                               }
                             }}
-                            className="flex-1 bg-[#FF6B00] text-white hover:bg-[#E56100] rounded-lg px-4 py-2.5 font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+                            className="flex-1 bg-brand-700 text-white hover:bg-brand-800 rounded-lg px-4 py-2.5 font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
                           >
                             🏁 {t('artisanRequests.actions.finishWork')}
                           </button>
@@ -2055,7 +2055,7 @@ export default function ArtisanDemandesPage() {
                               router.push(`/artisan/contrats?demandeId=${demande.id}`);
                             }
                           }}
-                          className="flex-1 bg-[#FF6B00] text-white hover:bg-[#E56100] rounded-lg px-4 py-2.5 font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+                          className="flex-1 bg-brand-700 text-white hover:bg-brand-800 rounded-lg px-4 py-2.5 font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
                         >
                           📋 {t('artisanRequests.actions.viewPaidQuote')}
                         </button>
@@ -2065,7 +2065,7 @@ export default function ArtisanDemandesPage() {
                               e.stopPropagation();
                               router.push(`/messages?userId=${demande.clientId}&demandeId=${demande.id}`);
                             }}
-                            className="px-4 py-2.5 border-2 border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
+                            className="px-4 py-2.5 border-2 border-navy-800 text-navy-800 hover:bg-navy-800 hover:text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
                           >
                             💬 {t('artisanRequests.actions.contactClient')}
                           </button>
@@ -2083,14 +2083,14 @@ export default function ArtisanDemandesPage() {
                   if (refusStatut?.definitif) {
                     return (
                       <div className="mt-4 space-y-3">
-                        <div className="bg-gray-100 border-2 border-gray-300 p-4 rounded-lg">
+                        <div className="bg-slate-100 border-2 border-slate-300 p-4 rounded-lg">
                           <div className="flex items-start gap-3">
-                            <svg className="w-6 h-6 text-gray-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-6 h-6 text-slate-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                             </svg>
                             <div className="flex-1">
-                              <p className="font-bold text-gray-700 mb-1">⛔ {t('artisanRequests.status.requestClosed')}</p>
-                              <p className="text-sm text-gray-600">
+                              <p className="font-bold text-slate-700 mb-1">⛔ {t('artisanRequests.status.requestClosed')}</p>
+                              <p className="text-sm text-slate-600">
                                 {t('artisanRequests.status.refusedDefinitive')}
                               </p>
                             </div>
@@ -2125,7 +2125,7 @@ export default function ArtisanDemandesPage() {
                               e.stopPropagation();
                               router.push(`/messages?userId=${demande.clientId}&demandeId=${demande.id}`);
                             }}
-                            className="px-4 py-2.5 border-2 border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white rounded-lg font-medium transition-all duration-200"
+                            className="px-4 py-2.5 border-2 border-navy-800 text-navy-800 hover:bg-navy-800 hover:text-white rounded-lg font-medium transition-all duration-200"
                           >
                             💬 {t('artisanRequests.actions.contactClient')}
                           </button>
@@ -2176,7 +2176,7 @@ export default function ArtisanDemandesPage() {
                               }
                               router.push(`/artisan/devis/nouveau?demandeId=${demande.id}`);
                             }}
-                            className="flex-1 bg-[#FF6B00] text-white hover:bg-[#E56100] rounded-lg px-4 py-2.5 font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+                            className="flex-1 bg-brand-700 text-white hover:bg-brand-800 rounded-lg px-4 py-2.5 font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                           >
                             📝 {t('artisanRequests.actions.sendQuote')}
                           </button>
@@ -2214,7 +2214,7 @@ export default function ArtisanDemandesPage() {
 
                         // Un autre artisan a été choisi
                         return (
-                          <div className="flex-1 bg-gray-100 text-gray-500 px-4 py-2.5 rounded-lg font-medium border border-gray-200 text-center text-sm italic">
+                          <div className="flex-1 bg-slate-100 text-slate-500 px-4 py-2.5 rounded-lg font-medium border border-slate-200 text-center text-sm italic">
                             ✅ {t('artisanRequests.status.alreadyAssigned')}
                           </div>
                         );
@@ -2230,7 +2230,7 @@ export default function ArtisanDemandesPage() {
                             e.stopPropagation();
                             router.push(`/messages?userId=${demande.clientId}&demandeId=${demande.id}`);
                           }}
-                          className="px-4 py-2.5 border-2 border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white rounded-lg font-medium transition-all duration-200"
+                          className="px-4 py-2.5 border-2 border-navy-800 text-navy-800 hover:bg-navy-800 hover:text-white rounded-lg font-medium transition-all duration-200"
                         >
                           💬 {t('artisanRequests.actions.contactClient')}
                         </button>
@@ -2259,7 +2259,7 @@ export default function ArtisanDemandesPage() {
                             title={btnTitle}
                             className={`px-4 py-2.5 border-2 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                               devisEnAttenteClient
-                                ? 'border-gray-300 text-gray-400 bg-gray-50'
+                                ? 'border-slate-300 text-slate-400 bg-slate-50'
                                 : 'border-red-300 text-red-700 hover:bg-red-50'
                             }`}
                           >
@@ -2280,10 +2280,10 @@ export default function ArtisanDemandesPage() {
         {/* Section Demandes Express */}
         {categoryActive === 'express' && sectionActive === 'demandes_express' && (
           (demandesExpress.length === 0 && demandesExpressPubliques.length === 0) ? (
-            <div className="bg-white rounded-lg shadow-md p-12 text-center">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
               <span className="text-6xl mb-4 block">⚡</span>
-              <h3 className="text-xl font-bold text-gray-700 mb-2">Aucune demande express</h3>
-              <p className="text-gray-600">Vous n&apos;avez pas encore reçu de demande express.</p>
+              <h3 className="text-xl font-bold text-slate-700 mb-2">Aucune demande express</h3>
+              <p className="text-slate-600">Vous n&apos;avez pas encore reçu de demande express.</p>
             </div>
           ) : (() => {
             const demandesExpressSource = expressSource === 'publiees' ? demandesExpressPubliques : demandesExpress;
@@ -2353,8 +2353,8 @@ export default function ArtisanDemandesPage() {
                   }}
                   className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all border-2 ${
                     expressSource === 'attribuees'
-                      ? 'bg-[#FF6B00] text-white border-[#FF6B00] shadow-md'
-                      : 'bg-white text-[#2C3E50] border-gray-200 hover:border-[#FF6B00] hover:bg-orange-50'
+                      ? 'bg-brand-700 text-white border-brand-500 shadow-md'
+                      : 'bg-white text-navy-800 border-slate-200 hover:border-brand-500 hover:bg-orange-50'
                   }`}
                 >
                   ⚡ Mes demandes express ({demandesExpress.length})
@@ -2366,8 +2366,8 @@ export default function ArtisanDemandesPage() {
                   }}
                   className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all border-2 ${
                     expressSource === 'publiees'
-                      ? 'bg-[#FF6B00] text-white border-[#FF6B00] shadow-md'
-                      : 'bg-white text-[#2C3E50] border-gray-200 hover:border-[#FF6B00] hover:bg-orange-50'
+                      ? 'bg-brand-700 text-white border-brand-500 shadow-md'
+                      : 'bg-white text-navy-800 border-slate-200 hover:border-brand-500 hover:bg-orange-50'
                   }`}
                 >
                   📢 Demandes publiées (0-30 km) ({demandesExpressPubliques.length})
@@ -2391,10 +2391,10 @@ export default function ArtisanDemandesPage() {
                     onClick={() => { setExpressFilter(tab.key); setExpressSubFilter('tout'); }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm transition-all border-2 ${
                       expressFilter === tab.key
-                        ? 'bg-[#FF6B00] text-white border-[#FF6B00] shadow-md'
+                        ? 'bg-brand-700 text-white border-brand-500 shadow-md'
                         : tab.bell
                           ? 'bg-red-50 text-red-700 border-red-400 ring-2 ring-red-300 ring-opacity-50 hover:bg-red-100'
-                          : 'bg-white text-[#2C3E50] border-gray-200 hover:border-[#FF6B00] hover:bg-orange-50'
+                          : 'bg-white text-navy-800 border-slate-200 hover:border-brand-500 hover:bg-orange-50'
                     }`}
                   >
                     <span>{tab.label}</span>
@@ -2403,7 +2403,7 @@ export default function ArtisanDemandesPage() {
                       <span className="animate-bounce text-sm">🔔</span>
                     )}
                     <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${
-                      expressFilter === tab.key ? 'bg-white text-[#FF6B00]' : 'bg-gray-100 text-gray-600'
+                      expressFilter === tab.key ? 'bg-white text-brand-700' : 'bg-slate-100 text-slate-600'
                     }`}>{tab.count}</span>
                   </button>
                 ))}
@@ -2411,7 +2411,7 @@ export default function ArtisanDemandesPage() {
 
               {/* Sous-menus pour "En traitement" */}
               {expressFilter === 'acceptees' && (
-                <div className="flex gap-2 flex-wrap pl-2 border-l-4 border-[#FF6B00]">
+                <div className="flex gap-2 flex-wrap pl-2 border-l-4 border-brand-500">
                   {([
                     { key: 'tout' as const, label: '📋 Toutes', count: subCounts.tout },
                     { key: 'payee' as const, label: '✅ Acceptées/Payées', count: subCounts.payee },
@@ -2423,13 +2423,13 @@ export default function ArtisanDemandesPage() {
                       onClick={() => setExpressSubFilter(sub.key)}
                       className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-semibold text-xs transition-all border-2 ${
                         expressSubFilter === sub.key
-                          ? 'bg-[#2C3E50] text-white border-[#2C3E50] shadow-sm'
-                          : 'bg-white text-[#2C3E50] border-gray-200 hover:border-[#2C3E50] hover:bg-gray-50'
+                          ? 'bg-navy-800 text-white border-navy-800 shadow-sm'
+                          : 'bg-white text-navy-800 border-slate-200 hover:border-navy-800 hover:bg-slate-50'
                       }`}
                     >
                       <span>{sub.label}</span>
                       <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${
-                        expressSubFilter === sub.key ? 'bg-white text-[#2C3E50]' : 'bg-gray-100 text-gray-600'
+                        expressSubFilter === sub.key ? 'bg-white text-navy-800' : 'bg-slate-100 text-slate-600'
                       }`}>{sub.count}</span>
                     </button>
                   ))}
@@ -2437,14 +2437,14 @@ export default function ArtisanDemandesPage() {
               )}
 
               {demandesExpressFiltrees.length === 0 ? (
-                <div className="bg-white rounded-xl shadow-sm p-10 text-center border border-gray-100">
+                <div className="bg-white rounded-xl shadow-sm p-10 text-center border border-slate-100">
                   <span className="text-5xl mb-3 block">
                     {expressFilter === 'nouvelles' ? '🔍' :
                      expressFilter === 'propositions_envoyees' ? '📭' :
                      expressFilter === 'acceptees' ? '�' :
                      expressFilter === 'validees' ? '🎉' : '✌️'}
                   </span>
-                  <p className="text-gray-500 font-medium">
+                  <p className="text-slate-500 font-medium">
                     {expressFilter === 'nouvelles' ? 'Aucune nouvelle demande pour le moment.' :
                      expressFilter === 'propositions_envoyees' ? 'Aucune proposition en attente de réponse.' :
                      expressFilter === 'acceptees' ? 'Aucune demande en traitement.' :
@@ -2487,26 +2487,26 @@ export default function ArtisanDemandesPage() {
                   <div
                     key={demande.id}
                     className={`bg-white rounded-2xl shadow-md transition-all duration-300 relative border-2 overflow-hidden ${
-                      isExpanded ? 'border-[#FF6B00] ring-1 ring-[#FF6B00] ring-opacity-30' : 'border-transparent hover:border-gray-200 hover:shadow-xl'
+                      isExpanded ? 'border-brand-500 ring-1 ring-brand-500 ring-opacity-30' : 'border-transparent hover:border-slate-200 hover:shadow-md'
                     }`}
                   >
-                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-[#FF6B00] to-[#E56100]" />
+                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-brand-600 " />
 
                     {/* Bouton expand/collapse avec libellé explicite */}
                     <button
                       onClick={() => toggleExpressCard(demande.id)}
                       className={`absolute top-4 right-4 flex items-center gap-1.5 px-3 py-2 rounded-xl transition-all duration-200 group border ${
-                        isExpanded ? 'bg-orange-50 border-[#FF6B00]' : 'bg-white border-gray-200 hover:border-[#FF6B00] hover:bg-orange-50'
+                        isExpanded ? 'bg-orange-50 border-brand-500' : 'bg-white border-slate-200 hover:border-brand-500 hover:bg-orange-50'
                       }`}
                     >
                       <span className={`text-xs font-semibold transition-colors ${
-                        isExpanded ? 'text-[#FF6B00]' : 'text-gray-500 group-hover:text-[#FF6B00]'
+                        isExpanded ? 'text-brand-700' : 'text-slate-500 group-hover:text-brand-700'
                       }`}>
                         {isExpanded ? 'Réduire' : 'Afficher détails'}
                       </span>
                       <svg
                         className={`w-4 h-4 transition-all duration-200 ${
-                          isExpanded ? 'rotate-180 text-[#FF6B00]' : 'text-gray-400 group-hover:text-[#FF6B00]'
+                          isExpanded ? 'rotate-180 text-brand-700' : 'text-slate-400 group-hover:text-brand-700'
                         }`}
                         fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}
                       >
@@ -2521,9 +2521,9 @@ export default function ArtisanDemandesPage() {
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-lg">⚡</span>
-                        <span className="font-bold text-[#2C3E50] text-lg capitalize">{demande.categorie}</span>
+                        <span className="font-bold text-navy-800 text-lg capitalize">{demande.categorie}</span>
                         {demande.sousCategorie && demande.sousCategorie !== 'toutes' && (
-                          <span className="text-sm text-gray-500">• {demande.sousCategorie}</span>
+                          <span className="text-sm text-slate-500">• {demande.sousCategorie}</span>
                         )}
                         <span className={`ml-2 px-2 py-1 rounded-full text-xs font-bold ${
                           demande.urgence === 'immediat' ? 'bg-orange-100 text-orange-700' :
@@ -2538,9 +2538,9 @@ export default function ArtisanDemandesPage() {
                           demande.statut === 'payee' ? 'bg-orange-100 text-orange-700' :
                           demande.statut === 'en_cours' ? 'bg-purple-100 text-purple-700' :
                           demande.statut === 'travaux_termines' ? 'bg-amber-100 text-amber-700' :
-                          demande.statut === 'terminee' ? 'bg-gray-100 text-gray-600' :
+                          demande.statut === 'terminee' ? 'bg-slate-100 text-slate-600' :
                           demande.statut === 'annulee' ? 'bg-red-100 text-red-700' :
-                          'bg-gray-100 text-gray-600'
+                          'bg-slate-100 text-slate-600'
                         }`}>
                           {demande.statut === 'en_attente_proposition' ? '⏳ En attente' :
                            demande.statut === 'proposition_recue' ? '📨 Proposition envoyée' :
@@ -2557,15 +2557,15 @@ export default function ArtisanDemandesPage() {
                         const expClient = clientsInfo.get(demande.clientId);
                         return expClient ? (
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="w-6 h-6 bg-[#2C3E50] text-white rounded-full flex items-center justify-center font-bold text-xs">
+                            <div className="w-6 h-6 bg-navy-800 text-white rounded-full flex items-center justify-center font-bold text-xs">
                               {expClient.prenom?.[0]?.toUpperCase() || 'C'}{expClient.nom?.[0]?.toUpperCase() || ''}
                             </div>
-                            <span className="text-sm font-semibold text-[#2C3E50]">{expClient.prenom} {expClient.nom}</span>
+                            <span className="text-sm font-semibold text-navy-800">{expClient.prenom} {expClient.nom}</span>
                           </div>
                         ) : null;
                       })()}
-                      <p className="text-gray-700 mb-3 line-clamp-3 break-all whitespace-pre-wrap overflow-hidden">{demande.description}</p>
-                      <div className="flex flex-wrap gap-3 text-sm text-gray-500">
+                      <p className="text-slate-700 mb-3 line-clamp-3 break-all whitespace-pre-wrap overflow-hidden">{demande.description}</p>
+                      <div className="flex flex-wrap gap-3 text-sm text-slate-500">
                         <span>📍 {demande.ville} ({demande.codePostal})</span>
                         {demande.createdAt && (
                           <span>🕐 Créée le {demande.createdAt.toDate().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
@@ -2586,7 +2586,7 @@ export default function ArtisanDemandesPage() {
                         {/* Si payé/en cours/terminé : afficher le montant payé (proposition), sinon le budget client */}
                         {['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut) ? (
                           expressPropositionsMap.get(demande.id)?.find(p => p.statut === 'acceptee') &&
-                            <span className="text-[#FF6B00] font-bold">💳 {expressPropositionsMap.get(demande.id)!.find(p => p.statut === 'acceptee')!.montantPropose}€ payé</span>
+                            <span className="text-brand-700 font-bold">💳 {expressPropositionsMap.get(demande.id)!.find(p => p.statut === 'acceptee')!.montantPropose}€ payé</span>
                         ) : (
                           demande.budgetPropose && <span>💰 {demande.budgetPropose}€</span>
                         )}
@@ -2594,10 +2594,10 @@ export default function ArtisanDemandesPage() {
 
                       {/* Bouton CTA directement visible — masqué dès que la carte est dépliée (doublon avec le bouton de la zone étendue) */}
                       {demande.statut === 'en_attente_proposition' && !isExpanded && (
-                        <div className="mt-4 pt-3 border-t border-gray-100">
+                        <div className="mt-4 pt-3 border-t border-slate-100">
                           <button
                             onClick={(e) => { e.stopPropagation(); router.push(`/artisan/demandes-express/${demande.id}`); }}
-                            className="px-5 py-2.5 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] text-sm font-bold transition-all shadow-sm"
+                            className="px-5 py-2.5 bg-brand-700 text-white rounded-lg hover:bg-brand-800 text-sm font-bold transition-all shadow-sm"
                           >
                             💬 Faire une proposition
                           </button>
@@ -2607,7 +2607,7 @@ export default function ArtisanDemandesPage() {
 
                     {/* Zone dépliée - détails complets + proposition */}
                     {isExpanded && (
-                      <div className="px-8 pb-6 border-t border-gray-100 pt-4 space-y-4">
+                      <div className="px-8 pb-6 border-t border-slate-100 pt-4 space-y-4">
 
                         {/* Bandeau expiration — uniquement pendant la recherche d'artisan */}
                         {demande.expiresAt && demande.statut === 'en_attente_proposition' && (() => {
@@ -2621,9 +2621,9 @@ export default function ArtisanDemandesPage() {
                           const expiresDateStr = demande.expiresAt.toDate().toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
                           return (
                             <div className={`rounded-xl px-4 py-3 flex items-center justify-between border-2 ${
-                              isExpired ? 'bg-gray-100 border-gray-300 text-gray-500' :
+                              isExpired ? 'bg-slate-100 border-slate-300 text-slate-500' :
                               isUrgent ? 'bg-red-50 border-red-400 text-red-700' :
-                              'bg-orange-50 border-[#FF6B00] text-[#2C3E50]'
+                              'bg-orange-50 border-brand-500 text-navy-800'
                             }`}>
                               <div className="flex items-center gap-2">
                                 <span>{isExpired ? '⏹️' : isUrgent ? '🔴' : '⏱️'}</span>
@@ -2655,21 +2655,21 @@ export default function ArtisanDemandesPage() {
 
                         {/* Grille de métadonnées */}
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                          <div className="bg-gray-50 rounded-lg p-3">
-                            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">🕐 Créée le</p>
-                            <p className="font-semibold text-[#2C3E50]">
+                          <div className="bg-slate-50 rounded-lg p-3">
+                            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1">🕐 Créée le</p>
+                            <p className="font-semibold text-navy-800">
                               {demande.createdAt?.toDate().toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) ?? '—'}
                             </p>
                           </div>
-                          <div className="bg-gray-50 rounded-lg p-3">
-                            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
+                          <div className="bg-slate-50 rounded-lg p-3">
+                            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1">
                               {demande.urgence === 'immediat' ? '⚡' : '🚨'} Intervention attendue
                             </p>
-                            <p className="font-semibold text-[#2C3E50]">
+                            <p className="font-semibold text-navy-800">
                               {demande.typeTravauxExpress === 'depannage-urgence' ? 'Sous 30 min - 1h' : demande.urgence === 'immediat' ? 'Dans les 2h' : 'Dans les 24h'} après création
                             </p>
                             {demande.createdAt && (
-                              <p className="text-xs text-gray-400 mt-0.5">
+                              <p className="text-xs text-slate-400 mt-0.5">
                                 Avant le {new Date(
                                   demande.createdAt.toDate().getTime() +
                                   (demande.urgence === 'immediat' ? 2 : 24) * 60 * 60 * 1000
@@ -2677,9 +2677,9 @@ export default function ArtisanDemandesPage() {
                               </p>
                             )}
                           </div>
-                          <div className="bg-gray-50 rounded-lg p-3">
-                            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">📍 Localisation</p>
-                            <p className="font-semibold text-[#2C3E50]">{demande.ville} ({demande.codePostal})</p>
+                          <div className="bg-slate-50 rounded-lg p-3">
+                            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1">📍 Localisation</p>
+                            <p className="font-semibold text-navy-800">{demande.ville} ({demande.codePostal})</p>
                           </div>
                           {demande.statut === 'travaux_termines' && demande.createdAt && (() => {
                             const windowMs = demande.typeTravauxExpress === 'petits-travaux-maintenance'
@@ -2702,14 +2702,14 @@ export default function ArtisanDemandesPage() {
                         {/* Photos du chantier */}
                         {expressPhotos.length > 0 && (
                           <div>
-                            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-2">📷 Photos du chantier ({expressPhotos.length})</p>
+                            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-2">📷 Photos du chantier ({expressPhotos.length})</p>
                             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                               {expressPhotos.map((url, idx) => (
                                 <a key={idx} href={url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
                                   <img
                                     src={url}
                                     alt={`Photo ${idx + 1}`}
-                                    className="w-full h-24 object-cover rounded-lg border-2 border-[#E9ECEF] hover:border-[#FF6B00] transition-colors cursor-pointer"
+                                    className="w-full h-24 object-cover rounded-lg border-2 border-slate-200 hover:border-brand-500 transition-colors cursor-pointer"
                                   />
                                 </a>
                               ))}
@@ -2725,7 +2725,7 @@ export default function ArtisanDemandesPage() {
                               : 'bg-purple-50 border border-purple-200'
                           }`}>
                             <h4 className={`font-bold ${
-                              maProposition.statut === 'refusee' ? 'text-red-700' : 'text-[#2C3E50]'
+                              maProposition.statut === 'refusee' ? 'text-red-700' : 'text-navy-800'
                             }`}>
                               {maProposition.statut === 'refusee' ? '❌ Proposition refusée par le client' : '✅ Votre proposition'}
                             </h4>
@@ -2741,7 +2741,7 @@ export default function ArtisanDemandesPage() {
                               {!['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut) && (
                                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                                   <p className="text-xs text-orange-600 font-semibold mb-1">💰 Votre proposition</p>
-                                  <p className="text-xl font-bold text-[#FF6B00]">{maProposition.montantPropose}€</p>
+                                  <p className="text-xl font-bold text-brand-700">{maProposition.montantPropose}€</p>
                                 </div>
                               )}
                             </div>
@@ -2749,14 +2749,14 @@ export default function ArtisanDemandesPage() {
                             <div className="flex items-center gap-4">
                               {maProposition.delaiIntervention && (
                                 <div>
-                                  <p className="text-xs text-gray-500 mb-0.5">Délai</p>
-                                  <p className="text-sm font-medium text-[#2C3E50]">{maProposition.delaiIntervention}</p>
+                                  <p className="text-xs text-slate-500 mb-0.5">Délai</p>
+                                  <p className="text-sm font-medium text-navy-800">{maProposition.delaiIntervention}</p>
                                 </div>
                               )}
                             </div>
                             <div>
-                              <p className="text-xs text-gray-500 mb-0.5">Description de votre prestation</p>
-                              <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">{maProposition.description}</p>
+                              <p className="text-xs text-slate-500 mb-0.5">Description de votre prestation</p>
+                              <p className="text-sm text-slate-700 whitespace-pre-wrap break-words">{maProposition.description}</p>
                             </div>
 
                             {/* BOUTONS D'ACTION INTERVENTION */}
@@ -2767,7 +2767,7 @@ export default function ArtisanDemandesPage() {
                                     e.stopPropagation();
                                     handleDemarrerInterventionExpress(demande.id, demande.categorie);
                                   }}
-                                  className="w-full px-5 py-3 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] font-bold transition-all"
+                                  className="w-full px-5 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 font-bold transition-all"
                                 >
                                   🏁 Démarrer l'intervention
                                 </button>
@@ -2830,16 +2830,16 @@ export default function ArtisanDemandesPage() {
                                 {maProposition.motifRefus && (
                                   <div className="bg-white border border-red-100 rounded-lg p-3">
                                     <p className="text-xs text-red-600 font-semibold mb-1">📝 Motif de refus du client</p>
-                                    <p className="text-sm text-gray-700">{maProposition.motifRefus}</p>
+                                    <p className="text-sm text-slate-700">{maProposition.motifRefus}</p>
                                   </div>
                                 )}
                                 <button
                                   onClick={(e) => { e.stopPropagation(); router.push(`/artisan/demandes-express/${demande.id}`); }}
-                                  className="w-full px-5 py-3 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] font-bold transition-all"
+                                  className="w-full px-5 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 font-bold transition-all"
                                 >
                                   💬 Faire une nouvelle proposition
                                 </button>
-                                <p className="text-xs text-gray-500 text-center">
+                                <p className="text-xs text-slate-500 text-center">
                                   Votre proposition a été refusée. Soumettez-en une nouvelle en ajustant votre offre.
                                 </p>
                               </div>
@@ -2847,11 +2847,11 @@ export default function ArtisanDemandesPage() {
                           </div>
                         ) : demande.statut === 'en_attente_proposition' ? (
                           <div className="text-center py-4">
-                            <p className="text-gray-500 text-sm mb-3">Vous n&apos;avez pas encore fait de proposition sur cette demande.</p>
+                            <p className="text-slate-500 text-sm mb-3">Vous n&apos;avez pas encore fait de proposition sur cette demande.</p>
                             <div className="flex gap-3 justify-center flex-wrap">
                               <button
                                 onClick={(e) => { e.stopPropagation(); router.push(`/artisan/demandes-express/${demande.id}`); }}
-                                className="px-5 py-2.5 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] text-sm font-medium transition-all"
+                                className="px-5 py-2.5 bg-brand-700 text-white rounded-lg hover:bg-brand-800 text-sm font-medium transition-all"
                               >
                                 💬 Faire une proposition
                               </button>
@@ -2881,7 +2881,7 @@ export default function ArtisanDemandesPage() {
                           <div className="text-center py-3">
                             <button
                               onClick={(e) => { e.stopPropagation(); router.push(`/artisan/demandes-express/${demande.id}`); }}
-                              className="px-5 py-2.5 bg-[#2C3E50] text-white rounded-lg hover:bg-[#1A3A5C] text-sm font-medium transition-all"
+                              className="px-5 py-2.5 bg-navy-800 text-white rounded-lg hover:bg-navy-900 text-sm font-medium transition-all"
                             >
                               Voir la page complète →
                             </button>

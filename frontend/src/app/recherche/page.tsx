@@ -253,7 +253,7 @@ export default function RecherchePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 relative overflow-hidden">
       {/* Vague couche arrière */}
       <svg className="absolute bottom-0 left-0 w-full pointer-events-none z-0" viewBox="0 0 1440 180" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path d="M0,120 C200,160 400,60 600,100 C800,140 1000,80 1200,110 C1320,130 1400,100 1440,90 L1440,180 L0,180 Z" fill="#2C3E50" fillOpacity="0.08"/>
@@ -267,11 +267,11 @@ export default function RecherchePage() {
       {/* Titre de la page */}
       {fromDashboard ? (
         // Header bleu avec retour (style pages client)
-        <div className="bg-[#2C3E50] text-white py-8">
+        <div className="bg-navy-800 text-white py-8">
           <div className="container mx-auto px-4">
             <button
               onClick={() => router.push('/dashboard')}
-              className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4"
+              className="flex items-center gap-2 text-white hover:text-brand-700 mb-4"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -281,7 +281,7 @@ export default function RecherchePage() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold">Trouvez votre artisan</h1>
-                <p className="text-gray-300 mt-2">Décrivez votre projet, nous trouvons les artisans disponibles</p>
+                <p className="text-slate-300 mt-2">Décrivez votre projet, nous trouvons les artisans disponibles</p>
               </div>
               <button
                 type="button"
@@ -299,12 +299,12 @@ export default function RecherchePage() {
         </div>
       ) : (
         // Header bleu toujours visible (depuis page d'accueil ou autre)
-        <div className="bg-[#2C3E50] text-white py-8">
+        <div className="bg-navy-800 text-white py-8">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold">Trouvez votre artisan</h1>
-                <p className="text-gray-300 mt-2">Décrivez votre projet, nous trouvons les artisans disponibles</p>
+                <p className="text-slate-300 mt-2">Décrivez votre projet, nous trouvons les artisans disponibles</p>
               </div>
               <button
                 type="button"
@@ -328,10 +328,10 @@ export default function RecherchePage() {
         {/* 💡 Encart "Comment ça marche ?" (affichage conditionnel) */}
         {showHowItWorks && (
           <div className="mb-6 animate-fadeIn">
-            <div className="bg-white border-l-4 border-[#FF6B00] rounded-lg shadow-md relative">
+            <div className="bg-white border-l-4 border-brand-500 rounded-lg shadow-md relative">
               <button
                 onClick={() => setShowHowItWorks(false)}
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-orange-100 transition-colors"
+                className="absolute top-2 right-2 text-slate-500 hover:text-slate-700 p-1 rounded-full hover:bg-orange-100 transition-colors"
                 title="Fermer"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -339,8 +339,8 @@ export default function RecherchePage() {
                 </svg>
               </button>
               <div className="p-6 pr-12">
-                <h3 className="font-bold text-[#2C3E50] mb-4 flex items-center gap-2 text-xl">
-                  <svg className="w-6 h-6 text-[#FF6B00]" fill="currentColor" viewBox="0 0 20 20">
+                <h3 className="font-bold text-navy-800 mb-4 flex items-center gap-2 text-xl">
+                  <svg className="w-6 h-6 text-brand-700" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                   </svg>
                   💡 Comment fonctionne ArtisanSafe ?
@@ -348,12 +348,12 @@ export default function RecherchePage() {
                 <div className="space-y-4">
                   {/* Étape 1 */}
                   <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-[#FF6B00] text-white rounded-full flex items-center justify-center font-bold">
+                    <div className="flex-shrink-0 w-8 h-8 bg-brand-700 text-white rounded-full flex items-center justify-center font-bold">
                       1
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[#2C3E50] mb-1">🔍 Recherchez des artisans qualifiés</h4>
-                      <p className="text-sm text-gray-700">
+                      <h4 className="font-semibold text-navy-800 mb-1">🔍 Recherchez des artisans qualifiés</h4>
+                      <p className="text-sm text-slate-700">
                         Remplissez le formulaire ci-dessous : type de travaux, localisation et dates souhaitées. 
                         Nous trouvons automatiquement les artisans disponibles et vérifiés dans votre secteur.
                       </p>
@@ -362,12 +362,12 @@ export default function RecherchePage() {
 
                   {/* Étape 2 */}
                   <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-[#FF6B00] text-white rounded-full flex items-center justify-center font-bold">
+                    <div className="flex-shrink-0 w-8 h-8 bg-brand-700 text-white rounded-full flex items-center justify-center font-bold">
                       2
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[#2C3E50] mb-1">📋 Comparez et contactez</h4>
-                      <p className="text-sm text-gray-700">
+                      <h4 className="font-semibold text-navy-800 mb-1">📋 Comparez et contactez</h4>
+                      <p className="text-sm text-slate-700">
                         Consultez les profils des artisans (expérience, avis clients, certifications). 
                         Créez une demande de devis personnalisée pour décrire votre projet en détail.
                       </p>
@@ -376,12 +376,12 @@ export default function RecherchePage() {
 
                   {/* Étape 3 */}
                   <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-[#FF6B00] text-white rounded-full flex items-center justify-center font-bold">
+                    <div className="flex-shrink-0 w-8 h-8 bg-brand-700 text-white rounded-full flex items-center justify-center font-bold">
                       3
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[#2C3E50] mb-1">✅ Recevez des devis détaillés</h4>
-                      <p className="text-sm text-gray-700">
+                      <h4 className="font-semibold text-navy-800 mb-1">✅ Recevez des devis détaillés</h4>
+                      <p className="text-sm text-slate-700">
                         Les artisans intéressés vous envoient des devis chiffrés avec détails des prestations, 
                         montants HT/TTC et délais de réalisation. Comparez-les en toute transparence.
                       </p>
@@ -390,12 +390,12 @@ export default function RecherchePage() {
 
                   {/* Étape 4 */}
                   <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-[#FF6B00] text-white rounded-full flex items-center justify-center font-bold">
+                    <div className="flex-shrink-0 w-8 h-8 bg-brand-700 text-white rounded-full flex items-center justify-center font-bold">
                       4
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[#2C3E50] mb-1">🔒 Sécurité et paiement protégé</h4>
-                      <p className="text-sm text-gray-700">
+                      <h4 className="font-semibold text-navy-800 mb-1">🔒 Sécurité et paiement protégé</h4>
+                      <p className="text-sm text-slate-700">
                         Une fois votre devis accepté, le paiement est sécurisé avec séquestre (escrow). 
                         Les fonds sont libérés à l&apos;artisan uniquement après validation des travaux.
                       </p>
@@ -404,12 +404,12 @@ export default function RecherchePage() {
 
                   {/* Étape 5 */}
                   <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-[#28A745] text-white rounded-full flex items-center justify-center font-bold">
+                    <div className="flex-shrink-0 w-8 h-8 bg-green-700 text-white rounded-full flex items-center justify-center font-bold">
                       ✓
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[#2C3E50] mb-1">⭐ Évaluez votre expérience</h4>
-                      <p className="text-sm text-gray-700">
+                      <h4 className="font-semibold text-navy-800 mb-1">⭐ Évaluez votre expérience</h4>
+                      <p className="text-sm text-slate-700">
                         Après les travaux, laissez un avis pour aider la communauté. 
                         Votre retour garantit la qualité de notre réseau d&apos;artisans.
                       </p>
@@ -417,23 +417,23 @@ export default function RecherchePage() {
                   </div>
 
                   {/* Garanties */}
-                  <div className="mt-6 pt-6 border-t border-gray-200">
-                    <p className="text-sm text-[#2C3E50] font-semibold mb-2">🛡️ Nos garanties :</p>
-                    <ul className="text-sm text-gray-700 space-y-1 ml-4">
+                  <div className="mt-6 pt-6 border-t border-slate-200">
+                    <p className="text-sm text-navy-800 font-semibold mb-2">🛡️ Nos garanties :</p>
+                    <ul className="text-sm text-slate-700 space-y-1 ml-4">
                       <li className="flex items-center gap-2">
-                        <span className="text-[#28A745]">✓</span>
+                        <span className="text-green-700">✓</span>
                         Artisans vérifiés (KBIS, assurances décennale et RC Pro)
                       </li>
                       <li className="flex items-center gap-2">
-                        <span className="text-[#28A745]">✓</span>
+                        <span className="text-green-700">✓</span>
                         Paiement sécurisé avec séquestre (protection acheteur)
                       </li>
                       <li className="flex items-center gap-2">
-                        <span className="text-[#28A745]">✓</span>
+                        <span className="text-green-700">✓</span>
                         Service client disponible pour médiation en cas de litige
                       </li>
                       <li className="flex items-center gap-2">
-                        <span className="text-[#28A745]">✓</span>
+                        <span className="text-green-700">✓</span>
                         Aucun partage de coordonnées avant validation du devis
                       </li>
                     </ul>
@@ -444,22 +444,22 @@ export default function RecherchePage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-8 max-w-3xl mx-auto">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 max-w-3xl mx-auto">
           
           {/* Étape 1: Catégorie */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-[#2C3E50] mb-4">
+            <h2 className="text-2xl font-bold text-navy-800 mb-4">
               1. Quel type de travaux ?
             </h2>
             <div className="relative">
-              <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+              <label className="block text-sm font-medium text-navy-800 mb-2">
                 Sélectionnez le type de travaux
               </label>
               <select
                 value={criteria.categorie}
                 onChange={(e) => setCriteria({ ...criteria, categorie: e.target.value as any })}
                 required
-                className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg text-[#2C3E50] bg-white focus:border-[#FF6B00] focus:ring-2 focus:ring-[#FF6B00] focus:ring-opacity-20 transition-all appearance-none cursor-pointer"
+                className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg text-navy-800 bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500 focus:ring-opacity-20 transition-all appearance-none cursor-pointer"
               >
                 <option value="">-- Choisissez un métier --</option>
                 {METIERS_AVEC_ICONES.map((cat) => (
@@ -468,7 +468,7 @@ export default function RecherchePage() {
                   </option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 pt-7 text-[#6C757D]">
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 pt-7 text-slate-500">
                 <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                   <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
                 </svg>
@@ -478,13 +478,13 @@ export default function RecherchePage() {
 
           {/* Étape 2: Localisation */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-[#2C3E50] mb-4">
+            <h2 className="text-2xl font-bold text-navy-800 mb-4">
               2. Où se situe le chantier ?
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Champ Ville avec autocomplétion */}
               <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Ville *
                 </label>
                 <input
@@ -502,24 +502,24 @@ export default function RecherchePage() {
                   }}
                   placeholder="Paris, Lyon, Marseille..."
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[#2C3E50] bg-white focus:outline-none focus:ring-2 focus:ring-[#FF6B00] transition-all"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg text-navy-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all"
                 />
                 
                 {/* Liste des suggestions */}
                 {showSuggestions && villeSuggestions.length > 0 && (
-                  <div className="absolute z-50 w-full mt-1 bg-white border-2 border-[#FF6B00] rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  <div className="absolute z-50 w-full mt-1 bg-white border-2 border-brand-500 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                     {villeSuggestions.map((suggestion, index) => (
                       <button
                         key={`${suggestion.nom}-${suggestion.codePostal}-${index}`}
                         type="button"
                         onClick={() => selectVille(suggestion)}
-                        className="w-full text-left px-4 py-3 hover:bg-[#FFF3E0] transition-colors border-b border-[#E9ECEF] last:border-b-0"
+                        className="w-full text-left px-4 py-3 hover:bg-brand-50 transition-colors border-b border-slate-200 last:border-b-0"
                       >
                         <div className="flex justify-between items-center">
-                          <span className="font-medium text-[#2C3E50]">{suggestion.nom}</span>
-                          <span className="text-sm text-[#6C757D]">{suggestion.codePostal}</span>
+                          <span className="font-medium text-navy-800">{suggestion.nom}</span>
+                          <span className="text-sm text-slate-500">{suggestion.codePostal}</span>
                         </div>
-                        <span className="text-xs text-[#95A5A6]">Dépt. {suggestion.departement}</span>
+                        <span className="text-xs text-slate-400">Dépt. {suggestion.departement}</span>
                       </button>
                     ))}
                   </div>
@@ -527,7 +527,7 @@ export default function RecherchePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Code postal *
                 </label>
                 <input
@@ -542,12 +542,12 @@ export default function RecherchePage() {
                   placeholder="75001"
                   pattern="[0-9]{5}"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[#2C3E50] bg-white focus:outline-none focus:ring-2 focus:ring-[#FF6B00] transition-all"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg text-navy-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all"
                 />
               </div>
             </div>
             <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 Adresse complète (optionnel)
               </label>
               <input
@@ -560,21 +560,21 @@ export default function RecherchePage() {
                   })
                 }
                 placeholder="123 Rue de la République"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-[#2C3E50] bg-white focus:outline-none focus:ring-2 focus:ring-[#FF6B00] transition-all"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg text-navy-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all"
               />
             </div>
             
             {/* Rayon de recherche */}
-            <div className="mt-6 bg-gradient-to-br from-white to-[#FAFBFC] border border-[#E9ECEF] rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="mt-6 bg-white border border-slate-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-3">
-                <label className="text-sm font-semibold text-[#2C3E50] flex items-center gap-2">
-                  <svg className="w-5 h-5 text-[#FF6B00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <label className="text-sm font-semibold text-navy-800 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   Rayon de recherche
                 </label>
-                <span className="text-base font-bold text-[#FF6B00] bg-[#FFF3E0] px-3 py-1.5 rounded-lg">
+                <span className="text-base font-bold text-brand-700 bg-brand-50 px-3 py-1.5 rounded-lg">
                   {criteria.rayonMax} km
                 </span>
               </div>
@@ -590,14 +590,14 @@ export default function RecherchePage() {
                     rayonMax: parseInt(e.target.value),
                   })
                 }
-                className="w-full h-2 bg-[#E9ECEF] rounded-lg appearance-none cursor-pointer accent-[#FF6B00] slider"
+                className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-brand-500 slider"
                 style={{
                   background: `linear-gradient(to right, #FF6B00 0%, #FF6B00 ${((criteria.rayonMax - 5) / 95) * 100}%, #E9ECEF ${((criteria.rayonMax - 5) / 95) * 100}%, #E9ECEF 100%)`
                 }}
               />
-              <div className="flex justify-between text-xs text-[#6C757D] mt-2">
+              <div className="flex justify-between text-xs text-slate-500 mt-2">
                 <span>5 km</span>
-                <span className="text-[#95A5A6]">Distance maximale autour de votre adresse</span>
+                <span className="text-slate-400">Distance maximale autour de votre adresse</span>
                 <span>100 km</span>
               </div>
             </div>
@@ -605,7 +605,7 @@ export default function RecherchePage() {
 
           {/* Étape 3: Dates - FEATURE CLÉS */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-[#2C3E50] mb-4">
+            <h2 className="text-2xl font-bold text-navy-800 mb-4">
               3. Quand souhaitez-vous réaliser les travaux ?
             </h2>
             
@@ -613,7 +613,7 @@ export default function RecherchePage() {
             <div className="grid md:grid-cols-2 gap-6">
               {/* Calendrier */}
               <div>
-                <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+                <label className="block text-sm font-medium text-navy-800 mb-2">
                   Date de début souhaitée *
                 </label>
                 <input
@@ -622,12 +622,12 @@ export default function RecherchePage() {
                   onChange={(e) => updateDate(0, e.target.value)}
                   min={new Date().toISOString().split('T')[0]}
                   required
-                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-lg text-[#2C3E50] bg-white focus:border-[#FF6B00] focus:ring-2 focus:ring-[#FF6B00] focus:ring-opacity-20 transition-all"
+                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg text-navy-800 bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500 focus:ring-opacity-20 transition-all"
                 />
               </div>
 
               {/* Toggle flexibilité */}
-              <div className="border border-[#E9ECEF] bg-gradient-to-br from-white to-[#FAFBFC] rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="border border-slate-200 bg-white rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
                 <label className="flex items-start cursor-pointer group">
                   <input
                     type="checkbox"
@@ -642,25 +642,25 @@ export default function RecherchePage() {
                         },
                       })
                     }
-                    className="w-4 h-4 text-[#FF6B00] rounded border-[#E9ECEF] focus:ring-2 focus:ring-[#FF6B00] focus:ring-opacity-20 mt-0.5 flex-shrink-0 cursor-pointer"
+                    className="w-4 h-4 text-brand-700 rounded border-slate-200 focus:ring-2 focus:ring-brand-500 focus:ring-opacity-20 mt-0.5 flex-shrink-0 cursor-pointer"
                   />
                   <div className="ml-3">
-                    <span className="text-[#2C3E50] font-semibold text-base block group-hover:text-[#FF6B00] transition-colors">
+                    <span className="text-navy-800 font-semibold text-base block group-hover:text-brand-700 transition-colors">
                       Mes dates sont flexibles
                     </span>
-                    <span className="text-xs text-[#6C757D] mt-1 block leading-relaxed">
+                    <span className="text-xs text-slate-500 mt-1 block leading-relaxed">
                       Augmente vos chances de trouver un artisan disponible
                     </span>
                   </div>
                 </label>
 
                 {criteria.datesSouhaitees.flexible && (
-                  <div className="mt-4 pt-4 border-t border-[#E9ECEF]">
+                  <div className="mt-4 pt-4 border-t border-slate-200">
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm text-[#2C3E50] font-medium">
+                      <label className="text-sm text-navy-800 font-medium">
                         Flexibilité
                       </label>
-                      <span className="text-sm font-semibold text-[#FF6B00] bg-[#FFF3E0] px-2 py-1 rounded">
+                      <span className="text-sm font-semibold text-brand-700 bg-brand-50 px-2 py-1 rounded">
                         ± {criteria.datesSouhaitees.flexibiliteDays} jour{(criteria.datesSouhaitees.flexibiliteDays || 0) > 1 ? 's' : ''}
                       </span>
                     </div>
@@ -678,12 +678,12 @@ export default function RecherchePage() {
                           },
                         })
                       }
-                      className="w-full h-2 bg-[#E9ECEF] rounded-lg appearance-none cursor-pointer accent-[#FF6B00] slider"
+                      className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-brand-500 slider"
                       style={{
                         background: `linear-gradient(to right, #FF6B00 0%, #FF6B00 ${((criteria.datesSouhaitees.flexibiliteDays || 3) - 1) / 13 * 100}%, #E9ECEF ${((criteria.datesSouhaitees.flexibiliteDays || 3) - 1) / 13 * 100}%, #E9ECEF 100%)`
                       }}
                     />
-                    <div className="flex justify-between text-xs text-[#6C757D] mt-2">
+                    <div className="flex justify-between text-xs text-slate-500 mt-2">
                       <span>1 jour</span>
                       <span>14 jours</span>
                     </div>
@@ -695,14 +695,14 @@ export default function RecherchePage() {
 
           {/* Étape 4: Urgence */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-[#2C3E50] mb-4">
+            <h2 className="text-2xl font-bold text-navy-800 mb-4">
               4. Quel est le degré d'urgence ?
             </h2>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
-                { value: 'faible' as Urgence, label: 'Faible', desc: 'Pas pressé', color: 'bg-[#28A745]' },
-                { value: 'normale' as Urgence, label: 'Normal', desc: 'Dans les semaines', color: 'bg-[#17A2B8]' },
-                { value: 'urgent' as Urgence, label: 'Urgent', desc: 'Le plus tôt possible', color: 'bg-[#FFC107]' },
+                { value: 'faible' as Urgence, label: 'Faible', desc: 'Pas pressé', color: 'bg-green-700' },
+                { value: 'normale' as Urgence, label: 'Normal', desc: 'Dans les semaines', color: 'bg-sky-700' },
+                { value: 'urgent' as Urgence, label: 'Urgent', desc: 'Le plus tôt possible', color: 'bg-amber-400' },
               ].map((urg) => (
                 <button
                   key={urg.value}
@@ -712,7 +712,7 @@ export default function RecherchePage() {
                     p-4 rounded-lg border-2 transition-all
                     ${criteria.urgence === urg.value
                       ? `border-transparent ${urg.color} text-white`
-                      : 'border-[#E9ECEF] hover:border-[#FF6B00] text-[#2C3E50]'
+                      : 'border-slate-200 hover:border-brand-500 text-navy-800'
                     }
                   `}
                 >
@@ -726,12 +726,12 @@ export default function RecherchePage() {
           {/* Bouton de soumission */}
           <Button
             type="submit"
-            className="w-full bg-[#FF6B00] hover:bg-[#E56100] text-white text-lg py-4 rounded-lg font-bold shadow-lg"
+            className="w-full bg-brand-700 hover:bg-brand-800 text-white text-lg py-4 rounded-lg font-bold shadow-lg"
           >
             🔍 Trouver des artisans disponibles
           </Button>
 
-          <p className="text-center text-sm text-[#6C757D] mt-4">
+          <p className="text-center text-sm text-slate-500 mt-4">
             Gratuit et sans engagement • Réponse en quelques heures
           </p>
         </form>

@@ -380,8 +380,8 @@ export default function DocumentsUploadPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
+          <p className="mt-4 text-slate-600">Chargement...</p>
         </div>
       </div>
     );
@@ -414,13 +414,13 @@ export default function DocumentsUploadPage() {
   const needsDecennale = artisan.metiers && artisan.metiers.length > 0 && artisanDoitDecennale(artisan.metiers);
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-[#2C3E50] text-white py-8">
+      <div className="bg-navy-800 text-white py-8">
         <div className="container mx-auto px-4 max-w-4xl">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4 transition-colors"
+            className="flex items-center gap-2 text-white hover:text-brand-700 mb-4 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -428,7 +428,7 @@ export default function DocumentsUploadPage() {
             {t('documents.backToDashboard')}
           </button>
           <h1 className="text-3xl font-bold">📄 {t('documents.pageTitle')}</h1>
-          <p className="text-gray-300 mt-2">{t('documents.pageDescription')}</p>
+          <p className="text-slate-300 mt-2">{t('documents.pageDescription')}</p>
         </div>
       </div>
       <div className="container mx-auto px-4 max-w-4xl py-8">
@@ -457,7 +457,7 @@ export default function DocumentsUploadPage() {
 
         <div className="space-y-6">
           {/* 1. KBIS */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
@@ -475,7 +475,7 @@ export default function DocumentsUploadPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-lg">{t('documents.kbis.title')}</h3>
-                  <p className="text-sm text-gray-600">{t('documents.kbis.description')}</p>
+                  <p className="text-sm text-slate-600">{t('documents.kbis.description')}</p>
                 </div>
               </div>
 
@@ -533,23 +533,23 @@ export default function DocumentsUploadPage() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
                       {t('documents.kbis.selectFile')}
                     </label>
                     <input
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
                       onChange={handleKbisFileChange}
-                      className="block w-full text-sm text-gray-500
+                      className="block w-full text-sm text-slate-500
                         file:mr-4 file:py-2 file:px-4
                         file:rounded-lg file:border-0
                         file:text-sm file:font-semibold
-                        file:bg-orange-50 file:text-[#FF6B00]
+                        file:bg-orange-50 file:text-brand-700
                         hover:file:bg-orange-100
                         cursor-pointer"
                     />
                     {kbisFile && (
-                      <p className="text-sm text-gray-600 mt-2">
+                      <p className="text-sm text-slate-600 mt-2">
                         📎 {kbisFile.name} ({(kbisFile.size / 1024 / 1024).toFixed(2)} MB)
                       </p>
                     )}
@@ -558,7 +558,7 @@ export default function DocumentsUploadPage() {
                   <button
                     onClick={handleUploadKbis}
                     disabled={!kbisFile || kbisUploading}
-                    className="w-full bg-[#FF6B00] text-white py-3 rounded-lg font-semibold hover:bg-[#E56100] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-brand-700 text-white py-3 rounded-lg font-semibold hover:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {kbisUploading ? (
                       <span className="flex items-center justify-center gap-2">
@@ -578,7 +578,7 @@ export default function DocumentsUploadPage() {
           </div>
 
           {/* 2. PIÈCE D'IDENTITÉ */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
@@ -596,7 +596,7 @@ export default function DocumentsUploadPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-lg">{t('documents.idCard.title')}</h3>
-                  <p className="text-sm text-gray-600">{t('documents.idCard.description')}</p>
+                  <p className="text-sm text-slate-600">{t('documents.idCard.description')}</p>
                 </div>
               </div>
 
@@ -646,11 +646,11 @@ export default function DocumentsUploadPage() {
 
             {(!idVerified && !idUploaded && !idSuccess) && (
               <div>
-                <div className="bg-gray-50 border-l-4 border-gray-300 p-4 mb-4">
-                  <p className="text-sm text-[#2C3E50]">
+                <div className="bg-slate-50 border-l-4 border-slate-300 p-4 mb-4">
+                  <p className="text-sm text-navy-800">
                     <strong>{t('documents.idCard.instructionsTitle')}</strong>
                   </p>
-                  <ul className="text-sm text-[#2C3E50] list-disc list-inside space-y-1 mt-2">
+                  <ul className="text-sm text-navy-800 list-disc list-inside space-y-1 mt-2">
                     <li>{t('documents.idCard.instruction1')}</li>
                     <li>{t('documents.idCard.instruction2')}</li>
                     <li>{t('documents.idCard.instruction3')}</li>
@@ -665,23 +665,23 @@ export default function DocumentsUploadPage() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
                       {t('documents.idCard.selectFile')}
                     </label>
                     <input
                       type="file"
                       accept=".jpg,.jpeg,.png,.pdf"
                       onChange={handleIdFileChange}
-                      className="block w-full text-sm text-gray-500
+                      className="block w-full text-sm text-slate-500
                         file:mr-4 file:py-2 file:px-4
                         file:rounded-lg file:border-0
                         file:text-sm file:font-semibold
-                        file:bg-orange-50 file:text-[#FF6B00]
+                        file:bg-orange-50 file:text-brand-700
                         hover:file:bg-orange-100
                         cursor-pointer"
                     />
                     {idFile && (
-                      <p className="text-sm text-gray-600 mt-2">
+                      <p className="text-sm text-slate-600 mt-2">
                         📎 {idFile.name} ({(idFile.size / 1024 / 1024).toFixed(2)} MB)
                       </p>
                     )}
@@ -690,7 +690,7 @@ export default function DocumentsUploadPage() {
                   <button
                     onClick={handleUploadId}
                     disabled={!idFile || idUploading}
-                    className="w-full bg-[#FF6B00] text-white py-3 rounded-lg font-semibold hover:bg-[#E56100] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full bg-brand-700 text-white py-3 rounded-lg font-semibold hover:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {idUploading ? (
                       <>
@@ -708,7 +708,7 @@ export default function DocumentsUploadPage() {
           </div>
 
         {/* 3. RC PRO */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
@@ -726,7 +726,7 @@ export default function DocumentsUploadPage() {
               </div>
               <div>
                 <h3 className="font-bold text-lg">{t('documents.rcPro.title')}</h3>
-                <p className="text-sm text-gray-600">{t('documents.rcPro.description')}</p>
+                <p className="text-sm text-slate-600">{t('documents.rcPro.description')}</p>
               </div>
             </div>
 
@@ -776,9 +776,9 @@ export default function DocumentsUploadPage() {
 
           {(!rcProVerified && !rcProUploaded && !rcProSuccess) && (
             <div>
-              <div className="bg-gray-50 border-l-4 border-gray-300 rounded-lg p-4 mb-4">
-                <h4 className="text-[#2C3E50] font-medium mb-2">{t('documents.rcPro.instructionsTitle')}</h4>
-                <ul className="text-sm text-[#2C3E50] space-y-1 list-disc list-inside">
+              <div className="bg-slate-50 border-l-4 border-slate-300 rounded-lg p-4 mb-4">
+                <h4 className="text-navy-800 font-medium mb-2">{t('documents.rcPro.instructionsTitle')}</h4>
+                <ul className="text-sm text-navy-800 space-y-1 list-disc list-inside">
                   <li>{t('documents.rcPro.instruction1')}</li>
                   <li>{t('documents.rcPro.instruction2')}</li>
                   <li>{t('documents.rcPro.instruction3')}</li>
@@ -794,23 +794,23 @@ export default function DocumentsUploadPage() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
                     {t('documents.rcPro.selectFile')}
                   </label>
                   <input
                     type="file"
                     accept=".jpg,.jpeg,.png,.pdf"
                     onChange={handleRcProFileChange}
-                    className="block w-full text-sm text-gray-500
+                    className="block w-full text-sm text-slate-500
                       file:mr-4 file:py-2 file:px-4
                       file:rounded-lg file:border-0
                       file:text-sm file:font-semibold
-                      file:bg-orange-50 file:text-[#FF6B00]
+                      file:bg-orange-50 file:text-brand-700
                       hover:file:bg-orange-100
                       cursor-pointer"
                   />
                   {rcProFile && (
-                    <p className="text-sm text-gray-600 mt-2">
+                    <p className="text-sm text-slate-600 mt-2">
                       📎 {rcProFile.name} ({(rcProFile.size / 1024 / 1024).toFixed(2)} MB)
                     </p>
                   )}
@@ -819,7 +819,7 @@ export default function DocumentsUploadPage() {
                 <button
                   onClick={handleUploadRcPro}
                   disabled={!rcProFile || rcProUploading}
-                  className="w-full bg-[#FF6B00] text-white py-3 rounded-lg font-semibold hover:bg-[#E56100] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full bg-brand-700 text-white py-3 rounded-lg font-semibold hover:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {rcProUploading ? (
                     <>
@@ -838,7 +838,7 @@ export default function DocumentsUploadPage() {
 
         {/* 4. GARANTIE DÉCENNALE (Affichage conditionnel) */}
         {needsDecennale && (
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
@@ -856,7 +856,7 @@ export default function DocumentsUploadPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-lg">{t('documents.decennale.title')}</h3>
-                  <p className="text-sm text-gray-600">{t('documents.decennale.description')}</p>
+                  <p className="text-sm text-slate-600">{t('documents.decennale.description')}</p>
                 </div>
               </div>
 
@@ -897,23 +897,23 @@ export default function DocumentsUploadPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
                     {t('documents.decennale.selectFile')}
                   </label>
                   <input
                     type="file"
                     accept=".jpg,.jpeg,.png,.pdf"
                     onChange={handleDecennaleFileChange}
-                    className="block w-full text-sm text-gray-500
+                    className="block w-full text-sm text-slate-500
                       file:mr-4 file:py-2 file:px-4
                       file:rounded-lg file:border-0
                       file:text-sm file:font-semibold
-                      file:bg-orange-50 file:text-[#FF6B00]
+                      file:bg-orange-50 file:text-brand-700
                       hover:file:bg-orange-100
                       cursor-pointer"
                   />
                   {decennaleFile && (
-                    <p className="text-sm text-gray-600 mt-2">
+                    <p className="text-sm text-slate-600 mt-2">
                       📎 {decennaleFile.name} ({(decennaleFile.size / 1024 / 1024).toFixed(2)} MB)
                     </p>
                   )}
@@ -922,7 +922,7 @@ export default function DocumentsUploadPage() {
                 <button
                   onClick={handleUploadDecennale}
                   disabled={!decennaleFile || decennaleUploading}
-                  className="w-full bg-[#FF6B00] text-white py-3 rounded-lg font-semibold hover:bg-[#E56100] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full bg-brand-700 text-white py-3 rounded-lg font-semibold hover:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {decennaleUploading ? (
                     <>
@@ -953,7 +953,7 @@ export default function DocumentsUploadPage() {
               </div>
             ) : decennaleUploaded && !decennaleSuccess ? null : (
               <div className="space-y-4">
-                <div className="bg-yellow-50 border-l-4 border-[#FFC107] rounded-lg p-4">
+                <div className="bg-yellow-50 border-l-4 border-amber-400 rounded-lg p-4">
                   <h4 className="text-yellow-900 font-medium mb-2">{t('documents.decennale.mandatoryTitle')}</h4>
                   <p className="text-sm text-yellow-800 mb-3">
                     {t('documents.decennale.mandatoryDescription')}
@@ -967,23 +967,23 @@ export default function DocumentsUploadPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
                     {t('documents.decennale.selectFile')}
                   </label>
                   <input
                     type="file"
                     accept=".jpg,.jpeg,.png,.pdf"
                     onChange={handleDecennaleFileChange}
-                    className="block w-full text-sm text-gray-500
+                    className="block w-full text-sm text-slate-500
                       file:mr-4 file:py-2 file:px-4
                       file:rounded-lg file:border-0
                       file:text-sm file:font-semibold
-                      file:bg-orange-50 file:text-[#FF6B00]
+                      file:bg-orange-50 file:text-brand-700
                       hover:file:bg-orange-100
                       cursor-pointer"
                   />
                   {decennaleFile && (
-                    <p className="text-sm text-gray-600 mt-2">
+                    <p className="text-sm text-slate-600 mt-2">
                       📎 {decennaleFile.name} ({(decennaleFile.size / 1024 / 1024).toFixed(2)} MB)
                     </p>
                   )}
@@ -992,7 +992,7 @@ export default function DocumentsUploadPage() {
                 <button
                   onClick={handleUploadDecennale}
                   disabled={!decennaleFile || decennaleUploading}
-                  className="w-full bg-[#FF6B00] text-white py-3 rounded-lg font-semibold hover:bg-[#E56100] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full bg-brand-700 text-white py-3 rounded-lg font-semibold hover:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {decennaleUploading ? (
                     <>

@@ -329,23 +329,23 @@ export default function ProfilArtisanPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('profile.loading')}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
+          <p className="text-slate-600">{t('profile.loading')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-[#2C3E50] text-white py-8">
+      <div className="bg-navy-800 text-white py-8">
         <div className="container mx-auto px-4 max-w-3xl">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4 transition-colors"
+            className="flex items-center gap-2 text-white hover:text-brand-700 mb-4 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -353,7 +353,7 @@ export default function ProfilArtisanPage() {
             {t('profile.backToDashboard')}
           </button>
           <h1 className="text-3xl font-bold">👤 {t('profile.pageTitle')}</h1>
-          <p className="text-gray-300 mt-2">{t('profile.pageDescription')}</p>
+          <p className="text-slate-300 mt-2">{t('profile.pageDescription')}</p>
         </div>
       </div>
       <div className="container mx-auto px-4 py-8 max-w-3xl">
@@ -367,7 +367,7 @@ export default function ProfilArtisanPage() {
         
         {/* Toast notification - Position fixe en haut à droite */}
         {success && (
-          <div className="fixed top-20 right-6 z-50 p-4 bg-green-500 text-white rounded-lg shadow-2xl flex items-center gap-3 animate-slideDown max-w-md">
+          <div className="fixed top-20 right-6 z-50 p-4 bg-green-500 text-white rounded-lg shadow-lg flex items-center gap-3 animate-slideDown max-w-md">
             <span className="text-3xl">✅</span>
             <div className="flex-1">
               <p className="font-bold text-lg">{t('profile.messages.updateSuccessTitle')}</p>
@@ -375,7 +375,7 @@ export default function ProfilArtisanPage() {
             </div>
             <button
               onClick={() => setSuccess('')}
-              className="text-white hover:text-gray-200 text-2xl font-bold ml-2"
+              className="text-white hover:text-slate-200 text-2xl font-bold ml-2"
             >
               ×
             </button>
@@ -383,10 +383,10 @@ export default function ProfilArtisanPage() {
         )}
 
         {/* Formulaire */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
           {/* Informations entreprise */}
-          <div className="border-b border-gray-200 pb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">{t('profile.companyInfo.title')}</h2>
+          <div className="border-b border-slate-200 pb-6">
+            <h2 className="text-xl font-bold text-slate-800 mb-4">{t('profile.companyInfo.title')}</h2>
             
             <div className="space-y-4">
               <Input
@@ -431,44 +431,44 @@ export default function ProfilArtisanPage() {
           </div>
 
           {/* Type de travaux */}
-          <div className="border-b border-gray-200 pb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-2">Type de travaux</h2>
-            <p className="text-sm text-gray-500 mb-4">Sélectionnez au moins un type de travaux que vous proposez.</p>
+          <div className="border-b border-slate-200 pb-6">
+            <h2 className="text-xl font-bold text-slate-800 mb-2">Type de travaux</h2>
+            <p className="text-sm text-slate-500 mb-4">Sélectionnez au moins un type de travaux que vous proposez.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <button
                 type="button"
                 onClick={() => toggleTypesTravaux('travaux-classiques')}
                 className={`p-4 rounded-lg border-2 text-left transition-all ${
                   typesTravauxChoisis.includes('travaux-classiques')
-                    ? 'border-[#FF6B00] bg-orange-50'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
+                    ? 'border-brand-500 bg-orange-50'
+                    : 'border-slate-200 bg-white hover:border-slate-300'
                 }`}
               >
                 <div className="text-3xl mb-1">🏗️</div>
-                <div className="font-semibold text-gray-800">Travaux classiques</div>
-                <div className="text-sm text-gray-500 mt-1">Plomberie, électricité, maçonnerie, peinture…</div>
+                <div className="font-semibold text-slate-800">Travaux classiques</div>
+                <div className="text-sm text-slate-500 mt-1">Plomberie, électricité, maçonnerie, peinture…</div>
               </button>
               <button
                 type="button"
                 onClick={() => toggleTypesTravaux('depannages-rapides')}
                 className={`p-4 rounded-lg border-2 text-left transition-all ${
                   typesTravauxChoisis.includes('depannages-rapides')
-                    ? 'border-[#FF6B00] bg-orange-50'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
+                    ? 'border-brand-500 bg-orange-50'
+                    : 'border-slate-200 bg-white hover:border-slate-300'
                 }`}
               >
                 <div className="text-3xl mb-1">🚀</div>
-                <div className="font-semibold text-gray-800">Dépannages rapides</div>
-                <div className="text-sm text-gray-500 mt-1">Urgences, petits travaux &amp; maintenance</div>
+                <div className="font-semibold text-slate-800">Dépannages rapides</div>
+                <div className="text-sm text-slate-500 mt-1">Urgences, petits travaux &amp; maintenance</div>
               </button>
             </div>
           </div>
 
           {/* Métiers */}
           {typesTravauxChoisis.includes('travaux-classiques') && (
-          <div className="border-b border-gray-200 pb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-1">🏗️ Travaux classiques</h2>
-            <p className="text-sm text-gray-500 mb-4">
+          <div className="border-b border-slate-200 pb-6">
+            <h2 className="text-xl font-bold text-slate-800 mb-1">🏗️ Travaux classiques</h2>
+            <p className="text-sm text-slate-500 mb-4">
               {t('profile.trades.title')} <span className="font-normal">{t('profile.trades.selectAtLeastOne')}</span>
             </p>
 
@@ -499,10 +499,10 @@ export default function ProfilArtisanPage() {
                   disabled={decennaleEnCoursVerification}
                   className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
                     decennaleEnCoursVerification 
-                      ? 'opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-500' 
+                      ? 'opacity-50 cursor-not-allowed bg-slate-100 border-slate-300 text-slate-500' 
                       : metiers.includes(metier)
-                        ? 'border-[#FF6B00] bg-orange-50 text-[#FF6B00]'
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                        ? 'border-brand-500 bg-orange-50 text-brand-700'
+                        : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
                   }`}
                 >
                   {METIERS_MAP[metier]}
@@ -512,7 +512,7 @@ export default function ProfilArtisanPage() {
 
             {/* Avertissement décennale si métiers concernés ET document pas encore uploadé */}
             {metiers.length > 0 && artisanDoitDecennale(metiers) && !artisan?.verificationDocuments?.decennale?.url && (
-              <div className="mt-4 bg-yellow-50 border-l-4 border-[#FFC107] rounded-lg p-4">
+              <div className="mt-4 bg-yellow-50 border-l-4 border-amber-400 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <span className="text-2xl">⚠️</span>
                   <div className="flex-1">
@@ -532,18 +532,18 @@ export default function ProfilArtisanPage() {
 
           {/* Dépannages rapides */}
           {typesTravauxChoisis.includes('depannages-rapides') && (
-          <div className="border-b border-gray-200 pb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-1">🚀 Dépannages rapides</h2>
-            <p className="text-sm text-gray-500 mb-5">Sélectionnez au moins un domaine dans lesquels vous intervenez en urgence ou pour de petits travaux.</p>
+          <div className="border-b border-slate-200 pb-6">
+            <h2 className="text-xl font-bold text-slate-800 mb-1">🚀 Dépannages rapides</h2>
+            <p className="text-sm text-slate-500 mb-5">Sélectionnez au moins un domaine dans lesquels vous intervenez en urgence ou pour de petits travaux.</p>
 
             {/* 🚨 Dépannage en urgence */}
             <div className="mb-5">
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-lg">🚨</span>
-                <h3 className="font-semibold text-gray-800">Dépannage en urgence</h3>
+                <h3 className="font-semibold text-slate-800">Dépannage en urgence</h3>
                 <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">⚡ Immédiat (30 min – 1h)</span>
               </div>
-              <p className="text-xs text-gray-400 mb-3 italic">En sélectionnant une catégorie, toutes ses sous-catégories sont sélectionnées automatiquement. Vous pouvez en désélectionner certaines selon vos compétences.</p>
+              <p className="text-xs text-slate-400 mb-3 italic">En sélectionnant une catégorie, toutes ses sous-catégories sont sélectionnées automatiquement. Vous pouvez en désélectionner certaines selon vos compétences.</p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {EXPRESS_WORK_TAXONOMY['depannage-urgence'].categories.map((cat) => {
                   const selected = specialitesDepannage.includes(cat.value);
@@ -555,7 +555,7 @@ export default function ProfilArtisanPage() {
                         className={`w-full p-3 rounded-lg border-2 text-sm font-medium transition-all text-left ${
                           selected
                             ? 'border-red-500 bg-red-50 text-red-700'
-                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                            : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
                         }`}
                       >
                         {cat.label}
@@ -589,10 +589,10 @@ export default function ProfilArtisanPage() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-lg">🛠️</span>
-                <h3 className="font-semibold text-gray-800">Petits travaux &amp; maintenance</h3>
+                <h3 className="font-semibold text-slate-800">Petits travaux &amp; maintenance</h3>
                 <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">🚨 En urgence (2h)</span>
               </div>
-              <p className="text-xs text-gray-400 mb-3 italic">En sélectionnant une catégorie, toutes ses sous-catégories sont sélectionnées automatiquement. Vous pouvez en désélectionner certaines selon vos compétences.</p>
+              <p className="text-xs text-slate-400 mb-3 italic">En sélectionnant une catégorie, toutes ses sous-catégories sont sélectionnées automatiquement. Vous pouvez en désélectionner certaines selon vos compétences.</p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {EXPRESS_WORK_TAXONOMY['petits-travaux-maintenance'].categories.map((cat) => {
                   const selected = specialitesPetitsTravaux.includes(cat.value);
@@ -603,8 +603,8 @@ export default function ProfilArtisanPage() {
                         onClick={() => toggleSpecialitePetitsTravaux(cat.value)}
                         className={`w-full p-3 rounded-lg border-2 text-sm font-medium transition-all text-left ${
                           selected
-                            ? 'border-[#FF6B00] bg-orange-50 text-[#FF6B00]'
-                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                            ? 'border-brand-500 bg-orange-50 text-brand-700'
+                            : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
                         }`}
                       >
                         {cat.label}
@@ -619,8 +619,8 @@ export default function ProfilArtisanPage() {
                               title={sc.prix ? `Prix indicatif : ${sc.prix}` : undefined}
                               className={`text-xs px-2 py-1.5 rounded-lg border transition-all text-left ${
                                 sousCatsPetitsTravaux.includes(sc.value)
-                                  ? 'bg-[#FF6B00] text-white border-[#FF6B00]'
-                                  : 'bg-white text-[#FF6B00] border-orange-200 hover:bg-orange-50'
+                                  ? 'bg-brand-700 text-white border-brand-500'
+                                  : 'bg-white text-brand-700 border-orange-200 hover:bg-orange-50'
                               }`}
                             >
                               {sc.label}
@@ -637,13 +637,13 @@ export default function ProfilArtisanPage() {
           )}
 
           {/* Zone d'intervention */}
-          <div className="border-b border-gray-200 pb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">{t('profile.serviceArea.title')}</h2>
+          <div className="border-b border-slate-200 pb-6">
+            <h2 className="text-xl font-bold text-slate-800 mb-4">{t('profile.serviceArea.title')}</h2>
             
             <div className="grid md:grid-cols-2 gap-4">
               {/* Ville principale avec autocomplétion */}
               <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   {t('profile.serviceArea.mainCity')} <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -657,22 +657,22 @@ export default function ProfilArtisanPage() {
                   onFocus={() => setShowSuggestions(true)}
                   onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                   placeholder={t('profile.serviceArea.mainCityPlaceholder')}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   required
                 />
                 
                 {/* Suggestions de villes */}
                 {showSuggestions && villeSuggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                     {villeSuggestions.map((suggestion, index) => (
                       <button
                         key={`${suggestion.nom}-${suggestion.codePostal}-${index}`}
                         type="button"
                         onClick={() => selectVille(suggestion)}
-                        className="w-full px-4 py-2 text-left hover:bg-orange-50 hover:text-[#FF6B00] transition-colors border-b border-gray-100 last:border-0"
+                        className="w-full px-4 py-2 text-left hover:bg-orange-50 hover:text-brand-700 transition-colors border-b border-slate-100 last:border-0"
                       >
-                        <div className="font-medium text-gray-900">{suggestion.nom}</div>
-                        <div className="text-sm text-gray-500">
+                        <div className="font-medium text-slate-900">{suggestion.nom}</div>
+                        <div className="text-sm text-slate-500">
                           {suggestion.codePostal} - {suggestion.departement}
                         </div>
                       </button>
@@ -682,7 +682,7 @@ export default function ProfilArtisanPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   {t('profile.serviceArea.radius')}
                 </label>
                 <input
@@ -694,9 +694,9 @@ export default function ProfilArtisanPage() {
                   onChange={(e) => setRayonKm(parseInt(e.target.value))}
                   className="w-full"
                 />
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <div className="flex justify-between text-xs text-slate-500 mt-1">
                   <span>{t('profile.serviceArea.radiusMin')}</span>
-                  <span className="font-bold text-[#FF6B00]">{rayonKm} km</span>
+                  <span className="font-bold text-brand-700">{rayonKm} km</span>
                   <span>{t('profile.serviceArea.radiusMax')}</span>
                 </div>
               </div>
@@ -705,10 +705,10 @@ export default function ProfilArtisanPage() {
 
           {/* Présentation */}
           <div>
-            <h2 className="text-xl font-bold text-gray-800 mb-4">{t('profile.presentation.title')}</h2>
+            <h2 className="text-xl font-bold text-slate-800 mb-4">{t('profile.presentation.title')}</h2>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 {t('profile.presentation.label')}
               </label>
               <textarea
@@ -716,10 +716,10 @@ export default function ProfilArtisanPage() {
                 onChange={(e) => setPresentation(e.target.value)}
                 placeholder={t('profile.presentation.placeholder')}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 maxLength={500}
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 {t('profile.presentation.characters').replace('{count}', String(presentation.length))}
               </p>
             </div>
@@ -729,7 +729,7 @@ export default function ProfilArtisanPage() {
           <div className="flex gap-4 pt-4">
             <Button
               type="submit"
-              className="flex-1 bg-[#FF6B00] hover:bg-[#E56100]"
+              className="flex-1 bg-brand-700 hover:bg-brand-800"
               isLoading={isSaving}
             >
               {isSaving ? t('profile.actions.saving') : t('profile.actions.save')}
@@ -738,7 +738,7 @@ export default function ProfilArtisanPage() {
             <Link href="/dashboard" className="flex-1">
               <button
                 type="button"
-                className="w-full px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="w-full px-4 py-2 border-2 border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
               >
                 {t('profile.actions.cancel')}
               </button>

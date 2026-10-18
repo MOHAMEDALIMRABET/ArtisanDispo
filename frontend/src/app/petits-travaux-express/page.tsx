@@ -77,15 +77,15 @@ export default function PetitsTravauxExpressPage() {
   const { t } = useLanguage();
 
   return (
-    <main className="min-h-screen bg-[#F8F9FA]">
+    <main className="min-h-screen bg-slate-50">
 
       {/* Banniere bleue */}
-      <div className="bg-[#2C3E50] text-white py-8">
+      <div className="bg-navy-800 text-white py-8">
         <div className="container mx-auto px-4">
           {/* Bouton retour vers la page de choix */}
           <button
             onClick={() => router.push('/choisir-type-travaux')}
-            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4"
+            className="flex items-center gap-2 text-white hover:text-brand-700 mb-4"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -96,22 +96,22 @@ export default function PetitsTravauxExpressPage() {
           {/* Titre et sous-titre */}
           <div>
             <h1 className="text-3xl font-bold">{t('expressPages.landing.heroTitle')}</h1>
-            <p className="text-gray-300 mt-2">{t('expressPages.landing.heroSubtitle')}</p>
+            <p className="text-slate-300 mt-2">{t('expressPages.landing.heroSubtitle')}</p>
           </div>
         </div>
       </div>
 
       {/* Stat */}
-      <section className="bg-white border-b border-[#E9ECEF]">
+      <section className="bg-white border-b border-slate-200">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <p className="text-2xl md:text-3xl font-bold text-[#2C3E50]">
-              <span className="text-[#FF6B00]">2 500</span> {t('expressPages.landing.stat2500').replace('2 500 ', '')}
+            <p className="text-2xl md:text-3xl font-bold text-navy-800">
+              <span className="text-brand-700">2 500</span> {t('expressPages.landing.stat2500').replace('2 500 ', '')}
             </p>
-            <p className="text-[#6C757D] mt-1 text-base">
+            <p className="text-slate-500 mt-1 text-base">
               {t('expressPages.landing.statDescription')}
             </p>
-            <p className="text-[#95A5A6] mt-2 text-xs italic">
+            <p className="text-slate-400 mt-2 text-xs italic">
               ⚠️ À partir de 150€, un devis vous sera envoyé avant toute intervention.
             </p>
           </div>
@@ -123,9 +123,9 @@ export default function PetitsTravauxExpressPage() {
         <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-4">
 
           {/* Bloc 1 : Depannage en urgence */}
-          <div className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm overflow-hidden hover:border-red-400 hover:shadow-md transition-all duration-200 flex flex-col">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:border-red-400 hover:shadow-md transition-all duration-200 flex flex-col">
             {/* En-tete rouge */}
-            <div className="bg-[#DC3545] px-4 py-3 flex items-center gap-3">
+            <div className="bg-red-700 px-4 py-3 flex items-center gap-3">
               <div className="bg-white/20 rounded-lg p-2">
                 <span className="text-2xl">🚨</span>
               </div>
@@ -143,21 +143,21 @@ export default function PetitsTravauxExpressPage() {
             {/* Corps */}
             <div className="px-4 py-3 flex flex-col flex-1">
               {/* Accroche */}
-              <p className="text-[#2C3E50] font-semibold text-sm text-center mb-1">Un problème urgent ?</p>
-              <p className="text-[#6C757D] text-xs text-center mb-4">
+              <p className="text-navy-800 font-semibold text-sm text-center mb-1">Un problème urgent ?</p>
+              <p className="text-slate-500 text-xs text-center mb-4">
                 Intervention rapide par un artisan qualifié, disponible près de chez vous.
               </p>
 
               {/* Grille de cartes icones - Depannage en urgence : meme dimensionnement que travaux (grid-cols-3) */}
-              <div className="grid grid-cols-3 gap-3 mb-5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
                 {URGENCE_ITEMS.map((item) => (
                   <button
                     key={item.value}
                     onClick={() => router.push(`/petits-travaux-express/recherche?typeTravaux=depannage-urgence&categorie=${item.value}`)}
                     className="flex flex-col items-center justify-center gap-1.5 h-[104px] bg-red-50 hover:bg-red-100 border border-red-100 hover:border-red-300 rounded-xl px-2 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm group"
                   >
-                    <span className="w-12 h-12 flex items-center justify-center text-4xl leading-none group-hover:scale-110 transition-transform duration-150">{item.icon}</span>
-                    <span className="text-[11px] font-semibold text-[#2C3E50] text-center leading-tight">{item.label}</span>
+                    <span className="w-12 h-12 flex items-center justify-center text-4xl leading-none group-hover:scale-105 transition-transform duration-150">{item.icon}</span>
+                    <span className="text-[11px] font-semibold text-navy-800 text-center leading-tight">{item.label}</span>
                   </button>
                 ))}
               </div>
@@ -165,7 +165,7 @@ export default function PetitsTravauxExpressPage() {
               {/* CTA - mt-4 fixe identique au bloc travaux */}
               <button
                 onClick={() => router.push('/petits-travaux-express/recherche?typeTravaux=depannage-urgence')}
-                className="w-full mt-4 bg-[#DC3545] hover:bg-[#C82333] text-white font-bold py-3 rounded-xl text-sm transition-colors duration-200 flex items-center justify-center gap-2"
+                className="w-full mt-4 bg-red-700 hover:bg-red-800 text-white font-bold py-3 rounded-xl text-sm transition-colors duration-200 flex items-center justify-center gap-2"
               >
                 {t('expressPages.landing.depannageCTA')}
               </button>
@@ -173,9 +173,9 @@ export default function PetitsTravauxExpressPage() {
           </div>
 
           {/* Bloc 2 : Petits travaux & maintenance */}
-          <div className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm overflow-hidden hover:border-[#FF6B00] hover:shadow-md transition-all duration-200 flex flex-col">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:border-brand-500 hover:shadow-md transition-all duration-200 flex flex-col">
             {/* En-tete orange */}
-            <div className="bg-[#FF6B00] px-4 py-3 flex items-center gap-3">
+            <div className="bg-brand-700 px-4 py-3 flex items-center gap-3">
               <div className="bg-white/20 rounded-lg p-2">
                 <span className="text-2xl">🛠️</span>
               </div>
@@ -193,21 +193,21 @@ export default function PetitsTravauxExpressPage() {
             {/* Corps */}
             <div className="px-4 py-3 flex flex-col flex-1">
               {/* Accroche */}
-              <p className="text-[#2C3E50] font-semibold text-sm text-center mb-1">Un projet ou des travaux à réaliser ?</p>
-              <p className="text-[#6C757D] text-xs text-center mb-4">
+              <p className="text-navy-800 font-semibold text-sm text-center mb-1">Un projet ou des travaux à réaliser ?</p>
+              <p className="text-slate-500 text-xs text-center mb-4">
                 Trouvez un artisan disponible près de chez vous pour vos travaux du quotidien.
               </p>
 
               {/* Grille de cartes icones - Petits travaux & maintenance : 6 categories sur 2 lignes de 3 */}
-              <div className="grid grid-cols-3 gap-3 mb-5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
                 {TRAVAUX_ITEMS.map((item) => (
                   <button
                     key={item.value}
                     onClick={() => router.push(`/petits-travaux-express/recherche?typeTravaux=petits-travaux-maintenance&categorie=${item.value}`)}
                     className="flex flex-col items-center justify-center gap-1.5 h-[104px] bg-orange-50 hover:bg-orange-100 border border-orange-100 hover:border-orange-300 rounded-xl px-2 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm group"
                   >
-                    <span className="w-12 h-12 flex items-center justify-center text-4xl leading-none group-hover:scale-110 transition-transform duration-150">{item.icon}</span>
-                    <span className="text-[11px] font-semibold text-[#2C3E50] text-center leading-tight">{item.label}</span>
+                    <span className="w-12 h-12 flex items-center justify-center text-4xl leading-none group-hover:scale-105 transition-transform duration-150">{item.icon}</span>
+                    <span className="text-[11px] font-semibold text-navy-800 text-center leading-tight">{item.label}</span>
                   </button>
                 ))}
               </div>
@@ -215,7 +215,7 @@ export default function PetitsTravauxExpressPage() {
               {/* CTA - mt-4 fixe identique au bloc urgence */}
               <button
                 onClick={() => router.push('/petits-travaux-express/recherche?typeTravaux=petits-travaux-maintenance')}
-                className="w-full mt-4 bg-[#FF6B00] hover:bg-[#E56100] text-white font-bold py-3 rounded-xl text-sm transition-colors duration-200 flex items-center justify-center gap-2"
+                className="w-full mt-4 bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 rounded-xl text-sm transition-colors duration-200 flex items-center justify-center gap-2"
               >
                 {t('expressPages.landing.petitsTravauxCTA')}
               </button>
@@ -227,25 +227,25 @@ export default function PetitsTravauxExpressPage() {
 
       {/* Comment ca marche */}
       <section className="container mx-auto px-4 pb-14">
-        <div className="bg-white rounded-2xl border border-[#E9ECEF] shadow-sm p-8 md:p-12">
-          <h2 className="text-2xl md:text-3xl font-bold text-[#2C3E50] text-center mb-10">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 md:p-12">
+          <h2 className="text-2xl md:text-3xl font-bold text-navy-800 text-center mb-10">
             {t('expressPages.landing.howItWorksTitle')}
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8 relative">
             {/* Ligne de connexion - visible uniquement desktop */}
-            <div className="hidden md:block absolute top-10 left-[calc(16.67%+1.5rem)] right-[calc(16.67%+1.5rem)] h-0.5 bg-[#E9ECEF] z-0" />
+            <div className="hidden md:block absolute top-10 left-[calc(16.67%+1.5rem)] right-[calc(16.67%+1.5rem)] h-0.5 bg-slate-100 z-0" />
 
             {steps.map((step, i) => (
               <div key={step.number} className="relative z-10 flex flex-col items-center text-center">
-                <div className="w-16 h-16 rounded-full bg-[#FF6B00] flex items-center justify-center shadow-md mb-5">
+                <div className="w-16 h-16 rounded-full bg-brand-700 flex items-center justify-center shadow-md mb-5">
                   {step.icon}
                 </div>
-                <div className="absolute top-0 right-[calc(50%-1rem)] -translate-y-1 bg-[#2C3E50] text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
+                <div className="absolute top-0 right-[calc(50%-1rem)] -translate-y-1 bg-navy-800 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
                   {step.number}
                 </div>
-                <h3 className="font-bold text-[#2C3E50] text-lg mb-2">{step.title}</h3>
-                <p className="text-[#6C757D] text-sm leading-relaxed">{step.description}</p>
+                <h3 className="font-bold text-navy-800 text-lg mb-2">{step.title}</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">{step.description}</p>
               </div>
             ))}
           </div>

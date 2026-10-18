@@ -73,7 +73,7 @@ export default function MigrateMetiersPage() {
         addLog(`   Métiers actuels: ${JSON.stringify(metiers)}`);
 
         if (!metiers) {
-          addLog('   ⚠️  Pas de métiers définis - ignoré');
+          addLog(' ⚠️ Pas de métiers définis - ignoré');
           skippedCount++;
           continue;
         }
@@ -85,7 +85,7 @@ export default function MigrateMetiersPage() {
           metiersArray = Object.values(metiers);
           addLog(`   🔄 Conversion objet → tableau: ${JSON.stringify(metiersArray)}`);
         } else {
-          addLog('   ⚠️  Format métiers invalide - ignoré');
+          addLog(' ⚠️ Format métiers invalide - ignoré');
           skippedCount++;
           continue;
         }
@@ -97,7 +97,7 @@ export default function MigrateMetiersPage() {
         const needsMigration = JSON.stringify(metiers) !== JSON.stringify(normalizedMetiers);
 
         if (needsMigration) {
-          addLog('   ✅ Migration nécessaire');
+          addLog(' ✅ Migration nécessaire');
           addLog(`   Avant: ${JSON.stringify(metiersArray)}`);
           addLog(`   Après: ${JSON.stringify(normalizedMetiers)}`);
 
@@ -115,7 +115,7 @@ export default function MigrateMetiersPage() {
       }
 
       addLog('\n\n✨ Migration terminée !');
-      addLog(`   ✅ ${migratedCount} artisan(s) migré(s)`);
+      addLog(` ✅ ${migratedCount} artisan(s) migré(s)`);
       addLog(`   ⏭️  ${skippedCount} artisan(s) ignoré(s)`);
 
       setIsDone(true);
@@ -128,10 +128,10 @@ export default function MigrateMetiersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#2C3E50] to-[#1A3A5C] p-8">
+    <div className="min-h-screen bg-navy-800 p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-xl shadow-2xl p-8">
-          <h1 className="text-3xl font-bold text-[#2C3E50] mb-6">
+        <div className="bg-white rounded-xl shadow-lg p-8">
+          <h1 className="text-3xl font-bold text-navy-800 mb-6">
             🔧 Migration des Métiers
           </h1>
 
@@ -149,8 +149,8 @@ export default function MigrateMetiersPage() {
             disabled={isRunning}
             className={`w-full py-3 px-6 rounded-lg font-bold text-white transition-all ${
               isRunning
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-[#FF6B00] hover:bg-[#E56100] shadow-lg hover:shadow-xl'
+                ? 'bg-slate-400 cursor-not-allowed'
+                : 'bg-brand-700 hover:bg-brand-800 shadow-lg hover:shadow-md'
             }`}
           >
             {isRunning ? '⏳ Migration en cours...' : '🚀 Lancer la Migration'}
@@ -158,8 +158,8 @@ export default function MigrateMetiersPage() {
 
           {logs.length > 0 && (
             <div className="mt-6">
-              <h2 className="text-xl font-bold text-[#2C3E50] mb-3">📋 Logs</h2>
-              <div className="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm max-h-96 overflow-y-auto">
+              <h2 className="text-xl font-bold text-navy-800 mb-3">📋 Logs</h2>
+              <div className="bg-slate-900 text-green-400 p-4 rounded-lg font-mono text-sm max-h-96 overflow-y-auto">
                 {logs.map((log, i) => (
                   <div key={i} className="whitespace-pre-wrap">
                     {log}

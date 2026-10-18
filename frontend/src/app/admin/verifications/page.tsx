@@ -206,7 +206,7 @@ export default function AdminVerificationsPage() {
 
   const getStatusBadge = (status: string) => {
     const badges = {
-      missing: <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full">📄 Manquant</span>,
+      missing: <span className="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded-full">📄 Manquant</span>,
       pending: <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full">⏳ En attente</span>,
       verified: <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">✅ Vérifié</span>,
       rejected: <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">❌ Rejeté</span>,
@@ -228,31 +228,31 @@ export default function AdminVerificationsPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
+          <p className="mt-4 text-slate-600">Chargement...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] p-6">
+    <div className="min-h-screen bg-slate-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Gestion des Artisans</h1>
-          <p className="text-gray-600 mt-2">Vérification et validation des documents</p>
+          <h1 className="text-3xl font-bold text-slate-900">Gestion des Artisans</h1>
+          <p className="text-slate-600 mt-2">Vérification et validation des documents</p>
         </div>
 
         {/* Filtres */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
           <div className="flex flex-wrap gap-3 mb-4">
             <button
               onClick={() => handleFilterChange('all')}
               className={`px-4 py-2 rounded-lg font-medium transition ${
                 selectedFilter === 'all'
-                  ? 'bg-[#FF6B00] text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-brand-700 text-white'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
               Tous ({artisans.length})
@@ -261,8 +261,8 @@ export default function AdminVerificationsPage() {
               onClick={() => handleFilterChange('pending')}
               className={`px-4 py-2 rounded-lg font-medium transition ${
                 selectedFilter === 'pending'
-                  ? 'bg-[#FF6B00] text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-brand-700 text-white'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
               ⏳ En attente ({pendingCount})
@@ -271,8 +271,8 @@ export default function AdminVerificationsPage() {
               onClick={() => handleFilterChange('verified')}
               className={`px-4 py-2 rounded-lg font-medium transition ${
                 selectedFilter === 'verified'
-                  ? 'bg-[#FF6B00] text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-brand-700 text-white'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
               ✅ Vérifiés ({verifiedCount})
@@ -281,8 +281,8 @@ export default function AdminVerificationsPage() {
               onClick={() => handleFilterChange('rejected')}
               className={`px-4 py-2 rounded-lg font-medium transition ${
                 selectedFilter === 'rejected'
-                  ? 'bg-[#FF6B00] text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-brand-700 text-white'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
               ❌ Rejetés
@@ -295,42 +295,42 @@ export default function AdminVerificationsPage() {
             placeholder="Rechercher par nom, SIRET, entreprise..."
             value={searchTerm}
             onChange={handleSearchChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
           />
         </div>
 
         {/* Tableau */}
         <div className="bg-white rounded-lg shadow-md overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-slate-200">
+            <thead className="bg-slate-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Artisan
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Entreprise
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   SIRET
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   KBIS
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Pièce ID
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   RC Pro
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Décennale
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider whitespace-nowrap">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-slate-200">
               {filteredArtisans.map((artisan) => {
                 const kbisStatus = getDocumentStatus(artisan.verificationDocuments?.kbis);
                 const idStatus = getDocumentStatus(artisan.verificationDocuments?.idCard);
@@ -339,20 +339,20 @@ export default function AdminVerificationsPage() {
                 const decennaleStatus = needsDecennale ? getDocumentStatus(artisan.verificationDocuments?.decennale) : null;
 
                 return (
-                  <tr key={artisan.userId} className="hover:bg-gray-50">
+                  <tr key={artisan.userId} className="hover:bg-slate-50">
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div>
-                        <div className="font-medium text-gray-900 text-sm">
+                        <div className="font-medium text-slate-900 text-sm">
                           {artisan.nom} {artisan.prenom}
                         </div>
-                        <div className="text-xs text-gray-500">{artisan.email}</div>
+                        <div className="text-xs text-slate-500">{artisan.email}</div>
                       </div>
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 max-w-[140px] truncate" title={artisan.raisonSociale || '-'}>{artisan.raisonSociale || '-'}</div>
+                      <div className="text-sm text-slate-900 max-w-[140px] truncate" title={artisan.raisonSociale || '-'}>{artisan.raisonSociale || '-'}</div>
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap">
-                      <div className="text-sm font-mono text-gray-900">{artisan.siret}</div>
+                      <div className="text-sm font-mono text-slate-900">{artisan.siret}</div>
                       {artisan.siretVerified && (
                         <span className="text-xs text-green-600">✓ SIRENE</span>
                       )}
@@ -394,7 +394,7 @@ export default function AdminVerificationsPage() {
                       {needsDecennale ? (
                         <div className="flex items-center gap-2">
                           {decennaleStatus ? getStatusBadge(decennaleStatus) : (
-                            <span className="text-xs text-gray-400">Non uploadé</span>
+                            <span className="text-xs text-slate-400">Non uploadé</span>
                           )}
                           {artisan.verificationDocuments?.decennale?.uploadHistory && 
                            artisan.verificationDocuments.decennale.uploadHistory.length > 3 && (
@@ -404,7 +404,7 @@ export default function AdminVerificationsPage() {
                           )}
                         </div>
                       ) : (
-                        <span className="text-xs text-gray-400">Non requise</span>
+                        <span className="text-xs text-slate-400">Non requise</span>
                       )}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap text-sm font-medium">
@@ -413,7 +413,7 @@ export default function AdminVerificationsPage() {
                           setSelectedArtisan(artisan);
                           setShowModal(true);
                         }}
-                        className="text-[#FF6B00] hover:text-[#E56100] font-semibold whitespace-nowrap"
+                        className="text-brand-700 hover:text-brand-800 font-semibold whitespace-nowrap"
                       >
                         Voir détails
                       </button>
@@ -426,7 +426,7 @@ export default function AdminVerificationsPage() {
 
           {filteredArtisans.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500">Aucun artisan trouvé</p>
+              <p className="text-slate-500">Aucun artisan trouvé</p>
             </div>
           )}
         </div>
@@ -443,16 +443,16 @@ export default function AdminVerificationsPage() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header du modal */}
-            <div className="border-b border-gray-200 px-6 py-4 flex justify-between items-center bg-[#2C3E50] text-white rounded-t-lg">
+            <div className="border-b border-slate-200 px-6 py-4 flex justify-between items-center bg-navy-800 text-white rounded-t-lg">
               <div>
                 <h2 className="text-2xl font-bold">
                   {selectedArtisan.nom} {selectedArtisan.prenom}
                 </h2>
-                <p className="text-gray-300 text-sm mt-1">{selectedArtisan.email}</p>
+                <p className="text-slate-300 text-sm mt-1">{selectedArtisan.email}</p>
               </div>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-white hover:text-gray-300 text-3xl leading-none"
+                className="text-white hover:text-slate-300 text-3xl leading-none"
               >
                 ×
               </button>
@@ -466,14 +466,14 @@ export default function AdminVerificationsPage() {
                 <div className="space-y-6">
                   
                   {/* Informations Artisan */}
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <div className="bg-slate-50 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
                       👤 Informations Artisan
                     </h3>
                     <div className="space-y-3">
                       <div>
-                        <label className="text-xs text-gray-500 uppercase">Nom complet</label>
-                        <p className="text-gray-900 font-medium">
+                        <label className="text-xs text-slate-500 uppercase">Nom complet</label>
+                        <p className="text-slate-900 font-medium">
                           {selectedArtisan.nom && selectedArtisan.prenom 
                             ? `${selectedArtisan.nom} ${selectedArtisan.prenom}`
                             : selectedArtisan.nom || selectedArtisan.prenom || '-'
@@ -481,12 +481,12 @@ export default function AdminVerificationsPage() {
                         </p>
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500 uppercase">Email</label>
-                        <p className="text-gray-900">{selectedArtisan.email || '-'}</p>
+                        <label className="text-xs text-slate-500 uppercase">Email</label>
+                        <p className="text-slate-900">{selectedArtisan.email || '-'}</p>
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500 uppercase">Téléphone</label>
-                        <p className="text-gray-900">{selectedArtisan.telephone || '-'}</p>
+                        <label className="text-xs text-slate-500 uppercase">Téléphone</label>
+                        <p className="text-slate-900">{selectedArtisan.telephone || '-'}</p>
                         {selectedArtisan.telephoneVerified && (
                           <span className="text-xs text-green-600 ml-2">✓ Vérifié</span>
                         )}
@@ -495,14 +495,14 @@ export default function AdminVerificationsPage() {
                   </div>
 
                   {/* Informations Entreprise */}
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <div className="bg-slate-50 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
                       🏢 Informations Entreprise
                     </h3>
                     <div className="space-y-3">
                       <div>
-                        <label className="text-xs text-gray-500 uppercase">SIRET</label>
-                        <p className="text-gray-900 font-mono">{selectedArtisan.siret}</p>
+                        <label className="text-xs text-slate-500 uppercase">SIRET</label>
+                        <p className="text-slate-900 font-mono">{selectedArtisan.siret}</p>
                         {selectedArtisan.siretVerified && (
                           <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full inline-block mt-1">
                             ✓ Vérifié SIRENE
@@ -510,29 +510,29 @@ export default function AdminVerificationsPage() {
                         )}
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500 uppercase">Raison sociale</label>
-                        <p className="text-gray-900">{selectedArtisan.raisonSociale || '-'}</p>
+                        <label className="text-xs text-slate-500 uppercase">Raison sociale</label>
+                        <p className="text-slate-900">{selectedArtisan.raisonSociale || '-'}</p>
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500 uppercase">Forme juridique</label>
-                        <p className="text-gray-900">{selectedArtisan.formeJuridique || '-'}</p>
+                        <label className="text-xs text-slate-500 uppercase">Forme juridique</label>
+                        <p className="text-slate-900">{selectedArtisan.formeJuridique || '-'}</p>
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500 uppercase">Métiers</label>
+                        <label className="text-xs text-slate-500 uppercase">Métiers</label>
                         <div className="flex flex-wrap gap-2 mt-1">
                           {selectedArtisan.metiers?.map((metier, idx) => (
                             <span 
                               key={idx}
-                              className="bg-[#FF6B00] text-white px-3 py-1 rounded-full text-sm"
+                              className="bg-brand-700 text-white px-3 py-1 rounded-full text-sm"
                             >
                               {metier}
                             </span>
-                          )) || <span className="text-gray-500">Aucun métier</span>}
+                          )) || <span className="text-slate-500">Aucun métier</span>}
                         </div>
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500 uppercase">Inscription</label>
-                        <p className="text-gray-900 text-sm">
+                        <label className="text-xs text-slate-500 uppercase">Inscription</label>
+                        <p className="text-slate-900 text-sm">
                           {selectedArtisan.dateInscription 
                             ? new Date(selectedArtisan.dateInscription.toDate()).toLocaleDateString('fr-FR')
                             : '-'
@@ -543,54 +543,54 @@ export default function AdminVerificationsPage() {
                   </div>
 
                   {/* Zone d'Intervention */}
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <div className="bg-slate-50 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
                       📍 Zone d'Intervention
                     </h3>
                     <div className="space-y-3">
                       {selectedArtisan.zonesIntervention && selectedArtisan.zonesIntervention.length > 0 ? (
                         selectedArtisan.zonesIntervention.map((zone, idx) => (
-                          <div key={idx} className={idx > 0 ? 'pt-3 border-t border-gray-200' : ''}>
+                          <div key={idx} className={idx > 0 ? 'pt-3 border-t border-slate-200' : ''}>
                             {selectedArtisan.zonesIntervention.length > 1 && (
-                              <p className="text-xs font-semibold text-[#FF6B00] mb-2">Zone {idx + 1}</p>
+                              <p className="text-xs font-semibold text-brand-700 mb-2">Zone {idx + 1}</p>
                             )}
                             <div className="space-y-2">
                               {zone.adresse && (
                                 <div>
-                                  <label className="text-xs text-gray-500 uppercase">Adresse de l'entreprise</label>
-                                  <p className="text-gray-900">{zone.adresse}</p>
+                                  <label className="text-xs text-slate-500 uppercase">Adresse de l'entreprise</label>
+                                  <p className="text-slate-900">{zone.adresse}</p>
                                 </div>
                               )}
                               <div>
-                                <label className="text-xs text-gray-500 uppercase">Ville principale</label>
-                                <p className="text-gray-900 font-medium">{zone.ville || '-'}</p>
+                                <label className="text-xs text-slate-500 uppercase">Ville principale</label>
+                                <p className="text-slate-900 font-medium">{zone.ville || '-'}</p>
                                 {zone.codePostal && (
-                                  <p className="text-gray-600 text-sm">Code postal: {zone.codePostal}</p>
+                                  <p className="text-slate-600 text-sm">Code postal: {zone.codePostal}</p>
                                 )}
                               </div>
                               <div>
-                                <label className="text-xs text-gray-500 uppercase">Rayon d'intervention</label>
-                                <p className="text-gray-900 font-medium">
+                                <label className="text-xs text-slate-500 uppercase">Rayon d'intervention</label>
+                                <p className="text-slate-900 font-medium">
                                   {zone.rayonKm || zone.rayon ? (
                                     <span className="inline-flex items-center gap-2">
                                       <span className="text-lg">{zone.rayonKm || zone.rayon} km</span>
-                                      <span className="text-xs bg-[#FF6B00] text-white px-2 py-1 rounded-full">
+                                      <span className="text-xs bg-brand-700 text-white px-2 py-1 rounded-full">
                                         Rayon d'action
                                       </span>
                                     </span>
                                   ) : (
-                                    <span className="text-gray-500">Non spécifié</span>
+                                    <span className="text-slate-500">Non spécifié</span>
                                   )}
                                 </p>
                               </div>
                               {zone.departements && zone.departements.length > 0 && (
                                 <div>
-                                  <label className="text-xs text-gray-500 uppercase">Départements couverts</label>
+                                  <label className="text-xs text-slate-500 uppercase">Départements couverts</label>
                                   <div className="flex flex-wrap gap-1 mt-1">
                                     {zone.departements.map((dept, deptIdx) => (
                                       <span 
                                         key={deptIdx}
-                                        className="bg-[#2C3E50] text-white px-2 py-1 rounded text-xs"
+                                        className="bg-navy-800 text-white px-2 py-1 rounded text-xs"
                                       >
                                         {dept}
                                       </span>
@@ -602,7 +602,7 @@ export default function AdminVerificationsPage() {
                           </div>
                         ))
                       ) : (
-                        <p className="text-gray-500 text-sm">Aucune zone d'intervention renseignée</p>
+                        <p className="text-slate-500 text-sm">Aucune zone d'intervention renseignée</p>
                       )}
                     </div>
                   </div>
@@ -612,9 +612,9 @@ export default function AdminVerificationsPage() {
                 <div className="space-y-6">
                   
                   {/* Document KBIS */}
-                  <div className="border border-gray-200 rounded-lg overflow-hidden">
-                    <div className="bg-gray-100 px-4 py-3 flex justify-between items-center">
-                      <h3 className="font-semibold text-gray-900 flex items-center">
+                  <div className="border border-slate-200 rounded-lg overflow-hidden">
+                    <div className="bg-slate-100 px-4 py-3 flex justify-between items-center">
+                      <h3 className="font-semibold text-slate-900 flex items-center">
                         📄 KBIS
                       </h3>
                       {getStatusBadge(getDocumentStatus(selectedArtisan.verificationDocuments?.kbis))}
@@ -624,7 +624,7 @@ export default function AdminVerificationsPage() {
                       {selectedArtisan.verificationDocuments?.kbis?.url ? (
                         <>
                           {/* Aperçu du document */}
-                          <div className="mb-4 bg-gray-50 rounded-lg overflow-hidden">
+                          <div className="mb-4 bg-slate-50 rounded-lg overflow-hidden">
                             {selectedArtisan.verificationDocuments.kbis.url.toLowerCase().endsWith('.pdf') ? (
                               <iframe
                                 src={selectedArtisan.verificationDocuments.kbis.url}
@@ -643,8 +643,8 @@ export default function AdminVerificationsPage() {
                           {/* Informations du document */}
                           <div className="space-y-2 mb-4 text-sm">
                             <div>
-                              <label className="text-xs text-gray-500 uppercase">Date d'upload</label>
-                              <p className="text-gray-900">
+                              <label className="text-xs text-slate-500 uppercase">Date d'upload</label>
+                              <p className="text-slate-900">
                                 {selectedArtisan.verificationDocuments.kbis.uploadDate
                                   ? new Date(selectedArtisan.verificationDocuments.kbis.uploadDate.toDate()).toLocaleDateString('fr-FR', {
                                       year: 'numeric',
@@ -661,7 +661,7 @@ export default function AdminVerificationsPage() {
                             {/* Historique des uploads */}
                             {selectedArtisan.verificationDocuments.kbis.uploadHistory && selectedArtisan.verificationDocuments.kbis.uploadHistory.length > 0 && (
                               <div>
-                                <label className="text-xs text-gray-500 uppercase flex items-center gap-2">
+                                <label className="text-xs text-slate-500 uppercase flex items-center gap-2">
                                   Historique des uploads ({selectedArtisan.verificationDocuments.kbis.uploadHistory.length})
                                   {selectedArtisan.verificationDocuments.kbis.uploadHistory.length > 5 && (
                                     <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-semibold">
@@ -671,7 +671,7 @@ export default function AdminVerificationsPage() {
                                 </label>
                                 <div className="bg-yellow-50 border border-yellow-200 rounded p-2 mt-1 max-h-40 overflow-y-auto">
                                   {selectedArtisan.verificationDocuments.kbis.uploadHistory.map((upload, idx) => (
-                                    <div key={idx} className="text-xs text-gray-700 mb-1 pb-1 border-b border-yellow-200 last:border-0">
+                                    <div key={idx} className="text-xs text-slate-700 mb-1 pb-1 border-b border-yellow-200 last:border-0">
                                       <div className="flex items-center gap-2">
                                         <span className="font-medium">
                                           {new Date(upload.uploadedAt.toDate()).toLocaleDateString('fr-FR', {
@@ -681,12 +681,12 @@ export default function AdminVerificationsPage() {
                                             minute: '2-digit'
                                           })}
                                         </span>
-                                        <span className="text-gray-500">•</span>
+                                        <span className="text-slate-500">•</span>
                                         <span className="truncate max-w-[150px]" title={upload.fileName}>
                                           {upload.fileName}
                                         </span>
-                                        <span className="text-gray-500">•</span>
-                                        <span className="text-gray-500">
+                                        <span className="text-slate-500">•</span>
+                                        <span className="text-slate-500">
                                           {(upload.fileSize / 1024).toFixed(0)} KB
                                         </span>
                                       </div>
@@ -703,12 +703,12 @@ export default function AdminVerificationsPage() {
                             
                             {selectedArtisan.verificationDocuments.kbis.parsedData && (
                               <div>
-                                <label className="text-xs text-gray-500 uppercase">Données extraites</label>
-                                <div className="bg-white border border-gray-200 rounded p-2 mt-1">
-                                  <p className="text-xs text-gray-700">
+                                <label className="text-xs text-slate-500 uppercase">Données extraites</label>
+                                <div className="bg-white border border-slate-200 rounded p-2 mt-1">
+                                  <p className="text-xs text-slate-700">
                                     SIRET: {selectedArtisan.verificationDocuments.kbis.parsedData.siret || '-'}
                                   </p>
-                                  <p className="text-xs text-gray-700">
+                                  <p className="text-xs text-slate-700">
                                     Raison sociale: {selectedArtisan.verificationDocuments.kbis.parsedData.raisonSociale || '-'}
                                   </p>
                                 </div>
@@ -764,21 +764,21 @@ export default function AdminVerificationsPage() {
                             href={selectedArtisan.verificationDocuments.kbis.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="block text-center text-[#FF6B00] hover:underline text-sm mt-2"
+                            className="block text-center text-brand-700 hover:underline text-sm mt-2"
                           >
                             Ouvrir dans un nouvel onglet →
                           </a>
                         </>
                       ) : (
-                        <p className="text-gray-500 text-center py-8">Document non uploadé</p>
+                        <p className="text-slate-500 text-center py-8">Document non uploadé</p>
                       )}
                     </div>
                   </div>
 
                   {/* Document Pièce d'identité */}
-                  <div className="border border-gray-200 rounded-lg overflow-hidden">
-                    <div className="bg-gray-100 px-4 py-3 flex justify-between items-center">
-                      <h3 className="font-semibold text-gray-900 flex items-center">
+                  <div className="border border-slate-200 rounded-lg overflow-hidden">
+                    <div className="bg-slate-100 px-4 py-3 flex justify-between items-center">
+                      <h3 className="font-semibold text-slate-900 flex items-center">
                         🪪 Pièce d'identité
                       </h3>
                       {getStatusBadge(getDocumentStatus(selectedArtisan.verificationDocuments?.idCard))}
@@ -788,7 +788,7 @@ export default function AdminVerificationsPage() {
                       {selectedArtisan.verificationDocuments?.idCard?.url ? (
                         <>
                           {/* Aperçu du document */}
-                          <div className="mb-4 bg-gray-50 rounded-lg overflow-hidden">
+                          <div className="mb-4 bg-slate-50 rounded-lg overflow-hidden">
                             {selectedArtisan.verificationDocuments.idCard.url.toLowerCase().endsWith('.pdf') ? (
                               <iframe
                                 src={selectedArtisan.verificationDocuments.idCard.url}
@@ -807,8 +807,8 @@ export default function AdminVerificationsPage() {
                           {/* Informations du document */}
                           <div className="space-y-2 mb-4 text-sm">
                             <div>
-                              <label className="text-xs text-gray-500 uppercase">Date d'upload</label>
-                              <p className="text-gray-900">
+                              <label className="text-xs text-slate-500 uppercase">Date d'upload</label>
+                              <p className="text-slate-900">
                                 {selectedArtisan.verificationDocuments.idCard.uploadDate
                                   ? new Date(selectedArtisan.verificationDocuments.idCard.uploadDate.toDate()).toLocaleDateString('fr-FR', {
                                       year: 'numeric',
@@ -825,7 +825,7 @@ export default function AdminVerificationsPage() {
                             {/* Historique des uploads */}
                             {selectedArtisan.verificationDocuments.idCard.uploadHistory && selectedArtisan.verificationDocuments.idCard.uploadHistory.length > 0 && (
                               <div>
-                                <label className="text-xs text-gray-500 uppercase flex items-center gap-2">
+                                <label className="text-xs text-slate-500 uppercase flex items-center gap-2">
                                   Historique des uploads ({selectedArtisan.verificationDocuments.idCard.uploadHistory.length})
                                   {selectedArtisan.verificationDocuments.idCard.uploadHistory.length > 5 && (
                                     <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-semibold">
@@ -835,7 +835,7 @@ export default function AdminVerificationsPage() {
                                 </label>
                                 <div className="bg-yellow-50 border border-yellow-200 rounded p-2 mt-1 max-h-40 overflow-y-auto">
                                   {selectedArtisan.verificationDocuments.idCard.uploadHistory.map((upload, idx) => (
-                                    <div key={idx} className="text-xs text-gray-700 mb-1 pb-1 border-b border-yellow-200 last:border-0">
+                                    <div key={idx} className="text-xs text-slate-700 mb-1 pb-1 border-b border-yellow-200 last:border-0">
                                       <div className="flex items-center gap-2">
                                         <span className="font-medium">
                                           {new Date(upload.uploadedAt.toDate()).toLocaleDateString('fr-FR', {
@@ -845,12 +845,12 @@ export default function AdminVerificationsPage() {
                                             minute: '2-digit'
                                           })}
                                         </span>
-                                        <span className="text-gray-500">•</span>
+                                        <span className="text-slate-500">•</span>
                                         <span className="truncate max-w-[150px]" title={upload.fileName}>
                                           {upload.fileName}
                                         </span>
-                                        <span className="text-gray-500">•</span>
-                                        <span className="text-gray-500">
+                                        <span className="text-slate-500">•</span>
+                                        <span className="text-slate-500">
                                           {(upload.fileSize / 1024).toFixed(0)} KB
                                         </span>
                                       </div>
@@ -867,12 +867,12 @@ export default function AdminVerificationsPage() {
                             
                             {selectedArtisan.verificationDocuments.idCard.parsedData && (
                               <div>
-                                <label className="text-xs text-gray-500 uppercase">Données extraites</label>
-                                <div className="bg-white border border-gray-200 rounded p-2 mt-1">
-                                  <p className="text-xs text-gray-700">
+                                <label className="text-xs text-slate-500 uppercase">Données extraites</label>
+                                <div className="bg-white border border-slate-200 rounded p-2 mt-1">
+                                  <p className="text-xs text-slate-700">
                                     Nom: {selectedArtisan.verificationDocuments.idCard.parsedData.nom || '-'}
                                   </p>
-                                  <p className="text-xs text-gray-700">
+                                  <p className="text-xs text-slate-700">
                                     Prénom: {selectedArtisan.verificationDocuments.idCard.parsedData.prenom || '-'}
                                   </p>
                                 </div>
@@ -928,21 +928,21 @@ export default function AdminVerificationsPage() {
                             href={selectedArtisan.verificationDocuments.idCard.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="block text-center text-[#FF6B00] hover:underline text-sm mt-2"
+                            className="block text-center text-brand-700 hover:underline text-sm mt-2"
                           >
                             Ouvrir dans un nouvel onglet →
                           </a>
                         </>
                       ) : (
-                        <p className="text-gray-500 text-center py-8">Document non uploadé</p>
+                        <p className="text-slate-500 text-center py-8">Document non uploadé</p>
                       )}
                     </div>
                   </div>
 
                   {/* Document RC Pro */}
-                  <div className="border border-gray-200 rounded-lg overflow-hidden">
-                    <div className="bg-gray-100 px-4 py-3 flex justify-between items-center">
-                      <h3 className="font-semibold text-gray-900 flex items-center">
+                  <div className="border border-slate-200 rounded-lg overflow-hidden">
+                    <div className="bg-slate-100 px-4 py-3 flex justify-between items-center">
+                      <h3 className="font-semibold text-slate-900 flex items-center">
                         🛡️ RC Pro
                       </h3>
                       {getStatusBadge(getDocumentStatus(selectedArtisan.verificationDocuments?.rcPro))}
@@ -952,7 +952,7 @@ export default function AdminVerificationsPage() {
                       {selectedArtisan.verificationDocuments?.rcPro?.url ? (
                         <>
                           {/* Aperçu du document */}
-                          <div className="mb-4 bg-gray-50 rounded-lg overflow-hidden">
+                          <div className="mb-4 bg-slate-50 rounded-lg overflow-hidden">
                             {selectedArtisan.verificationDocuments.rcPro.url.toLowerCase().endsWith('.pdf') ? (
                               <iframe
                                 src={selectedArtisan.verificationDocuments.rcPro.url}
@@ -971,8 +971,8 @@ export default function AdminVerificationsPage() {
                           {/* Informations du document */}
                           <div className="space-y-2 mb-4 text-sm">
                             <div>
-                              <label className="text-xs text-gray-500 uppercase">Date d'upload</label>
-                              <p className="text-gray-900">
+                              <label className="text-xs text-slate-500 uppercase">Date d'upload</label>
+                              <p className="text-slate-900">
                                 {selectedArtisan.verificationDocuments.rcPro.uploadDate
                                   ? new Date(selectedArtisan.verificationDocuments.rcPro.uploadDate.toDate()).toLocaleDateString('fr-FR', {
                                       year: 'numeric',
@@ -989,7 +989,7 @@ export default function AdminVerificationsPage() {
                             {/* Historique des uploads */}
                             {selectedArtisan.verificationDocuments.rcPro.uploadHistory && selectedArtisan.verificationDocuments.rcPro.uploadHistory.length > 0 && (
                               <div>
-                                <label className="text-xs text-gray-500 uppercase flex items-center gap-2">
+                                <label className="text-xs text-slate-500 uppercase flex items-center gap-2">
                                   Historique des uploads ({selectedArtisan.verificationDocuments.rcPro.uploadHistory.length})
                                   {selectedArtisan.verificationDocuments.rcPro.uploadHistory.length > 5 && (
                                     <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-semibold">
@@ -999,7 +999,7 @@ export default function AdminVerificationsPage() {
                                 </label>
                                 <div className="bg-yellow-50 border border-yellow-200 rounded p-2 mt-1 max-h-40 overflow-y-auto">
                                   {selectedArtisan.verificationDocuments.rcPro.uploadHistory.map((upload, idx) => (
-                                    <div key={idx} className="text-xs text-gray-700 mb-1 pb-1 border-b border-yellow-200 last:border-0">
+                                    <div key={idx} className="text-xs text-slate-700 mb-1 pb-1 border-b border-yellow-200 last:border-0">
                                       <div className="flex items-center gap-2">
                                         <span className="font-medium">
                                           {new Date(upload.uploadedAt.toDate()).toLocaleDateString('fr-FR', {
@@ -1009,12 +1009,12 @@ export default function AdminVerificationsPage() {
                                             minute: '2-digit'
                                           })}
                                         </span>
-                                        <span className="text-gray-500">•</span>
+                                        <span className="text-slate-500">•</span>
                                         <span className="truncate max-w-[150px]" title={upload.fileName}>
                                           {upload.fileName}
                                         </span>
-                                        <span className="text-gray-500">•</span>
-                                        <span className="text-gray-500">
+                                        <span className="text-slate-500">•</span>
+                                        <span className="text-slate-500">
                                           {(upload.fileSize / 1024).toFixed(0)} KB
                                         </span>
                                       </div>
@@ -1078,22 +1078,22 @@ export default function AdminVerificationsPage() {
                             href={selectedArtisan.verificationDocuments.rcPro.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="block text-center text-[#FF6B00] hover:underline text-sm mt-2"
+                            className="block text-center text-brand-700 hover:underline text-sm mt-2"
                           >
                             Ouvrir dans un nouvel onglet →
                           </a>
                         </>
                       ) : (
-                        <p className="text-gray-500 text-center py-8">Document non uploadé</p>
+                        <p className="text-slate-500 text-center py-8">Document non uploadé</p>
                       )}
                     </div>
                   </div>
 
                   {/* Document Garantie Décennale (conditionnel) */}
                   {selectedArtisan.metiers && artisanDoitDecennale(selectedArtisan.metiers) && (
-                    <div className="border border-gray-200 rounded-lg overflow-hidden">
-                      <div className="bg-gray-100 px-4 py-3 flex justify-between items-center">
-                        <h3 className="font-semibold text-gray-900 flex items-center">
+                    <div className="border border-slate-200 rounded-lg overflow-hidden">
+                      <div className="bg-slate-100 px-4 py-3 flex justify-between items-center">
+                        <h3 className="font-semibold text-slate-900 flex items-center">
                           🏗️ Garantie Décennale
                         </h3>
                         {getStatusBadge(getDocumentStatus(selectedArtisan.verificationDocuments?.decennale))}
@@ -1103,7 +1103,7 @@ export default function AdminVerificationsPage() {
                         {selectedArtisan.verificationDocuments?.decennale?.url ? (
                           <>
                             {/* Aperçu du document */}
-                            <div className="mb-4 bg-gray-50 rounded-lg overflow-hidden">
+                            <div className="mb-4 bg-slate-50 rounded-lg overflow-hidden">
                               {selectedArtisan.verificationDocuments.decennale.url.toLowerCase().endsWith('.pdf') ? (
                                 <iframe
                                   src={selectedArtisan.verificationDocuments.decennale.url}
@@ -1122,8 +1122,8 @@ export default function AdminVerificationsPage() {
                             {/* Informations du document */}
                             <div className="space-y-2 mb-4 text-sm">
                               <div>
-                                <label className="text-xs text-gray-500 uppercase">Date d'upload</label>
-                                <p className="text-gray-900">
+                                <label className="text-xs text-slate-500 uppercase">Date d'upload</label>
+                                <p className="text-slate-900">
                                   {selectedArtisan.verificationDocuments.decennale.uploadDate
                                     ? new Date(selectedArtisan.verificationDocuments.decennale.uploadDate.toDate()).toLocaleDateString('fr-FR', {
                                         year: 'numeric',
@@ -1140,7 +1140,7 @@ export default function AdminVerificationsPage() {
                               {/* Historique des uploads */}
                               {selectedArtisan.verificationDocuments.decennale.uploadHistory && selectedArtisan.verificationDocuments.decennale.uploadHistory.length > 0 && (
                                 <div>
-                                  <label className="text-xs text-gray-500 uppercase flex items-center gap-2">
+                                  <label className="text-xs text-slate-500 uppercase flex items-center gap-2">
                                     Historique des uploads ({selectedArtisan.verificationDocuments.decennale.uploadHistory.length})
                                     {selectedArtisan.verificationDocuments.decennale.uploadHistory.length > 5 && (
                                       <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-semibold">
@@ -1150,7 +1150,7 @@ export default function AdminVerificationsPage() {
                                   </label>
                                   <div className="bg-yellow-50 border border-yellow-200 rounded p-2 mt-1 max-h-40 overflow-y-auto">
                                     {selectedArtisan.verificationDocuments.decennale.uploadHistory.map((upload, idx) => (
-                                      <div key={idx} className="text-xs text-gray-700 mb-1 pb-1 border-b border-yellow-200 last:border-0">
+                                      <div key={idx} className="text-xs text-slate-700 mb-1 pb-1 border-b border-yellow-200 last:border-0">
                                         <div className="flex items-center gap-2">
                                           <span className="font-medium">
                                             {new Date(upload.uploadedAt.toDate()).toLocaleDateString('fr-FR', {
@@ -1160,12 +1160,12 @@ export default function AdminVerificationsPage() {
                                               minute: '2-digit'
                                             })}
                                           </span>
-                                          <span className="text-gray-500">•</span>
+                                          <span className="text-slate-500">•</span>
                                           <span className="truncate max-w-[150px]" title={upload.fileName}>
                                             {upload.fileName}
                                           </span>
-                                          <span className="text-gray-500">•</span>
-                                          <span className="text-gray-500">
+                                          <span className="text-slate-500">•</span>
+                                          <span className="text-slate-500">
                                             {(upload.fileSize / 1024).toFixed(0)} KB
                                           </span>
                                         </div>
@@ -1229,13 +1229,13 @@ export default function AdminVerificationsPage() {
                               href={selectedArtisan.verificationDocuments.decennale.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="block text-center text-[#FF6B00] hover:underline text-sm mt-2"
+                              className="block text-center text-brand-700 hover:underline text-sm mt-2"
                             >
                               Ouvrir dans un nouvel onglet →
                             </a>
                           </>
                         ) : (
-                          <p className="text-gray-500 text-center py-8">Document non uploadé</p>
+                          <p className="text-slate-500 text-center py-8">Document non uploadé</p>
                         )}
                       </div>
                     </div>
@@ -1245,10 +1245,10 @@ export default function AdminVerificationsPage() {
             </div>
 
             {/* Footer du modal */}
-            <div className="border-t border-gray-200 px-6 py-4 bg-gray-50 rounded-b-lg">
+            <div className="border-t border-slate-200 px-6 py-4 bg-slate-50 rounded-b-lg">
               <button
                 onClick={() => setShowModal(false)}
-                className="w-full bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-medium"
+                className="w-full bg-slate-200 text-slate-700 px-6 py-3 rounded-lg hover:bg-slate-300 transition font-medium"
               >
                 Fermer
               </button>
@@ -1267,14 +1267,14 @@ export default function AdminVerificationsPage() {
             className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
+            <h3 className="text-xl font-bold text-slate-900 mb-4">
               Rejeter le document {rejectDocType === 'kbis' ? 'KBIS' : 
                                    rejectDocType === 'idCard' ? 'Pièce d\'identité' : 
                                    rejectDocType === 'rcPro' ? 'RC Pro' : 
                                    'Garantie Décennale'}
             </h3>
             
-            <p className="text-gray-600 text-sm mb-4">
+            <p className="text-slate-600 text-sm mb-4">
               Veuillez indiquer la raison du rejet. Cette information sera communiquée à l'artisan.
             </p>
 
@@ -1282,7 +1282,7 @@ export default function AdminVerificationsPage() {
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
               placeholder="Ex: Document illisible, informations manquantes, document expiré..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent resize-none"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
               rows={4}
             />
 
@@ -1293,7 +1293,7 @@ export default function AdminVerificationsPage() {
                   setRejectReason('');
                 }}
                 disabled={actionLoading}
-                className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition font-medium disabled:opacity-50"
+                className="flex-1 bg-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-300 transition font-medium disabled:opacity-50"
               >
                 Annuler
               </button>

@@ -69,7 +69,7 @@ export default function ArtisanPublicProfilePage() {
         {[1, 2, 3, 4, 5].map((star) => (
           <svg
             key={star}
-            className={`${size} ${star <= note ? 'text-yellow-400 fill-current' : 'text-gray-300 fill-current'}`}
+            className={`${size} ${star <= note ? 'text-yellow-400 fill-current' : 'text-slate-300 fill-current'}`}
             viewBox="0 0 24 24"
           >
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -91,10 +91,10 @@ export default function ArtisanPublicProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-[#FF6B00] border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="mt-4 text-[#6C757D]">Chargement du profil...</p>
+          <div className="w-12 h-12 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="mt-4 text-slate-500">Chargement du profil...</p>
         </div>
       </div>
     );
@@ -102,12 +102,12 @@ export default function ArtisanPublicProfilePage() {
 
   if (notFound || !artisan) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">😔</div>
-          <h1 className="text-2xl font-bold text-[#2C3E50] mb-2">Artisan introuvable</h1>
-          <p className="text-[#6C757D] mb-6">Ce profil n'existe pas ou a été supprimé.</p>
-          <Link href="/recherche" className="bg-[#FF6B00] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#E56100] transition-colors">
+          <h1 className="text-2xl font-bold text-navy-800 mb-2">Artisan introuvable</h1>
+          <p className="text-slate-500 mb-6">Ce profil n'existe pas ou a été supprimé.</p>
+          <Link href="/recherche" className="bg-brand-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand-800 transition-colors">
             Retour à la recherche
           </Link>
         </div>
@@ -118,13 +118,13 @@ export default function ArtisanPublicProfilePage() {
   const zone = artisan.zonesIntervention?.[0];
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-[#2C3E50] text-white py-8">
+      <div className="bg-navy-800 text-white py-8">
         <div className="container mx-auto px-4 max-w-4xl">
           <button
             onClick={() => router.back()}
-            className="inline-flex items-center gap-2 text-gray-300 hover:text-[#FF6B00] mb-4 transition-colors text-sm"
+            className="inline-flex items-center gap-2 text-slate-300 hover:text-brand-700 mb-4 transition-colors text-sm"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -136,8 +136,8 @@ export default function ArtisanPublicProfilePage() {
             <div>
               <h1 className="text-3xl font-bold">{artisan.raisonSociale}</h1>
               {zone && (
-                <p className="text-gray-300 mt-1 flex items-center gap-2">
-                  <svg className="w-4 h-4 text-[#FF6B00]" fill="currentColor" viewBox="0 0 20 20">
+                <p className="text-slate-300 mt-1 flex items-center gap-2">
+                  <svg className="w-4 h-4 text-brand-700" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                   </svg>
                   {zone.ville} {zone.codePostal ? `(${zone.codePostal})` : ''}
@@ -147,7 +147,7 @@ export default function ArtisanPublicProfilePage() {
               {artisan.metiers && artisan.metiers.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-3">
                   {artisan.metiers.map((m) => (
-                    <span key={m} className="bg-[#FF6B00] text-white px-3 py-1 rounded-full text-sm font-medium">
+                    <span key={m} className="bg-brand-700 text-white px-3 py-1 rounded-full text-sm font-medium">
                       {(METIERS_MAP as Record<string, string>)[m] || m}
                     </span>
                   ))}
@@ -157,9 +157,9 @@ export default function ArtisanPublicProfilePage() {
 
             {stats.total > 0 && (
               <div className="bg-white bg-opacity-10 rounded-xl px-6 py-4 text-center flex-shrink-0">
-                <div className="text-4xl font-bold text-[#FF6B00]">{stats.moyenne.toFixed(1)}</div>
+                <div className="text-4xl font-bold text-brand-700">{stats.moyenne.toFixed(1)}</div>
                 {renderStars(Math.round(stats.moyenne), 'w-5 h-5')}
-                <p className="text-gray-300 text-sm mt-1">{stats.total} avis</p>
+                <p className="text-slate-300 text-sm mt-1">{stats.total} avis</p>
               </div>
             )}
           </div>
@@ -170,43 +170,43 @@ export default function ArtisanPublicProfilePage() {
 
         {/* Présentation */}
         {artisan.presentation && (
-          <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-            <h2 className="text-lg font-bold text-[#2C3E50] mb-3">À propos</h2>
-            <p className="text-[#6C757D] leading-relaxed">{artisan.presentation}</p>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+            <h2 className="text-lg font-bold text-navy-800 mb-3">À propos</h2>
+            <p className="text-slate-500 leading-relaxed">{artisan.presentation}</p>
           </div>
         )}
 
         {/* Avis */}
         <div>
-          <h2 className="text-2xl font-bold text-[#2C3E50] mb-4">
+          <h2 className="text-2xl font-bold text-navy-800 mb-4">
             ⭐ Avis clients
             {stats.total > 0 && (
-              <span className="ml-2 text-lg font-normal text-[#6C757D]">
+              <span className="ml-2 text-lg font-normal text-slate-500">
                 ({stats.total} avis · {stats.moyenne.toFixed(1)}/5)
               </span>
             )}
           </h2>
 
           {avis.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-md p-10 text-center">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-10 text-center">
               <div className="text-5xl mb-4">💬</div>
-              <p className="text-[#2C3E50] font-semibold text-lg">Aucun avis pour le moment</p>
-              <p className="text-[#6C757D] mt-2">Cet artisan n'a pas encore reçu d'avis.</p>
+              <p className="text-navy-800 font-semibold text-lg">Aucun avis pour le moment</p>
+              <p className="text-slate-500 mt-2">Cet artisan n'a pas encore reçu d'avis.</p>
             </div>
           ) : (
             <div className="space-y-4">
               {avis.map((avisItem) => (
-                <div key={avisItem.id} className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div key={avisItem.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-shadow">
                   {/* En-tête */}
                   <div className="flex items-start gap-4 mb-4">
-                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#FF6B00] to-[#E56100] flex items-center justify-center flex-shrink-0">
+                    <div className="w-11 h-11 rounded-full bg-brand-600 flex items-center justify-center flex-shrink-0">
                       <span className="text-white font-bold text-sm">
                         {(clientsNoms[avisItem.clientId] || 'CL').substring(0, 2).toUpperCase()}
                       </span>
                     </div>
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <span className="font-semibold text-[#2C3E50]">
+                        <span className="font-semibold text-navy-800">
                           {clientsNoms[avisItem.clientId] || 'Client vérifié'}
                         </span>
                         <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-medium">
@@ -218,8 +218,8 @@ export default function ArtisanPublicProfilePage() {
                       </div>
                       <div className="flex items-center gap-3">
                         {renderStars(avisItem.note)}
-                        <span className="text-[#FF6B00] font-bold">{avisItem.note}/5</span>
-                        <span className="text-sm text-[#6C757D]">· {formatDate(avisItem.dateCreation)}</span>
+                        <span className="text-brand-700 font-bold">{avisItem.note}/5</span>
+                        <span className="text-sm text-slate-500">· {formatDate(avisItem.dateCreation)}</span>
                       </div>
                     </div>
                   </div>
@@ -237,8 +237,8 @@ export default function ArtisanPublicProfilePage() {
 
                   {/* Commentaire */}
                   {avisItem.commentaire && (
-                    <div className="bg-gray-50 border-l-4 border-gray-300 px-4 py-3 rounded-r-lg mb-4">
-                      <p className="text-[#2C3E50] leading-relaxed">"{avisItem.commentaire}"</p>
+                    <div className="bg-slate-50 border-l-4 border-slate-300 px-4 py-3 rounded-r-lg mb-4">
+                      <p className="text-navy-800 leading-relaxed">"{avisItem.commentaire}"</p>
                     </div>
                   )}
 
@@ -250,7 +250,7 @@ export default function ArtisanPublicProfilePage() {
                           key={idx}
                           src={photo}
                           alt={`Photo ${idx + 1}`}
-                          className="h-24 w-24 object-cover rounded-lg border-2 border-gray-200 hover:border-[#FF6B00] transition-colors cursor-pointer flex-shrink-0"
+                          className="h-24 w-24 object-cover rounded-lg border-2 border-slate-200 hover:border-brand-500 transition-colors cursor-pointer flex-shrink-0"
                         />
                       ))}
                     </div>
@@ -258,15 +258,15 @@ export default function ArtisanPublicProfilePage() {
 
                   {/* Réponse artisan */}
                   {avisItem.reponseArtisan && (
-                    <div className="bg-orange-50 border-l-4 border-[#FF6B00] px-4 py-3 rounded-r-lg">
+                    <div className="bg-orange-50 border-l-4 border-brand-500 px-4 py-3 rounded-r-lg">
                       <div className="flex items-center gap-2 mb-1">
-                        <svg className="w-4 h-4 text-[#FF6B00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                         </svg>
-                        <span className="font-semibold text-[#2C3E50] text-sm">Réponse de {artisan.raisonSociale}</span>
-                        <span className="text-xs text-[#6C757D]">· {formatDate(avisItem.reponseArtisan.date)}</span>
+                        <span className="font-semibold text-navy-800 text-sm">Réponse de {artisan.raisonSociale}</span>
+                        <span className="text-xs text-slate-500">· {formatDate(avisItem.reponseArtisan.date)}</span>
                       </div>
-                      <p className="text-[#2C3E50] text-sm leading-relaxed">{avisItem.reponseArtisan.contenu}</p>
+                      <p className="text-navy-800 text-sm leading-relaxed">{avisItem.reponseArtisan.contenu}</p>
                     </div>
                   )}
                 </div>

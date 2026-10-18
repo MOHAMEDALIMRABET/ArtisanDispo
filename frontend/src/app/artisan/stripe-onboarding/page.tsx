@@ -206,23 +206,23 @@ export default function StripeOnboardingPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
-          <p className="mt-4 text-[#6C757D]">{t('artisanStripe.loading')}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
+          <p className="mt-4 text-slate-500">{t('artisanStripe.loading')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#2C3E50] to-[#34495E] text-white py-8 px-4">
+      <div className=" bg-navy-800 text-white py-8 px-4">
         <div className="max-w-3xl mx-auto">
           <button
             onClick={() => router.back()}
-            className="mb-4 text-white hover:text-gray-300 transition flex items-center gap-2"
+            className="mb-4 text-white hover:text-slate-300 transition flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -240,7 +240,7 @@ export default function StripeOnboardingPage() {
             </svg>
             {t('artisanStripe.pageTitle')}
           </h1>
-          <p className="text-gray-300 mt-2">
+          <p className="text-slate-300 mt-2">
             {t('artisanStripe.pageDescription')}
           </p>
         </div>
@@ -254,13 +254,13 @@ export default function StripeOnboardingPage() {
             <div
               className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
                 currentStep >= 1
-                  ? 'bg-[#FF6B00] text-white'
-                  : 'bg-gray-300 text-gray-600'
+                  ? 'bg-brand-700 text-white'
+                  : 'bg-slate-300 text-slate-600'
               }`}
             >
               1
             </div>
-            <span className="ml-2 text-sm font-medium text-[#2C3E50]">
+            <span className="ml-2 text-sm font-medium text-navy-800">
               {t('artisanStripe.stepper.step1')}
             </span>
           </div>
@@ -268,7 +268,7 @@ export default function StripeOnboardingPage() {
           {/* Ligne */}
           <div
             className={`w-24 h-1 mx-4 ${
-              currentStep >= 2 ? 'bg-[#FF6B00]' : 'bg-gray-300'
+              currentStep >= 2 ? 'bg-brand-700' : 'bg-slate-300'
             }`}
           ></div>
 
@@ -277,20 +277,20 @@ export default function StripeOnboardingPage() {
             <div
               className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
                 currentStep >= 2
-                  ? 'bg-[#FF6B00] text-white'
-                  : 'bg-gray-300 text-gray-600'
+                  ? 'bg-brand-700 text-white'
+                  : 'bg-slate-300 text-slate-600'
               }`}
             >
               2
             </div>
-            <span className="ml-2 text-sm font-medium text-[#2C3E50]">
+            <span className="ml-2 text-sm font-medium text-navy-800">
               {t('artisanStripe.stepper.step2')}
             </span>
           </div>
         </div>
 
         {/* Formulaire */}
-        <div className="bg-white rounded-lg shadow-md p-8">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
               <p className="text-red-800">{error}</p>
@@ -300,14 +300,14 @@ export default function StripeOnboardingPage() {
           {/* Étape 1 : Informations personnelles */}
           {currentStep === 1 && (
             <div>
-              <h2 className="text-2xl font-bold text-[#2C3E50] mb-6">
+              <h2 className="text-2xl font-bold text-navy-800 mb-6">
                 {t('artisanStripe.step1.title')}
               </h2>
 
               <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+                    <label className="block text-sm font-medium text-navy-800 mb-2">
                       {t('artisanStripe.step1.firstNameLabel')} {t('artisanStripe.step1.required')}
                     </label>
                     <input
@@ -316,10 +316,10 @@ export default function StripeOnboardingPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, firstName: e.target.value })
                       }
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent ${
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent ${
                         validationErrors.firstName
                           ? 'border-red-500'
-                          : 'border-gray-300'
+                          : 'border-slate-300'
                       }`}
                     />
                     {validationErrors.firstName && (
@@ -330,7 +330,7 @@ export default function StripeOnboardingPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+                    <label className="block text-sm font-medium text-navy-800 mb-2">
                       {t('artisanStripe.step1.lastNameLabel')} {t('artisanStripe.step1.required')}
                     </label>
                     <input
@@ -339,10 +339,10 @@ export default function StripeOnboardingPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, lastName: e.target.value })
                       }
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent ${
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent ${
                         validationErrors.lastName
                           ? 'border-red-500'
-                          : 'border-gray-300'
+                          : 'border-slate-300'
                       }`}
                     />
                     {validationErrors.lastName && (
@@ -354,7 +354,7 @@ export default function StripeOnboardingPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+                  <label className="block text-sm font-medium text-navy-800 mb-2">
                     {t('artisanStripe.step1.dateOfBirthLabel')} {t('artisanStripe.step1.required')}
                   </label>
                   <input
@@ -363,10 +363,10 @@ export default function StripeOnboardingPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, dateOfBirth: e.target.value })
                     }
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent ${
                       validationErrors.dateOfBirth
                         ? 'border-red-500'
-                        : 'border-gray-300'
+                        : 'border-slate-300'
                     }`}
                   />
                   {validationErrors.dateOfBirth && (
@@ -377,7 +377,7 @@ export default function StripeOnboardingPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+                  <label className="block text-sm font-medium text-navy-800 mb-2">
                     {t('artisanStripe.step1.addressLabel')} {t('artisanStripe.step1.required')}
                   </label>
                   <input
@@ -390,10 +390,10 @@ export default function StripeOnboardingPage() {
                       })
                     }
                     placeholder={t('artisanStripe.step1.addressPlaceholder')}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent ${
                       validationErrors.addressLine1
                         ? 'border-red-500'
-                        : 'border-gray-300'
+                        : 'border-slate-300'
                     }`}
                   />
                   {validationErrors.addressLine1 && (
@@ -405,7 +405,7 @@ export default function StripeOnboardingPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+                    <label className="block text-sm font-medium text-navy-800 mb-2">
                       {t('artisanStripe.step1.postalCodeLabel')} {t('artisanStripe.step1.required')}
                     </label>
                     <input
@@ -420,10 +420,10 @@ export default function StripeOnboardingPage() {
                           },
                         })
                       }
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent ${
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent ${
                         validationErrors.postalCode
                           ? 'border-red-500'
-                          : 'border-gray-300'
+                          : 'border-slate-300'
                       }`}
                     />
                     {validationErrors.postalCode && (
@@ -434,7 +434,7 @@ export default function StripeOnboardingPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+                    <label className="block text-sm font-medium text-navy-800 mb-2">
                       {t('artisanStripe.step1.cityLabel')} {t('artisanStripe.step1.required')}
                     </label>
                     <input
@@ -446,10 +446,10 @@ export default function StripeOnboardingPage() {
                           address: { ...formData.address!, city: e.target.value },
                         })
                       }
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent ${
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent ${
                         validationErrors.city
                           ? 'border-red-500'
-                          : 'border-gray-300'
+                          : 'border-slate-300'
                       }`}
                     />
                     {validationErrors.city && (
@@ -464,7 +464,7 @@ export default function StripeOnboardingPage() {
                   onClick={() => {
                     if (validateStep1()) setCurrentStep(2);
                   }}
-                  className="w-full bg-[#FF6B00] text-white py-4 rounded-lg font-semibold hover:bg-[#E56100] transition"
+                  className="w-full bg-brand-700 text-white py-4 rounded-lg font-semibold hover:bg-brand-800 transition"
                 >
                   {t('artisanStripe.step1.continueButton')}
                 </button>
@@ -475,7 +475,7 @@ export default function StripeOnboardingPage() {
           {/* Étape 2 : Coordonnées bancaires */}
           {currentStep === 2 && (
             <div>
-              <h2 className="text-2xl font-bold text-[#2C3E50] mb-6">
+              <h2 className="text-2xl font-bold text-navy-800 mb-6">
                 {t('artisanStripe.step2.title')}
               </h2>
 
@@ -507,7 +507,7 @@ export default function StripeOnboardingPage() {
 
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+                  <label className="block text-sm font-medium text-navy-800 mb-2">
                     {t('artisanStripe.step2.ibanLabel')} {t('artisanStripe.step2.required')}
                   </label>
                   <input
@@ -517,8 +517,8 @@ export default function StripeOnboardingPage() {
                       setFormData({ ...formData, iban: e.target.value })
                     }
                     placeholder={t('artisanStripe.step2.ibanPlaceholder')}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent font-mono ${
-                      validationErrors.iban ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent font-mono ${
+                      validationErrors.iban ? 'border-red-500' : 'border-slate-300'
                     }`}
                   />
                   {validationErrors.iban && (
@@ -528,13 +528,13 @@ export default function StripeOnboardingPage() {
                         : t('artisanStripe.step2.errors.ibanInvalid')}
                     </p>
                   )}
-                  <p className="text-xs text-[#6C757D] mt-1">
+                  <p className="text-xs text-slate-500 mt-1">
                     {t('artisanStripe.step2.ibanHint')}
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+                  <label className="block text-sm font-medium text-navy-800 mb-2">
                     {t('artisanStripe.step2.bicLabel')}
                   </label>
                   <input
@@ -544,12 +544,12 @@ export default function StripeOnboardingPage() {
                       setFormData({ ...formData, bic: e.target.value })
                     }
                     placeholder={t('artisanStripe.step2.bicPlaceholder')}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent font-mono"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+                  <label className="block text-sm font-medium text-navy-800 mb-2">
                     {t('artisanStripe.step2.accountHolderLabel')} {t('artisanStripe.step2.required')}
                   </label>
                   <input
@@ -562,10 +562,10 @@ export default function StripeOnboardingPage() {
                       })
                     }
                     placeholder={t('artisanStripe.step2.accountHolderPlaceholder')}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent ${
                       validationErrors.accountHolderName
                         ? 'border-red-500'
-                        : 'border-gray-300'
+                        : 'border-slate-300'
                     }`}
                   />
                   {validationErrors.accountHolderName && (
@@ -578,14 +578,14 @@ export default function StripeOnboardingPage() {
                 <div className="flex gap-4">
                   <button
                     onClick={() => setCurrentStep(1)}
-                    className="flex-1 border-2 border-[#2C3E50] text-[#2C3E50] py-4 rounded-lg font-semibold hover:bg-gray-50 transition"
+                    className="flex-1 border-2 border-navy-800 text-navy-800 py-4 rounded-lg font-semibold hover:bg-slate-50 transition"
                   >
                     {t('artisanStripe.step2.backButton')}
                   </button>
                   <button
                     onClick={handleSubmit}
                     disabled={submitting}
-                    className="flex-1 bg-[#FF6B00] text-white py-4 rounded-lg font-semibold hover:bg-[#E56100] transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    className="flex-1 bg-brand-700 text-white py-4 rounded-lg font-semibold hover:bg-brand-800 transition disabled:bg-slate-400 disabled:cursor-not-allowed"
                   >
                     {submitting ? (
                       <span className="flex items-center justify-center gap-2">

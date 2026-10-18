@@ -99,28 +99,28 @@ export default function EtreRappelePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-12 px-4">
+    <div className="min-h-screen bg-slate-50 py-12 px-4">
       <div className="container mx-auto max-w-3xl">
         {/* En-tête */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#FF6B00] rounded-full mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-700 rounded-full mb-4">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
             </svg>
           </div>
-          <h1 className="text-4xl font-bold text-[#2C3E50] mb-3">Être rappelé</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <h1 className="text-4xl font-bold text-navy-800 mb-3">Être rappelé</h1>
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
             Laissez-nous vos coordonnées et nos conseillers vous rappelleront dans les meilleurs délais pour répondre à toutes vos questions.
           </p>
         </div>
 
         {/* Formulaire */}
-        <div className="bg-white rounded-xl shadow-lg p-8">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
               {/* Nom et Prénom */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="nom" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="nom" className="block text-sm font-medium text-slate-700 mb-2">
                     Nom <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -130,13 +130,13 @@ export default function EtreRappelePage() {
                     value={formData.nom}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
                     placeholder="Dupont"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="prenom" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="prenom" className="block text-sm font-medium text-slate-700 mb-2">
                     Prénom <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -146,7 +146,7 @@ export default function EtreRappelePage() {
                     value={formData.prenom}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
                     placeholder="Jean"
                   />
                 </div>
@@ -154,7 +154,7 @@ export default function EtreRappelePage() {
 
               {/* Téléphone */}
               <div>
-                <label htmlFor="telephone" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="telephone" className="block text-sm font-medium text-slate-700 mb-2">
                   Téléphone <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -166,10 +166,10 @@ export default function EtreRappelePage() {
                   required
                 pattern="^(?:(?:\+|00)33|0)[1-9](?:[\s.-]?\d{2}){4}$"
                 title="Format attendu : 06 12 34 56 78 ou +33 6 12 34 56 78"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
                 placeholder="06 12 34 56 78"
               />
-              <p className="mt-1 text-xs text-gray-500 flex items-center gap-1">
+              <p className="mt-1 text-xs text-slate-500 flex items-center gap-1">
                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
@@ -179,7 +179,7 @@ export default function EtreRappelePage() {
 
             {/* Email (optionnel) */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
                 Email (optionnel)
               </label>
               <input
@@ -188,14 +188,14 @@ export default function EtreRappelePage() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
                 placeholder="jean.dupont@example.com"
               />
             </div>
 
             {/* Horaire préféré */}
               <div>
-                <label htmlFor="horairePrefere" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="horairePrefere" className="block text-sm font-medium text-slate-700 mb-2">
                   Horaire préféré pour être rappelé
                 </label>
                 <select
@@ -203,7 +203,7 @@ export default function EtreRappelePage() {
                   name="horairePrefere"
                   value={formData.horairePrefere}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
                 >
                   <option value="matin">Matin (9h - 12h)</option>
                   <option value="apres-midi">Après-midi (14h - 18h)</option>
@@ -214,7 +214,7 @@ export default function EtreRappelePage() {
 
               {/* Message */}
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="message" className="block text-sm font-medium text-slate-700 mb-2">
                   Message (optionnel)
                 </label>
                 <textarea
@@ -223,7 +223,7 @@ export default function EtreRappelePage() {
                   value={formData.message}
                   onChange={handleChange}
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent transition-all resize-none"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all resize-none"
                   placeholder="Précisez l'objet de votre demande..."
                 />
               </div>
@@ -257,7 +257,7 @@ export default function EtreRappelePage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-[#FF6B00] hover:bg-[#E56100] text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-brand-700 hover:bg-brand-800 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <>
@@ -281,13 +281,13 @@ export default function EtreRappelePage() {
 
         {/* Informations complémentaires */}
         <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h3 className="font-semibold text-[#2C3E50] mb-3 flex items-center gap-2">
+            <h3 className="font-semibold text-navy-800 mb-3 flex items-center gap-2">
               <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
               Pourquoi être rappelé ?
             </h3>
-            <ul className="space-y-2 text-gray-700">
+            <ul className="space-y-2 text-slate-700">
               <li className="flex items-start gap-2">
                 <svg className="w-5 h-5 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />

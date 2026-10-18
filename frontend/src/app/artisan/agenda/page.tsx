@@ -528,11 +528,11 @@ export default function AgendaPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F5F7FA]">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('artisanAgenda.loading.title')}</p>
-          {dataLoading && <p className="text-sm text-gray-500 mt-2">{t('artisanAgenda.loading.data')}</p>}
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
+          <p className="text-slate-600">{t('artisanAgenda.loading.title')}</p>
+          {dataLoading && <p className="text-sm text-slate-500 mt-2">{t('artisanAgenda.loading.data')}</p>}
         </div>
       </div>
     );
@@ -540,13 +540,13 @@ export default function AgendaPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F5F7FA]">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center text-red-600">
           <p className="text-xl font-bold mb-2">❌ {t('artisanAgenda.error.title')}</p>
           <p>{error}</p>
           <button 
             onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100]"
+            className="mt-4 px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-brand-800"
           >
             {t('artisanAgenda.error.retry')}
           </button>
@@ -556,13 +556,13 @@ export default function AgendaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-[#2C3E50] text-white py-8">
+      <div className="bg-navy-800 text-white py-8">
         <div className="container mx-auto px-4">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4 transition-colors"
+            className="flex items-center gap-2 text-white hover:text-brand-700 mb-4 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -572,12 +572,12 @@ export default function AgendaPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">📅 {t('artisanAgenda.pageTitle')}</h1>
-              <p className="text-gray-300 mt-2">{t('artisanAgenda.pageDescription')}</p>
+              <p className="text-slate-300 mt-2">{t('artisanAgenda.pageDescription')}</p>
             </div>
             <div className="relative">
                 <button
                   onClick={() => setShowRangeModal(true)}
-                  className="px-4 py-2 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] font-medium flex items-center gap-2 text-sm"
+                  className="px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-brand-800 font-medium flex items-center gap-2 text-sm"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -601,10 +601,10 @@ export default function AgendaPage() {
                     
                     {/* Popup qui descend du bouton */}
                     <div className="absolute top-full right-0 mt-2 w-96 z-50 animate-slideDown">
-                      <div className="bg-white rounded-2xl shadow-2xl">
+                      <div className="bg-white rounded-2xl shadow-lg">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                  <h2 className="text-xl font-bold text-[#2C3E50]">
+                <div className="flex items-center justify-between p-6 border-b border-slate-200">
+                  <h2 className="text-xl font-bold text-navy-800">
                     {t('artisanAgenda.quickModal.title')}
                   </h2>
                   <button
@@ -614,7 +614,7 @@ export default function AgendaPage() {
                       setRangeEnd('');
                       setSelectingStart(true);
                     }}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    className="text-slate-400 hover:text-slate-600 transition-colors"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -623,13 +623,13 @@ export default function AgendaPage() {
                 </div>
 
                 {/* Onglets Date de début / Date de fin */}
-                <div className="flex border-b border-gray-200">
+                <div className="flex border-b border-slate-200">
                   <button 
                     onClick={() => setCalendarMode('start')}
                     className={`flex-1 px-4 py-3 text-sm font-semibold ${
                       calendarMode === 'start' 
-                        ? 'text-[#2C3E50] border-b-2 border-[#FF6B00]' 
-                        : 'text-gray-500'
+                        ? 'text-navy-800 border-b-2 border-brand-500' 
+                        : 'text-slate-500'
                     }`}
                   >
                     📅 {rangeStart ? format(new Date(rangeStart), 'dd/MM/yyyy', { locale: fr }) : t('artisanAgenda.quickModal.startLabel')}
@@ -638,8 +638,8 @@ export default function AgendaPage() {
                     onClick={() => setCalendarMode('end')}
                     className={`flex-1 px-4 py-3 text-sm font-semibold ${
                       calendarMode === 'end' 
-                        ? 'text-[#2C3E50] border-b-2 border-[#FF6B00]' 
-                        : 'text-gray-500'
+                        ? 'text-navy-800 border-b-2 border-brand-500' 
+                        : 'text-slate-500'
                     }`}
                   >
                     📅 {rangeEnd ? format(new Date(rangeEnd), 'dd/MM/yyyy', { locale: fr }) : t('artisanAgenda.quickModal.endLabel')}
@@ -652,19 +652,19 @@ export default function AgendaPage() {
                   <div className="flex items-center justify-between mb-4">
                     <button
                       onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-                      className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-[#FF6B00] transition-colors"
+                      className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 hover:text-brand-700 transition-colors"
                       type="button"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                       </svg>
                     </button>
-                    <h3 className="text-lg font-semibold text-[#2C3E50]">
+                    <h3 className="text-lg font-semibold text-navy-800">
                       {format(currentMonth, 'MMMM yyyy', { locale: fr })}
                     </h3>
                     <button
                       onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-                      className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-[#FF6B00] transition-colors"
+                      className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 hover:text-brand-700 transition-colors"
                       type="button"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -676,7 +676,7 @@ export default function AgendaPage() {
                   {/* Jours de la semaine */}
                   <div className="grid grid-cols-7 gap-1 mb-2">
                     {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map((day, idx) => (
-                      <div key={day} className={`text-center text-xs font-medium py-2 ${idx >= 5 ? 'text-gray-400' : 'text-[#2C3E50]'}`}>
+                      <div key={day} className={`text-center text-xs font-medium py-2 ${idx >= 5 ? 'text-slate-400' : 'text-navy-800'}`}>
                         {day}
                       </div>
                     ))}
@@ -707,10 +707,10 @@ export default function AgendaPage() {
                           disabled={isPast}
                           className={`
                             aspect-square flex items-center justify-center text-sm rounded-full
-                            ${isPast ? 'text-gray-300 cursor-not-allowed opacity-40 bg-gray-50' : 'text-gray-700 hover:bg-gray-100'}
-                            ${isToday && !inRange && !isPast ? 'border-2 border-[#2C3E50]' : ''}
+                            ${isPast ? 'text-slate-300 cursor-not-allowed opacity-40 bg-slate-50' : 'text-slate-700 hover:bg-slate-100'}
+                            ${isToday && !inRange && !isPast ? 'border-2 border-navy-800' : ''}
                             ${inRange && !isStart && !isEnd && !isPast ? 'bg-purple-100' : ''}
-                            ${(isStart || isEnd) && !isPast ? 'bg-[#2C3E50] text-white font-bold' : ''}
+                            ${(isStart || isEnd) && !isPast ? 'bg-navy-800 text-white font-bold' : ''}
                           `}
                         >
                           {format(day, 'd')}
@@ -721,8 +721,8 @@ export default function AgendaPage() {
 
                   {/* Info sélection */}
                   {rangeStart && (
-                    <div className="mt-4 p-3 bg-gray-50 rounded-lg text-sm">
-                      <p className="text-gray-700">
+                    <div className="mt-4 p-3 bg-slate-50 rounded-lg text-sm">
+                      <p className="text-slate-700">
                         {rangeEnd ? (
                           <>📅 {t('artisanAgenda.quickModal.from')} <strong>{format(new Date(rangeStart), 'dd/MM/yyyy', { locale: fr })}</strong> {t('artisanAgenda.quickModal.to')} <strong>{format(new Date(rangeEnd), 'dd/MM/yyyy', { locale: fr })}</strong></>
                         ) : (
@@ -734,7 +734,7 @@ export default function AgendaPage() {
                 </div>
 
                 {/* Footer avec boutons */}
-                <div className="p-4 bg-gray-50 rounded-b-2xl flex gap-3">
+                <div className="p-4 bg-slate-50 rounded-b-2xl flex gap-3">
                   <button
                     onClick={() => {
                       setShowRangeModal(false);
@@ -742,14 +742,14 @@ export default function AgendaPage() {
                       setRangeEnd('');
                       setSelectingStart(true);
                     }}
-                    className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-white font-semibold transition-colors"
+                    className="flex-1 px-4 py-3 border-2 border-slate-300 text-slate-700 rounded-xl hover:bg-white font-semibold transition-colors"
                   >
                     {t('artisanAgenda.quickModal.closeButton')}
                   </button>
                   <button
                     onClick={handleCreateRangeDisponibilite}
                     disabled={!rangeStart || !rangeEnd}
-                    className="flex-1 px-4 py-3 bg-[#FF6B00] text-white rounded-xl hover:bg-[#E56100] font-semibold transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 px-4 py-3 bg-brand-700 text-white rounded-xl hover:bg-brand-800 font-semibold transition-colors shadow-lg hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {t('artisanAgenda.quickModal.createButton')}
                   </button>
@@ -767,13 +767,13 @@ export default function AgendaPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Instructions - Tooltip au survol */}
         <div className="mb-6 relative group">
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 cursor-help">
-            <h2 className="font-semibold text-[#2C3E50]">{t('artisanAgenda.instructions.title')}</h2>
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 cursor-help">
+            <h2 className="font-semibold text-navy-800">{t('artisanAgenda.instructions.title')}</h2>
           </div>
           
           {/* Tooltip qui s'affiche au survol */}
-          <div className="absolute left-0 right-0 top-full mt-2 bg-white border-2 border-gray-300 rounded-lg p-5 shadow-2xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
-            <ul className="text-sm text-gray-800 space-y-2">
+          <div className="absolute left-0 right-0 top-full mt-2 bg-white border-2 border-slate-300 rounded-lg p-5 shadow-lg z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+            <ul className="text-sm text-slate-800 space-y-2">
               <li>• <strong>{t('artisanAgenda.quickSelection')}</strong> : {t('artisanAgenda.instructions.quickSelection')}</li>
               <li>• <strong>{t('artisanAgenda.calendar.agenda')}</strong> : {t('artisanAgenda.instructions.agendaView')}</li>
               <li>• <strong>{t('artisanAgenda.calendar.month')}</strong> : {t('artisanAgenda.instructions.calendarView')}
@@ -789,13 +789,13 @@ export default function AgendaPage() {
         </div>
 
         {/* Calendrier */}
-        <div className="bg-white rounded-lg shadow-lg p-6 overflow-hidden" style={{ height: '700px', maxWidth: '100%' }}>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 overflow-hidden" style={{ height: '700px', maxWidth: '100%' }}>
           {/* Barre de recherche par dates - Visible uniquement en vue Agenda */}
           {currentView === Views.AGENDA && (
-            <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <div className="mb-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
               <div className="flex items-end gap-4 flex-wrap">
                 <div className="flex-1 min-w-[200px]">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     {t('artisanAgenda.dateFilters.startDateLabel')}
                   </label>
                   <input
@@ -803,12 +803,12 @@ export default function AgendaPage() {
                     value={searchStartDate}
                     onChange={(e) => setSearchStartDate(e.target.value)}
                     onClick={(e) => e.currentTarget.showPicker?.()}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-[#FF6B00] focus:outline-none cursor-pointer"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-brand-500 focus:outline-none cursor-pointer"
                   />
                 </div>
                 
                 <div className="flex-1 min-w-[200px]">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     {t('artisanAgenda.dateFilters.endDateLabel')}
                   </label>
                   <input
@@ -816,7 +816,7 @@ export default function AgendaPage() {
                     value={searchEndDate}
                     onChange={(e) => setSearchEndDate(e.target.value)}
                     onClick={(e) => e.currentTarget.showPicker?.()}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-[#FF6B00] focus:outline-none cursor-pointer"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-brand-500 focus:outline-none cursor-pointer"
                   />
                 </div>
                 
@@ -827,7 +827,7 @@ export default function AgendaPage() {
                       setSearchEndDate('');
                       setCurrentDate(new Date());
                     }}
-                    className="px-4 py-2 border-2 border-[#FF6B00] text-[#FF6B00] rounded-lg hover:bg-orange-50 font-medium transition-colors"
+                    className="px-4 py-2 border-2 border-brand-500 text-brand-700 rounded-lg hover:bg-orange-50 font-medium transition-colors"
                   >
                     {t('artisanAgenda.dateFilters.resetButton')}
                   </button>
@@ -926,7 +926,7 @@ export default function AgendaPage() {
         <div className="mt-6 flex justify-end gap-4">
           <button
             onClick={() => router.back()}
-            className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
+            className="px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium"
             disabled={saving}
           >
             Annuler
@@ -934,7 +934,7 @@ export default function AgendaPage() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-6 py-3 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {saving ? (
               <>
@@ -961,11 +961,11 @@ export default function AgendaPage() {
           
           {/* Modal */}
           <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-slideDown pointer-events-auto">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 max-w-md w-full p-6 relative animate-slideDown pointer-events-auto">
               {/* Bouton fermer (X) */}
               <button
                 onClick={handleCloseEditModal}
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100"
               >
                 ×
               </button>
@@ -973,7 +973,7 @@ export default function AgendaPage() {
               {editingEvent.isContrat ? (
                 // Affichage lecture seule pour les contrats
                 <>
-                  <h3 className="text-xl font-bold text-[#DC3545] mb-6">
+                  <h3 className="text-xl font-bold text-red-700 mb-6">
                     🔒 {t('artisanAgenda.editModal.contractTitle')}
                   </h3>
 
@@ -988,19 +988,19 @@ export default function AgendaPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         {t('artisanAgenda.editModal.titleLabel')}
                       </label>
-                      <p className="text-lg font-semibold text-gray-900">
+                      <p className="text-lg font-semibold text-slate-900">
                         {editingEvent.title}
                       </p>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         {t('artisanAgenda.editModal.dateLabel')}
                       </label>
-                      <p className="text-gray-900">
+                      <p className="text-slate-900">
                         {editingEvent.start.toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { 
                           weekday: 'long', 
                           year: 'numeric', 
@@ -1013,7 +1013,7 @@ export default function AgendaPage() {
 
                   <button
                     onClick={handleCloseEditModal}
-                    className="w-full px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 font-medium"
+                    className="w-full px-4 py-3 bg-slate-500 text-white rounded-lg hover:bg-slate-600 font-medium"
                   >
                     {t('artisanAgenda.editModal.closeButton')}
                   </button>
@@ -1021,20 +1021,20 @@ export default function AgendaPage() {
               ) : (
                 // Mode édition normal pour les indisponibilités manuelles
                 <>
-                  <h3 className="text-xl font-bold text-[#2C3E50] mb-6">
+                  <h3 className="text-xl font-bold text-navy-800 mb-6">
                     ✏️ {t('artisanAgenda.editModal.eventTitle')}
                   </h3>
 
                   {/* Champ de texte pour renommer */}
                   <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
                       {t('artisanAgenda.editModal.inputLabel')}
                     </label>
                     <input
                       type="text"
                       value={editedTitle}
                       onChange={(e) => setEditedTitle(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#FF6B00] focus:outline-none text-lg"
+                      className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-brand-500 focus:outline-none text-lg"
                       placeholder={t('artisanAgenda.editModal.inputPlaceholder')}
                       autoFocus
                       onKeyDown={(e) => {
@@ -1060,7 +1060,7 @@ export default function AgendaPage() {
                     <button
                       onClick={handleSaveEdit}
                       disabled={!editedTitle.trim()}
-                      className="flex-1 px-4 py-3 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 px-4 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       ✓ {t('artisanAgenda.editModal.saveButton')}
                     </button>

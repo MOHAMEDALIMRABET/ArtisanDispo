@@ -18,12 +18,12 @@ export default function LitigesNavigation() {
   const isDetailPage = pathname?.includes('/admin/litiges/');
 
   return (
-    <div className="bg-white border-b border-[#E9ECEF] shadow-sm sticky top-0 z-10">
+    <div className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Titre de la section */}
           <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold text-[#2C3E50]">⚖️ Gestion des Litiges</h1>
+            <h1 className="text-xl font-bold text-navy-800">⚖️ Gestion des Litiges</h1>
           </div>
 
           {/* Navigation tabs */}
@@ -32,8 +32,8 @@ export default function LitigesNavigation() {
               href="/admin/litiges"
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 isLitigesPage
-                  ? 'bg-[#FF6B00] text-white'
-                  : 'bg-[#F8F9FA] text-[#6C757D] hover:bg-[#E9ECEF] hover:text-[#2C3E50]'
+                  ? 'bg-brand-700 text-white'
+                  : 'bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-navy-800'
               }`}
             >
               👁️ Surveillance Conversations
@@ -42,8 +42,8 @@ export default function LitigesNavigation() {
               href="/admin/gestion-litiges"
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 isGestionPage || isDetailPage
-                  ? 'bg-[#FF6B00] text-white'
-                  : 'bg-[#F8F9FA] text-[#6C757D] hover:bg-[#E9ECEF] hover:text-[#2C3E50]'
+                  ? 'bg-brand-700 text-white'
+                  : 'bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-navy-800'
               }`}
             >
               🔴 Litiges Formels
@@ -52,7 +52,7 @@ export default function LitigesNavigation() {
         </div>
 
         {/* Description de la page active */}
-        <div className="mt-3 text-sm text-[#6C757D]">
+        <div className="mt-3 text-sm text-slate-500">
           {isLitigesPage && (
             <p>
               <strong>Surveillance :</strong> Consultez toutes les conversations client/artisan et marquez celles qui posent problème

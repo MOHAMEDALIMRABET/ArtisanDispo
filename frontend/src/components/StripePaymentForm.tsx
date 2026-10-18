@@ -99,7 +99,7 @@ function CheckoutForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Élément de paiement Stripe (carte, Apple Pay, Google Pay, etc.) */}
-      <div className="p-4 bg-white rounded-lg border border-gray-300">
+      <div className="p-4 bg-white rounded-lg border border-slate-300">
         <PaymentElement />
       </div>
 
@@ -111,14 +111,14 @@ function CheckoutForm({
       )}
 
       {/* Résumé paiement */}
-      <div className="p-4 bg-gray-50 rounded-lg">
+      <div className="p-4 bg-slate-50 rounded-lg">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm text-gray-600">Devis n°</span>
+          <span className="text-sm text-slate-600">Devis n°</span>
           <span className="font-medium">{numeroDevis}</span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">Montant à payer</span>
-          <span className="text-xl font-bold text-[#FF6B00]">{montantTTC.toFixed(2)}€</span>
+          <span className="text-sm text-slate-600">Montant à payer</span>
+          <span className="text-xl font-bold text-brand-700">{montantTTC.toFixed(2)}€</span>
         </div>
       </div>
 
@@ -133,14 +133,14 @@ function CheckoutForm({
           type="button"
           onClick={onCancel}
           disabled={processing}
-          className="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 px-4 py-3 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Annuler
         </button>
         <button
           type="submit"
           disabled={!stripe || processing}
-          className="flex-1 px-4 py-3 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+          className="flex-1 px-4 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
         >
           {processing ? (
             <span className="flex items-center justify-center gap-2">

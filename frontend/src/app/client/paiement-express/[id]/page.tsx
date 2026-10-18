@@ -113,7 +113,7 @@ function SimulationPayForm({
       <div className="text-center py-8">
         <p className="text-5xl mb-3">✅</p>
         <p className="font-bold text-green-700 text-lg">Paiement confirmé !</p>
-        <p className="text-sm text-[#6C757D] mt-1">Redirection en cours...</p>
+        <p className="text-sm text-slate-500 mt-1">Redirection en cours...</p>
       </div>
     );
   }
@@ -130,13 +130,13 @@ function SimulationPayForm({
         </div>
       </div>
 
-      <div className="bg-[#FF6B00] bg-opacity-10 border-2 border-[#FF6B00] rounded-xl p-4 flex justify-between items-center">
-        <span className="text-[#2C3E50] font-semibold">Montant à payer</span>
-        <span className="text-3xl font-black text-[#FF6B00]">{montant}€</span>
+      <div className="bg-brand-700 bg-opacity-10 border-2 border-brand-500 rounded-xl p-4 flex justify-between items-center">
+        <span className="text-navy-800 font-semibold">Montant à payer</span>
+        <span className="text-3xl font-black text-brand-700">{montant}€</span>
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-[#2C3E50] mb-1.5">
+        <label className="block text-sm font-semibold text-navy-800 mb-1.5">
           Numéro de carte <span className="text-red-500">*</span>
         </label>
         <div className="relative">
@@ -146,10 +146,10 @@ function SimulationPayForm({
             onChange={handleCardNumberChange}
             placeholder="1234 5678 9012 3456"
             disabled={paying}
-            className={"w-full border-2 rounded-lg px-4 py-3 pr-12 focus:ring-2 focus:ring-[#FF6B00] focus:border-[#FF6B00] outline-none transition " + (errors.cardNumber ? 'border-red-500' : 'border-[#E9ECEF]')}
+            className={"w-full border-2 rounded-lg px-4 py-3 pr-12 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition " + (errors.cardNumber ? 'border-red-500' : 'border-slate-200')}
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            <svg className="w-8 h-6 text-gray-400" fill="currentColor" viewBox="0 0 48 32">
+            <svg className="w-8 h-6 text-slate-400" fill="currentColor" viewBox="0 0 48 32">
               <rect width="48" height="32" rx="4" fill="#1A1F71"/>
               <circle cx="18" cy="16" r="8" fill="#EB001B"/>
               <circle cx="30" cy="16" r="8" fill="#F79E1B"/>
@@ -160,7 +160,7 @@ function SimulationPayForm({
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-[#2C3E50] mb-1.5">
+        <label className="block text-sm font-semibold text-navy-800 mb-1.5">
           Nom du titulaire <span className="text-red-500">*</span>
         </label>
         <input
@@ -169,14 +169,14 @@ function SimulationPayForm({
           onChange={(e) => setCardName(e.target.value.toUpperCase())}
           placeholder="JEAN DUPONT"
           disabled={paying}
-          className={"w-full border-2 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#FF6B00] focus:border-[#FF6B00] outline-none transition " + (errors.cardName ? 'border-red-500' : 'border-[#E9ECEF]')}
+          className={"w-full border-2 rounded-lg px-4 py-3 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition " + (errors.cardName ? 'border-red-500' : 'border-slate-200')}
         />
         {errors.cardName && <p className="text-red-500 text-xs mt-1">{errors.cardName}</p>}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-semibold text-[#2C3E50] mb-1.5">
+          <label className="block text-sm font-semibold text-navy-800 mb-1.5">
             Date d&apos;expiration <span className="text-red-500">*</span>
           </label>
           <input
@@ -185,12 +185,12 @@ function SimulationPayForm({
             onChange={handleExpiryChange}
             placeholder="MM/AA"
             disabled={paying}
-            className={"w-full border-2 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#FF6B00] focus:border-[#FF6B00] outline-none transition " + (errors.expiryDate ? 'border-red-500' : 'border-[#E9ECEF]')}
+            className={"w-full border-2 rounded-lg px-4 py-3 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition " + (errors.expiryDate ? 'border-red-500' : 'border-slate-200')}
           />
           {errors.expiryDate && <p className="text-red-500 text-xs mt-1">{errors.expiryDate}</p>}
         </div>
         <div>
-          <label className="block text-sm font-semibold text-[#2C3E50] mb-1.5">
+          <label className="block text-sm font-semibold text-navy-800 mb-1.5">
             CVV <span className="text-red-500">*</span>
           </label>
           <input
@@ -199,7 +199,7 @@ function SimulationPayForm({
             onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').substring(0, 4))}
             placeholder="123"
             disabled={paying}
-            className={"w-full border-2 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#FF6B00] focus:border-[#FF6B00] outline-none transition " + (errors.cvv ? 'border-red-500' : 'border-[#E9ECEF]')}
+            className={"w-full border-2 rounded-lg px-4 py-3 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition " + (errors.cvv ? 'border-red-500' : 'border-slate-200')}
           />
           {errors.cvv && <p className="text-red-500 text-xs mt-1">{errors.cvv}</p>}
         </div>
@@ -208,7 +208,7 @@ function SimulationPayForm({
       <button
         type="submit"
         disabled={paying}
-        className="w-full py-4 bg-[#FF6B00] hover:bg-[#E56100] text-white rounded-xl font-bold text-lg transition-all disabled:opacity-50 shadow-md flex items-center justify-center gap-2"
+        className="w-full py-4 bg-brand-700 hover:bg-brand-800 text-white rounded-xl font-bold text-lg transition-all disabled:opacity-50 shadow-md flex items-center justify-center gap-2"
       >
         {paying ? (
           <>
@@ -220,7 +220,7 @@ function SimulationPayForm({
         )}
       </button>
 
-      <p className="text-xs text-center text-[#6C757D]">
+      <p className="text-xs text-center text-slate-500">
         🔒 Paiement sécurisé avec séquestre — L&apos;artisan ne reçoit le montant qu&apos;après la fin de l&apos;intervention.
       </p>
     </form>
@@ -341,8 +341,8 @@ export default function PaiementExpressPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto mb-4"></div>
-          <p className="text-[#6C757D]">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
+          <p className="text-slate-500">Chargement...</p>
         </div>
       </div>
     );
@@ -356,23 +356,23 @@ export default function PaiementExpressPage() {
   const montantArtisan = proposition.montantPropose - commission;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#F8F9FA] to-white">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-[#E9ECEF]">
+      <div className="bg-white shadow-sm border-b border-slate-200">
         <div className="container mx-auto px-4 py-6">
           <nav className="flex items-center gap-2 text-sm mb-4">
-            <Link href="/client/dashboard" className="text-[#2C3E50] hover:text-[#FF6B00]">
+            <Link href="/client/dashboard" className="text-navy-800 hover:text-brand-700">
               Dashboard
             </Link>
-            <span className="text-[#6C757D]">&gt;</span>
-            <Link href={`/client/demandes-express/${demande.id}`} className="text-[#2C3E50] hover:text-[#FF6B00]">
+            <span className="text-slate-500">&gt;</span>
+            <Link href={`/client/demandes-express/${demande.id}`} className="text-navy-800 hover:text-brand-700">
               Ma demande
             </Link>
-            <span className="text-[#6C757D]">&gt;</span>
-            <span className="text-[#2C3E50] font-semibold">Paiement</span>
+            <span className="text-slate-500">&gt;</span>
+            <span className="text-navy-800 font-semibold">Paiement</span>
           </nav>
 
-          <h1 className="text-2xl md:text-3xl font-bold text-[#2C3E50]">
+          <h1 className="text-2xl md:text-3xl font-bold text-navy-800">
             💳 Paiement sécurisé
           </h1>
         </div>
@@ -384,16 +384,16 @@ export default function PaiementExpressPage() {
 
           {/* ── GAUCHE : Récapitulatif ── */}
           <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h2 className="text-xl font-bold text-[#2C3E50] mb-6">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <h2 className="text-xl font-bold text-navy-800 mb-6">
                 📋 Récapitulatif
               </h2>
 
               <div className="space-y-4">
-                <div className="flex justify-between items-start pb-4 border-b border-[#E9ECEF]">
+                <div className="flex justify-between items-start pb-4 border-b border-slate-200">
                   <div>
-                    <p className="text-sm text-[#6C757D]">Prestation</p>
-                    <p className="font-semibold text-[#2C3E50]">
+                    <p className="text-sm text-slate-500">Prestation</p>
+                    <p className="font-semibold text-navy-800">
                       {demande.categorie.charAt(0).toUpperCase() + demande.categorie.slice(1)}
                       {demande.sousCategorie && ` • ${demande.sousCategorie}`}
                     </p>
@@ -401,41 +401,41 @@ export default function PaiementExpressPage() {
                 </div>
 
                 {artisan && (
-                  <div className="flex justify-between items-start pb-4 border-b border-[#E9ECEF]">
+                  <div className="flex justify-between items-start pb-4 border-b border-slate-200">
                     <div>
-                      <p className="text-sm text-[#6C757D]">Artisan</p>
-                      <p className="font-semibold text-[#2C3E50]">{artisan.raisonSociale}</p>
+                      <p className="text-sm text-slate-500">Artisan</p>
+                      <p className="font-semibold text-navy-800">{artisan.raisonSociale}</p>
                       {artisan.adresse && (
-                        <p className="text-sm text-[#6C757D]">{artisan.adresse}</p>
+                        <p className="text-sm text-slate-500">{artisan.adresse}</p>
                       )}
                     </div>
                   </div>
                 )}
 
-                <div className="flex justify-between items-start pb-4 border-b border-[#E9ECEF]">
+                <div className="flex justify-between items-start pb-4 border-b border-slate-200">
                   <div className="flex-1">
-                    <p className="text-sm text-[#6C757D] mb-1">Détails de la prestation</p>
-                    <p className="text-[#2C3E50]">{proposition.description}</p>
+                    <p className="text-sm text-slate-500 mb-1">Détails de la prestation</p>
+                    <p className="text-navy-800">{proposition.description}</p>
                   </div>
                 </div>
 
                 {proposition.delaiIntervention && (
-                  <div className="flex justify-between items-center pb-4 border-b border-[#E9ECEF]">
-                    <p className="text-sm text-[#6C757D]">Délai d'intervention</p>
-                    <p className="font-semibold text-[#2C3E50]">{proposition.delaiIntervention}</p>
+                  <div className="flex justify-between items-center pb-4 border-b border-slate-200">
+                    <p className="text-sm text-slate-500">Délai d'intervention</p>
+                    <p className="font-semibold text-navy-800">{proposition.delaiIntervention}</p>
                   </div>
                 )}
 
-                <div className="flex justify-between items-center pb-4 border-b border-[#E9ECEF]">
-                  <p className="text-sm text-[#6C757D]">Montant de la prestation</p>
-                  <p className="text-2xl font-bold text-[#2C3E50]">{proposition.montantPropose}€</p>
+                <div className="flex justify-between items-center pb-4 border-b border-slate-200">
+                  <p className="text-sm text-slate-500">Montant de la prestation</p>
+                  <p className="text-2xl font-bold text-navy-800">{proposition.montantPropose}€</p>
                 </div>
 
                 <div className="bg-blue-50 rounded-lg p-4">
-                  <p className="text-sm text-[#2C3E50] mb-2">
+                  <p className="text-sm text-navy-800 mb-2">
                     <strong>🔒 Paiement sécurisé avec séquestre</strong>
                   </p>
-                  <ul className="text-sm text-[#6C757D] space-y-1">
+                  <ul className="text-sm text-slate-500 space-y-1">
                     <li>✅ Votre argent est bloqué sur un compte séquestre</li>
                     <li>✅ L'artisan ne le reçoit qu'après la fin de l'intervention</li>
                     <li>✅ Vous pouvez demander un remboursement en cas de litige</li>
@@ -446,8 +446,8 @@ export default function PaiementExpressPage() {
 
             {/* Garanties */}
             <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6">
-              <h3 className="font-bold text-[#2C3E50] mb-3">✅ Vos garanties</h3>
-              <ul className="space-y-2 text-sm text-[#6C757D]">
+              <h3 className="font-bold text-navy-800 mb-3">✅ Vos garanties</h3>
+              <ul className="space-y-2 text-sm text-slate-500">
                 <li>🔐 Paiement 100% sécurisé par Stripe</li>
                 <li>💰 Argent bloqué jusqu'à la fin des travaux</li>
                 <li>🛡️ Protection acheteur incluse</li>
@@ -458,8 +458,8 @@ export default function PaiementExpressPage() {
           </div>
 
           {/* ── DROITE : Mode de paiement ── */}
-          <div className="bg-white rounded-xl shadow-lg p-6 lg:sticky lg:top-8">
-            <h2 className="text-xl font-bold text-[#2C3E50] mb-6">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 lg:sticky lg:top-8">
+            <h2 className="text-xl font-bold text-navy-800 mb-6">
               💳 Mode de paiement
             </h2>
 
@@ -470,7 +470,7 @@ export default function PaiementExpressPage() {
                 <p className="text-sm text-red-700 mb-4">{error}</p>
                 <button
                   onClick={() => { setError(null); createPaymentIntent(propositionId, demande?.id); }}
-                  className="px-4 py-2 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] text-sm font-semibold"
+                  className="px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-brand-800 text-sm font-semibold"
                 >
                   Réessayer
                 </button>
@@ -491,14 +491,14 @@ export default function PaiementExpressPage() {
               </Elements>
             ) : (
               <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF6B00] mx-auto mb-4"></div>
-                <p className="text-[#6C757D]">Préparation du paiement sécurisé...</p>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-500 mx-auto mb-4"></div>
+                <p className="text-slate-500">Préparation du paiement sécurisé...</p>
               </div>
             )}
 
-            <p className="text-xs text-center text-[#6C757D] mt-6">
+            <p className="text-xs text-center text-slate-500 mt-6">
               En cliquant sur "Payer", vous acceptez nos{' '}
-              <Link href="/conditions-generales" className="text-[#FF6B00] hover:underline">
+              <Link href="/conditions-generales" className="text-brand-700 hover:underline">
                 conditions générales
               </Link>{' '}
               et autorisez le débit de votre carte.

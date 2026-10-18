@@ -93,18 +93,18 @@ export default function PaiementSuccessPage() {
       )}
 
       {status === 'loading' ? (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#F8F9FA] to-white">
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#FF6B00] mx-auto mb-4"></div>
-            <p className="text-lg text-[#6C757D]">{t('clientPaymentSuccess.loading')}</p>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-brand-500 mx-auto mb-4"></div>
+            <p className="text-lg text-slate-500">{t('clientPaymentSuccess.loading')}</p>
           </div>
         </div>
       ) : (
-    <div className="min-h-screen bg-gradient-to-b from-[#F8F9FA] to-white">
+    <div className="min-h-screen bg-slate-50">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto">
           {status === 'success' ? (
-            <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 text-center">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12 text-center">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg
                   className="w-12 h-12 text-green-500"
@@ -121,33 +121,33 @@ export default function PaiementSuccessPage() {
                 </svg>
               </div>
 
-              <h1 className="text-3xl font-bold text-[#2C3E50] mb-4">
+              <h1 className="text-3xl font-bold text-navy-800 mb-4">
                 {t('clientPaymentSuccess.success.title')}
               </h1>
 
-              <p className="text-lg text-[#6C757D] mb-8">
+              <p className="text-lg text-slate-500 mb-8">
                 {message}
               </p>
 
               <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mb-8 text-left">
-                <h2 className="font-bold text-[#2C3E50] mb-4">
+                <h2 className="font-bold text-navy-800 mb-4">
                   {t('clientPaymentSuccess.success.nextStepsTitle')}
                 </h2>
-                <ul className="space-y-3 text-[#6C757D]">
+                <ul className="space-y-3 text-slate-500">
                   <li className="flex items-start gap-3">
-                    <span className="text-[#FF6B00] font-bold">1.</span>
+                    <span className="text-brand-700 font-bold">1.</span>
                     <span>{t('clientPaymentSuccess.success.step1')}</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="text-[#FF6B00] font-bold">2.</span>
+                    <span className="text-brand-700 font-bold">2.</span>
                     <span>{t('clientPaymentSuccess.success.step2')}</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="text-[#FF6B00] font-bold">3.</span>
+                    <span className="text-brand-700 font-bold">3.</span>
                     <span>{t('clientPaymentSuccess.success.step3')}</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="text-[#FF6B00] font-bold">4.</span>
+                    <span className="text-brand-700 font-bold">4.</span>
                     <span>{t('clientPaymentSuccess.success.step4')}</span>
                   </li>
                 </ul>
@@ -171,22 +171,22 @@ export default function PaiementSuccessPage() {
                 )}
               </div>
 
-              <div className="mt-8 pt-8 border-t border-[#E9ECEF]">
-                <p className="text-sm text-[#6C757D] mb-4">
+              <div className="mt-8 pt-8 border-t border-slate-200">
+                <p className="text-sm text-slate-500 mb-4">
                   <strong>{t('clientPaymentSuccess.success.paymentDetailsTitle')}</strong>
                 </p>
-                <div className="bg-[#F5F7FA] rounded-lg p-4">
-                  <p className="text-xs text-[#6C757D]">
+                <div className="bg-slate-50 rounded-lg p-4">
+                  <p className="text-xs text-slate-500">
                     {t('clientPaymentSuccess.success.emailConfirmation')}
                   </p>
                 </div>
               </div>
 
               <div className="mt-8 bg-green-50 rounded-lg p-4">
-                <p className="text-sm text-[#2C3E50] mb-2">
+                <p className="text-sm text-navy-800 mb-2">
                   <strong>{t('clientPaymentSuccess.success.guaranteesTitle')}</strong>
                 </p>
-                <ul className="text-xs text-[#6C757D] space-y-1 text-left">
+                <ul className="text-xs text-slate-500 space-y-1 text-left">
                   <li>{t('clientPaymentSuccess.success.guarantee1')}</li>
                   <li>{t('clientPaymentSuccess.success.guarantee2')}</li>
                   <li>{t('clientPaymentSuccess.success.guarantee3')}</li>
@@ -195,7 +195,7 @@ export default function PaiementSuccessPage() {
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 text-center">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12 text-center">
               <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg
                   className="w-12 h-12 text-red-500"
@@ -212,19 +212,19 @@ export default function PaiementSuccessPage() {
                 </svg>
               </div>
 
-              <h1 className="text-3xl font-bold text-[#2C3E50] mb-4">
+              <h1 className="text-3xl font-bold text-navy-800 mb-4">
                 {t('clientPaymentSuccess.error.title')}
               </h1>
 
-              <p className="text-lg text-[#6C757D] mb-8">
+              <p className="text-lg text-slate-500 mb-8">
                 {message}
               </p>
 
               <div className="bg-red-50 border-2 border-red-200 rounded-xl p-6 mb-8">
-                <h2 className="font-bold text-[#2C3E50] mb-4">
+                <h2 className="font-bold text-navy-800 mb-4">
                   {t('clientPaymentSuccess.error.whatToDoTitle')}
                 </h2>
-                <ul className="space-y-2 text-[#6C757D] text-left">
+                <ul className="space-y-2 text-slate-500 text-left">
                   <li>{t('clientPaymentSuccess.error.tip1')}</li>
                   <li>{t('clientPaymentSuccess.error.tip2')}</li>
                   <li>{t('clientPaymentSuccess.error.tip3')}</li>
@@ -250,9 +250,9 @@ export default function PaiementSuccessPage() {
                 )}
               </div>
 
-              <p className="text-xs text-center text-[#6C757D] mt-8">
+              <p className="text-xs text-center text-slate-500 mt-8">
                 {t('clientPaymentSuccess.error.needHelp')}{' '}
-                <Link href="/contact" className="text-[#FF6B00] hover:underline">
+                <Link href="/contact" className="text-brand-700 hover:underline">
                   {t('clientPaymentSuccess.error.contactSupport')}
                 </Link>
               </p>

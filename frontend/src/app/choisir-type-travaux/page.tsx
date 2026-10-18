@@ -21,12 +21,12 @@ export default function ChoisirTypeTravauxPage() {
     <div className="min-h-screen flex flex-col">
 
       {/* ── En-tête bleu avec retour (identique à /recherche?from=dashboard) ── */}
-      <header className="bg-[#2C3E50] text-white py-8">
+      <header className="bg-navy-800 text-white py-8">
         <div className="container mx-auto px-4">
           {/* Bouton retour vers le dashboard */}
           <button
             onClick={() => router.push('/dashboard')}
-            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4"
+            className="flex items-center gap-2 text-white hover:text-brand-700 mb-4"
             aria-label="Retour au tableau de bord"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,7 +38,7 @@ export default function ChoisirTypeTravauxPage() {
           {/* Titre et sous-titre */}
           <div>
             <h1 className="text-3xl font-bold">Trouver un artisan</h1>
-            <p className="text-gray-300 mt-2">Quel type de travaux souhaitez-vous réaliser ?</p>
+            <p className="text-slate-300 mt-2">Quel type de travaux souhaitez-vous réaliser ?</p>
           </div>
         </div>
       </header>
@@ -96,14 +96,14 @@ export default function ChoisirTypeTravauxPage() {
             <div className="
               group bg-white/80 backdrop-blur-sm rounded-2xl shadow-md p-10 cursor-pointer
               border-2 border-transparent
-              hover:border-[#FF6B00] hover:shadow-xl
+              hover:border-brand-500 hover:shadow-xl
               transition-all duration-200
               flex flex-col items-center text-center gap-4
             ">
               {/* Icône calendrier / travaux planifiés */}
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center group-hover:bg-[#FF6B00] transition-colors duration-200">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center group-hover:bg-brand-700 transition-colors duration-200">
                 <svg
-                  className="w-8 h-8 text-[#FF6B00] group-hover:text-white transition-colors duration-200"
+                  className="w-8 h-8 text-brand-700 group-hover:text-white transition-colors duration-200"
                   fill="none" stroke="currentColor" viewBox="0 0 24 24"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -114,17 +114,17 @@ export default function ChoisirTypeTravauxPage() {
 
               <div>
                 {/* Titre de l'option */}
-                <h2 className="text-xl font-bold text-[#2C3E50] mb-2">
+                <h2 className="text-xl font-bold text-navy-800 mb-2">
                   Travaux standard
                 </h2>
                 {/* Description */}
-                <p className="text-[#6C757D] text-sm leading-relaxed">
+                <p className="text-slate-500 text-sm leading-relaxed">
                   Planifiez vos travaux à votre rythme. Comparez les devis d'artisans qualifiés et choisissez le meilleur professionnel pour votre projet.
                 </p>
               </div>
 
               {/* Badge délai */}
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-[#FF6B00] text-xs font-semibold">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-brand-700 text-xs font-semibold">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -138,14 +138,14 @@ export default function ChoisirTypeTravauxPage() {
             <div className="
               group bg-white/80 backdrop-blur-sm rounded-2xl shadow-md p-10 cursor-pointer
               border-2 border-transparent
-              hover:border-[#DC3545] hover:shadow-xl
+              hover:border-red-600 hover:shadow-xl
               transition-all duration-200
               flex flex-col items-center text-center gap-4
             ">
               {/* Icône éclair / urgence */}
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center group-hover:bg-[#DC3545] transition-colors duration-200">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center group-hover:bg-red-700 transition-colors duration-200">
                 <svg
-                  className="w-8 h-8 text-[#DC3545] group-hover:text-white transition-colors duration-200"
+                  className="w-8 h-8 text-red-700 group-hover:text-white transition-colors duration-200"
                   fill="none" stroke="currentColor" viewBox="0 0 24 24"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -156,17 +156,17 @@ export default function ChoisirTypeTravauxPage() {
 
               <div>
                 {/* Titre de l'option */}
-                <h2 className="text-xl font-bold text-[#2C3E50] mb-2">
+                <h2 className="text-xl font-bold text-navy-800 mb-2">
                   Travaux en urgence
                 </h2>
                 {/* Description */}
-                <p className="text-[#6C757D] text-sm leading-relaxed">
+                <p className="text-slate-500 text-sm leading-relaxed">
                   Besoin d'une intervention rapide ? Trouvez un artisan disponible immédiatement pour vos urgences : fuite, panne électrique, serrurerie...
                 </p>
               </div>
 
               {/* Badge urgence */}
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-[#DC3545] text-xs font-semibold">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-semibold">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>

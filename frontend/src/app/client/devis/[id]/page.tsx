@@ -784,10 +784,10 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
-          <p className="mt-4 text-[#6C757D]">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
+          <p className="mt-4 text-slate-500">Chargement...</p>
         </div>
       </div>
     );
@@ -813,7 +813,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
     };
 
     return (
-      <span className={`px-4 py-2 rounded-full text-sm font-semibold ${styles[statut] || 'bg-gray-100 text-gray-800'}`}>
+      <span className={`px-4 py-2 rounded-full text-sm font-semibold ${styles[statut] || 'bg-slate-100 text-slate-800'}`}>
         {labels[statut] || statut}
       </span>
     );
@@ -938,9 +938,9 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
           }
         }
       `}</style>
-      <div className="min-h-screen bg-[#F5F7FA] print:bg-white print-area">
+      <div className="min-h-screen bg-slate-50 print:bg-white print-area">
         {/* Header - masqué à l'impression */}
-        <div className="bg-[#2C3E50] text-white py-6 print:hidden">
+        <div className="bg-navy-800 text-white py-6 print:hidden">
           <div className="container mx-auto px-4">
             <div className="flex items-center gap-4 mb-4">
               <button
@@ -952,7 +952,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                     router.back();
                   }
                 }}
-                className="flex items-center gap-2 text-white hover:text-[#FF6B00]"
+                className="flex items-center gap-2 text-white hover:text-brand-700"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -961,10 +961,10 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
               </button>
               {devis.demandeId && (
                 <>
-                  <span className="text-gray-400">|</span>
+                  <span className="text-slate-400">|</span>
                   <button
                     onClick={() => router.push(`/client/demandes?demandeId=${devis.demandeId}`)}
-                    className="flex items-center gap-2 text-white hover:text-[#FF6B00]"
+                    className="flex items-center gap-2 text-white hover:text-brand-700"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -977,7 +977,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
             <div className="flex justify-between items-center">
               <div>
                 <h1 className="text-2xl font-bold">Devis N° {devis.numeroDevis}</h1>
-                <p className="text-gray-300 mt-1">{devis.titre}</p>
+                <p className="text-slate-300 mt-1">{devis.titre}</p>
               </div>
               {getStatutBadge(devis.statut)}
             </div>
@@ -987,7 +987,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
         <div className="container mx-auto px-4 py-8 print:py-0">
           {/* Indicateur de variantes multiples */}
           {autresVariantes.length > 0 && devis.statut === 'envoye' && (
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 border-l-4 border-purple-500 p-4 mb-4 print:hidden">
+            <div className="bg-purple-50 border-l-4 border-purple-500 p-4 mb-4 print:hidden">
               <div className="flex items-start gap-3">
                 <svg className="w-6 h-6 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -1008,12 +1008,12 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
-                            <p className="font-semibold text-[#2C3E50]">
+                            <p className="font-semibold text-navy-800">
                               {v.numeroDevis}
                             </p>
                           </div>
                           <div className="text-right ml-4">
-                            <p className="font-bold text-[#FF6B00] text-lg">
+                            <p className="font-bold text-brand-700 text-lg">
                               {v.totaux?.totalTTC.toFixed(2)} €
                             </p>
                             <p className="text-xs text-purple-600 font-medium">
@@ -1031,14 +1031,14 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
 
           {/* Boutons d'action - masqués à l'impression */}
           {devis.statut === 'envoye' && (
-            <div className="bg-orange-50 border-l-4 border-[#FF6B00] p-4 mb-6 print:hidden">
+            <div className="bg-orange-50 border-l-4 border-brand-500 p-4 mb-6 print:hidden">
               <div className="flex items-start">
-                <svg className="w-6 h-6 text-[#FF6B00] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-brand-700 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div className="flex-1">
-                  <h3 className="text-[#2C3E50] font-semibold mb-2">Ce devis nécessite une réponse</h3>
-                  <p className="text-gray-700 text-sm mb-4">
+                  <h3 className="text-navy-800 font-semibold mb-2">Ce devis nécessite une réponse</h3>
+                  <p className="text-slate-700 text-sm mb-4">
                     Vous devez accepter ou refuser ce devis avant le {devis.dateValidite?.toDate().toLocaleDateString('fr-FR')}.
                   </p>
                   <div className="flex flex-wrap gap-3">
@@ -1048,8 +1048,8 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                       title={!user?.emailVerified ? 'Validez votre email pour accepter ce devis' : undefined}
                       className={`px-6 py-2 rounded-lg transition ${
                         user?.emailVerified
-                          ? 'bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-400'
-                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          ? 'bg-green-600 text-white hover:bg-green-700 disabled:bg-slate-400'
+                          : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                       }`}
                     >
                       {processing ? 'Traitement...' : '✅ Accepter ce devis'}
@@ -1060,8 +1060,8 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                       title={!user?.emailVerified ? 'Validez votre email pour refuser ce devis' : undefined}
                       className={`px-6 py-2 rounded-lg transition ${
                         user?.emailVerified
-                          ? 'bg-red-600 text-white hover:bg-red-700 disabled:bg-gray-400'
-                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          ? 'bg-red-600 text-white hover:bg-red-700 disabled:bg-slate-400'
+                          : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                       }`}
                     >
                       ❌ Refuser ce devis
@@ -1096,9 +1096,9 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
           )}
 
           {/* Contenu du devis */}
-          <div className="bg-white rounded-lg shadow-md p-8 print:shadow-none print-container">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 print:shadow-none print-container">
             {/* En-tête */}
-            <div className="border-b-2 border-[#FF6B00] pb-6 mb-6 no-break">
+            <div className="border-b-2 border-brand-500 pb-6 mb-6 no-break">
               <div className="flex justify-between items-start">
                 {/* Logo à gauche */}
                 <div className="flex-shrink-0 logo-container">
@@ -1107,9 +1107,9 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
 
                 {/* Titre DEVIS au centre */}
                 <div className="flex-1 text-center">
-                  <h2 className="text-3xl font-bold text-[#2C3E50] mb-2">DEVIS</h2>
-                  <p className="text-gray-600">N° {devis.numeroDevis}</p>
-                  <p className="text-sm text-gray-500">
+                  <h2 className="text-3xl font-bold text-navy-800 mb-2">DEVIS</h2>
+                  <p className="text-slate-600">N° {devis.numeroDevis}</p>
+                  <p className="text-sm text-slate-500">
                     Date : {devis.dateCreation?.toDate().toLocaleDateString('fr-FR')}
                   </p>
                 </div>
@@ -1119,10 +1119,10 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
             {/* Informations artisan et client */}
             <div className="grid md:grid-cols-2 gap-8 mb-8 print-two-cols">
               <div>
-                <h3 className="font-bold text-[#2C3E50] mb-3">Artisan</h3>
+                <h3 className="font-bold text-navy-800 mb-3">Artisan</h3>
                 {devis.artisan.raisonSociale && <p className="font-semibold">{devis.artisan.raisonSociale}</p>}
                 {devis.artisan.adresse && (
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-slate-600 mt-1">
                     📍 {masquerAdresse(
                       typeof devis.artisan.adresse === 'string'
                         ? devis.artisan.adresse
@@ -1144,12 +1144,12 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
               </div>
 
               <div>
-                <h3 className="font-bold text-[#2C3E50] mb-3">Client</h3>
+                <h3 className="font-bold text-navy-800 mb-3">Client</h3>
                 <p className="font-semibold">{devis.client.prenom} {devis.client.nom}</p>
                 {devis.client.email && <p className="text-sm">📧 {devis.client.email}</p>}
                 {devis.client.telephone && <p className="text-sm">📞 {devis.client.telephone}</p>}
                 {devis.client.adresse && (
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-slate-600 mt-1">
                     {devis.client.adresse.rue}<br />
                     {devis.client.adresse.codePostal} {devis.client.adresse.ville}
                   </p>
@@ -1159,9 +1159,9 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
 
             {/* Bannière information masquage/démasquage */}
             {devis.statut === 'envoye' && (
-              <div className="bg-orange-50 border-l-4 border-[#FF6B00] p-4 mb-6 rounded">
+              <div className="bg-orange-50 border-l-4 border-brand-500 p-4 mb-6 rounded">
                 <div className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-[#FF6B00] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                   </svg>
                   <div className="text-sm text-orange-800">
@@ -1202,13 +1202,13 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
 
             {/* Titre */}
             <div className="mb-6">
-              <h3 className="text-xl font-bold text-[#2C3E50] mb-2">{devis.titre}</h3>
+              <h3 className="text-xl font-bold text-navy-800 mb-2">{devis.titre}</h3>
             </div>
 
             {/* Date de début prévue */}
             {devis.dateDebutPrevue && (
-              <div className="mb-8 bg-gray-50 border-l-4 border-[#2C3E50] p-4 rounded">
-                <p className="text-[#2C3E50] font-semibold">
+              <div className="mb-8 bg-slate-50 border-l-4 border-navy-800 p-4 rounded">
+                <p className="text-navy-800 font-semibold">
                   📅 Date de début des travaux prévue : {devis.dateDebutPrevue.toDate().toLocaleDateString('fr-FR', {
                     weekday: 'long',
                     year: 'numeric',
@@ -1221,8 +1221,8 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
 
             {/* Date de fin des travaux prévue */}
             {devis.dateDebutPrevue && (
-              <div className="mb-8 bg-gray-50 border-l-4 border-[#FF6B00] p-4 rounded">
-                <p className="text-[#2C3E50] font-semibold">
+              <div className="mb-8 bg-slate-50 border-l-4 border-brand-500 p-4 rounded">
+                <p className="text-navy-800 font-semibold">
                   📅 Date de fin des travaux prévue :{' '}
                   {devis.delaiRealisation && Number(devis.delaiRealisation) > 0 ? (() => {
                     const debut = devis.dateDebutPrevue.toDate();
@@ -1233,42 +1233,42 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                       month: 'long',
                       day: 'numeric'
                     });
-                  })() : <span className="text-gray-400 font-normal italic">Non précisée par l&apos;artisan</span>}
+                  })() : <span className="text-slate-400 font-normal italic">Non précisée par l&apos;artisan</span>}
                 </p>
               </div>
             )}
 
             {/* Détail des prestations */}
             <div className="mb-8">
-              <h3 className="font-bold text-[#2C3E50] mb-4">Détail des prestations</h3>
+              <h3 className="font-bold text-navy-800 mb-4">Détail des prestations</h3>
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse table-fixed">
-                  <thead className="bg-gray-100">
+                  <thead className="bg-slate-100">
                     <tr>
-                      <th className="border border-gray-300 px-4 py-2 text-left w-[40%]">Désignation</th>
-                      <th className="border border-gray-300 px-4 py-2 text-center w-[12%]">Quantité</th>
-                      <th className="border border-gray-300 px-4 py-2 text-right w-[15%]">Prix unitaire HT</th>
-                      <th className="border border-gray-300 px-4 py-2 text-center w-[13%]">TVA</th>
-                      <th className="border border-gray-300 px-4 py-2 text-right w-[20%]">Total HT</th>
+                      <th className="border border-slate-300 px-4 py-2 text-left w-[40%]">Désignation</th>
+                      <th className="border border-slate-300 px-4 py-2 text-center w-[12%]">Quantité</th>
+                      <th className="border border-slate-300 px-4 py-2 text-right w-[15%]">Prix unitaire HT</th>
+                      <th className="border border-slate-300 px-4 py-2 text-center w-[13%]">TVA</th>
+                      <th className="border border-slate-300 px-4 py-2 text-right w-[20%]">Total HT</th>
                     </tr>
                   </thead>
                   <tbody>
                     {/* Main d'œuvre (si présente) */}
                     {devis.mainOeuvre && (
                       <tr className="bg-orange-50">
-                        <td className="border border-gray-300 px-4 py-2 break-words">
-                          <span className="font-semibold text-[#FF6B00]">⚡ Main d'œuvre</span>
+                        <td className="border border-slate-300 px-4 py-2 break-words">
+                          <span className="font-semibold text-brand-700">⚡ Main d'œuvre</span>
                         </td>
-                        <td className="border border-gray-300 px-4 py-2 text-center">
+                        <td className="border border-slate-300 px-4 py-2 text-center">
                           {devis.mainOeuvre.quantite} {devis.mainOeuvre.unite || 'j'}
                         </td>
-                        <td className="border border-gray-300 px-4 py-2 text-right">
+                        <td className="border border-slate-300 px-4 py-2 text-right">
                           {devis.mainOeuvre.prixHT.toFixed(2)} €
                         </td>
-                        <td className="border border-gray-300 px-4 py-2 text-center">
+                        <td className="border border-slate-300 px-4 py-2 text-center">
                           {devis.mainOeuvre.tauxTVA}%
                         </td>
-                        <td className="border border-gray-300 px-4 py-2 text-right font-semibold">
+                        <td className="border border-slate-300 px-4 py-2 text-right font-semibold">
                           {(devis.mainOeuvre.quantite * devis.mainOeuvre.prixHT).toFixed(2)} €
                         </td>
                       </tr>
@@ -1276,20 +1276,20 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
 
                     {/* Matière première (si présente) */}
                     {devis.matierePremiere && (
-                      <tr className="bg-gray-50">
-                        <td className="border border-gray-300 px-4 py-2 break-words">
+                      <tr className="bg-slate-50">
+                        <td className="border border-slate-300 px-4 py-2 break-words">
                           <span className="font-semibold text-blue-600">🛠️ Matière première</span>
                         </td>
-                        <td className="border border-gray-300 px-4 py-2 text-center">
+                        <td className="border border-slate-300 px-4 py-2 text-center">
                           {devis.matierePremiere.quantite} {devis.matierePremiere.unite || 'unité'}
                         </td>
-                        <td className="border border-gray-300 px-4 py-2 text-right">
+                        <td className="border border-slate-300 px-4 py-2 text-right">
                           {devis.matierePremiere.prixHT.toFixed(2)} €
                         </td>
-                        <td className="border border-gray-300 px-4 py-2 text-center">
+                        <td className="border border-slate-300 px-4 py-2 text-center">
                           {devis.matierePremiere.tauxTVA}%
                         </td>
-                        <td className="border border-gray-300 px-4 py-2 text-right font-semibold">
+                        <td className="border border-slate-300 px-4 py-2 text-right font-semibold">
                           {(devis.matierePremiere.quantite * devis.matierePremiere.prixHT).toFixed(2)} €
                         </td>
                       </tr>
@@ -1298,19 +1298,19 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                     {/* Autres lignes */}
                     {devis.lignes.filter(ligne => ligne.description?.trim() || ligne.prixUnitaireHT > 0).map((ligne, index) => (
                       <tr key={index}>
-                        <td className="border border-gray-300 px-4 py-2 break-words">
+                        <td className="border border-slate-300 px-4 py-2 break-words">
                           {ligne.description}
                         </td>
-                        <td className="border border-gray-300 px-4 py-2 text-center">
+                        <td className="border border-slate-300 px-4 py-2 text-center">
                           {ligne.quantite} {ligne.unite}
                         </td>
-                        <td className="border border-gray-300 px-4 py-2 text-right">
+                        <td className="border border-slate-300 px-4 py-2 text-right">
                           {ligne.prixUnitaireHT.toFixed(2)} €
                         </td>
-                        <td className="border border-gray-300 px-4 py-2 text-center">
+                        <td className="border border-slate-300 px-4 py-2 text-center">
                           {ligne.tauxTVA}%
                         </td>
-                        <td className="border border-gray-300 px-4 py-2 text-right font-semibold">
+                        <td className="border border-slate-300 px-4 py-2 text-right font-semibold">
                           {ligne.totalHT.toFixed(2)} €
                         </td>
                       </tr>
@@ -1323,16 +1323,16 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
             {/* Totaux */}
             <div className="flex justify-end mb-8">
               <div className="w-full md:w-1/2">
-                <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="bg-slate-50 p-4 rounded-lg">
                   <div className="flex justify-between mb-2">
-                    <span className="text-gray-700">Total HT:</span>
+                    <span className="text-slate-700">Total HT:</span>
                     <span className="font-semibold">{devis.totaux.totalHT.toFixed(2)} €</span>
                   </div>
                   <div className="flex justify-between mb-2">
-                    <span className="text-gray-700">TVA:</span>
+                    <span className="text-slate-700">TVA:</span>
                     <span className="font-semibold">{devis.totaux.totalTVAGlobal.toFixed(2)} €</span>
                   </div>
-                  <div className="flex justify-between text-xl font-bold text-[#FF6B00] pt-2 border-t-2 border-[#FF6B00]">
+                  <div className="flex justify-between text-xl font-bold text-brand-700 pt-2 border-t-2 border-brand-500">
                     <span>Total TTC:</span>
                     <span>{devis.totaux.totalTTC.toFixed(2)} €</span>
                   </div>
@@ -1345,15 +1345,15 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
               <div className="pt-6">
                 {devis.conditions && (
                   <div className="mb-4">
-                    <p className="text-sm font-semibold text-gray-700">Conditions :</p>
-                    <p className="text-gray-600 whitespace-pre-wrap">{devis.conditions}</p>
+                    <p className="text-sm font-semibold text-slate-700">Conditions :</p>
+                    <p className="text-slate-600 whitespace-pre-wrap">{devis.conditions}</p>
                   </div>
                 )}
 
                 {devis.notes && (
                   <div className="mb-4">
-                    <p className="text-sm font-semibold text-gray-700">Notes :</p>
-                    <p className="text-gray-600 whitespace-pre-wrap">{devis.notes}</p>
+                    <p className="text-sm font-semibold text-slate-700">Notes :</p>
+                    <p className="text-slate-600 whitespace-pre-wrap">{devis.notes}</p>
                   </div>
                 )}
               </div>
@@ -1362,7 +1362,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
             {/* Mentions légales - uniquement pré-paiement */}
             {!coordonneesVisibles && (
               <div className="pt-6 mt-6">
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-slate-500">
                   Ce devis est valable jusqu'au {devis.dateValidite?.toDate().toLocaleDateString('fr-FR')} et ne constitue pas une facture.
                   Une fois accepté, ce devis engage les deux parties selon les conditions décrites.
                 </p>
@@ -1375,7 +1375,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                 Client signe au moment du paiement.
             ═══════════════════════════════════════════════ */}
             {!['genere', 'brouillon', 'refuse', 'expire', 'annule', 'remplace'].includes(devis.statut) && (
-              <div className={`mt-8 pt-6 border-t-2 signature-section no-break ${coordonneesVisibles ? 'border-green-500' : 'border-gray-300'}`}>
+              <div className={`mt-8 pt-6 border-t-2 signature-section no-break ${coordonneesVisibles ? 'border-green-500' : 'border-slate-300'}`}>
                 {/* Titre de la zone signatures */}
                 <div className="text-center mb-4">
                   {coordonneesVisibles ? (
@@ -1391,7 +1391,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                       )}
                     </>
                   ) : (
-                    <p className="text-xs text-gray-500 italic">
+                    <p className="text-xs text-slate-500 italic">
                       🖊️ Zone de signatures — vous signerez lors du paiement
                     </p>
                   )}
@@ -1400,7 +1400,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                 <div className="flex justify-between items-end gap-4">
                   {/* ── GAUCHE : Signature CLIENT ── */}
                   <div className="flex-1 text-left">
-                    <p className="text-xs font-semibold text-gray-700 mb-2">Signature du client :</p>
+                    <p className="text-xs font-semibold text-slate-700 mb-2">Signature du client :</p>
                     {devis.signatureClient?.url ? (
                       <>
                         <div className="border-2 border-green-400 rounded p-2 inline-block bg-white">
@@ -1410,20 +1410,20 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                             className="h-16 w-auto"
                           />
                         </div>
-                        <p className="text-xs text-gray-600 mt-1 font-medium">
+                        <p className="text-xs text-slate-600 mt-1 font-medium">
                           {devis.client.prenom} {devis.client.nom}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-slate-500">
                           Signée le {devis.signatureClient.date?.toDate().toLocaleDateString('fr-FR')} à{' '}
                           {devis.signatureClient.date?.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </>
                     ) : (
-                      <div className="border-2 border-dashed border-gray-300 rounded p-4 w-48 h-24 flex flex-col items-center justify-center bg-gray-50">
+                      <div className="border-2 border-dashed border-slate-300 rounded p-4 w-48 h-24 flex flex-col items-center justify-center bg-slate-50">
                         {devis.statut === 'en_attente_paiement' ? (
                           <p className="text-xs text-orange-500 text-center font-medium">⏰ En attente<br/>de paiement</p>
                         ) : (
-                          <p className="text-xs text-gray-400 text-center">En attente<br/>de votre signature</p>
+                          <p className="text-xs text-slate-400 text-center">En attente<br/>de votre signature</p>
                         )}
                       </div>
                     )}
@@ -1431,26 +1431,26 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
 
                   {/* ── DROITE : Signature ARTISAN ── */}
                   <div className="flex-1 text-right">
-                    <p className="text-xs font-semibold text-gray-700 mb-2">Signature de l&apos;artisan :</p>
+                    <p className="text-xs font-semibold text-slate-700 mb-2">Signature de l&apos;artisan :</p>
                     {devis.signatureArtisan?.url ? (
                       <>
-                        <div className="border-2 border-[#FF6B00] rounded-lg bg-white p-2 inline-block">
+                        <div className="border-2 border-brand-500 rounded-lg bg-white p-2 inline-block">
                           <img
                             src={devis.signatureArtisan.url}
                             alt="Signature artisan"
                             className="h-16 w-auto"
                           />
                         </div>
-                        <p className="text-xs text-gray-600 mt-1 font-medium">
+                        <p className="text-xs text-slate-600 mt-1 font-medium">
                           {devis.artisan.raisonSociale}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-slate-500">
                           Signée le {devis.signatureArtisan.date?.toDate().toLocaleDateString('fr-FR')}
                         </p>
                       </>
                     ) : (
-                      <div className="border-2 border-dashed border-gray-300 rounded p-4 w-48 h-24 flex items-center justify-center bg-gray-50 ml-auto">
-                        <p className="text-xs text-gray-400 text-center">Espace réservé<br/>au cachet</p>
+                      <div className="border-2 border-dashed border-slate-300 rounded p-4 w-48 h-24 flex items-center justify-center bg-slate-50 ml-auto">
+                        <p className="text-xs text-slate-400 text-center">Espace réservé<br/>au cachet</p>
                       </div>
                     )}
                   </div>
@@ -1477,10 +1477,10 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
               </div>
               
               <div className="bg-white rounded-lg p-4 border border-yellow-200">
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-slate-700">
                   💰 <strong>Paiement sécurisé</strong> : Votre paiement de <strong>{devis.totaux.totalTTC.toFixed(2)}€</strong> est bloqué en sécurité.
                   <br />
-                  <span className="text-xs text-gray-600">Il sera libéré à l'artisan uniquement après validation des travaux.</span>
+                  <span className="text-xs text-slate-600">Il sera libéré à l'artisan uniquement après validation des travaux.</span>
                 </p>
               </div>
             </div>
@@ -1504,7 +1504,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
               </div>
               
               <div className="bg-white rounded-lg p-4 border border-blue-200">
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-slate-700">
                   L'artisan <strong>{devis.artisan.raisonSociale}</strong> réalise actuellement les travaux.
                   <br />
                   Vous pourrez valider une fois qu'il aura déclaré avoir terminé.
@@ -1531,7 +1531,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
               </div>
               
               <div className="bg-white rounded-lg p-4 border border-orange-300">
-                <p className="text-sm text-gray-700 mb-3">
+                <p className="text-sm text-slate-700 mb-3">
                   Vous avez <strong>7 jours</strong> pour valider les travaux ou signaler un problème.
                   <br />
                   Validation automatique le : <strong>{devis.travaux?.dateValidationAuto?.toDate().toLocaleDateString('fr-FR', {
@@ -1582,7 +1582,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
               </div>
               
               <div className="bg-white rounded-lg p-4 border border-green-200">
-                <p className="text-sm text-gray-700 mb-3">
+                <p className="text-sm text-slate-700 mb-3">
                   ✅ Le paiement a été transféré à l'artisan.
                   <br />
                   💰 Montant : <strong>{devis.totaux.totalTTC.toFixed(2)}€</strong>
@@ -1615,8 +1615,8 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
               </div>
               
               <div className="bg-white rounded-lg p-4 border border-red-200">
-                <h4 className="font-semibold text-gray-800 mb-2">Votre signalement :</h4>
-                <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded border border-gray-200 mb-4">
+                <h4 className="font-semibold text-slate-800 mb-2">Votre signalement :</h4>
+                <p className="text-sm text-slate-700 bg-slate-50 p-3 rounded border border-slate-200 mb-4">
                   {devis.travaux?.litige?.motif || 'Non spécifié'}
                 </p>
                 
@@ -1637,7 +1637,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
           <div className="mt-6 flex gap-4 print:hidden">
             <button
               onClick={handlePrint}
-              className="bg-[#2C3E50] text-white px-6 py-2 rounded-lg hover:bg-[#1A3A5C] transition"
+              className="bg-navy-800 text-white px-6 py-2 rounded-lg hover:bg-navy-900 transition"
             >
               🖨️ Imprimer
             </button>
@@ -1645,7 +1645,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
             {['en_attente_paiement', 'paye', 'en_cours', 'travaux_termines'].includes(devis.statut) && (
               <button
                 onClick={() => router.push(`/messages?userId=${devis.artisanId}&devisId=${devis.id}&demandeId=${devis.demandeId || ''}`)}
-                className="bg-[#FF6B00] text-white px-6 py-2 rounded-lg hover:bg-[#E56100] transition"
+                className="bg-brand-700 text-white px-6 py-2 rounded-lg hover:bg-brand-800 transition"
               >
                 💬 Contacter l'artisan
               </button>
@@ -1681,7 +1681,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
       {showRefusalModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 print:hidden">
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold text-[#2C3E50] mb-4">Refuser ce devis</h3>
+            <h3 className="text-xl font-bold text-navy-800 mb-4">Refuser ce devis</h3>
             
             {/* Alerte si d'autres variantes existent */}
             {autresVariantes.length > 0 && (
@@ -1706,16 +1706,16 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                         >
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="font-semibold text-[#2C3E50]">
+                              <p className="font-semibold text-navy-800">
                                 {v.numeroDevis}
                               </p>
-                              <p className="text-sm text-gray-600">{v.titre}</p>
+                              <p className="text-sm text-slate-600">{v.titre}</p>
                             </div>
                             <div className="text-right">
-                              <p className="font-bold text-[#FF6B00] text-lg">
+                              <p className="font-bold text-brand-700 text-lg">
                                 {v.totaux?.totalTTC.toFixed(2)} €
                               </p>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-slate-500">
                                 Cliquez pour voir →
                               </p>
                             </div>
@@ -1728,16 +1728,16 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
               </div>
             )}
             
-            <p className="text-gray-600 mb-3">
+            <p className="text-slate-600 mb-3">
               Motif du refus {refusalType === 'revision' && <span className="text-red-600 font-semibold">(obligatoire pour nouvelle option)</span>} {refusalType !== 'revision' && '(optionnel)'} :
             </p>
             <textarea
               value={refusalReason}
               onChange={(e) => setRefusalReason(e.target.value)}
-              className={`w-full border rounded-lg p-3 mb-4 focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent ${
+              className={`w-full border rounded-lg p-3 mb-4 focus:ring-2 focus:ring-brand-500 focus:border-transparent ${
                 refusalType === 'revision' && !refusalReason.trim()
                   ? 'border-red-500 bg-red-50'
-                  : 'border-gray-300'
+                  : 'border-slate-300'
               }`}
               rows={3}
               placeholder={refusalType === 'revision' 
@@ -1747,7 +1747,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
               required={refusalType === 'revision'}
             />
 
-            <p className="text-gray-700 font-semibold mb-3">
+            <p className="text-slate-700 font-semibold mb-3">
               Que souhaitez-vous faire ?
             </p>
 
@@ -1763,7 +1763,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                   className="mt-1 w-4 h-4 text-red-600 focus:ring-red-600"
                 />
                 <div className="flex-1">
-                  <p className="font-semibold text-gray-800 flex items-center gap-2">
+                  <p className="font-semibold text-slate-800 flex items-center gap-2">
                     ⚠️ Refuser cet artisan définitivement
                   </p>
                   <p className="text-sm text-red-700 font-medium mt-1">
@@ -1783,10 +1783,10 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                   className="mt-1 w-4 h-4 text-blue-600 focus:ring-blue-600"
                 />
                 <div className="flex-1">
-                  <p className="font-semibold text-gray-800">
+                  <p className="font-semibold text-slate-800">
                     🔄 Refuser et demander une nouvelle option
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-slate-600">
                     {autresVariantes.length > 0 
                       ? "L'artisan pourra créer une variante supplémentaire adaptée à vos besoins"
                       : "L'artisan pourra vous proposer une option alternative améliorée"
@@ -1808,14 +1808,14 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                   setRefusalType('artisan');
                 }}
                 disabled={processing}
-                className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+                className="flex-1 bg-slate-300 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-400 transition"
               >
                 Annuler
               </button>
               <button
                 onClick={handleRefuser}
                 disabled={processing}
-                className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition disabled:bg-gray-400"
+                className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition disabled:bg-slate-400"
               >
                 {processing ? 'Traitement...' : 'Confirmer le refus'}
               </button>
@@ -1829,19 +1829,19 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 print:hidden">
           <div className="bg-white rounded-lg max-w-2xl w-full p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-800">⚠️ Signaler un problème</h3>
+              <h3 className="text-xl font-bold text-slate-800">⚠️ Signaler un problème</h3>
               <button
                 onClick={() => {
                   setShowLitigeModal(false);
                   setMotifLitige('');
                 }}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
+                className="text-slate-500 hover:text-slate-700 text-2xl"
               >
                 ×
               </button>
             </div>
             
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-slate-600 mb-4">
               Décrivez précisément le problème rencontré avec les travaux. Notre équipe de médiation interviendra sous 24-48h pour résoudre le litige.
             </p>
             
@@ -1852,18 +1852,18 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
               </p>
             </div>
             
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
               Description du problème :
             </label>
             <textarea
               placeholder="Exemple : Les joints de la salle de bain ne sont pas étanches, il y a des fuites d'eau. Les carreaux présentent des fissures..."
               value={motifLitige}
               onChange={(e) => setMotifLitige(e.target.value)}
-              className="w-full border-2 border-gray-300 rounded-lg p-3 text-gray-800 mb-4 focus:border-[#FF6B00] focus:outline-none"
+              className="w-full border-2 border-slate-300 rounded-lg p-3 text-slate-800 mb-4 focus:border-brand-500 focus:outline-none"
               rows={6}
             />
             
-            <p className="text-xs text-gray-500 mb-4">
+            <p className="text-xs text-slate-500 mb-4">
               💡 Plus votre description est précise, plus notre équipe pourra intervenir rapidement et efficacement.
             </p>
             
@@ -1874,7 +1874,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                   setMotifLitige('');
                 }}
                 disabled={litigeEnCours}
-                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-3 rounded-lg font-semibold transition"
+                className="flex-1 bg-slate-300 hover:bg-slate-400 text-slate-800 px-6 py-3 rounded-lg font-semibold transition"
               >
                 Annuler
               </button>
@@ -1894,22 +1894,22 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
       {/* ===== POPUP AVIS POST-VALIDATION ===== */}
       {showAvisPopup && devis && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg my-4">
+          <div className="bg-white rounded-2xl shadow-lg w-full max-w-lg my-4">
             {/* Header */}
-            <div className="bg-[#2C3E50] text-white rounded-t-2xl px-6 py-5">
+            <div className="bg-navy-800 text-white rounded-t-2xl px-6 py-5">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold">⭐ Donner un avis</h2>
-                  <p className="text-sm text-gray-300 mt-0.5">
+                  <p className="text-sm text-slate-300 mt-0.5">
                     Partagez votre expérience avec{' '}
-                    <span className="text-[#FF6B00] font-semibold">
+                    <span className="text-brand-700 font-semibold">
                       {devis.artisan?.raisonSociale}
                     </span>
                   </p>
                 </div>
                 <button
                   onClick={() => setShowAvisPopup(false)}
-                  className="text-gray-300 hover:text-white text-2xl leading-none"
+                  className="text-slate-300 hover:text-white text-2xl leading-none"
                   title="Plus tard"
                 >
                   ×
@@ -1920,7 +1920,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
             <div className="px-6 py-5 space-y-5 max-h-[75vh] overflow-y-auto">
               {/* Note étoiles */}
               <div>
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-3">
+                <label className="block text-sm font-semibold text-navy-800 mb-3">
                   Note globale <span className="text-red-500">*</span>
                 </label>
                 <div className="flex gap-2 justify-center">
@@ -1931,13 +1931,13 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                       onClick={() => setAvisNote(star)}
                       onMouseEnter={() => setAvisNoteHover(star)}
                       onMouseLeave={() => setAvisNoteHover(0)}
-                      className="transition-transform hover:scale-110"
+                      className="transition-transform hover:scale-105"
                     >
                       <svg
                         className={`w-10 h-10 ${
                           star <= (avisNoteHover || avisNote)
                             ? 'text-yellow-400 fill-current'
-                            : 'text-gray-300'
+                            : 'text-slate-300'
                         }`}
                         viewBox="0 0 24 24"
                       >
@@ -1946,7 +1946,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                     </button>
                   ))}
                   {avisNote > 0 && (
-                    <span className="ml-2 text-2xl font-bold text-[#FF6B00] self-center">
+                    <span className="ml-2 text-2xl font-bold text-brand-700 self-center">
                       {avisNote}/5
                     </span>
                   )}
@@ -1955,23 +1955,23 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
 
               {/* Commentaire */}
               <div>
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                <label className="block text-sm font-semibold text-navy-800 mb-2">
                   Votre commentaire <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={avisCommentaire}
                   onChange={e => setAvisCommentaire(e.target.value)}
                   placeholder="Décrivez votre expérience (minimum 10 caractères)..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00] resize-none text-sm"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none text-sm"
                   rows={4}
                 />
-                <p className="text-xs text-gray-400 mt-1 text-right">{avisCommentaire.length}/500</p>
+                <p className="text-xs text-slate-400 mt-1 text-right">{avisCommentaire.length}/500</p>
               </div>
 
               {/* Points forts */}
               <div>
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                  Points forts <span className="text-gray-400 font-normal">(optionnel)</span>
+                <label className="block text-sm font-semibold text-navy-800 mb-2">
+                  Points forts <span className="text-slate-400 font-normal">(optionnel)</span>
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {AVIS_POINTS_FORTS.map(point => (
@@ -1984,7 +1984,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                       className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
                         avisPointsForts.includes(point)
                           ? 'bg-green-50 border-green-500 text-green-700'
-                          : 'border-gray-300 text-gray-600 hover:border-green-400'
+                          : 'border-slate-300 text-slate-600 hover:border-green-400'
                       }`}
                     >
                       {avisPointsForts.includes(point) && '✓ '}{point}
@@ -1995,8 +1995,8 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
 
               {/* Points à améliorer */}
               <div>
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                  Points à améliorer <span className="text-gray-400 font-normal">(optionnel)</span>
+                <label className="block text-sm font-semibold text-navy-800 mb-2">
+                  Points à améliorer <span className="text-slate-400 font-normal">(optionnel)</span>
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {AVIS_POINTS_AMELIORATION.map(point => (
@@ -2009,7 +2009,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                       className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
                         avisPointsAmelioration.includes(point)
                           ? 'bg-orange-50 border-orange-500 text-orange-700'
-                          : 'border-gray-300 text-gray-600 hover:border-orange-400'
+                          : 'border-slate-300 text-slate-600 hover:border-orange-400'
                       }`}
                     >
                       {avisPointsAmelioration.includes(point) && '⚠ '}{point}
@@ -2020,11 +2020,11 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
             </div>
 
             {/* Footer boutons */}
-            <div className="px-6 py-4 border-t border-gray-200 flex gap-3">
+            <div className="px-6 py-4 border-t border-slate-200 flex gap-3">
               <button
                 type="button"
                 onClick={() => setShowAvisPopup(false)}
-                className="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-600 rounded-lg font-medium hover:bg-gray-50 transition text-sm"
+                className="flex-1 px-4 py-2.5 border-2 border-slate-300 text-slate-600 rounded-lg font-medium hover:bg-slate-50 transition text-sm"
               >
                 Plus tard
               </button>
@@ -2032,7 +2032,7 @@ L'artisan a été notifié et va vous contacter pour planifier les travaux.`);
                 type="button"
                 onClick={handleSubmitAvis}
                 disabled={avisSubmitting || avisNote === 0 || avisCommentaire.trim().length < 10}
-                className="flex-1 px-4 py-2.5 bg-[#FF6B00] text-white rounded-lg font-semibold hover:bg-[#E56100] disabled:bg-gray-300 disabled:cursor-not-allowed transition text-sm"
+                className="flex-1 px-4 py-2.5 bg-brand-700 text-white rounded-lg font-semibold hover:bg-brand-800 disabled:bg-slate-300 disabled:cursor-not-allowed transition text-sm"
               >
                 {avisSubmitting ? 'Publication...' : '⭐ Publier mon avis'}
               </button>

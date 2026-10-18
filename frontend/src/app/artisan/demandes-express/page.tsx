@@ -101,12 +101,12 @@ export default function DemandesExpressArtisanPage() {
       payee: 'bg-green-100 text-green-800 border-green-300',
       en_cours: 'bg-purple-100 text-purple-800 border-purple-300',
       travaux_termines: 'bg-amber-100 text-amber-800 border-amber-300',
-      terminee: 'bg-gray-100 text-gray-800 border-gray-300',
+      terminee: 'bg-slate-100 text-slate-800 border-slate-300',
       annulee: 'bg-red-100 text-red-800 border-red-300',
-      expiree: 'bg-gray-100 text-gray-800 border-gray-300',
+      expiree: 'bg-slate-100 text-slate-800 border-slate-300',
       refusee_artisan: 'bg-orange-100 text-orange-800 border-orange-300',
     };
-    return (colors as Record<string, string>)[statut] || 'bg-gray-100 text-gray-800 border-gray-300';
+    return (colors as Record<string, string>)[statut] || 'bg-slate-100 text-slate-800 border-slate-300';
   };
 
   const getStatutLabel = (statut: DemandeExpress['statut']) => {
@@ -144,30 +144,30 @@ export default function DemandesExpressArtisanPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto mb-4"></div>
-          <p className="text-[#6C757D]">{t('artisanExpressRequests.loading')}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
+          <p className="text-slate-500">{t('artisanExpressRequests.loading')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-[#E9ECEF]">
+      <div className="bg-white shadow-sm border-b border-slate-200">
         <div className="container mx-auto px-4 py-6">
           <nav className="flex items-center gap-2 text-sm mb-4">
-            <Link href="/artisan/dashboard" className="text-[#2C3E50] hover:text-[#FF6B00]">
+            <Link href="/artisan/dashboard" className="text-navy-800 hover:text-brand-700">
               {t('artisanExpressRequests.breadcrumbDashboard')}
             </Link>
-            <span className="text-[#6C757D]">&gt;</span>
-            <span className="text-[#2C3E50] font-semibold">{t('artisanExpressRequests.breadcrumbExpressRequests')}</span>
+            <span className="text-slate-500">&gt;</span>
+            <span className="text-navy-800 font-semibold">{t('artisanExpressRequests.breadcrumbExpressRequests')}</span>
           </nav>
 
-          <h1 className="text-2xl md:text-3xl font-bold text-[#2C3E50]">
+          <h1 className="text-2xl md:text-3xl font-bold text-navy-800">
             {t('artisanExpressRequests.pageTitle')}
           </h1>
-          <p className="text-[#6C757D] mt-2">
+          <p className="text-slate-500 mt-2">
             {t('artisanExpressRequests.requestsCount')
               .replace('{count}', String(demandes.length))
               .replace('{plural}', demandes.length > 1 ? t('artisanExpressRequests.requestPlural') : t('artisanExpressRequests.requestSingular'))
@@ -184,8 +184,8 @@ export default function DemandesExpressArtisanPage() {
               onClick={() => setFiltreStatut('toutes')}
               className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
                 filtreStatut === 'toutes'
-                  ? 'bg-[#FF6B00] text-white'
-                  : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+                  ? 'bg-brand-700 text-white'
+                  : 'bg-white text-navy-800 hover:bg-slate-50'
               }`}
             >
               {t('artisanExpressRequests.filters.all')} ({demandes.length})
@@ -194,8 +194,8 @@ export default function DemandesExpressArtisanPage() {
               onClick={() => setFiltreStatut('nouvelles')}
               className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
                 filtreStatut === 'nouvelles'
-                  ? 'bg-[#FF6B00] text-white'
-                  : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+                  ? 'bg-brand-700 text-white'
+                  : 'bg-white text-navy-800 hover:bg-slate-50'
               }`}
             >
               <span className="mr-2">🆕</span>{t('artisanExpressRequests.filters.new')} ({demandes.filter(d => d.statut === 'en_attente_proposition').length})
@@ -204,8 +204,8 @@ export default function DemandesExpressArtisanPage() {
               onClick={() => setFiltreStatut('discussion')}
               className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
                 filtreStatut === 'discussion'
-                  ? 'bg-[#FF6B00] text-white'
-                  : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+                  ? 'bg-brand-700 text-white'
+                  : 'bg-white text-navy-800 hover:bg-slate-50'
               }`}
             >
               <span className="mr-2">💬</span>{t('artisanExpressRequests.filters.discussion')} ({demandes.filter(d => d.statut === 'proposition_recue').length})
@@ -214,8 +214,8 @@ export default function DemandesExpressArtisanPage() {
               onClick={() => setFiltreStatut('payees')}
               className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
                 filtreStatut === 'payees'
-                  ? 'bg-[#FF6B00] text-white'
-                  : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+                  ? 'bg-brand-700 text-white'
+                  : 'bg-white text-navy-800 hover:bg-slate-50'
               }`}
             >
               <span className="mr-2">💳</span>{t('artisanExpressRequests.filters.paid')} ({demandes.filter(d => ['payee', 'en_cours'].includes(d.statut)).length})
@@ -224,8 +224,8 @@ export default function DemandesExpressArtisanPage() {
               onClick={() => setFiltreStatut('terminees')}
               className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
                 filtreStatut === 'terminees'
-                  ? 'bg-[#FF6B00] text-white'
-                  : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+                  ? 'bg-brand-700 text-white'
+                  : 'bg-white text-navy-800 hover:bg-slate-50'
               }`}
             >
               <span className="mr-2">✅</span>{t('artisanExpressRequests.filters.completed')} ({demandes.filter(d => ['travaux_termines', 'terminee'].includes(d.statut)).length})
@@ -234,8 +234,8 @@ export default function DemandesExpressArtisanPage() {
               onClick={() => setFiltreStatut('refusees')}
               className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
                 filtreStatut === 'refusees'
-                  ? 'bg-[#FF6B00] text-white'
-                  : 'bg-white text-[#2C3E50] hover:bg-[#F5F7FA]'
+                  ? 'bg-brand-700 text-white'
+                  : 'bg-white text-navy-800 hover:bg-slate-50'
               }`}
             >
               <span className="mr-2">❌</span>{t('artisanExpressRequests.filters.refused')} ({demandes.filter(d => ['refusee_artisan', 'annulee', 'expiree'].includes(d.statut)).length})
@@ -248,22 +248,22 @@ export default function DemandesExpressArtisanPage() {
       <div className="container mx-auto px-4 pb-8">
         <div className="max-w-5xl mx-auto">
           {demandes.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
               <div className="text-6xl mb-4">📭</div>
-              <h2 className="text-2xl font-bold text-[#2C3E50] mb-2">
+              <h2 className="text-2xl font-bold text-navy-800 mb-2">
                 {t('artisanExpressRequests.empty.title')}
               </h2>
-              <p className="text-[#6C757D]">
+              <p className="text-slate-500">
                 {t('artisanExpressRequests.empty.message')}
               </p>
             </div>
           ) : demandesFiltrees.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
               <div className="text-6xl mb-4">🔍</div>
-              <h2 className="text-2xl font-bold text-[#2C3E50] mb-2">
+              <h2 className="text-2xl font-bold text-navy-800 mb-2">
                 {t('artisanExpressRequests.empty.filteredTitle')}
               </h2>
-              <p className="text-[#6C757D]">
+              <p className="text-slate-500">
                 {t('artisanExpressRequests.empty.filteredMessage')}
               </p>
             </div>
@@ -275,7 +275,7 @@ export default function DemandesExpressArtisanPage() {
                   href={`/artisan/demandes-express/${demande.id}`}
                   className="block"
                 >
-                  <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border-2 border-transparent hover:border-[#FF6B00]">
+                  <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border-2 border-transparent hover:border-brand-500">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-3">
@@ -298,25 +298,25 @@ export default function DemandesExpressArtisanPage() {
                           )}
                         </div>
 
-                        <h3 className="text-lg font-bold text-[#2C3E50] mb-2">
+                        <h3 className="text-lg font-bold text-navy-800 mb-2">
                           {demande.categorie.charAt(0).toUpperCase() + demande.categorie.slice(1)}
                           {demande.sousCategorie && ` • ${demande.sousCategorie}`}
                         </h3>
 
                         {clientNoms.has(demande.clientId) && (
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="w-6 h-6 bg-[#2C3E50] text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0">
+                            <div className="w-6 h-6 bg-navy-800 text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0">
                               {clientNoms.get(demande.clientId)!.charAt(0).toUpperCase()}
                             </div>
-                            <span className="text-sm font-semibold text-[#2C3E50]">{clientNoms.get(demande.clientId)}</span>
+                            <span className="text-sm font-semibold text-navy-800">{clientNoms.get(demande.clientId)}</span>
                           </div>
                         )}
 
-                        <p className="text-[#6C757D] mb-3 line-clamp-2">
+                        <p className="text-slate-500 mb-3 line-clamp-2">
                           {demande.description}
                         </p>
 
-                        <div className="flex flex-wrap gap-4 text-sm text-[#6C757D]">
+                        <div className="flex flex-wrap gap-4 text-sm text-slate-500">
                           <div className="flex items-center gap-2">
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
@@ -337,7 +337,7 @@ export default function DemandesExpressArtisanPage() {
                                 <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
                               </svg>
-                              <span className="font-semibold text-[#FF6B00]">{demande.budgetPropose}€</span>
+                              <span className="font-semibold text-brand-700">{demande.budgetPropose}€</span>
                             </div>
                           )}
                         </div>
@@ -345,7 +345,7 @@ export default function DemandesExpressArtisanPage() {
 
                       <div className="flex flex-col gap-2 items-end">
                         {demande.statut === 'en_attente_proposition' && (
-                          <span className="px-4 py-2 bg-[#FF6B00] text-white rounded-lg font-semibold text-center whitespace-nowrap">
+                          <span className="px-4 py-2 bg-brand-700 text-white rounded-lg font-semibold text-center whitespace-nowrap">
                             {t('artisanExpressRequests.actions.makeProposal')}
                           </span>
                         )}
@@ -355,7 +355,7 @@ export default function DemandesExpressArtisanPage() {
                           </span>
                         )}
                         {demande.statut !== 'en_attente_proposition' && demande.statut !== 'payee' && (
-                          <span className="px-4 py-2 border-2 border-[#E9ECEF] text-[#2C3E50] rounded-lg font-semibold text-center whitespace-nowrap">
+                          <span className="px-4 py-2 border-2 border-slate-200 text-navy-800 rounded-lg font-semibold text-center whitespace-nowrap">
                             {t('artisanExpressRequests.actions.viewDetails')}
                           </span>
                         )}
@@ -369,7 +369,7 @@ export default function DemandesExpressArtisanPage() {
                               setDevisListModal(propositionsMap.get(demande.id)!);
                               setDevisListDemande(demande);
                             }}
-                            className="flex items-center gap-1.5 bg-[#2C3E50] text-white px-3 py-2 rounded-lg hover:bg-[#1A3A5C] transition-colors text-xs font-semibold whitespace-nowrap"
+                            className="flex items-center gap-1.5 bg-navy-800 text-white px-3 py-2 rounded-lg hover:bg-navy-900 transition-colors text-xs font-semibold whitespace-nowrap"
                           >
                             📋 Voir le devis
                           </button>
@@ -393,11 +393,11 @@ export default function DemandesExpressArtisanPage() {
           onClick={() => setDevisListModal(null)}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg my-4"
+            className="bg-white rounded-2xl shadow-lg w-full max-w-lg my-4"
             onClick={(e) => e.stopPropagation()}
           >
             {/* En-tête */}
-            <div className="bg-[#2C3E50] text-white rounded-t-2xl px-6 py-5 flex items-center justify-between">
+            <div className="bg-navy-800 text-white rounded-t-2xl px-6 py-5 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold">📋 Devis express</h2>
                 <p className="text-white/70 text-sm mt-0.5">
@@ -410,14 +410,14 @@ export default function DemandesExpressArtisanPage() {
             </div>
 
             {/* Parties */}
-            <div className="px-6 py-4 grid grid-cols-2 gap-4 bg-[#F8F9FA] border-b border-[#E9ECEF] text-sm">
+            <div className="px-6 py-4 grid grid-cols-2 gap-4 bg-slate-50 border-b border-slate-200 text-sm">
               <div>
-                <p className="text-[#6C757D] font-semibold uppercase tracking-wide text-xs mb-0.5">Artisan</p>
-                <p className="font-semibold text-[#2C3E50]">{userData?.prenom} {userData?.nom}</p>
+                <p className="text-slate-500 font-semibold uppercase tracking-wide text-xs mb-0.5">Artisan</p>
+                <p className="font-semibold text-navy-800">{userData?.prenom} {userData?.nom}</p>
               </div>
               <div>
-                <p className="text-[#6C757D] font-semibold uppercase tracking-wide text-xs mb-0.5">Client</p>
-                <p className="font-semibold text-[#2C3E50]">
+                <p className="text-slate-500 font-semibold uppercase tracking-wide text-xs mb-0.5">Client</p>
+                <p className="font-semibold text-navy-800">
                   {devisListDemande ? (clientNoms.get(devisListDemande.clientId) || 'Client') : 'Client'}
                 </p>
               </div>
@@ -426,79 +426,79 @@ export default function DemandesExpressArtisanPage() {
             {/* Lignes de prestation */}
             <div className="px-6 pt-4 pb-2 space-y-2">
               {dj.lignes.map((ligne, i) => (
-                <div key={i} className="flex justify-between items-start gap-4 py-2 border-b border-[#E9ECEF] last:border-0">
+                <div key={i} className="flex justify-between items-start gap-4 py-2 border-b border-slate-200 last:border-0">
                   <div className="flex-1">
-                    <p className="font-semibold text-[#2C3E50] text-sm">{ligne.description}</p>
-                    <p className="text-[#6C757D] text-xs">{ligne.quantite} {ligne.unite} — TVA {ligne.tauxTVA}%</p>
+                    <p className="font-semibold text-navy-800 text-sm">{ligne.description}</p>
+                    <p className="text-slate-500 text-xs">{ligne.quantite} {ligne.unite} — TVA {ligne.tauxTVA}%</p>
                   </div>
-                  <span className="font-semibold text-[#2C3E50] text-sm whitespace-nowrap">{ligne.totalHT.toFixed(2)} € HT</span>
+                  <span className="font-semibold text-navy-800 text-sm whitespace-nowrap">{ligne.totalHT.toFixed(2)} € HT</span>
                 </div>
               ))}
 
               {/* Main d'œuvre */}
               {dj.mainOeuvre && dj.mainOeuvre.prixHT > 0 && (
-                <div className="flex justify-between items-start gap-4 py-2 border-b border-[#E9ECEF]">
+                <div className="flex justify-between items-start gap-4 py-2 border-b border-slate-200">
                   <div className="flex-1">
-                    <p className="font-semibold text-[#2C3E50] text-sm">Main d&apos;œuvre</p>
-                    <span className="text-[#6C757D] text-xs">{dj.mainOeuvre.quantite} {dj.mainOeuvre.unite} — TVA {dj.mainOeuvre.tauxTVA}%</span>
+                    <p className="font-semibold text-navy-800 text-sm">Main d&apos;œuvre</p>
+                    <span className="text-slate-500 text-xs">{dj.mainOeuvre.quantite} {dj.mainOeuvre.unite} — TVA {dj.mainOeuvre.tauxTVA}%</span>
                   </div>
-                  <span className="font-semibold text-[#2C3E50] text-sm whitespace-nowrap">{dj.mainOeuvre.prixHT.toFixed(2)} € HT</span>
+                  <span className="font-semibold text-navy-800 text-sm whitespace-nowrap">{dj.mainOeuvre.prixHT.toFixed(2)} € HT</span>
                 </div>
               )}
 
               {/* Matière première */}
               {dj.matierePremiere && (
-                <div className="flex justify-between items-start gap-4 py-2 border-b border-[#E9ECEF]">
+                <div className="flex justify-between items-start gap-4 py-2 border-b border-slate-200">
                   <div className="flex-1">
-                    <p className="font-semibold text-[#2C3E50] text-sm">Matière première</p>
-                    <span className="text-[#6C757D] text-xs">{dj.matierePremiere.quantite} {dj.matierePremiere.unite} — TVA {dj.matierePremiere.tauxTVA}%</span>
+                    <p className="font-semibold text-navy-800 text-sm">Matière première</p>
+                    <span className="text-slate-500 text-xs">{dj.matierePremiere.quantite} {dj.matierePremiere.unite} — TVA {dj.matierePremiere.tauxTVA}%</span>
                   </div>
-                  <span className="font-semibold text-[#2C3E50] text-sm whitespace-nowrap">{dj.matierePremiere.prixHT.toFixed(2)} € HT</span>
+                  <span className="font-semibold text-navy-800 text-sm whitespace-nowrap">{dj.matierePremiere.prixHT.toFixed(2)} € HT</span>
                 </div>
               )}
             </div>
 
             {/* Totaux */}
             <div className="px-6 pb-3 space-y-1.5 text-sm">
-              <div className="flex justify-between text-[#6C757D]">
+              <div className="flex justify-between text-slate-500">
                 <span>Total HT</span><span>{dj.totaux.totalHT.toFixed(2)} €</span>
               </div>
-              <div className="flex justify-between text-[#6C757D]">
+              <div className="flex justify-between text-slate-500">
                 <span>TVA</span><span>{dj.totaux.totalTVAGlobal.toFixed(2)} €</span>
               </div>
-              <div className="flex justify-between font-bold text-lg text-[#FF6B00] pt-1 border-t border-[#E9ECEF]">
+              <div className="flex justify-between font-bold text-lg text-brand-700 pt-1 border-t border-slate-200">
                 <span>Total TTC</span><span>{dj.totaux.totalTTC.toFixed(2)} €</span>
               </div>
             </div>
 
             {/* Conditions */}
             {(dj.delaiRealisation || dj.dateDebutPrevue || dj.conditions) && (
-              <div className="px-6 pb-4 space-y-1.5 text-sm border-t border-[#E9ECEF] pt-3">
+              <div className="px-6 pb-4 space-y-1.5 text-sm border-t border-slate-200 pt-3">
                 {dj.delaiRealisation && (
-                  <div className="flex gap-2"><span className="text-[#6C757D] font-semibold min-w-32">Délai :</span><span>{dj.delaiRealisation}</span></div>
+                  <div className="flex gap-2"><span className="text-slate-500 font-semibold min-w-32">Délai :</span><span>{dj.delaiRealisation}</span></div>
                 )}
                 {dj.dateDebutPrevue && (
-                  <div className="flex gap-2"><span className="text-[#6C757D] font-semibold min-w-32">Début prévu :</span><span>{dj.dateDebutPrevue}</span></div>
+                  <div className="flex gap-2"><span className="text-slate-500 font-semibold min-w-32">Début prévu :</span><span>{dj.dateDebutPrevue}</span></div>
                 )}
                 {dj.conditions && (
-                  <div className="flex gap-2"><span className="text-[#6C757D] font-semibold min-w-32">Conditions :</span><span>{dj.conditions}</span></div>
+                  <div className="flex gap-2"><span className="text-slate-500 font-semibold min-w-32">Conditions :</span><span>{dj.conditions}</span></div>
                 )}
               </div>
             )}
 
             {/* Signatures */}
             {(dj.signatureArtisan?.dataURL || dj.signatureClient?.dataURL) && (
-              <div className="px-6 pb-4 grid grid-cols-2 gap-4 border-t border-[#E9ECEF] pt-4">
+              <div className="px-6 pb-4 grid grid-cols-2 gap-4 border-t border-slate-200 pt-4">
                 {dj.signatureArtisan?.dataURL && (
                   <div>
-                    <p className="text-xs text-[#6C757D] font-semibold mb-1">Signature artisan</p>
-                    <img src={dj.signatureArtisan.dataURL} alt="Signature artisan" className="h-14 border border-[#E9ECEF] rounded-lg bg-white p-1 w-full object-contain" />
+                    <p className="text-xs text-slate-500 font-semibold mb-1">Signature artisan</p>
+                    <img src={dj.signatureArtisan.dataURL} alt="Signature artisan" className="h-14 border border-slate-200 rounded-lg bg-white p-1 w-full object-contain" />
                   </div>
                 )}
                 {dj.signatureClient?.dataURL && (
                   <div>
-                    <p className="text-xs text-[#6C757D] font-semibold mb-1">Signature client</p>
-                    <img src={dj.signatureClient.dataURL} alt="Signature client" className="h-14 border border-[#E9ECEF] rounded-lg bg-white p-1 w-full object-contain" />
+                    <p className="text-xs text-slate-500 font-semibold mb-1">Signature client</p>
+                    <img src={dj.signatureClient.dataURL} alt="Signature client" className="h-14 border border-slate-200 rounded-lg bg-white p-1 w-full object-contain" />
                   </div>
                 )}
               </div>
@@ -517,13 +517,13 @@ export default function DemandesExpressArtisanPage() {
                     setPdfLoadingList(false);
                   }
                 }}
-                className="flex-1 flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-3 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold"
+                className="flex-1 flex items-center justify-center gap-2 bg-navy-800 text-white px-4 py-3 rounded-lg hover:bg-navy-900 transition-colors font-semibold"
               >
                 🖨️ Imprimer / PDF
               </button>
               <button
                 onClick={() => setDevisListModal(null)}
-                className="flex-1 bg-[#FF6B00] text-white px-4 py-3 rounded-lg hover:bg-[#E56100] transition-colors font-semibold"
+                className="flex-1 bg-brand-700 text-white px-4 py-3 rounded-lg hover:bg-brand-800 transition-colors font-semibold"
               >
                 Fermer
               </button>

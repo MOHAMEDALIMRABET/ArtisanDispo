@@ -164,11 +164,11 @@ export default function SecureAdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#2C3E50] to-[#1A3A5C] flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-md">
+    <div className="min-h-screen bg-navy-800 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 w-full max-w-md">
         {/* Logo et titre */}
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-[#FF6B00] rounded-full mx-auto mb-4 flex items-center justify-center">
+          <div className="w-20 h-20 bg-brand-700 rounded-full mx-auto mb-4 flex items-center justify-center">
             <svg
               className="w-10 h-10 text-white"
               fill="none"
@@ -183,8 +183,8 @@ export default function SecureAdminLoginPage() {
               />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-[#2C3E50]">Espace Sécurisé</h1>
-          <p className="text-gray-600 mt-2">ArtisanDispo - Administration</p>
+          <h1 className="text-3xl font-bold text-navy-800">Espace Sécurisé</h1>
+          <p className="text-slate-600 mt-2">ArtisanDispo - Administration</p>
         </div>
 
         {/* Formulaire */}
@@ -198,7 +198,7 @@ export default function SecureAdminLoginPage() {
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
               Email administrateur
             </label>
             <input
@@ -207,7 +207,7 @@ export default function SecureAdminLoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               placeholder="admin@artisandispo.fr"
               disabled={loading}
             />
@@ -215,7 +215,7 @@ export default function SecureAdminLoginPage() {
 
           {/* Mot de passe */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-2">
               Mot de passe
             </label>
             <input
@@ -224,7 +224,7 @@ export default function SecureAdminLoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               placeholder="••••••••"
               disabled={loading}
             />
@@ -234,7 +234,7 @@ export default function SecureAdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#FF6B00] text-white py-3 rounded-lg hover:bg-[#E56100] transition font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-brand-700 text-white py-3 rounded-lg hover:bg-brand-800 transition font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -248,7 +248,7 @@ export default function SecureAdminLoginPage() {
         </form>
 
         {/* Avertissement sécurité */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
+        <div className="mt-8 pt-6 border-t border-slate-200">
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <div className="flex items-start gap-3">
               <svg
@@ -277,13 +277,13 @@ export default function SecureAdminLoginPage() {
         <div className="mt-6 text-center space-y-2">
           <button
             onClick={() => router.push('/')}
-            className="text-[#FF6B00] hover:underline text-sm block w-full"
+            className="text-brand-700 hover:underline text-sm block w-full"
           >
             ← Retour à l'accueil
           </button>
           <button
             onClick={() => router.push('/connexion')}
-            className="text-gray-400 hover:text-gray-600 text-xs block w-full transition-colors"
+            className="text-slate-400 hover:text-slate-600 text-xs block w-full transition-colors"
           >
             Connexion utilisateur
           </button>

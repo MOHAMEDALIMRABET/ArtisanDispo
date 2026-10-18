@@ -256,13 +256,13 @@ export default function InscriptionPage() {
   // Étape 1 : Choix du rôle
   if (!role) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#2C3E50] to-[#1A3A5C]">
+      <div className="min-h-screen bg-navy-800 ">
         <div className="flex items-center justify-center p-4 py-16">
           <Card className="max-w-2xl w-full">
-          <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">
+          <h1 className="text-3xl font-bold text-center text-slate-800 mb-2">
             {t('signup.welcomeTitle')}
           </h1>
-          <p className="text-center text-gray-600 mb-8">
+          <p className="text-center text-slate-600 mb-8">
             {t('signup.chooseProfile')}
           </p>
 
@@ -270,19 +270,19 @@ export default function InscriptionPage() {
             {/* Carte Client */}
             <button
               onClick={() => setRole('client')}
-              className="p-6 border-2 border-gray-200 rounded-lg hover:border-[#FF6B00] hover:shadow-lg transition-all group text-left"
+              className="p-6 border-2 border-slate-200 rounded-lg hover:border-brand-500 hover:shadow-lg transition-all group text-left"
             >
               <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-[#FF6B00] rounded-full flex items-center justify-center mb-4 group-hover:bg-[#E56100] transition-colors">
+                <div className="w-16 h-16 bg-brand-700 rounded-full flex items-center justify-center mb-4 group-hover:bg-brand-800 transition-colors">
                   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">{t('signup.clientCard')}</h3>
-                <p className="text-sm text-gray-600 text-center">
+                <h3 className="text-xl font-semibold text-slate-800 mb-2">{t('signup.clientCard')}</h3>
+                <p className="text-sm text-slate-600 text-center">
                   {t('signup.clientDesc')}
                 </p>
-                <ul className="mt-4 space-y-2 text-sm text-gray-600">
+                <ul className="mt-4 space-y-2 text-sm text-slate-600">
                   <li className="flex items-center">
                     <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -308,7 +308,7 @@ export default function InscriptionPage() {
             {/* Carte Artisan */}
             <button
               onClick={() => setRole('artisan')}
-              className="p-6 border-2 border-gray-200 rounded-lg hover:border-[#FF6B00] hover:shadow-lg transition-all group text-left"
+              className="p-6 border-2 border-slate-200 rounded-lg hover:border-brand-500 hover:shadow-lg transition-all group text-left"
             >
               <div className="flex flex-col items-center">
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-orange-200 transition-colors">
@@ -316,11 +316,11 @@ export default function InscriptionPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">{t('signup.artisanCard')}</h3>
-                <p className="text-sm text-gray-600 text-center">
+                <h3 className="text-xl font-semibold text-slate-800 mb-2">{t('signup.artisanCard')}</h3>
+                <p className="text-sm text-slate-600 text-center">
                   {t('signup.artisanDesc')}
                 </p>
-                <ul className="mt-4 space-y-2 text-sm text-gray-600">
+                <ul className="mt-4 space-y-2 text-sm text-slate-600">
                   <li className="flex items-center">
                     <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -339,9 +339,9 @@ export default function InscriptionPage() {
           </div>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-600">
+            <p className="text-slate-600">
               {t('signup.alreadyHaveAccount')}{' '}
-              <Link href="/connexion" className="text-[#FF6B00] hover:underline font-medium">
+              <Link href="/connexion" className="text-brand-700 hover:underline font-medium">
                 {t('auth.login')}
               </Link>
             </p>
@@ -354,11 +354,11 @@ export default function InscriptionPage() {
 
   // Étape 2 : Formulaire d'inscription
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       <div className="container mx-auto px-4 py-8 max-w-md">
         <button
           onClick={() => router.back()}
-          className="flex items-center text-gray-600 hover:text-gray-800 mb-4"
+          className="flex items-center text-slate-600 hover:text-slate-800 mb-4"
         >
           <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -366,10 +366,10 @@ export default function InscriptionPage() {
           {t('signup.backButton')}
         </button>
 
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">
           {role === 'client' ? t('signup.signupClient') : t('signup.signupArtisan')}
         </h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-slate-600 mb-6">
           {t('signup.createAccount')}
         </p>
 
@@ -512,18 +512,18 @@ export default function InscriptionPage() {
           )}
 
           {/* Consentement */}
-          <div className="pt-4 border-t border-gray-200">
+          <div className="pt-4 border-t border-slate-200">
             <label className="flex items-start gap-3 cursor-pointer group">
               <input 
                 type="checkbox" 
                 required
-                className="mt-1 w-4 h-4 rounded border-gray-300 text-[#FF6B00] focus:ring-[#FF6B00] cursor-pointer"
+                className="mt-1 w-4 h-4 rounded border-slate-300 text-brand-700 focus:ring-brand-500 cursor-pointer"
               />
-              <span className="text-sm text-gray-700 leading-relaxed">
+              <span className="text-sm text-slate-700 leading-relaxed">
                 {t('signup.termsAccept')}{' '}
                 <Link 
                   href="/confiance/conditions-generales" 
-                  className="text-[#FF6B00] hover:underline font-medium"
+                  className="text-brand-700 hover:underline font-medium"
                   target="_blank"
                 >
                   {t('signup.termsConditions')}
@@ -544,7 +544,7 @@ export default function InscriptionPage() {
           </Button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-600">
+        <div className="mt-6 text-center text-sm text-slate-600">
           {t('signup.alreadyHaveAccount')}{' '}
           <Link href="/connexion" className="text-blue-600 hover:underline font-medium">
             {t('auth.login')}

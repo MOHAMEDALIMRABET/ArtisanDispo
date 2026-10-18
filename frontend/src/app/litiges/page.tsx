@@ -75,60 +75,60 @@ export default function MesLitigesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto mb-4"></div>
-          <p className="text-[#6C757D]">Chargement des litiges...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
+          <p className="text-slate-500">Chargement des litiges...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] py-8">
+    <div className="min-h-screen bg-slate-50 py-8">
       <div className="max-w-6xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#2C3E50] mb-2">
+          <h1 className="text-3xl font-bold text-navy-800 mb-2">
             ⚠️ Mes Litiges
           </h1>
-          <p className="text-[#6C757D]">
+          <p className="text-slate-500">
             Suivez l'état de vos litiges et échangez avec notre équipe de médiation
           </p>
         </div>
 
         {/* Statistiques */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-lg shadow-sm p-6 border border-[#E9ECEF]">
-            <div className="text-3xl font-bold text-[#2C3E50] mb-1">
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
+            <div className="text-3xl font-bold text-navy-800 mb-1">
               {stats.total}
             </div>
-            <div className="text-sm text-[#6C757D]">Total litiges</div>
+            <div className="text-sm text-slate-500">Total litiges</div>
           </div>
-          <div className="bg-white rounded-lg shadow-sm p-6 border border-[#E9ECEF]">
-            <div className="text-3xl font-bold text-[#FFC107] mb-1">
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
+            <div className="text-3xl font-bold text-amber-500 mb-1">
               {stats.ouverts}
             </div>
-            <div className="text-sm text-[#6C757D]">Ouverts</div>
+            <div className="text-sm text-slate-500">Ouverts</div>
           </div>
-          <div className="bg-white rounded-lg shadow-sm p-6 border border-[#E9ECEF]">
-            <div className="text-3xl font-bold text-[#FF6B00] mb-1">
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
+            <div className="text-3xl font-bold text-brand-700 mb-1">
               {stats.enMediation}
             </div>
-            <div className="text-sm text-[#6C757D]">En médiation</div>
+            <div className="text-sm text-slate-500">En médiation</div>
           </div>
-          <div className="bg-white rounded-lg shadow-sm p-6 border border-[#E9ECEF]">
-            <div className="text-3xl font-bold text-[#28A745] mb-1">
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
+            <div className="text-3xl font-bold text-green-700 mb-1">
               {stats.resolus}
             </div>
-            <div className="text-sm text-[#6C757D]">Résolus</div>
+            <div className="text-sm text-slate-500">Résolus</div>
           </div>
         </div>
 
         {/* Filtres */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-[#E9ECEF]">
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-slate-200">
           <div className="flex flex-wrap items-center gap-4">
-            <label className="text-sm font-semibold text-[#2C3E50]">
+            <label className="text-sm font-semibold text-navy-800">
               Filtrer par statut :
             </label>
             <div className="flex flex-wrap gap-2">
@@ -136,8 +136,8 @@ export default function MesLitigesPage() {
                 onClick={() => setFilterStatut('tous')}
                 className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                   filterStatut === 'tous'
-                    ? 'bg-[#FF6B00] text-white'
-                    : 'bg-[#F8F9FA] text-[#6C757D] hover:bg-[#E9ECEF]'
+                    ? 'bg-brand-700 text-white'
+                    : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
                 }`}
               >
                 Tous ({stats.total})
@@ -146,8 +146,8 @@ export default function MesLitigesPage() {
                 onClick={() => setFilterStatut('ouvert')}
                 className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                   filterStatut === 'ouvert'
-                    ? 'bg-[#FFC107] text-white'
-                    : 'bg-[#F8F9FA] text-[#6C757D] hover:bg-[#E9ECEF]'
+                    ? 'bg-amber-400 text-white'
+                    : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
                 }`}
               >
                 Ouverts ({stats.ouverts})
@@ -156,8 +156,8 @@ export default function MesLitigesPage() {
                 onClick={() => setFilterStatut('en_mediation')}
                 className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                   filterStatut === 'en_mediation'
-                    ? 'bg-[#FF6B00] text-white'
-                    : 'bg-[#F8F9FA] text-[#6C757D] hover:bg-[#E9ECEF]'
+                    ? 'bg-brand-700 text-white'
+                    : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
                 }`}
               >
                 En médiation ({stats.enMediation})
@@ -166,8 +166,8 @@ export default function MesLitigesPage() {
                 onClick={() => setFilterStatut('resolu')}
                 className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                   filterStatut === 'resolu'
-                    ? 'bg-[#28A745] text-white'
-                    : 'bg-[#F8F9FA] text-[#6C757D] hover:bg-[#E9ECEF]'
+                    ? 'bg-green-700 text-white'
+                    : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
                 }`}
               >
                 Résolus ({stats.resolus})
@@ -178,14 +178,14 @@ export default function MesLitigesPage() {
 
         {/* Liste des litiges */}
         {filteredLitiges.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center border border-[#E9ECEF]">
+          <div className="bg-white rounded-lg shadow-sm p-12 text-center border border-slate-200">
             <div className="text-6xl mb-4">🤝</div>
-            <h3 className="text-xl font-bold text-[#2C3E50] mb-2">
+            <h3 className="text-xl font-bold text-navy-800 mb-2">
               {filterStatut === 'tous' 
                 ? 'Aucun litige' 
                 : `Aucun litige ${LITIGE_STATUT_LABELS[filterStatut as LitigeStatut]?.toLowerCase()}`}
             </h3>
-            <p className="text-[#6C757D] mb-6">
+            <p className="text-slate-500 mb-6">
               {filterStatut === 'tous'
                 ? 'Vous n\'avez aucun litige en cours. C\'est excellent !'
                 : 'Essayez un autre filtre pour voir vos litiges'}
@@ -193,7 +193,7 @@ export default function MesLitigesPage() {
             {filterStatut !== 'tous' && (
               <button
                 onClick={() => setFilterStatut('tous')}
-                className="px-6 py-3 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] font-semibold"
+                className="px-6 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 font-semibold"
               >
                 Voir tous les litiges
               </button>
@@ -208,15 +208,15 @@ export default function MesLitigesPage() {
         )}
 
         {/* Info médiation */}
-        <div className="mt-8 bg-[#E7F3FF] border-l-4 border-[#17A2B8] rounded-lg p-6">
-          <h3 className="font-bold text-[#004085] mb-2">
+        <div className="mt-8 bg-blue-50 border-l-4 border-sky-600 rounded-lg p-6">
+          <h3 className="font-bold text-blue-900 mb-2">
             💡 Besoin d'aide ?
           </h3>
-          <p className="text-sm text-[#004085] mb-4">
+          <p className="text-sm text-blue-900 mb-4">
             Notre équipe de médiation est à votre disposition pour résoudre tous les litiges de manière
             équitable et rapide. N'hésitez pas à fournir un maximum de détails et de preuves.
           </p>
-          <div className="flex items-center gap-4 text-sm text-[#004085]">
+          <div className="flex items-center gap-4 text-sm text-blue-900">
             <span>✓ Réponse sous 24h</span>
             <span>✓ Médiation gratuite</span>
             <span>✓ Solution équitable</span>

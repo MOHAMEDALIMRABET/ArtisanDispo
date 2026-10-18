@@ -97,8 +97,8 @@ export default function EmailVerifiedPage() {
   }, [router, searchParams]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#2C3E50] to-[#1A3A5C] flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
+    <div className="min-h-screen bg-navy-800 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 max-w-md w-full text-center">
         <div className="flex justify-center mb-6">
           <Logo size="lg" />
         </div>
@@ -106,7 +106,7 @@ export default function EmailVerifiedPage() {
         {/* Icône de statut */}
         <div className="mb-6">
           {status === 'loading' && (
-            <div className="w-20 h-20 mx-auto border-4 border-[#FF6B00] border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-20 h-20 mx-auto border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
           )}
           {status === 'success' && (
             <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center">
@@ -135,7 +135,7 @@ export default function EmailVerifiedPage() {
           status === 'success' ? 'text-green-600' : 
           status === 'expired' ? 'text-yellow-600' :
           status === 'error' ? 'text-red-600' : 
-          'text-[#2C3E50]'
+          'text-navy-800'
         }`}>
           {status === 'loading' && 'Vérification en cours'}
           {status === 'success' && '✅ Email vérifié !'}
@@ -143,14 +143,14 @@ export default function EmailVerifiedPage() {
           {status === 'error' && '❌ Échec de vérification'}
         </h1>
 
-        <p className="text-gray-600 mb-6">
+        <p className="text-slate-600 mb-6">
           {message}
         </p>
 
         {/* Actions */}
         <div className="space-y-3">
           {status === 'success' && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-slate-500">
               Redirection automatique vers votre dashboard dans 3 secondes...
             </p>
           )}
@@ -161,7 +161,7 @@ export default function EmailVerifiedPage() {
                 ⏱️ Votre lien de vérification a expiré après 1 heure. Pour des raisons de sécurité, les liens d'activation ont une durée de validité limitée.
               </p>
               <Link href="/connexion">
-                <button className="w-full bg-[#FF6B00] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#E56100] transition">
+                <button className="w-full bg-brand-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-brand-800 transition">
                   Se connecter pour renvoyer un email
                 </button>
               </Link>
@@ -171,12 +171,12 @@ export default function EmailVerifiedPage() {
           {status === 'error' && (
             <>
               <Link href="/dashboard">
-                <button className="w-full bg-[#FF6B00] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#E56100] transition">
+                <button className="w-full bg-brand-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-brand-800 transition">
                   Retour au dashboard
                 </button>
               </Link>
               <Link href="/connexion">
-                <button className="w-full border-2 border-[#2C3E50] text-[#2C3E50] px-6 py-3 rounded-lg font-medium hover:bg-[#2C3E50] hover:text-white transition">
+                <button className="w-full border-2 border-navy-800 text-navy-800 px-6 py-3 rounded-lg font-medium hover:bg-navy-800 hover:text-white transition">
                   Se reconnecter
                 </button>
               </Link>
@@ -185,7 +185,7 @@ export default function EmailVerifiedPage() {
 
           {status === 'success' && !auth.currentUser && (
             <Link href="/connexion">
-              <button className="w-full bg-[#FF6B00] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#E56100] transition">
+              <button className="w-full bg-brand-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-brand-800 transition">
                 Se connecter
               </button>
             </Link>
@@ -193,7 +193,7 @@ export default function EmailVerifiedPage() {
 
           {status === 'loading' && (
             <Link href="/dashboard">
-              <button className="w-full border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition">
+              <button className="w-full border-2 border-slate-300 text-slate-700 px-6 py-3 rounded-lg font-medium hover:bg-slate-100 transition">
                 Retour au dashboard
               </button>
             </Link>

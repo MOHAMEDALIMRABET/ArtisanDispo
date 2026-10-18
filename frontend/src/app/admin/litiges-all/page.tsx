@@ -344,31 +344,31 @@ export default function AdminLitigesAllPage() {
 
   const getPrioriteColor = (priorite?: string) => {
     switch (priorite) {
-      case 'urgente': return 'bg-[#DC3545] text-white';
-      case 'haute': return 'bg-[#FF6B00] text-white';
-      case 'moyenne': return 'bg-[#FFC107] text-black';
-      case 'basse': return 'bg-[#28A745] text-white';
-      default: return 'bg-[#6C757D] text-white';
+      case 'urgente': return 'bg-red-700 text-white';
+      case 'haute': return 'bg-brand-700 text-white';
+      case 'moyenne': return 'bg-amber-400 text-black';
+      case 'basse': return 'bg-green-700 text-white';
+      default: return 'bg-slate-500 text-white';
     }
   };
 
   const getStatutColor = (statut: string) => {
     switch (statut) {
-      case 'ouvert': return 'bg-[#FF6B00] text-white';
-      case 'en_mediation': return 'bg-[#FFC107] text-black';
+      case 'ouvert': return 'bg-brand-700 text-white';
+      case 'en_mediation': return 'bg-amber-400 text-black';
       case 'resolu_accord':
-      case 'resolu_admin': return 'bg-[#28A745] text-white';
-      case 'abandonne': return 'bg-[#6C757D] text-white';
-      default: return 'bg-[#2C3E50] text-white';
+      case 'resolu_admin': return 'bg-green-700 text-white';
+      case 'abandonne': return 'bg-slate-500 text-white';
+      default: return 'bg-navy-800 text-white';
     }
   };
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA]">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
-          <p className="mt-4 text-[#6C757D]">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
+          <p className="mt-4 text-slate-500">Chargement...</p>
         </div>
       </div>
     );
@@ -377,26 +377,26 @@ export default function AdminLitigesAllPage() {
   const selectedConv = conversations.find(c => c.id === selectedConversation);
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] pt-20">
+    <div className="min-h-screen bg-slate-50 pt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h1 className="text-3xl font-bold text-[#2C3E50] mb-2">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+          <h1 className="text-3xl font-bold text-navy-800 mb-2">
             🛡️ Gestion des Litiges et Historique
           </h1>
-          <p className="text-[#6C757D]">
+          <p className="text-slate-500">
             Toutes les conversations (même grisées) et litiges formels accessibles pour l'admin
           </p>
         </div>
 
         <div className="bg-white rounded-lg shadow-md mb-6">
-          <div className="border-b border-[#E9ECEF]">
+          <div className="border-b border-slate-200">
             <div className="flex">
               <button
                 onClick={() => { setActiveTab('conversations'); setSearchTerm(''); }}
                 className={`px-6 py-3 font-medium border-b-2 ${
                   activeTab === 'conversations'
-                    ? 'text-[#FF6B00] border-[#FF6B00]'
-                    : 'text-[#6C757D] border-transparent hover:text-[#2C3E50]'
+                    ? 'text-brand-700 border-brand-500'
+                    : 'text-slate-500 border-transparent hover:text-navy-800'
                 }`}
               >
                 💬 Conversations ({conversations.length})
@@ -406,8 +406,8 @@ export default function AdminLitigesAllPage() {
                 onClick={() => { setActiveTab('litiges'); setSearchTerm(''); }}
                 className={`px-6 py-3 font-medium border-b-2 ${
                   activeTab === 'litiges'
-                    ? 'text-[#FF6B00] border-[#FF6B00]'
-                    : 'text-[#6C757D] border-transparent hover:text-[#2C3E50]'
+                    ? 'text-brand-700 border-brand-500'
+                    : 'text-slate-500 border-transparent hover:text-navy-800'
                 }`}
               >
                 ⚖️ Litiges Formels ({litiges.length})
@@ -418,7 +418,7 @@ export default function AdminLitigesAllPage() {
 
         {activeTab === 'conversations' ? (
           <div>
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-2">
                   <input
@@ -426,13 +426,13 @@ export default function AdminLitigesAllPage() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="🔍 Rechercher..."
-                    className="w-full px-4 py-2 border border-[#E9ECEF] rounded-lg focus:ring-2 focus:ring-[#FF6B00]"
+                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500"
                   />
                 </div>
                 <select
                   value={filterLitige}
                   onChange={(e) => setFilterLitige(e.target.value as any)}
-                  className="w-full px-4 py-2 border border-[#E9ECEF] rounded-lg"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg"
                 >
                   <option value="all">Toutes</option>
                   <option value="litige">Litiges</option>
@@ -443,7 +443,7 @@ export default function AdminLitigesAllPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="bg-white rounded-lg shadow-md">
-                <div className="p-4 bg-[#2C3E50] text-white">
+                <div className="p-4 bg-navy-800 text-white">
                   Conversations ({filteredConversations.length})
                 </div>
                 <div className="max-h-[600px] overflow-y-auto">
@@ -451,15 +451,15 @@ export default function AdminLitigesAllPage() {
                     <div
                       key={conv.id}
                       onClick={() => handleSelectConversation(conv.id)}
-                      className={`p-4 cursor-pointer hover:bg-[#F8F9FA] border-b ${
+                      className={`p-4 cursor-pointer hover:bg-slate-50 border-b ${
                         selectedConversation === conv.id ? 'bg-blue-50' : ''
                       }`}
                     >
                       {conv.litige && <span className="bg-red-500 text-white text-xs px-2 py-1 rounded">🚨 LITIGE</span>}
-                      <p className="font-semibold text-[#2C3E50] mt-2">
+                      <p className="font-semibold text-navy-800 mt-2">
                         {participantsInfo[conv.participants[0]]?.prenom} {participantsInfo[conv.participants[0]]?.nom}
                       </p>
-                      <p className="text-sm text-[#6C757D] truncate">{conv.lastMessage}</p>
+                      <p className="text-sm text-slate-500 truncate">{conv.lastMessage}</p>
                     </div>
                   ))}
                 </div>
@@ -468,7 +468,7 @@ export default function AdminLitigesAllPage() {
               <div className="lg:col-span-2 bg-white rounded-lg shadow-md">
                 {selectedConv ? (
                   <>
-                    <div className="p-4 bg-[#2C3E50] text-white">
+                    <div className="p-4 bg-navy-800 text-white">
                       <div className="flex justify-between">
                         <div>
                           <h2>Historique</h2>
@@ -483,15 +483,15 @@ export default function AdminLitigesAllPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="p-4 max-h-[500px] overflow-y-auto bg-[#F8F9FA]">
+                    <div className="p-4 max-h-[500px] overflow-y-auto bg-slate-50">
                       {messages.map(msg => {
                         const sender = participantsInfo[msg.senderId];
                         return (
                           <div key={msg.id} className="mb-4">
-                            <div className="bg-white p-3 rounded shadow">
+                            <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-200">
                               <p className="font-semibold text-sm">{sender?.prenom} {sender?.nom}</p>
                               <p className="text-sm">{msg.content}</p>
-                              <p className="text-xs text-[#6C757D]">{msg.createdAt?.toDate().toLocaleString('fr-FR')}</p>
+                              <p className="text-xs text-slate-500">{msg.createdAt?.toDate().toLocaleString('fr-FR')}</p>
                             </div>
                           </div>
                         );
@@ -499,7 +499,7 @@ export default function AdminLitigesAllPage() {
                     </div>
                   </>
                 ) : (
-                  <div className="p-8 text-center text-[#6C757D]">Sélectionnez une conversation</div>
+                  <div className="p-8 text-center text-slate-500">Sélectionnez une conversation</div>
                 )}
               </div>
             </div>
@@ -512,28 +512,28 @@ export default function AdminLitigesAllPage() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="🔍 Rechercher litiges..."
-                className="w-full px-4 py-2 border border-[#E9ECEF] rounded-lg"
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg"
               />
             </div>
 
             <div className="bg-white rounded-lg shadow-md">
-              <div className="p-4 bg-[#2C3E50] text-white">
+              <div className="p-4 bg-navy-800 text-white">
                 Litiges Formels ({filteredLitiges.length})
               </div>
               <div>
                 {filteredLitiges.map(litige => (
-                  <Link key={litige.id} href={`/admin/litiges/${litige.id}`} className="block p-4 border-b hover:bg-[#F8F9FA]">
+                  <Link key={litige.id} href={`/admin/litiges/${litige.id}`} className="block p-4 border-b hover:bg-slate-50">
                     <div className="flex justify-between">
                       <div>
-                        <h3 className="font-semibold text-[#2C3E50]">{litige.motif}</h3>
-                        <p className="text-sm text-[#6C757D]">{LITIGE_TYPE_LABELS[litige.type]}</p>
-                        <p className="text-sm text-[#6C757D] line-clamp-2">{litige.description}</p>
+                        <h3 className="font-semibold text-navy-800">{litige.motif}</h3>
+                        <p className="text-sm text-slate-500">{LITIGE_TYPE_LABELS[litige.type]}</p>
+                        <p className="text-sm text-slate-500 line-clamp-2">{litige.description}</p>
                       </div>
                       <div className="text-right">
                         <span className={`px-2 py-1 rounded text-xs ${getStatutColor(litige.statut)}`}>
                           {LITIGE_STATUT_LABELS[litige.statut]}
                         </span>
-                        <p className="text-sm text-[#FF6B00] mt-2">Voir détails →</p>
+                        <p className="text-sm text-brand-700 mt-2">Voir détails →</p>
                       </div>
                     </div>
                   </Link>
@@ -547,7 +547,7 @@ export default function AdminLitigesAllPage() {
       {showLitigeModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-[#2C3E50] mb-4">🚨 Marquer comme litige</h3>
+            <h3 className="text-xl font-bold text-navy-800 mb-4">🚨 Marquer comme litige</h3>
             <textarea
               value={litigeDescription}
               onChange={(e) => setLitigeDescription(e.target.value)}

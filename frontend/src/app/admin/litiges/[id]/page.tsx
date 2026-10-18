@@ -163,10 +163,10 @@ export default function LitigeDetailPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
-          <p className="mt-4 text-[#6C757D]">Chargement du contexte du litige...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
+          <p className="mt-4 text-slate-500">Chargement du contexte du litige...</p>
         </div>
       </div>
     );
@@ -174,12 +174,12 @@ export default function LitigeDetailPage() {
 
   if (!contexte || !contexte.litige) {
     return (
-      <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-[#DC3545] text-xl">Litige introuvable</p>
+          <p className="text-red-700 text-xl">Litige introuvable</p>
           <button
             onClick={() => router.push('/admin/litiges')}
-            className="mt-4 bg-[#2C3E50] text-white px-6 py-2 rounded-lg hover:bg-[#1A3A5C]"
+            className="mt-4 bg-navy-800 text-white px-6 py-2 rounded-lg hover:bg-navy-900"
           >
             Retour aux litiges
           </button>
@@ -193,44 +193,44 @@ export default function LitigeDetailPage() {
   // Badge priorité
   const getPrioriteColor = (priorite?: string) => {
     switch (priorite) {
-      case 'urgente': return 'bg-[#DC3545] text-white';
-      case 'haute': return 'bg-[#FF6B00] text-white';
-      case 'moyenne': return 'bg-[#FFC107] text-black';
-      case 'basse': return 'bg-[#28A745] text-white';
-      default: return 'bg-[#6C757D] text-white';
+      case 'urgente': return 'bg-red-700 text-white';
+      case 'haute': return 'bg-brand-700 text-white';
+      case 'moyenne': return 'bg-amber-400 text-black';
+      case 'basse': return 'bg-green-700 text-white';
+      default: return 'bg-slate-500 text-white';
     }
   };
 
   // Badge statut
   const getStatutColor = (statut: string) => {
     switch (statut) {
-      case 'ouvert': return 'bg-[#FF6B00] text-white';
-      case 'en_mediation': return 'bg-[#FFC107] text-black';
+      case 'ouvert': return 'bg-brand-700 text-white';
+      case 'en_mediation': return 'bg-amber-400 text-black';
       case 'resolu_accord':
-      case 'resolu_admin': return 'bg-[#28A745] text-white';
-      case 'abandonne': return 'bg-[#6C757D] text-white';
-      default: return 'bg-[#2C3E50] text-white';
+      case 'resolu_admin': return 'bg-green-700 text-white';
+      case 'abandonne': return 'bg-slate-500 text-white';
+      default: return 'bg-navy-800 text-white';
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] p-6">
+    <div className="min-h-screen bg-slate-50 p-6">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-6">
         <button
           onClick={() => router.push('/admin/litiges')}
-          className="text-[#FF6B00] hover:underline mb-4"
+          className="text-brand-700 hover:underline mb-4"
         >
           ← Retour aux litiges
         </button>
         
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-2xl font-bold text-[#2C3E50] mb-2">
+              <h1 className="text-2xl font-bold text-navy-800 mb-2">
                 Litige #{litigeId.slice(0, 8)}
               </h1>
-              <p className="text-[#6C757D]">
+              <p className="text-slate-500">
                 {LITIGE_TYPE_LABELS[litige.type]} - {litige.motif}
               </p>
             </div>
@@ -247,8 +247,8 @@ export default function LitigeDetailPage() {
 
           {/* Montant contesté */}
           {litige.montantConteste && litige.montantConteste > 0 && (
-            <div className="mt-4 p-4 bg-[#FFF3E0] rounded-lg">
-              <p className="text-[#2C3E50] font-semibold">
+            <div className="mt-4 p-4 bg-brand-50 rounded-lg">
+              <p className="text-navy-800 font-semibold">
                 Montant contesté : {litige.montantConteste.toFixed(2)} €
               </p>
             </div>
@@ -259,14 +259,14 @@ export default function LitigeDetailPage() {
       {/* Tabs */}
       <div className="max-w-7xl mx-auto mb-6">
         <div className="bg-white rounded-lg shadow-md">
-          <div className="border-b border-[#E9ECEF]">
+          <div className="border-b border-slate-200">
             <div className="flex">
               <button
                 onClick={() => setActiveTab('litige')}
                 className={`px-6 py-3 font-medium ${
                   activeTab === 'litige'
-                    ? 'text-[#FF6B00] border-b-2 border-[#FF6B00]'
-                    : 'text-[#6C757D] hover:text-[#2C3E50]'
+                    ? 'text-brand-700 border-b-2 border-brand-500'
+                    : 'text-slate-500 hover:text-navy-800'
                 }`}
               >
                 📋 Litige
@@ -275,8 +275,8 @@ export default function LitigeDetailPage() {
                 onClick={() => setActiveTab('demande')}
                 className={`px-6 py-3 font-medium ${
                   activeTab === 'demande'
-                    ? 'text-[#FF6B00] border-b-2 border-[#FF6B00]'
-                    : 'text-[#6C757D] hover:text-[#2C3E50]'
+                    ? 'text-brand-700 border-b-2 border-brand-500'
+                    : 'text-slate-500 hover:text-navy-800'
                 }`}
               >
                 📝 Demande initiale
@@ -285,8 +285,8 @@ export default function LitigeDetailPage() {
                 onClick={() => setActiveTab('devis')}
                 className={`px-6 py-3 font-medium ${
                   activeTab === 'devis'
-                    ? 'text-[#FF6B00] border-b-2 border-[#FF6B00]'
-                    : 'text-[#6C757D] hover:text-[#2C3E50]'
+                    ? 'text-brand-700 border-b-2 border-brand-500'
+                    : 'text-slate-500 hover:text-navy-800'
                 }`}
               >
                 💰 Devis en litige
@@ -295,8 +295,8 @@ export default function LitigeDetailPage() {
                 onClick={() => setActiveTab('historique')}
                 className={`px-6 py-3 font-medium ${
                   activeTab === 'historique'
-                    ? 'text-[#FF6B00] border-b-2 border-[#FF6B00]'
-                    : 'text-[#6C757D] hover:text-[#2C3E50]'
+                    ? 'text-brand-700 border-b-2 border-brand-500'
+                    : 'text-slate-500 hover:text-navy-800'
                 }`}
               >
                 📊 Historique devis ({statistiques.totalDevis})
@@ -305,8 +305,8 @@ export default function LitigeDetailPage() {
                 onClick={() => setActiveTab('conversation')}
                 className={`px-6 py-3 font-medium ${
                   activeTab === 'conversation'
-                    ? 'text-[#FF6B00] border-b-2 border-[#FF6B00]'
-                    : 'text-[#6C757D] hover:text-[#2C3E50]'
+                    ? 'text-brand-700 border-b-2 border-brand-500'
+                    : 'text-slate-500 hover:text-navy-800'
                 }`}
               >
                 💬 Conversation ({messages.length})
@@ -319,8 +319,8 @@ export default function LitigeDetailPage() {
             {activeTab === 'litige' && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-[#2C3E50] mb-3">Description du litige</h3>
-                  <p className="text-[#6C757D] whitespace-pre-wrap bg-[#F8F9FA] p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold text-navy-800 mb-3">Description du litige</h3>
+                  <p className="text-slate-500 whitespace-pre-wrap bg-slate-50 p-4 rounded-lg">
                     {litige.description}
                   </p>
                 </div>
@@ -328,8 +328,8 @@ export default function LitigeDetailPage() {
                 {/* Résolution */}
                 {(litige.statut === 'resolu_accord' || litige.statut === 'resolu_admin') && litige.resolution && (
                   <div>
-                    <h3 className="text-lg font-semibold text-[#28A745] mb-3">✅ Résolution</h3>
-                    <p className="text-[#6C757D] whitespace-pre-wrap bg-[#E8F5E9] p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-green-700 mb-3">✅ Résolution</h3>
+                    <p className="text-slate-500 whitespace-pre-wrap bg-green-50 p-4 rounded-lg">
                       {litige.resolution}
                     </p>
                   </div>
@@ -337,21 +337,21 @@ export default function LitigeDetailPage() {
 
                 {/* Actions admin si non résolu */}
                 {litige.statut !== 'resolu_accord' && litige.statut !== 'resolu_admin' && litige.statut !== 'abandonne' && (
-                  <div className="border-t border-[#E9ECEF] pt-6">
-                    <h3 className="text-lg font-semibold text-[#2C3E50] mb-3">Actions administrateur</h3>
+                  <div className="border-t border-slate-200 pt-6">
+                    <h3 className="text-lg font-semibold text-navy-800 mb-3">Actions administrateur</h3>
                     
                     <textarea
                       value={resolutionNote}
                       onChange={(e) => setResolutionNote(e.target.value)}
                       placeholder="Note de résolution (obligatoire)..."
-                      className="w-full px-4 py-3 border border-[#E9ECEF] rounded-lg mb-4 min-h-[120px]"
+                      className="w-full px-4 py-3 border border-slate-200 rounded-lg mb-4 min-h-[120px]"
                     />
 
                     <div className="flex gap-3">
                       <button
                         onClick={() => handleResolve('resolu_accord')}
                         disabled={submitting || !resolutionNote.trim()}
-                        className="bg-[#28A745] text-white px-6 py-2 rounded-lg hover:bg-[#218838] disabled:bg-[#6C757D] disabled:cursor-not-allowed"
+                        className="bg-green-700 text-white px-6 py-2 rounded-lg hover:bg-green-800 disabled:bg-slate-500 disabled:cursor-not-allowed"
                       >
                         ✅ Résoudre (Accord mutuel)
                       </button>
@@ -359,7 +359,7 @@ export default function LitigeDetailPage() {
                       <button
                         onClick={() => handleResolve('resolu_admin')}
                         disabled={submitting || !resolutionNote.trim()}
-                        className="bg-[#FF6B00] text-white px-6 py-2 rounded-lg hover:bg-[#E56100] disabled:bg-[#6C757D] disabled:cursor-not-allowed"
+                        className="bg-brand-700 text-white px-6 py-2 rounded-lg hover:bg-brand-800 disabled:bg-slate-500 disabled:cursor-not-allowed"
                       >
                         ⚖️ Résoudre (Décision admin)
                       </button>
@@ -367,7 +367,7 @@ export default function LitigeDetailPage() {
                       <button
                         onClick={() => handleResolve('abandonne')}
                         disabled={submitting || !resolutionNote.trim()}
-                        className="bg-[#6C757D] text-white px-6 py-2 rounded-lg hover:bg-[#5A6268] disabled:cursor-not-allowed"
+                        className="bg-slate-500 text-white px-6 py-2 rounded-lg hover:bg-slate-600 disabled:cursor-not-allowed"
                       >
                         🚫 Abandonner
                       </button>
@@ -382,36 +382,36 @@ export default function LitigeDetailPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm text-[#6C757D]">Type de travaux</label>
-                    <p className="text-[#2C3E50] font-medium">{demande.critereRecherche?.metier || demande.categorie || 'Non spécifié'}</p>
+                    <label className="text-sm text-slate-500">Type de travaux</label>
+                    <p className="text-navy-800 font-medium">{demande.critereRecherche?.metier || demande.categorie || 'Non spécifié'}</p>
                   </div>
                   <div>
-                    <label className="text-sm text-[#6C757D]">Localisation</label>
-                    <p className="text-[#2C3E50] font-medium">
+                    <label className="text-sm text-slate-500">Localisation</label>
+                    <p className="text-navy-800 font-medium">
                       {demande.localisation?.ville}, {demande.localisation?.codePostal}
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-sm text-[#6C757D]">Description initiale</label>
-                  <p className="text-[#2C3E50] whitespace-pre-wrap bg-[#F8F9FA] p-4 rounded-lg mt-1">
+                  <label className="text-sm text-slate-500">Description initiale</label>
+                  <p className="text-navy-800 whitespace-pre-wrap bg-slate-50 p-4 rounded-lg mt-1">
                     {demande.description}
                   </p>
                 </div>
 
                 {demande.budgetIndicatif && (
                   <div>
-                    <label className="text-sm text-[#6C757D]">Budget indicatif du client</label>
-                    <p className="text-[#2C3E50] font-medium text-lg">
+                    <label className="text-sm text-slate-500">Budget indicatif du client</label>
+                    <p className="text-navy-800 font-medium text-lg">
                       {demande.budgetIndicatif.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                     </p>
                   </div>
                 )}
 
                 <div>
-                  <label className="text-sm text-[#6C757D]">Statut de la demande</label>
-                  <p className="text-[#2C3E50] font-medium">{demande.statut}</p>
+                  <label className="text-sm text-slate-500">Statut de la demande</label>
+                  <p className="text-navy-800 font-medium">{demande.statut}</p>
                 </div>
               </div>
             )}
@@ -421,41 +421,41 @@ export default function LitigeDetailPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm text-[#6C757D]">Montant HT</label>
-                    <p className="text-[#2C3E50] font-medium text-lg">
+                    <label className="text-sm text-slate-500">Montant HT</label>
+                    <p className="text-navy-800 font-medium text-lg">
                       {devisConcerne.totaux?.totalHT?.toFixed(2) || 0} €
                     </p>
                   </div>
                   <div>
-                    <label className="text-sm text-[#6C757D]">Montant TTC</label>
-                    <p className="text-[#2C3E50] font-medium text-lg">
+                    <label className="text-sm text-slate-500">Montant TTC</label>
+                    <p className="text-navy-800 font-medium text-lg">
                       {devisConcerne.totaux?.totalTTC?.toFixed(2) || 0} €
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-sm text-[#6C757D]">Statut</label>
-                  <p className="text-[#2C3E50] font-medium">{devisConcerne.statut}</p>
+                  <label className="text-sm text-slate-500">Statut</label>
+                  <p className="text-navy-800 font-medium">{devisConcerne.statut}</p>
                 </div>
 
                 {devisConcerne.description && (
                   <div>
-                    <label className="text-sm text-[#6C757D] mb-2 block">Description</label>
-                    <div className="bg-[#F8F9FA] rounded-lg p-4">
-                      <p className="text-[#2C3E50] whitespace-pre-wrap">{devisConcerne.description}</p>
+                    <label className="text-sm text-slate-500 mb-2 block">Description</label>
+                    <div className="bg-slate-50 rounded-lg p-4">
+                      <p className="text-navy-800 whitespace-pre-wrap">{devisConcerne.description}</p>
                     </div>
                   </div>
                 )}
 
                 {devisConcerne.lignes && devisConcerne.lignes.length > 0 && (
                   <div>
-                    <label className="text-sm text-[#6C757D] mb-2 block">Détails des lignes de prestation</label>
-                    <div className="bg-[#F8F9FA] rounded-lg p-4 space-y-2">
+                    <label className="text-sm text-slate-500 mb-2 block">Détails des lignes de prestation</label>
+                    <div className="bg-slate-50 rounded-lg p-4 space-y-2">
                       {devisConcerne.lignes.map((ligne, index) => (
-                        <div key={index} className="flex justify-between border-b border-[#E9ECEF] pb-2">
-                          <span className="text-[#2C3E50]">{ligne.description}</span>
-                          <span className="text-[#6C757D]">
+                        <div key={index} className="flex justify-between border-b border-slate-200 pb-2">
+                          <span className="text-navy-800">{ligne.description}</span>
+                          <span className="text-slate-500">
                             {ligne.quantite} {ligne.unite} × {ligne.prixUnitaireHT.toFixed(2)}€ HT = {ligne.totalTTC.toFixed(2)}€ TTC
                           </span>
                         </div>
@@ -470,22 +470,22 @@ export default function LitigeDetailPage() {
             {activeTab === 'historique' && (
               <div className="space-y-6">
                 {/* Statistiques */}
-                <div className="grid grid-cols-4 gap-4">
-                  <div className="bg-[#F8F9FA] p-4 rounded-lg">
-                    <p className="text-sm text-[#6C757D]">Total devis</p>
-                    <p className="text-2xl font-bold text-[#2C3E50]">{statistiques.totalDevis}</p>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-slate-50 p-4 rounded-lg">
+                    <p className="text-sm text-slate-500">Total devis</p>
+                    <p className="text-2xl font-bold text-navy-800">{statistiques.totalDevis}</p>
                   </div>
-                  <div className="bg-[#E8F5E9] p-4 rounded-lg">
-                    <p className="text-sm text-[#6C757D]">Acceptés</p>
-                    <p className="text-2xl font-bold text-[#28A745]">{statistiques.devisAcceptes}</p>
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <p className="text-sm text-slate-500">Acceptés</p>
+                    <p className="text-2xl font-bold text-green-700">{statistiques.devisAcceptes}</p>
                   </div>
-                  <div className="bg-[#FFEBEE] p-4 rounded-lg">
-                    <p className="text-sm text-[#6C757D]">Refusés</p>
-                    <p className="text-2xl font-bold text-[#DC3545]">{statistiques.devisRefuses}</p>
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <p className="text-sm text-slate-500">Refusés</p>
+                    <p className="text-2xl font-bold text-red-700">{statistiques.devisRefuses}</p>
                   </div>
-                  <div className="bg-[#FFF3E0] p-4 rounded-lg">
-                    <p className="text-sm text-[#6C757D]">Prix moyen</p>
-                    <p className="text-2xl font-bold text-[#FF6B00]">
+                  <div className="bg-brand-50 p-4 rounded-lg">
+                    <p className="text-sm text-slate-500">Prix moyen</p>
+                    <p className="text-2xl font-bold text-brand-700">
                       {statistiques.montantMoyenDevis.toFixed(0)}€
                     </p>
                   </div>
@@ -493,7 +493,7 @@ export default function LitigeDetailPage() {
 
                 {/* Liste des devis */}
                 <div>
-                  <h3 className="text-lg font-semibold text-[#2C3E50] mb-3">
+                  <h3 className="text-lg font-semibold text-navy-800 mb-3">
                     Tous les devis de la demande
                   </h3>
                   <div className="space-y-3">
@@ -504,29 +504,29 @@ export default function LitigeDetailPage() {
                           key={devis.id}
                           className={`p-4 rounded-lg border-2 ${
                             isLitige
-                              ? 'border-[#DC3545] bg-[#FFEBEE]'
-                              : 'border-[#E9ECEF] bg-white'
+                              ? 'border-red-600 bg-red-50'
+                              : 'border-slate-200 bg-white'
                           }`}
                         >
                           <div className="flex justify-between items-start">
                             <div>
-                              <p className="text-[#2C3E50] font-medium">
+                              <p className="text-navy-800 font-medium">
                                 Devis #{devis.id.slice(0, 8)}
                                 {isLitige && (
-                                  <span className="ml-2 text-xs bg-[#DC3545] text-white px-2 py-1 rounded">
+                                  <span className="ml-2 text-xs bg-red-700 text-white px-2 py-1 rounded">
                                     ⚠️ EN LITIGE
                                   </span>
                                 )}
                               </p>
-                              <p className="text-sm text-[#6C757D]">
+                              <p className="text-sm text-slate-500">
                                 {devis.dateCreation?.toDate().toLocaleDateString('fr-FR')}
                               </p>
                             </div>
                             <div className="text-right">
-                              <p className="text-lg font-bold text-[#2C3E50]">
+                              <p className="text-lg font-bold text-navy-800">
                                 {devis.totaux?.totalTTC?.toFixed(2) || 0} €
                               </p>
-                              <p className="text-sm text-[#6C757D]">{devis.statut}</p>
+                              <p className="text-sm text-slate-500">{devis.statut}</p>
                             </div>
                           </div>
                         </div>
@@ -542,14 +542,14 @@ export default function LitigeDetailPage() {
               <div className="space-y-6">
                 {conversation && messages.length > 0 ? (
                   <>
-                    <div className="bg-[#F8F9FA] p-4 rounded-lg">
-                      <p className="text-sm text-[#6C757D]">
+                    <div className="bg-slate-50 p-4 rounded-lg">
+                      <p className="text-sm text-slate-500">
                         <strong>Conversation entre :</strong> Client et Artisan
                       </p>
-                      <p className="text-sm text-[#6C757D] mt-1">
+                      <p className="text-sm text-slate-500 mt-1">
                         <strong>Demande :</strong> {demande?.titre || demande?.description?.slice(0, 50) + '...' || 'N/A'}
                       </p>
-                      <p className="text-sm text-[#6C757D] mt-1">
+                      <p className="text-sm text-slate-500 mt-1">
                         <strong>Total messages :</strong> {messages.length}
                       </p>
                     </div>
@@ -579,15 +579,15 @@ export default function LitigeDetailPage() {
                               <div
                                 className={`max-w-[70%] rounded-lg p-4 ${
                                   isClient
-                                    ? 'bg-[#E3F2FD] text-[#2C3E50]'
-                                    : 'bg-[#FFF3E0] text-[#2C3E50]'
+                                    ? 'bg-blue-50 text-navy-800'
+                                    : 'bg-brand-50 text-navy-800'
                                 }`}
                               >
                                 <div className="flex items-center mb-2">
                                   <span className="font-semibold text-sm">
                                     {isClient ? '👤 Client' : '🔨 Artisan'}
                                   </span>
-                                  <span className="ml-2 text-xs text-[#6C757D]">
+                                  <span className="ml-2 text-xs text-slate-500">
                                     {message.dateEnvoi?.toDate().toLocaleString('fr-FR')}
                                   </span>
                                 </div>
@@ -595,19 +595,19 @@ export default function LitigeDetailPage() {
                               
                               {/* Indicateur modéré (coordonnées filtrées) */}
                               {message.modere && (
-                                <div className="mt-2 text-xs text-[#DC3545] bg-[#FFEBEE] p-2 rounded">
+                                <div className="mt-2 text-xs text-red-700 bg-red-50 p-2 rounded">
                                   ⚠️ Message modéré (coordonnées détectées)
                                 </div>
                               )}
 
                               {/* Fichier attaché */}
                               {message.fichierUrl && (
-                                <div className="mt-2 p-2 bg-white rounded border border-[#E9ECEF]">
+                                <div className="mt-2 p-2 bg-white rounded border border-slate-200">
                                   <a 
                                     href={message.fichierUrl} 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="text-xs text-[#FF6B00] hover:underline"
+                                    className="text-xs text-brand-700 hover:underline"
                                   >
                                     📎 {message.fichierNom || 'Fichier joint'}
                                   </a>
@@ -622,8 +622,8 @@ export default function LitigeDetailPage() {
                   </>
                 ) : (
                   <div className="text-center py-12">
-                    <p className="text-[#6C757D] text-lg">Aucune conversation trouvée pour cette demande</p>
-                    <p className="text-[#6C757D] text-sm mt-2">
+                    <p className="text-slate-500 text-lg">Aucune conversation trouvée pour cette demande</p>
+                    <p className="text-slate-500 text-sm mt-2">
                       Les messages entre le client et l'artisan apparaîtront ici
                     </p>
                   </div>

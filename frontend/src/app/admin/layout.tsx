@@ -57,8 +57,8 @@ export default function AdminLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F5F7FA]">
-        <p className="text-xl text-gray-600">Chargement...</p>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <p className="text-xl text-slate-600">Chargement...</p>
       </div>
     );
   }
@@ -102,24 +102,24 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Sidebar */}
-      <div className="fixed inset-y-0 left-0 w-64 bg-[#2C3E50] text-white">
+      <div className="fixed inset-y-0 left-0 w-64 bg-navy-800 text-white">
         {/* Header */}
-        <div className="p-6 border-b border-gray-700">
-          <h1 className="text-2xl font-bold text-[#FF6B00]">ArtisanDispo</h1>
-          <p className="text-sm text-gray-300 mt-1">Administration</p>
+        <div className="p-6 border-b border-slate-700">
+          <h1 className="text-2xl font-bold text-brand-700">ArtisanDispo</h1>
+          <p className="text-sm text-slate-300 mt-1">Administration</p>
         </div>
 
         {/* Admin info */}
-        <div className="p-4 border-b border-gray-700">
+        <div className="p-4 border-b border-slate-700">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#FF6B00] rounded-full flex items-center justify-center font-bold">
+            <div className="w-10 h-10 bg-brand-700 rounded-full flex items-center justify-center font-bold">
               {adminName.charAt(0).toUpperCase()}
             </div>
             <div>
               <p className="font-medium">{adminName}</p>
-              <p className="text-xs text-gray-400">Administrateur</p>
+              <p className="text-xs text-slate-400">Administrateur</p>
             </div>
           </div>
         </div>
@@ -134,8 +134,8 @@ export default function AdminLayout({
                 href={item.path}
                 className={`block px-4 py-3 rounded-lg transition-colors ${
                   isActive
-                    ? 'bg-[#FF6B00] text-white'
-                    : 'hover:bg-gray-700 text-gray-300'
+                    ? 'bg-brand-700 text-white'
+                    : 'hover:bg-slate-700 text-slate-300'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -151,7 +151,7 @@ export default function AdminLayout({
         </nav>
 
         {/* Logout */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700">
           <button
             onClick={handleLogout}
             className="w-full px-4 py-3 bg-red-600 hover:bg-red-700 rounded-lg transition-colors flex items-center justify-center gap-2"

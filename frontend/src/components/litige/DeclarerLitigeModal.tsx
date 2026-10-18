@@ -93,9 +93,9 @@ export default function DeclarerLitigeModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-md max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="bg-[#DC3545] text-white px-6 py-4 rounded-t-lg">
+        <div className="bg-red-700 text-white px-6 py-4 rounded-t-lg">
           <h2 className="text-xl font-bold">⚠️ Déclarer un litige</h2>
           <p className="text-sm mt-1 opacity-90">
             Votre litige sera examiné par notre équipe de médiation
@@ -112,13 +112,13 @@ export default function DeclarerLitigeModal({
 
           {/* Type de litige */}
           <div>
-            <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+            <label className="block text-sm font-semibold text-navy-800 mb-2">
               Type de litige *
             </label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value as LitigeType)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
               required
             >
               {Object.entries(LITIGE_TYPE_LABELS).map(([key, label]) => (
@@ -131,7 +131,7 @@ export default function DeclarerLitigeModal({
 
           {/* Motif */}
           <div>
-            <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+            <label className="block text-sm font-semibold text-navy-800 mb-2">
               Motif du litige * (titre court)
             </label>
             <input
@@ -140,15 +140,15 @@ export default function DeclarerLitigeModal({
               onChange={(e) => setMotif(e.target.value)}
               maxLength={100}
               placeholder="Ex: Travaux non conformes au devis"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
               required
             />
-            <p className="text-xs text-gray-500 mt-1">{motif.length}/100 caractères</p>
+            <p className="text-xs text-slate-500 mt-1">{motif.length}/100 caractères</p>
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+            <label className="block text-sm font-semibold text-navy-800 mb-2">
               Description détaillée *
             </label>
             <textarea
@@ -156,15 +156,15 @@ export default function DeclarerLitigeModal({
               onChange={(e) => setDescription(e.target.value)}
               rows={6}
               placeholder="Décrivez en détail le problème rencontré, avec dates et faits précis..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00] resize-none"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
               required
             />
-            <p className="text-xs text-gray-500 mt-1">{description.length} caractères</p>
+            <p className="text-xs text-slate-500 mt-1">{description.length} caractères</p>
           </div>
 
           {/* Montant contesté */}
           <div>
-            <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+            <label className="block text-sm font-semibold text-navy-800 mb-2">
               Montant contesté (optionnel)
             </label>
             <div className="flex items-center gap-2">
@@ -174,11 +174,11 @@ export default function DeclarerLitigeModal({
                 onChange={(e) => setMontantConteste(parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
+                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
-              <span className="text-gray-600">€</span>
+              <span className="text-slate-600">€</span>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               Si le litige concerne un montant financier précis
             </p>
           </div>
@@ -192,10 +192,10 @@ export default function DeclarerLitigeModal({
 
           {/* Info médiation */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="font-semibold text-[#2C3E50] mb-2 flex items-center gap-2">
+            <h3 className="font-semibold text-navy-800 mb-2 flex items-center gap-2">
               ℹ️ Processus de médiation
             </h3>
-            <ul className="text-sm text-gray-700 space-y-1 ml-4 list-disc">
+            <ul className="text-sm text-slate-700 space-y-1 ml-4 list-disc">
               <li>Votre litige sera examiné sous 24-48h</li>
               <li>Un médiateur neutre sera assigné</li>
               <li>Les deux parties seront contactées</li>
@@ -210,14 +210,14 @@ export default function DeclarerLitigeModal({
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              className="flex-1 px-6 py-3 border-2 border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 disabled:opacity-50"
             >
               Annuler
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-6 py-3 bg-[#DC3545] text-white font-semibold rounded-lg hover:bg-[#C82333] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-6 py-3 bg-red-700 text-white font-semibold rounded-lg hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Envoi en cours...' : '⚠️ Déclarer le litige'}
             </button>

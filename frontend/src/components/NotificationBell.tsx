@@ -135,7 +135,7 @@ export default function NotificationBell() {
       {/* Bouton cloche */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-[#FF6B00] hover:text-[#E56100] transition-colors"
+        className="relative p-2 text-brand-700 hover:text-brand-800 transition-colors"
         aria-label="Notifications"
       >
         <svg
@@ -162,16 +162,16 @@ export default function NotificationBell() {
 
       {/* Dropdown des notifications */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[32rem] overflow-hidden">
+        <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-md border border-slate-200 z-50 max-h-[32rem] overflow-hidden">
           {/* En-tête */}
-          <div className="bg-[#2C3E50] text-white px-4 py-3 flex justify-between items-center">
+          <div className="bg-navy-800 text-white px-4 py-3 flex justify-between items-center">
             <h3 className="font-semibold">
               🔔 Notifications {unreadCount > 0 && `(${unreadCount} non lues)`}
             </h3>
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllAsRead}
-                className="text-xs text-[#FF6B00] hover:underline"
+                className="text-xs text-brand-700 hover:underline"
               >
                 Tout marquer comme lu
               </button>
@@ -187,15 +187,15 @@ export default function NotificationBell() {
             const propositionExpressCount = notifications.filter(n => !n.lue && n.type === 'proposition_express_recue').length;
             if (devisRecuCount === 0 && devisReponseCount === 0 && expressDemandeCount === 0 && propositionExpressCount === 0) return null;
             return (
-              <div className="border-b border-gray-200 bg-orange-50 px-4 py-2 flex flex-wrap gap-2">
+              <div className="border-b border-slate-200 bg-orange-50 px-4 py-2 flex flex-wrap gap-2">
                 {/* Raccourci : proposition express reçue (client) */}
                 {propositionExpressCount > 0 && (
                   <button
                     onClick={() => { router.push('/client/demandes-express'); setIsOpen(false); }}
-                    className="flex items-center gap-1.5 bg-[#FF6B00] text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-[#E56100] transition"
+                    className="flex items-center gap-1.5 bg-brand-700 text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-800 transition"
                   >
                     📬 Proposition reçue
-                    <span className="bg-white text-[#FF6B00] font-black rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                    <span className="bg-white text-brand-700 font-black rounded-full w-5 h-5 flex items-center justify-center text-xs">
                       {propositionExpressCount}
                     </span>
                   </button>
@@ -204,10 +204,10 @@ export default function NotificationBell() {
                 {expressDemandeCount > 0 && (
                   <button
                     onClick={() => { router.push('/artisan/demandes'); setIsOpen(false); }}
-                    className="flex items-center gap-1.5 bg-[#FF6B00] text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-[#E56100] transition"
+                    className="flex items-center gap-1.5 bg-brand-700 text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-800 transition"
                   >
                     ⚡ Demandes Express
-                    <span className="bg-white text-[#FF6B00] font-black rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                    <span className="bg-white text-brand-700 font-black rounded-full w-5 h-5 flex items-center justify-center text-xs">
                       {expressDemandeCount}
                     </span>
                   </button>
@@ -215,13 +215,13 @@ export default function NotificationBell() {
                 {devisRecuCount > 0 && (
                   <button
                     onClick={() => { router.push('/client/devis'); setIsOpen(false); }}
-                    className="flex items-center gap-1.5 bg-[#FF6B00] text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-[#E56100] transition"
+                    className="flex items-center gap-1.5 bg-brand-700 text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-800 transition"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     Mes Devis
-                    <span className="bg-white text-[#FF6B00] font-black rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                    <span className="bg-white text-brand-700 font-black rounded-full w-5 h-5 flex items-center justify-center text-xs">
                       {devisRecuCount}
                     </span>
                   </button>
@@ -229,13 +229,13 @@ export default function NotificationBell() {
                 {devisReponseCount > 0 && (
                   <button
                     onClick={() => { router.push('/artisan/devis'); setIsOpen(false); }}
-                    className="flex items-center gap-1.5 bg-[#FF6B00] text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-[#E56100] transition"
+                    className="flex items-center gap-1.5 bg-brand-700 text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-800 transition"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     Mes Devis
-                    <span className="bg-white text-[#FF6B00] font-black rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                    <span className="bg-white text-brand-700 font-black rounded-full w-5 h-5 flex items-center justify-center text-xs">
                       {devisReponseCount}
                     </span>
                   </button>
@@ -247,9 +247,9 @@ export default function NotificationBell() {
           {/* Liste des notifications */}
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
+              <div className="p-8 text-center text-slate-500">
                 <svg
-                  className="w-12 h-12 mx-auto mb-3 text-gray-300"
+                  className="w-12 h-12 mx-auto mb-3 text-slate-300"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -268,15 +268,15 @@ export default function NotificationBell() {
                 <div
                   key={notif.id}
                   onClick={() => handleNotificationClick(notif)}
-                  className={`relative px-4 py-3 border-b border-gray-100 cursor-pointer transition ${
+                  className={`relative px-4 py-3 border-b border-slate-100 cursor-pointer transition ${
                     !notif.lue 
                       ? 'bg-white hover:bg-orange-50' 
-                      : 'bg-gray-50/50 hover:bg-gray-100 opacity-80'
+                      : 'bg-slate-50/50 hover:bg-slate-100 opacity-80'
                   }`}
                 >
                   {/* Point orange pour les non lues */}
                   {!notif.lue && (
-                    <span className="absolute left-2 top-5 w-2 h-2 bg-[#FF6B00] rounded-full"></span>
+                    <span className="absolute left-2 top-5 w-2 h-2 bg-brand-700 rounded-full"></span>
                   )}
                   
                   <div className="flex items-start gap-3 pl-2">
@@ -286,17 +286,17 @@ export default function NotificationBell() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <h4 className={`font-semibold text-sm ${
-                          !notif.lue ? 'text-[#2C3E50]' : 'text-gray-600'
+                          !notif.lue ? 'text-navy-800' : 'text-slate-600'
                         }`}>
                           {notif.titre}
                         </h4>
                       </div>
                       {notif.message && (
-                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                        <p className="text-sm text-slate-600 mt-1 line-clamp-2">
                           {notif.message}
                         </p>
                       )}
-                      <p className="text-xs text-gray-400 mt-1">
+                      <p className="text-xs text-slate-400 mt-1">
                         {formatDate(notif.dateCreation)}
                       </p>
                     </div>
@@ -308,13 +308,13 @@ export default function NotificationBell() {
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="bg-gray-50 px-4 py-2 text-center">
+            <div className="bg-slate-50 px-4 py-2 text-center">
               <button
                 onClick={() => {
                   router.push('/notifications');
                   setIsOpen(false);
                 }}
-                className="text-sm text-[#FF6B00] hover:underline"
+                className="text-sm text-brand-700 hover:underline"
               >
                 Voir toutes les notifications →
               </button>

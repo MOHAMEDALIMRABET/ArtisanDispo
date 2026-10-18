@@ -214,10 +214,10 @@ export default function WalletPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
-          <p className="mt-4 text-[#6C757D]">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
+          <p className="mt-4 text-slate-500">Chargement...</p>
         </div>
       </div>
     );
@@ -228,13 +228,13 @@ export default function WalletPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#2C3E50] to-[#34495E] text-white py-8 px-4">
+      <div className=" bg-navy-800 text-white py-8 px-4">
         <div className="max-w-7xl mx-auto">
           <button
             onClick={() => router.back()}
-            className="mb-4 text-white hover:text-gray-300 transition flex items-center gap-2"
+            className="mb-4 text-white hover:text-slate-300 transition flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -252,7 +252,7 @@ export default function WalletPage() {
             </svg>
             Mon Wallet
           </h1>
-          <p className="text-gray-300 mt-2">Gérez vos revenus et transactions</p>
+          <p className="text-slate-300 mt-2">Gérez vos revenus et transactions</p>
         </div>
       </div>
 
@@ -304,7 +304,7 @@ export default function WalletPage() {
         )}
 
         {/* Solde disponible */}
-        <div className="bg-gradient-to-br from-[#FF6B00] to-[#E56100] rounded-xl shadow-lg p-8 text-white mb-8">
+        <div className=" bg-brand-600 rounded-xl shadow-lg p-8 text-white mb-8">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm opacity-90 mb-2">{t('artisanWallet.balance.available')}</p>
@@ -345,27 +345,27 @@ export default function WalletPage() {
             onClick={() => setActiveFilter(activeFilter === 'chiffre_affaires' ? 'all' : 'chiffre_affaires')}
             className={`rounded-lg shadow-md p-6 border-l-4 cursor-pointer transition-all ${
               activeFilter === 'chiffre_affaires'
-                ? 'bg-green-50 border-[#28A745] ring-2 ring-[#28A745]'
-                : 'bg-white border-[#28A745] hover:bg-green-50'
+                ? 'bg-green-50 border-green-600 ring-2 ring-green-600'
+                : 'bg-white border-green-600 hover:bg-green-50'
             }`}
           >
             <div className="flex items-center gap-3 mb-2">
-              <svg className="w-6 h-6 text-[#28A745]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <h3 className="text-[#6C757D] font-medium">Chiffre d&apos;affaires</h3>
+              <h3 className="text-slate-500 font-medium">Chiffre d&apos;affaires</h3>
             </div>
             {walletLoading ? (
-              <div className="animate-pulse h-10 bg-gray-200 rounded w-32"></div>
+              <div className="animate-pulse h-10 bg-slate-200 rounded w-32"></div>
             ) : (
-              <p className="text-3xl font-bold text-[#2C3E50]">
+              <p className="text-3xl font-bold text-navy-800">
                 {totalEncaisse.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
               </p>
             )}
-            <p className="text-sm text-[#6C757D] mt-1">
+            <p className="text-sm text-slate-500 mt-1">
               {activeFilter === 'chiffre_affaires' ? '👁 Affichage filtré ↓' : "Cliquer pour voir l'historique"}
               {activeFilter !== 'chiffre_affaires' && totalCommission > 0 && (
-                <span className="ml-1 text-xs text-[#95A5A6]">
+                <span className="ml-1 text-xs text-slate-400">
                   (commission : {totalCommission.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €)
                 </span>
               )}
@@ -384,58 +384,58 @@ export default function WalletPage() {
             }}
             className={`rounded-lg shadow-md p-6 border-l-4 cursor-pointer transition-all ${
               activeFilter === 'sequestre'
-                ? 'bg-yellow-50 border-[#FFC107] ring-2 ring-[#FFC107]'
-                : 'bg-white border-[#FFC107] hover:bg-yellow-50'
+                ? 'bg-yellow-50 border-amber-400 ring-2 ring-amber-400'
+                : 'bg-white border-amber-400 hover:bg-yellow-50'
             }`}
           >
             <div className="flex items-center justify-between gap-3 mb-2">
               <div className="flex items-center gap-3">
-                <svg className="w-6 h-6 text-[#FFC107]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <h3 className="text-[#6C757D] font-medium">En séquestre</h3>
+                <h3 className="text-slate-500 font-medium">En séquestre</h3>
               </div>
               {sequestreTransactions.length > sequestreSeenCount && (
-                <span className="bg-[#FFC107] text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                <span className="bg-amber-400 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                   {sequestreTransactions.length - sequestreSeenCount}
                 </span>
               )}
             </div>
             {walletLoading ? (
-              <div className="animate-pulse h-10 bg-gray-200 rounded w-32"></div>
+              <div className="animate-pulse h-10 bg-slate-200 rounded w-32"></div>
             ) : (
-              <p className="text-3xl font-bold text-[#2C3E50]">
+              <p className="text-3xl font-bold text-navy-800">
                 {soldeEnAttente.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
               </p>
             )}
-            <p className="text-sm text-[#6C757D] mt-1">
+            <p className="text-sm text-slate-500 mt-1">
               {activeFilter === 'sequestre' ? '👁 Affichage filtré ↓' : 'Cliquer pour voir les détails'}
             </p>
           </div>
 
           {/* Bénéfice transféré + boutons — cliquable pour filtrer l'historique */}
           <div
-            className={`rounded-lg shadow-md p-6 border-l-4 border-[#17A2B8] transition-all ${
+            className={`rounded-lg shadow-md p-6 border-l-4 border-sky-600 transition-all ${
               activeFilter === 'virement'
-                ? 'bg-cyan-50 ring-2 ring-[#17A2B8] cursor-pointer'
+                ? 'bg-cyan-50 ring-2 ring-sky-600 cursor-pointer'
                 : 'bg-white hover:bg-cyan-50 cursor-pointer'
             }`}
             onClick={() => setActiveFilter(activeFilter === 'virement' ? 'all' : 'virement')}
           >
             <div className="flex items-center gap-3 mb-2">
-              <svg className="w-6 h-6 text-[#17A2B8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-sky-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
               </svg>
-              <h3 className="text-[#6C757D] font-medium">Bénéfice transféré</h3>
+              <h3 className="text-slate-500 font-medium">Bénéfice transféré</h3>
             </div>
             {walletLoading ? (
-              <div className="animate-pulse h-10 bg-gray-200 rounded w-32"></div>
+              <div className="animate-pulse h-10 bg-slate-200 rounded w-32"></div>
             ) : (
-              <p className="text-3xl font-bold text-[#2C3E50]">
+              <p className="text-3xl font-bold text-navy-800">
                 {totalRetire.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
               </p>
             )}
-            <p className="text-sm text-[#6C757D] mt-1">
+            <p className="text-sm text-slate-500 mt-1">
               {activeFilter === 'virement' ? '👁 Affichage filtré ↓' : 'Vers votre banque · Cliquer pour voir'}
             </p>
             
@@ -474,8 +474,8 @@ export default function WalletPage() {
                 disabled={stripeOnboardingStatus !== 'active' || soldeDisponible <= 0}
                 className={`w-full text-xs font-semibold py-1.5 px-2 rounded transition flex items-center justify-center gap-1 ${
                   stripeOnboardingStatus === 'active' && soldeDisponible > 0
-                    ? 'bg-[#17A2B8] text-white hover:bg-[#138496] cursor-pointer'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'
+                    ? 'bg-sky-700 text-white hover:bg-sky-800 cursor-pointer'
+                    : 'bg-slate-300 text-slate-500 cursor-not-allowed opacity-60'
                 }`}
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -498,8 +498,8 @@ export default function WalletPage() {
                 disabled={stripeOnboardingStatus !== 'active' || soldeDisponible <= 0}
                 className={`w-full border text-xs font-semibold py-1.5 px-2 rounded transition flex items-center justify-center gap-1 ${
                   stripeOnboardingStatus === 'active' && soldeDisponible > 0
-                    ? 'border-[#17A2B8] text-[#17A2B8] hover:bg-[#17A2B8] hover:text-white cursor-pointer'
-                    : 'border-gray-300 text-gray-500 cursor-not-allowed opacity-60'
+                    ? 'border-sky-600 text-sky-700 hover:bg-sky-700 hover:text-white cursor-pointer'
+                    : 'border-slate-300 text-slate-500 cursor-not-allowed opacity-60'
                 }`}
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -514,7 +514,7 @@ export default function WalletPage() {
         {/* Demandes de virement */}
         {virementRequests.length > 0 && (
           <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-            <div className="bg-gradient-to-r from-[#2C3E50] to-[#34495E] text-white px-6 py-4">
+            <div className=" bg-navy-800 text-white px-6 py-4">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -522,32 +522,32 @@ export default function WalletPage() {
                 Virements demandés
               </h2>
             </div>
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-slate-100">
               {virementRequests.map((virement) => {
                 const statusConfig: Record<string, { label: string; color: string }> = {
                   pending:    { label: '⏳ En attente',    color: 'text-yellow-700 bg-yellow-100' },
                   processing: { label: '🔄 En traitement', color: 'text-blue-700 bg-blue-100' },
                   completed:  { label: '✅ Effectué',      color: 'text-green-700 bg-green-100' },
-                  cancelled:  { label: '❌ Annulé',        color: 'text-gray-600 bg-gray-100' },
+                  cancelled:  { label: '❌ Annulé',        color: 'text-slate-600 bg-slate-100' },
                   rejected:   { label: '🚫 Rejeté',        color: 'text-red-700 bg-red-100' },
                 };
                 const status = statusConfig[virement.statut] || statusConfig.pending;
                 return (
                   <div key={virement.id} className="p-4 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4 flex-1">
-                      <div className="bg-[#F8F9FA] rounded-full p-3 flex-shrink-0">
-                        <svg className="w-6 h-6 text-[#FF6B00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="bg-slate-50 rounded-full p-3 flex-shrink-0">
+                        <svg className="w-6 h-6 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
                       </div>
                       <div>
-                        <p className="font-semibold text-[#2C3E50]">
+                        <p className="font-semibold text-navy-800">
                           Virement vers IBAN …{virement.ibanLast4 || '****'}
                         </p>
                         {virement.note && (
-                          <p className="text-sm text-[#6C757D] italic">{virement.note}</p>
+                          <p className="text-sm text-slate-500 italic">{virement.note}</p>
                         )}
-                        <p className="text-xs text-[#95A5A6] mt-1">
+                        <p className="text-xs text-slate-400 mt-1">
                           {new Date(virement.createdAt.toDate()).toLocaleDateString('fr-FR', {
                             day: 'numeric', month: 'long', year: 'numeric',
                             hour: '2-digit', minute: '2-digit',
@@ -559,7 +559,7 @@ export default function WalletPage() {
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${status.color}`}>
                         {status.label}
                       </span>
-                      <p className="text-xl font-bold text-[#2C3E50] w-28 text-right">
+                      <p className="text-xl font-bold text-navy-800 w-28 text-right">
                         -{virement.montant.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
                       </p>
                       {virement.statut === 'pending' && (
@@ -580,7 +580,7 @@ export default function WalletPage() {
 
         {/* Historique des transactions */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="bg-gradient-to-r from-[#2C3E50] to-[#34495E] text-white px-6 py-4">
+          <div className=" bg-navy-800 text-white px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold flex items-center gap-2">
@@ -615,7 +615,7 @@ export default function WalletPage() {
               
               <button
                 onClick={() => setShowHowItWorks(!showHowItWorks)}
-                className="flex items-center gap-2 bg-[#FF6B00] hover:bg-[#E56100] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                className="flex items-center gap-2 bg-brand-700 hover:bg-brand-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -654,8 +654,8 @@ export default function WalletPage() {
           <div className="p-8">
             {walletLoading ? (
               <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
-                <p className="mt-4 text-[#6C757D]">Chargement des transactions...</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
+                <p className="mt-4 text-slate-500">Chargement des transactions...</p>
               </div>
             ) : (() => {
               // Fusion complète dédupliquée (transactions + séquestre), triée par date
@@ -697,19 +697,19 @@ export default function WalletPage() {
               if (allTransactions.length === 0) {
                 return (
                   <div className="text-center">
-                    <div className="inline-block bg-[#F8F9FA] rounded-full p-6 mb-4">
-                      <svg className="w-16 h-16 text-[#95A5A6] mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="inline-block bg-slate-50 rounded-full p-6 mb-4">
+                      <svg className="w-16 h-16 text-slate-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-[#2C3E50] mb-2">
+                    <h3 className="text-xl font-semibold text-navy-800 mb-2">
                       {activeFilter === 'sequestre'
                         ? 'Aucun montant en séquestre'
                         : activeFilter === 'chiffre_affaires'
                           ? 'Aucun encaissement validé'
                           : t('artisanWallet.transactions.empty')}
                     </h3>
-                    <p className="text-[#6C757D] max-w-md mx-auto">
+                    <p className="text-slate-500 max-w-md mx-auto">
                       {activeFilter === 'sequestre'
                         ? 'Aucun devis payé en attente de validation. Les montants apparaissent ici dès qu\'un client signe et paie un devis.'
                         : activeFilter === 'chiffre_affaires'
@@ -717,8 +717,8 @@ export default function WalletPage() {
                           : t('artisanWallet.transactions.emptyMessage')}
                     </p>
                     {activeFilter === 'all' && (
-                      <p className="text-sm text-[#95A5A6] mt-4">
-                        💡 Cliquez sur <span className="font-semibold text-[#FF6B00]">&quot;Comment ça marche ?&quot;</span> pour en savoir plus
+                      <p className="text-sm text-slate-400 mt-4">
+                        💡 Cliquez sur <span className="font-semibold text-brand-700">&quot;Comment ça marche ?&quot;</span> pour en savoir plus
                       </p>
                     )}
                   </div>
@@ -726,15 +726,15 @@ export default function WalletPage() {
               }
               return (
                 <>
-                <div className="divide-y divide-gray-200">
+                <div className="divide-y divide-slate-200">
                   {displayedTransactions.map((transaction) => {
                     const isCredit = transaction.type === 'credit' || transaction.type === 'bonus';
                     const isDebit = transaction.type === 'debit' || transaction.type === 'commission';
                     const isRefund = transaction.type === 'remboursement';
                     const isSequestre = transaction.metadata?.phase === 'sequestre' && transaction.statut === 'pending';
 
-                    let bgColor = 'bg-gray-50';
-                    let amountColor = 'text-[#2C3E50]';
+                    let bgColor = 'bg-slate-50';
+                    let amountColor = 'text-navy-800';
                     let icon = '💰';
 
                     if (isSequestre) {
@@ -742,8 +742,8 @@ export default function WalletPage() {
                       amountColor = 'text-yellow-700';
                       icon = '🔒';
                     } else if (transaction.type === 'commission') {
-                      bgColor = 'bg-gray-50';
-                      amountColor = 'text-[#6C757D]';
+                      bgColor = 'bg-slate-50';
+                      amountColor = 'text-slate-500';
                       icon = '🏦';
                     } else if (isCredit) {
                       bgColor = 'bg-green-50';
@@ -770,21 +770,21 @@ export default function WalletPage() {
                       pending: 'text-yellow-600 bg-yellow-100',
                       completed: 'text-green-600 bg-green-100',
                       failed: 'text-red-600 bg-red-100',
-                      cancelled: 'text-gray-600 bg-gray-100',
+                      cancelled: 'text-slate-600 bg-slate-100',
                     }[transaction.statut];
 
                     const clientNom = transaction.metadata?.clientNom as string | undefined;
                     const devisNumero = transaction.metadata?.devisNumero as string | undefined;
 
                     return (
-                      <div key={transaction.id} className={`p-4 hover:bg-gray-50 transition`}>
+                      <div key={transaction.id} className={`p-4 hover:bg-slate-50 transition`}>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4 flex-1">
                             <div className={`${bgColor} rounded-full p-3 flex-shrink-0`}>
                               <span className="text-2xl">{icon}</span>
                             </div>
                             <div className="flex-1">
-                              <h4 className="font-semibold text-[#2C3E50] mb-1">
+                              <h4 className="font-semibold text-navy-800 mb-1">
                                 {isSequestre && (clientNom || devisNumero)
                                   ? `${transaction.description.split(' — ')[0]}${clientNom ? ` - ${clientNom}` : ''}`
                                   : transaction.description}
@@ -793,15 +793,15 @@ export default function WalletPage() {
                               {isSequestre && (clientNom || devisNumero) && (
                                 <div className="flex flex-wrap gap-2 mb-1">
                                   {clientNom && (
-                                    <span className="inline-flex items-center gap-1 bg-white border border-[#E9ECEF] px-2 py-0.5 rounded-full text-xs text-[#2C3E50]">
-                                      <svg className="w-3 h-3 text-[#6C757D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <span className="inline-flex items-center gap-1 bg-white border border-slate-200 px-2 py-0.5 rounded-full text-xs text-navy-800">
+                                      <svg className="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                       </svg>
                                       {clientNom}
                                     </span>
                                   )}
                                   {devisNumero && (
-                                    <span className="inline-flex items-center gap-1 bg-white border border-[#E9ECEF] px-2 py-0.5 rounded-full text-xs text-[#6C757D]">
+                                    <span className="inline-flex items-center gap-1 bg-white border border-slate-200 px-2 py-0.5 rounded-full text-xs text-slate-500">
                                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                       </svg>
@@ -810,7 +810,7 @@ export default function WalletPage() {
                                   )}
                                 </div>
                               )}
-                              <div className="flex items-center gap-3 text-sm text-[#6C757D]">
+                              <div className="flex items-center gap-3 text-sm text-slate-500">
                                 <span>
                                   {new Date(transaction.createdAt.toDate()).toLocaleDateString('fr-FR', {
                                     day: 'numeric',
@@ -843,8 +843,8 @@ export default function WalletPage() {
                 </div>
                 {/* Contrôles de pagination — affichés uniquement si plus d'une page */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-between px-4 py-4 border-t border-gray-100 bg-[#F8F9FA]">
-                    <p className="text-sm text-[#6C757D]">
+                  <div className="flex items-center justify-between px-4 py-4 border-t border-slate-100 bg-slate-50">
+                    <p className="text-sm text-slate-500">
                       {allTransactions.length} transaction{allTransactions.length > 1 ? 's' : ''} — Page {txPage + 1} / {totalPages}
                     </p>
                     <div className="flex items-center gap-2">
@@ -852,7 +852,7 @@ export default function WalletPage() {
                       <button
                         onClick={() => setTxPage(p => Math.max(0, p - 1))}
                         disabled={txPage === 0}
-                        className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm font-semibold text-[#2C3E50] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition"
+                        className="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-navy-800 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition"
                       >
                         ← Précédent
                       </button>
@@ -860,7 +860,7 @@ export default function WalletPage() {
                       <button
                         onClick={() => setTxPage(p => Math.min(totalPages - 1, p + 1))}
                         disabled={txPage >= totalPages - 1}
-                        className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm font-semibold text-[#2C3E50] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition"
+                        className="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-navy-800 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition"
                       >
                         Suivant →
                       </button>
@@ -875,7 +875,7 @@ export default function WalletPage() {
 
         {/* Section Configuration compte bancaire */}
         <div className="mt-8 bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="bg-gradient-to-r from-[#2C3E50] to-[#34495E] text-white px-6 py-4">
+          <div className=" bg-navy-800 text-white px-6 py-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold flex items-center gap-2">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -886,7 +886,7 @@ export default function WalletPage() {
               
               <button
                 onClick={() => setShowConfigProcess(!showConfigProcess)}
-                className="flex items-center gap-2 bg-[#FF6B00] hover:bg-[#E56100] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                className="flex items-center gap-2 bg-brand-700 hover:bg-brand-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -922,31 +922,31 @@ export default function WalletPage() {
           <div className="p-6">
             {walletLoading ? (
               <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
-                <p className="mt-4 text-[#6C757D]">{t('artisanWallet.loading')}</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
+                <p className="mt-4 text-slate-500">{t('artisanWallet.loading')}</p>
               </div>
             ) : stripeOnboardingStatus === 'not_started' || stripeOnboardingStatus === 'pending' ? (
               /* Compte pas encore configuré */
               <div className="text-center py-8">
-                <div className="inline-block bg-[#F8F9FA] rounded-full p-6 mb-4">
-                  <svg className="w-16 h-16 text-[#FF6B00] mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="inline-block bg-slate-50 rounded-full p-6 mb-4">
+                  <svg className="w-16 h-16 text-brand-700 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
 
-                <h3 className="text-xl font-semibold text-[#2C3E50] mb-2">
+                <h3 className="text-xl font-semibold text-navy-800 mb-2">
                   {t('artisanWallet.bankConfig.notConfigured.title')}
                 </h3>
-                <p className="text-[#6C757D] mb-4 max-w-md mx-auto">
+                <p className="text-slate-500 mb-4 max-w-md mx-auto">
                   {t('artisanWallet.bankConfig.notConfigured.description')}
                 </p>
-                <p className="text-sm text-[#95A5A6] mb-6">
+                <p className="text-sm text-slate-400 mb-6">
                   {t('artisanWallet.bankConfig.notConfigured.hint')}
                 </p>
 
                 <button
                   onClick={() => router.push('/artisan/stripe-onboarding')}
-                  className="bg-[#FF6B00] text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-[#E56100] transition shadow-lg inline-flex items-center gap-2"
+                  className="bg-brand-700 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-brand-800 transition shadow-lg inline-flex items-center gap-2"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -963,10 +963,10 @@ export default function WalletPage() {
                   </svg>
                 </div>
 
-                <h3 className="text-xl font-semibold text-[#2C3E50] mb-2">
+                <h3 className="text-xl font-semibold text-navy-800 mb-2">
                   {t('artisanWallet.bankConfig.pending.title')}
                 </h3>
-                <p className="text-[#6C757D] mb-6 max-w-md mx-auto">
+                <p className="text-slate-500 mb-6 max-w-md mx-auto">
                   {t('artisanWallet.bankConfig.pending.description')}
                 </p>
 
@@ -997,8 +997,8 @@ export default function WalletPage() {
                       <div className="bg-white rounded-lg p-4 border border-green-200">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-[#6C757D] mb-1">{t('artisanWallet.bankConfig.active.ibanLabel')}</p>
-                            <p className="font-mono text-[#2C3E50] font-semibold">
+                            <p className="text-sm text-slate-500 mb-1">{t('artisanWallet.bankConfig.active.ibanLabel')}</p>
+                            <p className="font-mono text-navy-800 font-semibold">
                               FR** **** **** **** **** **** {ibanLast4}
                             </p>
                           </div>
@@ -1015,13 +1015,13 @@ export default function WalletPage() {
                       </p>
                     </div>
                     
-                    <div className="mt-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
-                      <p className="text-sm text-[#6C757D] mb-2">
+                    <div className="mt-3 bg-slate-50 border border-slate-200 rounded-lg p-3">
+                      <p className="text-sm text-slate-500 mb-2">
                         {t('artisanWallet.bankConfig.active.modifyIban')}
                       </p>
                       <button
                         onClick={() => router.push('/artisan/contact-support?sujet=modification_iban')}
-                        className="text-[#FF6B00] hover:underline font-semibold text-sm flex items-center gap-1"
+                        className="text-brand-700 hover:underline font-semibold text-sm flex items-center gap-1"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -1041,16 +1041,16 @@ export default function WalletPage() {
                   </svg>
                 </div>
 
-                <h3 className="text-xl font-semibold text-[#2C3E50] mb-2">
+                <h3 className="text-xl font-semibold text-navy-800 mb-2">
                   {t('artisanWallet.bankConfig.rejected.title')}
                 </h3>
-                <p className="text-[#6C757D] mb-6 max-w-md mx-auto">
+                <p className="text-slate-500 mb-6 max-w-md mx-auto">
                   {t('artisanWallet.bankConfig.rejected.description')}
                 </p>
 
                 <button
                   onClick={() => router.push('/artisan/stripe-onboarding')}
-                  className="bg-[#FF6B00] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#E56100] transition inline-flex items-center gap-2"
+                  className="bg-brand-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand-800 transition inline-flex items-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -1058,7 +1058,7 @@ export default function WalletPage() {
                   {t('artisanWallet.bankConfig.rejected.button')}
                 </button>
                 
-                <p className="text-xs text-[#95A5A6] mt-4">
+                <p className="text-xs text-slate-400 mt-4">
                   {t('artisanWallet.bankConfig.rejected.note')}
                 </p>
               </div>
@@ -1071,10 +1071,10 @@ export default function WalletPage() {
                   </svg>
                 </div>
 
-                <h3 className="text-xl font-semibold text-[#2C3E50] mb-2">
+                <h3 className="text-xl font-semibold text-navy-800 mb-2">
                   {t('artisanWallet.bankConfig.restricted.title')}
                 </h3>
-                <p className="text-[#6C757D] mb-6 max-w-md mx-auto">
+                <p className="text-slate-500 mb-6 max-w-md mx-auto">
                   {t('artisanWallet.bankConfig.restricted.description')}
                 </p>
 
@@ -1109,9 +1109,9 @@ export default function WalletPage() {
       {/* Modal Virement Manuel */}
       {showVirementModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-md">
             {/* Header */}
-            <div className="bg-gradient-to-r from-[#2C3E50] to-[#34495E] text-white px-6 py-4 rounded-t-xl">
+            <div className=" bg-navy-800 text-white px-6 py-4 rounded-t-xl">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-bold flex items-center gap-2">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1133,28 +1133,28 @@ export default function WalletPage() {
             {/* Body */}
             <div className="p-6">
               {/* Solde disponible */}
-              <div className="bg-[#F8F9FA] rounded-lg p-4 mb-6">
-                <p className="text-sm text-[#6C757D] mb-1">Solde disponible</p>
-                <p className="text-3xl font-bold text-[#FF6B00]">
+              <div className="bg-slate-50 rounded-lg p-4 mb-6">
+                <p className="text-sm text-slate-500 mb-1">Solde disponible</p>
+                <p className="text-3xl font-bold text-brand-700">
                   {soldeDisponible.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                 </p>
               </div>
 
               {/* IBAN cible */}
               {ibanLast4 && (
-                <div className="flex items-center gap-2 mb-6 text-sm text-[#6C757D]">
+                <div className="flex items-center gap-2 mb-6 text-sm text-slate-500">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                   </svg>
-                  <span>Vers IBAN se terminant par <strong className="text-[#2C3E50]">{ibanLast4}</strong></span>
+                  <span>Vers IBAN se terminant par <strong className="text-navy-800">{ibanLast4}</strong></span>
                 </div>
               )}
 
               {/* Montant */}
               <div className="mb-4">
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                <label className="block text-sm font-semibold text-navy-800 mb-2">
                   Montant à virer (€){' '}
-                  <span className="text-[#6C757D] font-normal">min. 10 €</span>
+                  <span className="text-slate-500 font-normal">min. 10 €</span>
                 </label>
                 <div className="relative">
                   <input
@@ -1165,14 +1165,14 @@ export default function WalletPage() {
                     value={virementAmount}
                     onChange={(e) => { setVirementAmount(e.target.value); setVirementError(''); }}
                     placeholder="Ex : 150.00"
-                    className="w-full border-2 border-[#E9ECEF] focus:border-[#FF6B00] rounded-lg px-4 py-3 text-[#2C3E50] text-lg font-semibold outline-none transition pr-12"
+                    className="w-full border-2 border-slate-200 focus:border-brand-500 rounded-lg px-4 py-3 text-navy-800 text-lg font-semibold outline-none transition pr-12"
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6C757D] font-semibold">€</span>
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-semibold">€</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setVirementAmount(soldeDisponible.toFixed(2))}
-                  className="mt-2 text-sm text-[#FF6B00] hover:underline font-medium"
+                  className="mt-2 text-sm text-brand-700 hover:underline font-medium"
                 >
                   Virer la totalité ({soldeDisponible.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €)
                 </button>
@@ -1180,8 +1180,8 @@ export default function WalletPage() {
 
               {/* Note optionnelle */}
               <div className="mb-6">
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                  Note <span className="text-[#6C757D] font-normal">(optionnel)</span>
+                <label className="block text-sm font-semibold text-navy-800 mb-2">
+                  Note <span className="text-slate-500 font-normal">(optionnel)</span>
                 </label>
                 <input
                   type="text"
@@ -1189,7 +1189,7 @@ export default function WalletPage() {
                   value={virementNote}
                   onChange={(e) => setVirementNote(e.target.value)}
                   placeholder="Ex : Paiement travaux cuisine Dupont"
-                  className="w-full border-2 border-[#E9ECEF] focus:border-[#FF6B00] rounded-lg px-4 py-3 text-[#2C3E50] outline-none transition"
+                  className="w-full border-2 border-slate-200 focus:border-brand-500 rounded-lg px-4 py-3 text-navy-800 outline-none transition"
                 />
               </div>
 
@@ -1217,14 +1217,14 @@ export default function WalletPage() {
                 <button
                   onClick={() => setShowVirementModal(false)}
                   disabled={virementLoading}
-                  className="flex-1 border-2 border-[#E9ECEF] text-[#6C757D] hover:border-[#2C3E50] hover:text-[#2C3E50] px-4 py-3 rounded-lg font-semibold transition"
+                  className="flex-1 border-2 border-slate-200 text-slate-500 hover:border-navy-800 hover:text-navy-800 px-4 py-3 rounded-lg font-semibold transition"
                 >
                   Annuler
                 </button>
                 <button
                   onClick={handleRequestVirement}
                   disabled={virementLoading || !virementAmount || Number(virementAmount) <= 0}
-                  className="flex-1 bg-[#FF6B00] text-white hover:bg-[#E56100] disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2"
+                  className="flex-1 bg-brand-700 text-white hover:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2"
                 >
                   {virementLoading ? (
                     <>

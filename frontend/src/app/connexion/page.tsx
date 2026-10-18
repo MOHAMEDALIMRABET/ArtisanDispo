@@ -120,13 +120,13 @@ export default function ConnexionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#2C3E50] to-[#1A3A5C] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-navy-800 flex items-center justify-center p-4">
       <Card className="max-w-md w-full">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <Logo size="md" href="/" />
           </div>
-          <p className="text-gray-600">{t('auth.loginTitle')}</p>
+          <p className="text-slate-600">{t('auth.loginTitle')}</p>
         </div>
 
         {error && (
@@ -162,11 +162,11 @@ export default function ConnexionPage() {
           />
 
           <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center text-gray-600">
+            <label className="flex items-center text-slate-600">
               <input type="checkbox" className="mr-2" />
               {t('auth.rememberMe')}
             </label>
-            <Link href="/mot-de-passe-oublie" className="text-[#FF6B00] hover:underline">
+            <Link href="/mot-de-passe-oublie" className="text-brand-700 hover:underline">
               {t('auth.forgotPassword')}
             </Link>
           </div>
@@ -183,25 +183,25 @@ export default function ConnexionPage() {
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-600">
+          <p className="text-slate-600">
             {t('auth.noAccount')}{' '}
-            <Link href="/inscription" className="text-[#FF6B00] hover:underline font-medium">
+            <Link href="/inscription" className="text-brand-700 hover:underline font-medium">
               {t('auth.signUp')}
             </Link>
           </p>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <p className="text-center text-sm text-gray-500 mb-4">{t('auth.orContinueWith')}</p>
+        <div className="mt-8 pt-6 border-t border-slate-200">
+          <p className="text-center text-sm text-slate-500 mb-4">{t('auth.orContinueWith')}</p>
           <div className="flex justify-center">
             <button
               type="button"
               onClick={handleGoogleSignIn}
               disabled={isGoogleLoading || isLoading}
-              className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isGoogleLoading ? (
-                <div className="w-5 h-5 mr-2 border-2 border-gray-300 border-t-[#FF6B00] rounded-full animate-spin" />
+                <div className="w-5 h-5 mr-2 border-2 border-slate-300 border-t-brand-500 rounded-full animate-spin" />
               ) : (
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path

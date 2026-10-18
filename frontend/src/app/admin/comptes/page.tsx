@@ -352,7 +352,7 @@ export default function AdminComptesPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl text-gray-600">Chargement...</p>
+        <p className="text-xl text-slate-600">Chargement...</p>
       </div>
     );
   }
@@ -367,37 +367,37 @@ export default function AdminComptesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] p-8">
+    <div className="min-h-screen bg-slate-50 p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#2C3E50] mb-2">Gestion des Comptes</h1>
-        <p className="text-gray-600">Administration des comptes artisans et clients</p>
+        <h1 className="text-3xl font-bold text-navy-800 mb-2">Gestion des Comptes</h1>
+        <p className="text-slate-600">Administration des comptes artisans et clients</p>
       </div>
 
       {/* Statistiques */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-500 uppercase">Artisans</div>
-          <div className="text-3xl font-bold text-[#FF6B00]">{stats.artisansTotal}</div>
-          <div className="text-xs text-gray-500 mt-2">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <div className="text-sm text-slate-500 uppercase">Artisans</div>
+          <div className="text-3xl font-bold text-brand-700">{stats.artisansTotal}</div>
+          <div className="text-xs text-slate-500 mt-2">
             {stats.artisansActifs} actifs • {stats.artisansSuspendus} suspendus
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-500 uppercase">Clients</div>
-          <div className="text-3xl font-bold text-[#2C3E50]">{stats.clientsTotal}</div>
-          <div className="text-xs text-gray-500 mt-2">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <div className="text-sm text-slate-500 uppercase">Clients</div>
+          <div className="text-3xl font-bold text-navy-800">{stats.clientsTotal}</div>
+          <div className="text-xs text-slate-500 mt-2">
             {stats.clientsActifs} actifs • {stats.clientsSuspendus} suspendus
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-500 uppercase">Total Utilisateurs</div>
-          <div className="text-3xl font-bold text-gray-800">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <div className="text-sm text-slate-500 uppercase">Total Utilisateurs</div>
+          <div className="text-3xl font-bold text-slate-800">
             {stats.artisansTotal + stats.clientsTotal}
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-500 uppercase">Comptes Suspendus</div>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <div className="text-sm text-slate-500 uppercase">Comptes Suspendus</div>
           <div className="text-3xl font-bold text-red-600">
             {stats.artisansSuspendus + stats.clientsSuspendus}
           </div>
@@ -406,14 +406,14 @@ export default function AdminComptesPage() {
 
       {/* Onglets */}
       <div className="bg-white rounded-lg shadow">
-        <div className="border-b border-gray-200">
+        <div className="border-b border-slate-200">
           <div className="flex">
             <button
               onClick={() => setAccountType('artisans')}
               className={`px-6 py-4 font-medium ${
                 accountType === 'artisans'
-                  ? 'border-b-2 border-[#FF6B00] text-[#FF6B00]'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'border-b-2 border-brand-500 text-brand-700'
+                  : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               🔧 Artisans ({artisans.length})
@@ -422,8 +422,8 @@ export default function AdminComptesPage() {
               onClick={() => setAccountType('clients')}
               className={`px-6 py-4 font-medium ${
                 accountType === 'clients'
-                  ? 'border-b-2 border-[#FF6B00] text-[#FF6B00]'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'border-b-2 border-brand-500 text-brand-700'
+                  : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               👥 Clients ({clients.length})
@@ -432,7 +432,7 @@ export default function AdminComptesPage() {
         </div>
 
         {/* Filtres */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-slate-200">
           <div className="flex flex-col md:flex-row gap-4">
             {/* Recherche */}
             <div className="flex-1">
@@ -441,7 +441,7 @@ export default function AdminComptesPage() {
                 placeholder={`Rechercher un ${accountType === 'artisans' ? 'artisan' : 'client'}...`}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
 
@@ -451,8 +451,8 @@ export default function AdminComptesPage() {
                 onClick={() => setSelectedFilter('all')}
                 className={`px-4 py-2 rounded-lg ${
                   selectedFilter === 'all'
-                    ? 'bg-[#FF6B00] text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-brand-700 text-white'
+                    : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                 }`}
               >
                 Tous
@@ -462,7 +462,7 @@ export default function AdminComptesPage() {
                 className={`px-4 py-2 rounded-lg ${
                   selectedFilter === 'active'
                     ? 'bg-green-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                 }`}
               >
                 Actifs
@@ -472,14 +472,14 @@ export default function AdminComptesPage() {
                 className={`px-4 py-2 rounded-lg ${
                   selectedFilter === 'suspended'
                     ? 'bg-red-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                 }`}
               >
                 Suspendus
               </button>
               <button
                 onClick={exportToCSV}
-                className="px-4 py-2 rounded-lg bg-[#2C3E50] text-white hover:bg-[#1A3A5C] flex items-center gap-2"
+                className="px-4 py-2 rounded-lg bg-navy-800 text-white hover:bg-navy-900 flex items-center gap-2"
               >
                 📥 Exporter CSV
               </button>
@@ -489,41 +489,41 @@ export default function AdminComptesPage() {
 
         {/* Tableau */}
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-slate-200">
+            <thead className="bg-slate-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Utilisateur
                 </th>
                 {accountType === 'artisans' && (
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                     SIRET
                   </th>
                 )}
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Statut
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Inscription
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-slate-200">
               {filteredData.map((account) => (
-                <tr key={account.userId} className="hover:bg-gray-50">
+                <tr key={account.userId} className="hover:bg-slate-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-slate-900">
                         {account.nom} {account.prenom}
                       </div>
-                      <div className="text-sm text-gray-500">{account.email}</div>
+                      <div className="text-sm text-slate-500">{account.email}</div>
                     </div>
                   </td>
                   {accountType === 'artisans' && (
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
                       {(account as Artisan).siret || '-'}
                     </td>
                   )}
@@ -538,7 +538,7 @@ export default function AdminComptesPage() {
                       </span>
                     )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                     {(account as any).dateCreation
                       ? new Date((account as any).dateCreation.toDate()).toLocaleDateString('fr-FR')
                       : '-'}
@@ -550,7 +550,7 @@ export default function AdminComptesPage() {
                         setShowDetailsDialog(true);
                       }}
                       disabled={actionLoading}
-                      className="text-[#2C3E50] hover:text-[#1A3A5C] disabled:opacity-50"
+                      className="text-navy-800 hover:text-navy-900 disabled:opacity-50"
                     >
                       👁️ Détails
                     </button>
@@ -608,7 +608,7 @@ export default function AdminComptesPage() {
 
           {filteredData.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500">Aucun compte trouvé</p>
+              <p className="text-slate-500">Aucun compte trouvé</p>
             </div>
           )}
         </div>
@@ -620,14 +620,14 @@ export default function AdminComptesPage() {
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
             <h3 className="text-lg font-bold mb-4">Suspendre le compte</h3>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Raison de la suspension *
               </label>
               <textarea
                 value={suspensionReason}
                 onChange={(e) => setSuspensionReason(e.target.value)}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                 placeholder="Expliquez la raison de la suspension..."
               />
             </div>
@@ -645,7 +645,7 @@ export default function AdminComptesPage() {
                   setSuspensionReason('');
                   setSelectedAccount(null);
                 }}
-                className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400"
+                className="flex-1 bg-slate-300 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-400"
               >
                 Annuler
               </button>
@@ -664,12 +664,12 @@ export default function AdminComptesPage() {
             
             {/* Notes existantes */}
             {selectedAccount?.adminNotes && selectedAccount.adminNotes.length > 0 && (
-              <div className="mb-4 max-h-40 overflow-y-auto bg-gray-50 p-3 rounded-lg">
-                <p className="text-xs font-semibold text-gray-600 mb-2">Notes existantes :</p>
+              <div className="mb-4 max-h-40 overflow-y-auto bg-slate-50 p-3 rounded-lg">
+                <p className="text-xs font-semibold text-slate-600 mb-2">Notes existantes :</p>
                 {selectedAccount.adminNotes.map((note: any, index: number) => (
-                  <div key={index} className="text-xs text-gray-700 mb-2 pb-2 border-b border-gray-200 last:border-0">
+                  <div key={index} className="text-xs text-slate-700 mb-2 pb-2 border-b border-slate-200 last:border-0">
                     <p className="font-medium">{note.note}</p>
-                    <p className="text-gray-500 mt-1">
+                    <p className="text-slate-500 mt-1">
                       Par {note.adminName} - {new Date(note.createdAt.toDate()).toLocaleString('fr-FR')}
                     </p>
                   </div>
@@ -678,14 +678,14 @@ export default function AdminComptesPage() {
             )}
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Nouvelle note privée (visible uniquement par les admins)
               </label>
               <textarea
                 value={adminNote}
                 onChange={(e) => setAdminNote(e.target.value)}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                 placeholder="Votre note..."
               />
             </div>
@@ -693,7 +693,7 @@ export default function AdminComptesPage() {
               <button
                 onClick={handleAddNote}
                 disabled={actionLoading || !adminNote.trim()}
-                className="flex-1 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] disabled:opacity-50"
+                className="flex-1 bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 disabled:opacity-50"
               >
                 {actionLoading ? 'Ajout...' : 'Ajouter'}
               </button>
@@ -703,7 +703,7 @@ export default function AdminComptesPage() {
                   setAdminNote('');
                   setSelectedAccount(null);
                 }}
-                className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400"
+                className="flex-1 bg-slate-300 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-400"
               >
                 Annuler
               </button>
@@ -718,10 +718,10 @@ export default function AdminComptesPage() {
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h3 className="text-2xl font-bold text-[#2C3E50]">
+                <h3 className="text-2xl font-bold text-navy-800">
                   {selectedAccount.nom} {selectedAccount.prenom}
                 </h3>
-                <p className="text-gray-600">{selectedAccount.email}</p>
+                <p className="text-slate-600">{selectedAccount.email}</p>
               </div>
               {selectedAccount.suspended ? (
                 <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-semibold">
@@ -736,22 +736,22 @@ export default function AdminComptesPage() {
 
             {/* Informations générales */}
             <div className="mb-6">
-              <h4 className="font-semibold text-gray-700 mb-3">Informations générales</h4>
-              <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-slate-700 mb-3">Informations générales</h4>
+              <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg">
                 <div>
-                  <p className="text-xs text-gray-500">Nom complet</p>
+                  <p className="text-xs text-slate-500">Nom complet</p>
                   <p className="font-medium">{selectedAccount.nom} {selectedAccount.prenom}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Email</p>
+                  <p className="text-xs text-slate-500">Email</p>
                   <p className="font-medium text-sm break-all">{selectedAccount.email}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Rôle</p>
+                  <p className="text-xs text-slate-500">Rôle</p>
                   <p className="font-medium capitalize">{selectedAccount.role || 'Non défini'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Date d'inscription</p>
+                  <p className="text-xs text-slate-500">Date d'inscription</p>
                   <p className="font-medium">
                     {(selectedAccount as any).dateCreation
                       ? (() => {
@@ -768,7 +768,7 @@ export default function AdminComptesPage() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Email vérifié</p>
+                  <p className="text-xs text-slate-500">Email vérifié</p>
                   <p className="font-medium">
                     {selectedAccount.emailVerified ? (
                       <span className="text-green-600">✓ Oui</span>
@@ -778,42 +778,42 @@ export default function AdminComptesPage() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Téléphone</p>
+                  <p className="text-xs text-slate-500">Téléphone</p>
                   <p className="font-medium">{selectedAccount.telephone || '-'}</p>
                 </div>
                 {accountType === 'artisans' && (
                   <>
-                    <div className="col-span-2 border-t border-gray-200 pt-4 mt-2">
-                      <p className="text-xs text-gray-500 font-semibold mb-3">📋 Informations entreprise</p>
+                    <div className="col-span-2 border-t border-slate-200 pt-4 mt-2">
+                      <p className="text-xs text-slate-500 font-semibold mb-3">📋 Informations entreprise</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">SIRET</p>
+                      <p className="text-xs text-slate-500">SIRET</p>
                       <p className="font-medium font-mono">{(selectedAccount as Artisan).siret || '-'}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Raison sociale</p>
+                      <p className="text-xs text-slate-500">Raison sociale</p>
                       <p className="font-medium">{(selectedAccount as Artisan).raisonSociale || '-'}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Nom commercial</p>
+                      <p className="text-xs text-slate-500">Nom commercial</p>
                       <p className="font-medium">{(selectedAccount as Artisan).raisonSociale || '-'}</p>
                     </div>
                     <div className="col-span-2">
-                      <p className="text-xs text-gray-500">Métiers</p>
+                      <p className="text-xs text-slate-500">Métiers</p>
                       <div className="flex flex-wrap gap-2 mt-1">
                         {(selectedAccount as Artisan).metiers && (selectedAccount as Artisan).metiers.length > 0 ? (
                           (selectedAccount as Artisan).metiers.map((metier, idx) => (
-                            <span key={idx} className="px-2 py-1 bg-[#FF6B00] text-white rounded-full text-xs">
+                            <span key={idx} className="px-2 py-1 bg-brand-700 text-white rounded-full text-xs">
                               {metier}
                             </span>
                           ))
                         ) : (
-                          <span className="text-gray-500">-</span>
+                          <span className="text-slate-500">-</span>
                         )}
                       </div>
                     </div>
                     <div className="col-span-2">
-                      <p className="text-xs text-gray-500">Adresse entreprise 🏢</p>
+                      <p className="text-xs text-slate-500">Adresse entreprise 🏢</p>
                       <p className="font-medium">
                         {(selectedAccount as Artisan).zonesIntervention && (selectedAccount as Artisan).zonesIntervention.length > 0
                           ? (() => {
@@ -828,7 +828,7 @@ export default function AdminComptesPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Statut vérification</p>
+                      <p className="text-xs text-slate-500">Statut vérification</p>
                       <p className="font-medium">
                         {(selectedAccount as Artisan).verificationStatus === 'approved' ? (
                           <span className="text-green-600">✓ Approuvé</span>
@@ -840,12 +840,12 @@ export default function AdminComptesPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">SIRET vérifié</p>
+                      <p className="text-xs text-slate-500">SIRET vérifié</p>
                       <p className="font-medium">
                         {(selectedAccount as Artisan).siretVerified ? (
                           <span className="text-green-600">✓ Oui</span>
                         ) : (
-                          <span className="text-gray-600">- Non</span>
+                          <span className="text-slate-600">- Non</span>
                         )}
                       </p>
                     </div>
@@ -875,12 +875,12 @@ export default function AdminComptesPage() {
             {/* Notes admin */}
             {selectedAccount.adminNotes && selectedAccount.adminNotes.length > 0 && (
               <div className="mb-6">
-                <h4 className="font-semibold text-gray-700 mb-3">📝 Notes administratives</h4>
+                <h4 className="font-semibold text-slate-700 mb-3">📝 Notes administratives</h4>
                 <div className="space-y-2 max-h-60 overflow-y-auto">
                   {selectedAccount.adminNotes.map((note: any, index: number) => (
                     <div key={index} className="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
-                      <p className="text-sm text-gray-800">{note.note}</p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-sm text-slate-800">{note.note}</p>
+                      <p className="text-xs text-slate-500 mt-1">
                         Par {note.adminName} - {new Date(note.createdAt.toDate()).toLocaleString('fr-FR')}
                       </p>
                     </div>
@@ -892,12 +892,12 @@ export default function AdminComptesPage() {
             {/* Historique des actions */}
             {selectedAccount.accountActions && selectedAccount.accountActions.length > 0 && (
               <div className="mb-6">
-                <h4 className="font-semibold text-gray-700 mb-3">📋 Historique des actions</h4>
+                <h4 className="font-semibold text-slate-700 mb-3">📋 Historique des actions</h4>
                 <div className="space-y-2 max-h-60 overflow-y-auto">
                   {selectedAccount.accountActions
                     .sort((a: any, b: any) => b.timestamp.toMillis() - a.timestamp.toMillis())
                     .map((action: any, index: number) => (
-                      <div key={index} className="flex items-start gap-3 text-sm bg-gray-50 p-3 rounded">
+                      <div key={index} className="flex items-start gap-3 text-sm bg-slate-50 p-3 rounded">
                         <span className="text-lg">
                           {action.action === 'suspended'
                             ? '⏸️'
@@ -908,7 +908,7 @@ export default function AdminComptesPage() {
                             : '🔄'}
                         </span>
                         <div className="flex-1">
-                          <p className="font-medium text-gray-800">
+                          <p className="font-medium text-slate-800">
                             {action.action === 'suspended'
                               ? 'Compte suspendu'
                               : action.action === 'reactivated'
@@ -918,9 +918,9 @@ export default function AdminComptesPage() {
                               : action.action}
                           </p>
                           {action.reason && (
-                            <p className="text-xs text-gray-600 mt-1">Raison : {action.reason}</p>
+                            <p className="text-xs text-slate-600 mt-1">Raison : {action.reason}</p>
                           )}
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-slate-500 mt-1">
                             Par {action.adminName} - {new Date(action.timestamp.toDate()).toLocaleString('fr-FR')}
                           </p>
                         </div>
@@ -935,7 +935,7 @@ export default function AdminComptesPage() {
                 setShowDetailsDialog(false);
                 setSelectedAccount(null);
               }}
-              className="w-full bg-[#2C3E50] text-white px-4 py-2 rounded-lg hover:bg-[#1A3A5C]"
+              className="w-full bg-navy-800 text-white px-4 py-2 rounded-lg hover:bg-navy-900"
             >
               Fermer
             </button>
@@ -945,7 +945,7 @@ export default function AdminComptesPage() {
       {/* Modal Suppression Immédiate — 3 étapes */}
       {showDeleteModal && selectedAccount && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full overflow-hidden">
+          <div className="bg-white rounded-xl shadow-lg max-w-lg w-full overflow-hidden">
 
             {/* Étape 1 — Confirmation + saisie raison */}
             {deleteStep === 'confirm' && (
@@ -962,12 +962,12 @@ export default function AdminComptesPage() {
 
                 <div className="p-6">
                   {/* Récapitulatif utilisateur */}
-                  <div className="bg-gray-50 rounded-lg p-4 mb-5 border border-gray-200">
-                    <p className="text-xs text-gray-500 uppercase font-semibold mb-2">Utilisateur ciblé</p>
-                    <p className="font-bold text-[#2C3E50] text-lg">{selectedAccount.nom} {selectedAccount.prenom}</p>
-                    <p className="text-gray-600 text-sm">{selectedAccount.email}</p>
+                  <div className="bg-slate-50 rounded-lg p-4 mb-5 border border-slate-200">
+                    <p className="text-xs text-slate-500 uppercase font-semibold mb-2">Utilisateur ciblé</p>
+                    <p className="font-bold text-navy-800 text-lg">{selectedAccount.nom} {selectedAccount.prenom}</p>
+                    <p className="text-slate-600 text-sm">{selectedAccount.email}</p>
                     {accountType === 'artisans' && selectedAccount.siret && (
-                      <p className="text-gray-500 text-xs mt-1 font-mono">SIRET : {selectedAccount.siret}</p>
+                      <p className="text-slate-500 text-xs mt-1 font-mono">SIRET : {selectedAccount.siret}</p>
                     )}
                   </div>
 
@@ -976,7 +976,7 @@ export default function AdminComptesPage() {
                     <>
                       {/* Chargement en cours */}
                       {!walletPreCheck && (
-                        <div className="bg-gray-50 rounded-lg p-3 mb-4 border border-gray-200 flex items-center gap-2 text-sm text-gray-500">
+                        <div className="bg-slate-50 rounded-lg p-3 mb-4 border border-slate-200 flex items-center gap-2 text-sm text-slate-500">
                           <span className="animate-spin">⏳</span> Vérification du solde wallet...
                         </div>
                       )}
@@ -1027,7 +1027,7 @@ export default function AdminComptesPage() {
 
                   {/* Raison */}
                   <div className="mb-5">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
                       Raison de la suppression <span className="text-red-500">*</span>
                     </label>
                     <textarea
@@ -1035,14 +1035,14 @@ export default function AdminComptesPage() {
                       onChange={(e) => setDeleteReason(e.target.value)}
                       rows={3}
                       placeholder="Fraude avérée, demande RGPD, compte test..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
                     />
                   </div>
 
                   <div className="flex gap-3">
                     <button
                       onClick={closeDeleteModal}
-                      className="flex-1 border-2 border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white px-4 py-2.5 rounded-lg font-semibold transition-colors"
+                      className="flex-1 border-2 border-navy-800 text-navy-800 hover:bg-navy-800 hover:text-white px-4 py-2.5 rounded-lg font-semibold transition-colors"
                     >
                       Annuler
                     </button>
@@ -1064,8 +1064,8 @@ export default function AdminComptesPage() {
             {deleteStep === 'loading' && (
               <div className="p-10 text-center">
                 <div className="inline-block w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full animate-spin mb-6"></div>
-                <p className="text-lg font-semibold text-[#2C3E50] mb-2">Suppression en cours…</p>
-                <p className="text-gray-500 text-sm">Suppression en cascade de toutes les données associées</p>
+                <p className="text-lg font-semibold text-navy-800 mb-2">Suppression en cours…</p>
+                <p className="text-slate-500 text-sm">Suppression en cascade de toutes les données associées</p>
               </div>
             )}
 
@@ -1090,9 +1090,9 @@ export default function AdminComptesPage() {
 
                 <div className="p-6">
                   {deleteResult.success && deleteResult.details && (
-                    <div className="bg-gray-50 rounded-lg p-4 mb-5 border border-gray-200">
-                      <p className="text-xs font-semibold text-gray-600 uppercase mb-3">Rapport de suppression</p>
-                      <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono leading-relaxed">
+                    <div className="bg-slate-50 rounded-lg p-4 mb-5 border border-slate-200">
+                      <p className="text-xs font-semibold text-slate-600 uppercase mb-3">Rapport de suppression</p>
+                      <pre className="text-xs text-slate-700 whitespace-pre-wrap font-mono leading-relaxed">
                         {deleteResult.details}
                       </pre>
                     </div>
@@ -1100,7 +1100,7 @@ export default function AdminComptesPage() {
 
                   <button
                     onClick={closeDeleteModal}
-                    className="w-full bg-[#2C3E50] text-white hover:bg-[#1A3A5C] px-4 py-2.5 rounded-lg font-semibold transition-colors"
+                    className="w-full bg-navy-800 text-white hover:bg-navy-900 px-4 py-2.5 rounded-lg font-semibold transition-colors"
                   >
                     Fermer
                   </button>

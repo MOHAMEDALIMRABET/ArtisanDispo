@@ -30,7 +30,7 @@ const horaireLabels: Record<string, string> = {
 const statutColors = {
   'en_attente': 'bg-yellow-100 text-yellow-800 border-yellow-300',
   'traite': 'bg-green-100 text-green-800 border-green-300',
-  'annule': 'bg-gray-100 text-gray-800 border-gray-300',
+  'annule': 'bg-slate-100 text-slate-800 border-slate-300',
 };
 
 export default function AdminRappelsPage() {
@@ -139,15 +139,15 @@ export default function AdminRappelsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] py-8 px-4">
+    <div className="min-h-screen bg-slate-50 py-8 px-4">
       <div className="container mx-auto max-w-7xl">
         {/* En-tête */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold text-[#2C3E50]">Demandes de rappel</h1>
+            <h1 className="text-3xl font-bold text-navy-800">Demandes de rappel</h1>
             <button
               onClick={() => router.push('/admin/dashboard')}
-              className="flex items-center gap-2 text-gray-600 hover:text-[#FF6B00] transition-colors"
+              className="flex items-center gap-2 text-slate-600 hover:text-brand-700 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -195,11 +195,11 @@ export default function AdminRappelsPage() {
 
           {/* Filtres */}
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-gray-700">Filtrer par statut :</span>
+            <span className="text-sm font-medium text-slate-700">Filtrer par statut :</span>
             <select
               value={filterStatut}
               onChange={(e) => setFilterStatut(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+              className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             >
               <option value="all">Tous</option>
               <option value="en_attente">En attente</option>
@@ -212,37 +212,37 @@ export default function AdminRappelsPage() {
         {/* Liste des demandes */}
         {isLoading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00]"></div>
-            <p className="mt-4 text-gray-600">Chargement des demandes...</p>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500"></div>
+            <p className="mt-4 text-slate-600">Chargement des demandes...</p>
           </div>
         ) : filteredRappels.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg shadow">
-            <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-slate-200">
+            <svg className="w-16 h-16 mx-auto text-slate-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
             </svg>
-            <p className="text-gray-600">Aucune demande de rappel</p>
+            <p className="text-slate-600">Aucune demande de rappel</p>
           </div>
         ) : (
           <div className="space-y-4">
             {filteredRappels.map((rappel) => (
-              <div key={rappel.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6">
+              <div key={rappel.id} className="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start gap-4">
-                    <div className="bg-[#FF6B00] rounded-full p-3">
+                    <div className="bg-brand-700 rounded-full p-3">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-lg text-[#2C3E50]">
+                      <h3 className="font-semibold text-lg text-navy-800">
                         {rappel.prenom} {rappel.nom}
                       </h3>
-                      <div className="text-sm text-gray-600 space-y-1 mt-2">
+                      <div className="text-sm text-slate-600 space-y-1 mt-2">
                         <div className="flex items-center gap-2">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                           </svg>
-                          <a href={`tel:${rappel.telephone}`} className="text-[#FF6B00] hover:underline font-medium">
+                          <a href={`tel:${rappel.telephone}`} className="text-brand-700 hover:underline font-medium">
                             {rappel.telephone}
                           </a>
                         </div>
@@ -251,7 +251,7 @@ export default function AdminRappelsPage() {
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
-                            <a href={`mailto:${rappel.email}`} className="text-[#FF6B00] hover:underline">
+                            <a href={`mailto:${rappel.email}`} className="text-brand-700 hover:underline">
                               {rappel.email}
                             </a>
                           </div>
@@ -262,7 +262,7 @@ export default function AdminRappelsPage() {
                           </svg>
                           {horaireLabels[rappel.horairePrefere]}
                         </div>
-                        <div className="flex items-center gap-2 text-gray-500">
+                        <div className="flex items-center gap-2 text-slate-500">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
@@ -282,14 +282,14 @@ export default function AdminRappelsPage() {
                 </div>
 
                 {rappel.message && (
-                  <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                    <p className="text-sm font-medium text-gray-700 mb-1">Message :</p>
-                    <p className="text-gray-600">{rappel.message}</p>
+                  <div className="bg-slate-50 rounded-lg p-4 mb-4">
+                    <p className="text-sm font-medium text-slate-700 mb-1">Message :</p>
+                    <p className="text-slate-600">{rappel.message}</p>
                   </div>
                 )}
 
                 {rappel.statut === 'en_attente' && rappel.id && (
-                  <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
+                  <div className="flex items-center gap-3 pt-4 border-t border-slate-200">
                     <button
                       onClick={() => updateStatut(rappel.id!, 'traite')}
                       className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
@@ -301,7 +301,7 @@ export default function AdminRappelsPage() {
                     </button>
                     <button
                       onClick={() => updateStatut(rappel.id!, 'annule')}
-                      className="flex items-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                      className="flex items-center gap-2 bg-slate-500 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -312,7 +312,7 @@ export default function AdminRappelsPage() {
                 )}
 
                 {rappel.dateTraitement && (
-                  <div className="text-sm text-gray-500 pt-4 border-t border-gray-200">
+                  <div className="text-sm text-slate-500 pt-4 border-t border-slate-200">
                     Traitée le {formatDate(rappel.dateTraitement)}
                   </div>
                 )}

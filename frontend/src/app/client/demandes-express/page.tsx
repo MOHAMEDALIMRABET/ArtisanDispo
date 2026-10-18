@@ -733,10 +733,10 @@ export default function MesDemandesExpressPage() {
       litige: 'bg-red-600 text-white',
       terminee: 'bg-green-200 text-green-900',
       annulee: 'bg-red-100 text-red-800',
-      expiree: 'bg-gray-200 text-gray-700',
+      expiree: 'bg-slate-200 text-slate-700',
       refusee_artisan: 'bg-orange-100 text-orange-800',
     };
-    const className = classes[statut] || 'bg-gray-100 text-gray-800';
+    const className = classes[statut] || 'bg-slate-100 text-slate-800';
     return (
       <span className={`px-3 py-1 rounded-full text-sm font-semibold ${className}`}>
         {t(`clientExpressRequests.statuses.${statut}`)}
@@ -755,10 +755,10 @@ export default function MesDemandesExpressPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#F8F9FA] to-white flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#FF6B00] mx-auto mb-4"></div>
-          <p className="text-lg text-[#6C757D]">{t('clientExpressRequests.loading')}</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-brand-500 mx-auto mb-4"></div>
+          <p className="text-lg text-slate-500">{t('clientExpressRequests.loading')}</p>
         </div>
       </div>
     );
@@ -772,11 +772,11 @@ export default function MesDemandesExpressPage() {
         onClick={() => setDevisConsultModal(null)}
       >
         <div
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl"
+          className="bg-white rounded-2xl shadow-lg w-full max-w-2xl"
           onClick={(e) => e.stopPropagation()}
         >
           {/* En-tête */}
-          <div className="bg-[#2C3E50] text-white px-6 py-4 rounded-t-2xl flex items-center justify-between">
+          <div className="bg-navy-800 text-white px-6 py-4 rounded-t-2xl flex items-center justify-between">
             <h2 className="text-lg font-bold">📋 Devis signé</h2>
             <button onClick={() => setDevisConsultModal(null)} className="text-white/70 hover:text-white text-2xl leading-none">×</button>
           </div>
@@ -784,24 +784,24 @@ export default function MesDemandesExpressPage() {
           <div className="p-6 space-y-6">
             {/* Lignes de prestation */}
             <div>
-              <h3 className="font-bold text-[#2C3E50] mb-3 text-sm uppercase tracking-wide">Prestations</h3>
-              <div className="border border-[#E9ECEF] rounded-xl overflow-hidden">
+              <h3 className="font-bold text-navy-800 mb-3 text-sm uppercase tracking-wide">Prestations</h3>
+              <div className="border border-slate-200 rounded-xl overflow-hidden">
                 <table className="w-full text-sm">
-                  <thead className="bg-[#F8F9FA]">
+                  <thead className="bg-slate-50">
                     <tr>
-                      <th className="text-left px-4 py-2 text-[#6C757D] font-semibold">Description</th>
-                      <th className="text-right px-4 py-2 text-[#6C757D] font-semibold">Qté</th>
-                      <th className="text-right px-4 py-2 text-[#6C757D] font-semibold">PU HT</th>
-                      <th className="text-right px-4 py-2 text-[#6C757D] font-semibold">Total HT</th>
+                      <th className="text-left px-4 py-2 text-slate-500 font-semibold">Description</th>
+                      <th className="text-right px-4 py-2 text-slate-500 font-semibold">Qté</th>
+                      <th className="text-right px-4 py-2 text-slate-500 font-semibold">PU HT</th>
+                      <th className="text-right px-4 py-2 text-slate-500 font-semibold">Total HT</th>
                     </tr>
                   </thead>
                   <tbody>
                     {devisConsultModal.devisJoint.lignes.map((ligne, i) => (
-                      <tr key={i} className="border-t border-[#E9ECEF]">
-                        <td className="px-4 py-2 text-[#2C3E50]">{ligne.description || '—'}</td>
-                        <td className="px-4 py-2 text-right text-[#6C757D]">{ligne.quantite} {ligne.unite}</td>
-                        <td className="px-4 py-2 text-right text-[#6C757D]">{ligne.prixUnitaireHT.toFixed(2)} €</td>
-                        <td className="px-4 py-2 text-right font-semibold text-[#2C3E50]">{ligne.totalHT.toFixed(2)} €</td>
+                      <tr key={i} className="border-t border-slate-200">
+                        <td className="px-4 py-2 text-navy-800">{ligne.description || '—'}</td>
+                        <td className="px-4 py-2 text-right text-slate-500">{ligne.quantite} {ligne.unite}</td>
+                        <td className="px-4 py-2 text-right text-slate-500">{ligne.prixUnitaireHT.toFixed(2)} €</td>
+                        <td className="px-4 py-2 text-right font-semibold text-navy-800">{ligne.totalHT.toFixed(2)} €</td>
                       </tr>
                     ))}
                   </tbody>
@@ -812,10 +812,10 @@ export default function MesDemandesExpressPage() {
             {/* Main d'œuvre */}
             {devisConsultModal.devisJoint.mainOeuvre && devisConsultModal.devisJoint.mainOeuvre.prixHT > 0 && (
               <div>
-                <h3 className="font-bold text-[#2C3E50] mb-2 text-sm uppercase tracking-wide">Main d'œuvre</h3>
-                <div className="bg-[#F8F9FA] rounded-lg px-4 py-3 flex justify-between text-sm">
-                  <span className="text-[#6C757D]">{devisConsultModal.devisJoint.mainOeuvre.quantite} {devisConsultModal.devisJoint.mainOeuvre.unite} — TVA {devisConsultModal.devisJoint.mainOeuvre.tauxTVA}%</span>
-                  <span className="font-semibold text-[#2C3E50]">{devisConsultModal.devisJoint.mainOeuvre.prixHT.toFixed(2)} € HT</span>
+                <h3 className="font-bold text-navy-800 mb-2 text-sm uppercase tracking-wide">Main d'œuvre</h3>
+                <div className="bg-slate-50 rounded-lg px-4 py-3 flex justify-between text-sm">
+                  <span className="text-slate-500">{devisConsultModal.devisJoint.mainOeuvre.quantite} {devisConsultModal.devisJoint.mainOeuvre.unite} — TVA {devisConsultModal.devisJoint.mainOeuvre.tauxTVA}%</span>
+                  <span className="font-semibold text-navy-800">{devisConsultModal.devisJoint.mainOeuvre.prixHT.toFixed(2)} € HT</span>
                 </div>
               </div>
             )}
@@ -823,54 +823,54 @@ export default function MesDemandesExpressPage() {
             {/* Matières premières */}
             {devisConsultModal.devisJoint.matierePremiere && (
               <div>
-                <h3 className="font-bold text-[#2C3E50] mb-2 text-sm uppercase tracking-wide">Matières premières</h3>
-                <div className="bg-[#F8F9FA] rounded-lg px-4 py-3 flex justify-between text-sm">
-                  <span className="text-[#6C757D]">{devisConsultModal.devisJoint.matierePremiere.quantite} {devisConsultModal.devisJoint.matierePremiere.unite} — TVA {devisConsultModal.devisJoint.matierePremiere.tauxTVA}%</span>
-                  <span className="font-semibold text-[#2C3E50]">{devisConsultModal.devisJoint.matierePremiere.prixHT.toFixed(2)} € HT</span>
+                <h3 className="font-bold text-navy-800 mb-2 text-sm uppercase tracking-wide">Matières premières</h3>
+                <div className="bg-slate-50 rounded-lg px-4 py-3 flex justify-between text-sm">
+                  <span className="text-slate-500">{devisConsultModal.devisJoint.matierePremiere.quantite} {devisConsultModal.devisJoint.matierePremiere.unite} — TVA {devisConsultModal.devisJoint.matierePremiere.tauxTVA}%</span>
+                  <span className="font-semibold text-navy-800">{devisConsultModal.devisJoint.matierePremiere.prixHT.toFixed(2)} € HT</span>
                 </div>
               </div>
             )}
 
             {/* Totaux */}
-            <div className="bg-[#FF6B00]/5 border border-[#FF6B00]/20 rounded-xl p-4 space-y-2">
-              <div className="flex justify-between text-sm text-[#6C757D]">
+            <div className="bg-brand-700/5 border border-brand-500/20 rounded-xl p-4 space-y-2">
+              <div className="flex justify-between text-sm text-slate-500">
                 <span>Total HT</span><span>{devisConsultModal.devisJoint.totaux.totalHT.toFixed(2)} €</span>
               </div>
-              <div className="flex justify-between text-sm text-[#6C757D]">
+              <div className="flex justify-between text-sm text-slate-500">
                 <span>TVA</span><span>{devisConsultModal.devisJoint.totaux.totalTVAGlobal.toFixed(2)} €</span>
               </div>
-              <div className="flex justify-between text-lg font-bold text-[#FF6B00] border-t border-[#FF6B00]/20 pt-2">
+              <div className="flex justify-between text-lg font-bold text-brand-700 border-t border-brand-500/20 pt-2">
                 <span>Total TTC</span><span>{devisConsultModal.devisJoint.totaux.totalTTC.toFixed(2)} €</span>
               </div>
             </div>
 
             {/* Conditions */}
             {(devisConsultModal.devisJoint.delaiRealisation || devisConsultModal.devisJoint.dateDebutPrevue || devisConsultModal.devisJoint.conditions) && (
-              <div className="space-y-2 text-sm border-t border-[#E9ECEF] pt-4">
+              <div className="space-y-2 text-sm border-t border-slate-200 pt-4">
                 {devisConsultModal.devisJoint.delaiRealisation && (
-                  <div className="flex gap-2"><span className="text-[#6C757D] font-semibold min-w-32">Délai :</span><span>{devisConsultModal.devisJoint.delaiRealisation}</span></div>
+                  <div className="flex gap-2"><span className="text-slate-500 font-semibold min-w-32">Délai :</span><span>{devisConsultModal.devisJoint.delaiRealisation}</span></div>
                 )}
                 {devisConsultModal.devisJoint.dateDebutPrevue && (
-                  <div className="flex gap-2"><span className="text-[#6C757D] font-semibold min-w-32">Début prévu :</span><span>{devisConsultModal.devisJoint.dateDebutPrevue}</span></div>
+                  <div className="flex gap-2"><span className="text-slate-500 font-semibold min-w-32">Début prévu :</span><span>{devisConsultModal.devisJoint.dateDebutPrevue}</span></div>
                 )}
                 {devisConsultModal.devisJoint.conditions && (
-                  <div className="flex gap-2"><span className="text-[#6C757D] font-semibold min-w-32">Conditions :</span><span>{devisConsultModal.devisJoint.conditions}</span></div>
+                  <div className="flex gap-2"><span className="text-slate-500 font-semibold min-w-32">Conditions :</span><span>{devisConsultModal.devisJoint.conditions}</span></div>
                 )}
               </div>
             )}
 
             {/* Signatures */}
-            <div className="border-t border-[#E9ECEF] pt-4 grid grid-cols-2 gap-4">
+            <div className="border-t border-slate-200 pt-4 grid grid-cols-2 gap-4">
               {devisConsultModal.devisJoint.signatureArtisan?.dataURL && (
                 <div>
-                  <p className="text-xs font-semibold text-[#6C757D] mb-1">✍️ Signature artisan</p>
-                  <img src={devisConsultModal.devisJoint.signatureArtisan.dataURL} alt="Signature artisan" className="h-14 border border-[#E9ECEF] rounded-lg bg-white p-1 w-full object-contain" />
+                  <p className="text-xs font-semibold text-slate-500 mb-1">✍️ Signature artisan</p>
+                  <img src={devisConsultModal.devisJoint.signatureArtisan.dataURL} alt="Signature artisan" className="h-14 border border-slate-200 rounded-lg bg-white p-1 w-full object-contain" />
                 </div>
               )}
               {devisConsultModal.devisJoint.signatureClient?.dataURL && (
                 <div>
-                  <p className="text-xs font-semibold text-[#6C757D] mb-1">✍️ Votre signature</p>
-                  <img src={devisConsultModal.devisJoint.signatureClient.dataURL} alt="Signature client" className="h-14 border border-[#E9ECEF] rounded-lg bg-white p-1 w-full object-contain" />
+                  <p className="text-xs font-semibold text-slate-500 mb-1">✍️ Votre signature</p>
+                  <img src={devisConsultModal.devisJoint.signatureClient.dataURL} alt="Signature client" className="h-14 border border-slate-200 rounded-lg bg-white p-1 w-full object-contain" />
                 </div>
               )}
             </div>
@@ -884,13 +884,13 @@ export default function MesDemandesExpressPage() {
                 // Ouvre la page d'impression dans un nouvel onglet (comme le devis classique)
                 window.open(`/devis-express-print/${devisConsultModal.id}`, '_blank');
               }}
-              className="flex-1 flex items-center justify-center gap-2 bg-[#2C3E50] text-white px-4 py-3 rounded-lg hover:bg-[#1A3A5C] transition-colors font-semibold"
+              className="flex-1 flex items-center justify-center gap-2 bg-navy-800 text-white px-4 py-3 rounded-lg hover:bg-navy-900 transition-colors font-semibold"
             >
               🖨️ Imprimer / PDF
             </button>
             <button
               onClick={() => setDevisConsultModal(null)}
-              className="flex-1 bg-[#FF6B00] text-white px-4 py-3 rounded-lg hover:bg-[#E56100] transition-colors font-semibold"
+              className="flex-1 bg-brand-700 text-white px-4 py-3 rounded-lg hover:bg-brand-800 transition-colors font-semibold"
             >
               Fermer
             </button>
@@ -899,14 +899,14 @@ export default function MesDemandesExpressPage() {
       </div>
     )}
 
-    <div className="min-h-screen bg-gradient-to-b from-[#F8F9FA] to-white">
+    <div className="min-h-screen bg-slate-50">
 
       {/* Bande bleue — identique à /client/demandes-hub */}
-      <div className="bg-[#2C3E50] text-white py-8 px-4">
+      <div className="bg-navy-800 text-white py-8 px-4">
         <div className="container mx-auto">
           <button
             onClick={() => router.push('/client/demandes-hub')}
-            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4 transition-colors"
+            className="flex items-center gap-2 text-white hover:text-brand-700 mb-4 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -919,7 +919,7 @@ export default function MesDemandesExpressPage() {
               <h1 className="text-2xl font-bold">
                 {t('clientExpressRequests.pageTitle')}
               </h1>
-              <p className="text-gray-300 text-sm mt-1">
+              <p className="text-slate-300 text-sm mt-1">
                 {t('clientExpressRequests.pageSubtitle')}
               </p>
             </div>
@@ -946,7 +946,7 @@ export default function MesDemandesExpressPage() {
 
         {/* Panneau comment ça marche */}
         {showHowItWorks && (
-          <div className="mb-6 bg-blue-50 border-2 border-blue-200 rounded-xl p-5 text-sm text-[#6C757D]">
+          <div className="mb-6 bg-blue-50 border-2 border-blue-200 rounded-xl p-5 text-sm text-slate-500">
             <ul className="space-y-2">
               <li><strong>1.</strong> {t('clientExpressRequests.howItWorks.step1')}</li>
               <li><strong>2.</strong> {t('clientExpressRequests.howItWorks.step2')}</li>
@@ -963,17 +963,17 @@ export default function MesDemandesExpressPage() {
           {/* Toutes */}
           <button
             onClick={() => { setFiltreStatut('toutes'); setFiltreEnTraitement('toutes'); setSourceFilter('toutes'); }}
-            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-0.5 ${
               filtreStatut === 'toutes' && sourceFilter === 'toutes'
-                ? 'bg-gradient-to-br from-[#FF6B00] to-[#E56100] text-white shadow-xl scale-105'
-                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                ? ' bg-brand-600 text-white shadow-md scale-105'
+                : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
             }`}
           >
-            <div className={`text-3xl font-black mb-1 ${filtreStatut === 'toutes' && sourceFilter === 'toutes' ? 'text-white' : 'text-[#FF6B00]'}`}>
+            <div className={`text-3xl font-black mb-1 ${filtreStatut === 'toutes' && sourceFilter === 'toutes' ? 'text-white' : 'text-brand-700'}`}>
               {demandesActives.length}
               {showToutsBell && <span className="ml-1 animate-bounce text-lg">🔔</span>}
             </div>
-            <div className={`text-xs font-semibold uppercase tracking-wide ${filtreStatut === 'toutes' && sourceFilter === 'toutes' ? 'text-white' : 'text-gray-600'}`}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${filtreStatut === 'toutes' && sourceFilter === 'toutes' ? 'text-white' : 'text-slate-600'}`}>
               Toutes
             </div>
           </button>
@@ -981,16 +981,16 @@ export default function MesDemandesExpressPage() {
           {/* Envoyées */}
           <button
             onClick={() => { setFiltreStatut('en_attente_proposition'); setFiltreEnTraitement('toutes'); setSourceFilter('toutes'); }}
-            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-0.5 ${
               filtreStatut === 'en_attente_proposition'
-                ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-xl scale-105'
-                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                ? ' bg-orange-500 text-white shadow-md scale-105'
+                : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${filtreStatut === 'en_attente_proposition' ? 'text-white' : 'text-orange-500'}`}>
               {demandes.filter(d => d.statut === 'en_attente_proposition').length}
             </div>
-            <div className={`text-xs font-semibold uppercase tracking-wide ${filtreStatut === 'en_attente_proposition' ? 'text-white' : 'text-gray-600'}`}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${filtreStatut === 'en_attente_proposition' ? 'text-white' : 'text-slate-600'}`}>
               ⏳ Envoyées
             </div>
           </button>
@@ -998,16 +998,16 @@ export default function MesDemandesExpressPage() {
           {/* Publiées */}
           <button
             onClick={() => { setSourceFilter(sourceFilter === 'publiees' ? 'toutes' : 'publiees'); setFiltreStatut('toutes'); setFiltreEnTraitement('toutes'); }}
-            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-0.5 ${
               sourceFilter === 'publiees'
-                ? 'bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-xl scale-105'
-                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                ? ' bg-purple-500 text-white shadow-md scale-105'
+                : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${sourceFilter === 'publiees' ? 'text-white' : 'text-purple-600'}`}>
               {demandesPublieesCount}
             </div>
-            <div className={`text-xs font-semibold uppercase tracking-wide ${sourceFilter === 'publiees' ? 'text-white' : 'text-gray-600'}`}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${sourceFilter === 'publiees' ? 'text-white' : 'text-slate-600'}`}>
               📢 Publiées
             </div>
           </button>
@@ -1015,12 +1015,12 @@ export default function MesDemandesExpressPage() {
           {/* Propositions reçues */}
           <button
             onClick={() => { setFiltreStatut('proposition_recue'); setFiltreEnTraitement('toutes'); setSourceFilter('toutes'); }}
-            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-0.5 ${
               filtreStatut === 'proposition_recue'
-                ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl scale-105'
+                ? ' bg-blue-500 text-white shadow-md scale-105'
                 : activeBellCount > 0
                   ? 'bg-blue-50 hover:bg-blue-100 shadow-lg border-2 border-blue-400 ring-2 ring-blue-300 ring-opacity-50'
-                  : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                  : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${filtreStatut === 'proposition_recue' ? 'text-white' : 'text-blue-600'}`}>
@@ -1033,7 +1033,7 @@ export default function MesDemandesExpressPage() {
             <div className={`text-xs font-semibold uppercase tracking-wide ${
               filtreStatut === 'proposition_recue' ? 'text-white'
               : activeBellCount > 0 ? 'text-blue-700'
-              : 'text-gray-600'
+              : 'text-slate-600'
             }`}>
               📋 Propositions reçues
             </div>
@@ -1042,12 +1042,12 @@ export default function MesDemandesExpressPage() {
           {/* En traitement */}
           <button
             onClick={() => { setFiltreStatut('en_cours'); setFiltreEnTraitement('toutes'); setSourceFilter('toutes'); }}
-            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-0.5 ${
               filtreStatut === 'en_cours'
-                ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-xl scale-105'
+                ? ' bg-indigo-500 text-white shadow-md scale-105'
                 : bellTravauxIds.size > 0
                   ? 'bg-amber-50 hover:bg-amber-100 shadow-lg border-2 border-amber-400 ring-2 ring-amber-300 ring-opacity-50'
-                  : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                  : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${filtreStatut === 'en_cours' ? 'text-white' : 'text-indigo-600'}`}>
@@ -1060,7 +1060,7 @@ export default function MesDemandesExpressPage() {
             <div className={`text-xs font-semibold uppercase tracking-wide ${
               filtreStatut === 'en_cours' ? 'text-white'
               : bellTravauxIds.size > 0 ? 'text-amber-700'
-              : 'text-gray-600'
+              : 'text-slate-600'
             }`}>
               🔧 En traitement
             </div>
@@ -1069,16 +1069,16 @@ export default function MesDemandesExpressPage() {
           {/* Validées */}
           <button
             onClick={() => { setFiltreStatut('terminee'); setFiltreEnTraitement('toutes'); setSourceFilter('toutes'); }}
-            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-0.5 ${
               filtreStatut === 'terminee'
-                ? 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-xl scale-105'
-                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                ? ' bg-green-500 text-white shadow-md scale-105'
+                : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${filtreStatut === 'terminee' ? 'text-white' : 'text-green-600'}`}>
               {demandes.filter(d => d.statut === 'terminee').length}
             </div>
-            <div className={`text-xs font-semibold uppercase tracking-wide ${filtreStatut === 'terminee' ? 'text-white' : 'text-gray-600'}`}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${filtreStatut === 'terminee' ? 'text-white' : 'text-slate-600'}`}>
               ✅ Validées
             </div>
           </button>
@@ -1087,14 +1087,14 @@ export default function MesDemandesExpressPage() {
 
         {/* Sous-menu "En traitement" : affiché uniquement quand ce filtre est actif */}
         {filtreStatut === 'en_cours' && (
-          <div className="mb-6 flex flex-wrap gap-2 pl-4 border-l-4 border-[#FF6B00]">
-            <span className="text-sm font-semibold text-[#6C757D] self-center mr-1">Sous-filtre :</span>
+          <div className="mb-6 flex flex-wrap gap-2 pl-4 border-l-4 border-brand-500">
+            <span className="text-sm font-semibold text-slate-500 self-center mr-1">Sous-filtre :</span>
             <button
               onClick={() => setFiltreEnTraitement('toutes')}
               className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
                 filtreEnTraitement === 'toutes'
-                  ? 'bg-[#FF6B00] text-white'
-                  : 'bg-white text-[#2C3E50] border border-gray-200 hover:bg-[#FFF3EA]'
+                  ? 'bg-brand-700 text-white'
+                  : 'bg-white text-navy-800 border border-slate-200 hover:bg-brand-50'
               }`}
             >
               Tous ({demandes.filter(d => ['acceptee', 'payee', 'en_cours', 'travaux_termines', 'refusee_artisan', 'annulee'].includes(d.statut)).length})
@@ -1147,17 +1147,17 @@ export default function MesDemandesExpressPage() {
         {demandesFiltrees.length === 0 ? (
           filtreStatut === 'toutes' && sourceFilter === 'toutes' ? (
             <Card className="text-center py-12">
-              <p className="text-xl text-[#6C757D]">
+              <p className="text-xl text-slate-500">
                 {t('clientExpressRequests.empty.all')}
               </p>
             </Card>
           ) : (
             <Card className="text-center py-16">
               <div className="text-5xl mb-4">🔍</div>
-              <p className="text-xl font-semibold text-[#2C3E50] mb-2">
+              <p className="text-xl font-semibold text-navy-800 mb-2">
                 Aucune demande dans cette catégorie
               </p>
-              <p className="text-sm text-[#6C757D]">
+              <p className="text-sm text-slate-500">
                 Essayez une autre catégorie
               </p>
             </Card>
@@ -1172,10 +1172,10 @@ export default function MesDemandesExpressPage() {
                 key={demande.id}
                 className={`bg-white rounded-2xl shadow-md transition-all duration-300 relative border-2 overflow-hidden ${
                   canExpand && isExpanded
-                    ? 'border-[#FF6B00] ring-1 ring-[#FF6B00] ring-opacity-30'
+                    ? 'border-brand-500 ring-1 ring-brand-500 ring-opacity-30'
                     : demande.statut === 'proposition_recue' && !isExpanded
                       ? 'border-blue-400 ring-2 ring-blue-300 ring-opacity-50 shadow-lg'
-                      : 'border-transparent hover:border-gray-200 hover:shadow-xl'
+                      : 'border-transparent hover:border-slate-200 hover:shadow-md'
                 }`}
               >
                 {/* Bandeau "Nouvelle proposition" — visible uniquement sur les cartes non déployées */}
@@ -1187,7 +1187,7 @@ export default function MesDemandesExpressPage() {
                 )}
 
                 {/* Barre latérale orange */}
-                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-[#FF6B00] to-[#E56100]" />
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-brand-600 " />
 
                 {/* Cloche nouvelle proposition */}
                 {bellDemandeIds.has(demande.id) && (
@@ -1209,17 +1209,17 @@ export default function MesDemandesExpressPage() {
                 <button
                   onClick={() => toggleExpand(demande.id, demande.statut)}
                   className={`absolute top-4 right-4 flex items-center gap-1.5 px-3 py-2 rounded-xl transition-all duration-200 group border ${
-                    isExpanded ? 'bg-orange-50 border-[#FF6B00]' : 'bg-white border-gray-200 hover:border-[#FF6B00] hover:bg-orange-50'
+                    isExpanded ? 'bg-orange-50 border-brand-500' : 'bg-white border-slate-200 hover:border-brand-500 hover:bg-orange-50'
                   }`}
                 >
                   <span className={`text-xs font-semibold transition-colors ${
-                    isExpanded ? 'text-[#FF6B00]' : 'text-gray-500 group-hover:text-[#FF6B00]'
+                    isExpanded ? 'text-brand-700' : 'text-slate-500 group-hover:text-brand-700'
                   }`}>
                     {isExpanded ? 'Réduire' : 'Afficher détails'}
                   </span>
                   <svg
                     className={`w-4 h-4 transition-all duration-200 ${
-                      isExpanded ? 'rotate-180 text-[#FF6B00]' : 'text-gray-400 group-hover:text-[#FF6B00]'
+                      isExpanded ? 'rotate-180 text-brand-700' : 'text-slate-400 group-hover:text-brand-700'
                     }`}
                     fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}
                   >
@@ -1250,7 +1250,7 @@ export default function MesDemandesExpressPage() {
                     )}
                     {['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut) ? (
                       montantsPaiementMap.has(demande.id) && (
-                        <span className="px-3 py-1 bg-[#FF6B00] text-white rounded-full text-sm font-bold">
+                        <span className="px-3 py-1 bg-brand-700 text-white rounded-full text-sm font-bold">
                           💰 {montantsPaiementMap.get(demande.id)}€
                         </span>
                       )
@@ -1263,19 +1263,19 @@ export default function MesDemandesExpressPage() {
                     )}
                   </div>
 
-                  <h3 className="text-xl font-bold text-[#2C3E50] mb-2">
+                  <h3 className="text-xl font-bold text-navy-800 mb-2">
                     {artisanNomMap.has(demande.id) && (
-                      <span className="text-[#2C3E50]">{artisanNomMap.get(demande.id)} - </span>
+                      <span className="text-navy-800">{artisanNomMap.get(demande.id)} - </span>
                     )}
                     {demande.categorie.charAt(0).toUpperCase() + demande.categorie.slice(1)}
                     {demande.sousCategorie && ` - ${demande.sousCategorie}`}
                   </h3>
 
-                  <p className="text-[#6C757D] mb-3 line-clamp-3 break-all whitespace-pre-wrap overflow-hidden">
+                  <p className="text-slate-500 mb-3 line-clamp-3 break-all whitespace-pre-wrap overflow-hidden">
                     {demande.description}
                   </p>
 
-                  <div className="flex flex-wrap gap-4 text-sm text-[#6C757D]">
+                  <div className="flex flex-wrap gap-4 text-sm text-slate-500">
                     <span>📍 {demande.ville} ({demande.codePostal})</span>
                     <span>{t('clientExpressRequests.card.createdOn')} {format(tsToDate(demande.createdAt), 'dd MMMM yyyy à HH:mm', { locale: fr })}</span>
 
@@ -1313,19 +1313,19 @@ export default function MesDemandesExpressPage() {
                   const isPublished = !demande.artisanId;
                   const loadingProp = loadingPropsIds.has(demande.id);
                   return (
-                    <div className="border-t border-gray-100">
+                    <div className="border-t border-slate-100">
                       {/* Adresse si disponible */}
                       {demande.adresse && (
-                        <div className="px-8 py-3 bg-[#F8F9FA] border-b border-gray-100">
-                          <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-0.5">📍 Adresse complète</p>
-                          <p className="text-sm font-medium text-[#2C3E50]">{demande.adresse}</p>
+                        <div className="px-8 py-3 bg-slate-50 border-b border-slate-100">
+                          <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-0.5">📍 Adresse complète</p>
+                          <p className="text-sm font-medium text-navy-800">{demande.adresse}</p>
                         </div>
                       )}
 
                       {/* Photos du chantier */}
                       {demande.photos && demande.photos.length > 0 && (
-                        <div className="px-8 py-4 border-b border-gray-100">
-                          <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-2">
+                        <div className="px-8 py-4 border-b border-slate-100">
+                          <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-2">
                             📷 Photos ({demande.photos.length})
                           </p>
                           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -1334,7 +1334,7 @@ export default function MesDemandesExpressPage() {
                                 <img
                                   src={url}
                                   alt={`Photo ${i + 1}`}
-                                  className="w-full h-24 object-cover rounded-lg border-2 border-[#E9ECEF] hover:border-[#FF6B00] transition-colors cursor-pointer"
+                                  className="w-full h-24 object-cover rounded-lg border-2 border-slate-200 hover:border-brand-500 transition-colors cursor-pointer"
                                 />
                               </a>
                             ))}
@@ -1396,8 +1396,8 @@ export default function MesDemandesExpressPage() {
                         {/* Proposition reçue — chargement */}
                         {demande.statut === 'proposition_recue' && loadingProp && (
                           <div className="flex items-center gap-3 py-4">
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#FF6B00]" />
-                            <p className="text-sm text-[#6C757D]">Chargement de la proposition…</p>
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-brand-500" />
+                            <p className="text-sm text-slate-500">Chargement de la proposition…</p>
                           </div>
                         )}
 
@@ -1415,7 +1415,7 @@ export default function MesDemandesExpressPage() {
                                     e.stopPropagation();
                                     router.push(`/client/demandes-express/${demande.id}`);
                                   }}
-                                  className="px-4 py-2 bg-[#2C3E50] text-white rounded-lg hover:bg-[#1A3A5C] text-sm font-semibold"
+                                  className="px-4 py-2 bg-navy-800 text-white rounded-lg hover:bg-navy-900 text-sm font-semibold"
                                 >
                                   Comparer les propositions
                                 </button>
@@ -1424,22 +1424,22 @@ export default function MesDemandesExpressPage() {
 
                             {/* Header proposition */}
                             <div className="flex items-center justify-between flex-wrap gap-2">
-                              <span className="text-base font-bold text-[#2C3E50]">💬 Proposition de l&apos;artisan</span>
-                              <span className="text-xs text-[#6C757D]">
+                              <span className="text-base font-bold text-navy-800">💬 Proposition de l&apos;artisan</span>
+                              <span className="text-xs text-slate-500">
                                 Reçue le {prop.createdAt ? format(tsToDate(prop.createdAt), 'dd MMM yyyy à HH:mm', { locale: fr }) : ''}
                               </span>
                             </div>
 
                             {/* Montant + comparaison budget */}
-                            <div className="flex items-center gap-4 p-4 bg-[#FFF5EB] rounded-xl">
+                            <div className="flex items-center gap-4 p-4 bg-brand-50 rounded-xl">
                               <div>
-                                <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-0.5">Montant proposé TTC</p>
-                                <p className="text-4xl font-extrabold text-[#FF6B00]">{prop.montantPropose}€</p>
+                                <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-0.5">Montant proposé TTC</p>
+                                <p className="text-4xl font-extrabold text-brand-700">{prop.montantPropose}€</p>
                               </div>
                               {demande.budgetPropose && (
                                 <div className="ml-auto text-right">
-                                  <p className="text-xs text-[#6C757D] mb-0.5">Votre budget</p>
-                                  <p className="text-xl font-bold text-[#6C757D]">{demande.budgetPropose}€</p>
+                                  <p className="text-xs text-slate-500 mb-0.5">Votre budget</p>
+                                  <p className="text-xl font-bold text-slate-500">{demande.budgetPropose}€</p>
                                   {prop.montantPropose <= demande.budgetPropose
                                     ? <p className="text-xs text-green-600 font-semibold mt-0.5">✅ Dans votre budget</p>
                                     : <p className="text-xs text-orange-600 font-semibold mt-0.5">⚠️ Au-dessus de votre budget</p>
@@ -1450,16 +1450,16 @@ export default function MesDemandesExpressPage() {
 
                             {/* Description */}
                             <div>
-                              <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">📝 Ce qui est inclus</p>
-                              <div className="bg-[#F8F9FA] rounded-xl p-3">
-                                <p className="text-sm text-[#2C3E50] whitespace-pre-wrap break-words leading-relaxed">{prop.description}</p>
+                              <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">📝 Ce qui est inclus</p>
+                              <div className="bg-slate-50 rounded-xl p-3">
+                                <p className="text-sm text-navy-800 whitespace-pre-wrap break-words leading-relaxed">{prop.description}</p>
                               </div>
                             </div>
 
                             {/* Délai */}
                             {prop.delaiIntervention && (
                               <div>
-                                <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">⏱️ Délai d&apos;intervention</p>
+                                <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">⏱️ Délai d&apos;intervention</p>
                                 <span className="bg-purple-100 text-purple-800 px-3 py-1.5 rounded-lg text-sm font-semibold">
                                   {prop.delaiIntervention}
                                 </span>
@@ -1468,7 +1468,7 @@ export default function MesDemandesExpressPage() {
 
                             {/* Boutons d'action */}
                             {!isPublished || propositionCount <= 1 ? (
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-gray-100">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-100">
                                 <button
                                   onClick={(e) => { e.stopPropagation(); motifRefusField.reset(); setRefusModal({ id: demande.id, propId: prop.id }); }}
                                   disabled={submitting}
@@ -1506,7 +1506,7 @@ export default function MesDemandesExpressPage() {
                             {prop && (
                               <button
                                 onClick={(e) => { e.stopPropagation(); router.push(`/client/paiement-express/${prop.id}`); }}
-                                className="shrink-0 px-4 py-2 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] text-sm font-semibold transition-all"
+                                className="shrink-0 px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-brand-800 text-sm font-semibold transition-all"
                               >
                                 💳 Payer maintenant
                               </button>
@@ -1522,7 +1522,7 @@ export default function MesDemandesExpressPage() {
                             {prop?.devisJoint && (
                               <button
                                 onClick={() => setDevisConsultModal(prop)}
-                                className="shrink-0 flex items-center gap-1.5 bg-[#2C3E50] text-white px-3 py-2 rounded-lg hover:bg-[#1A3A5C] transition-colors text-xs font-semibold"
+                                className="shrink-0 flex items-center gap-1.5 bg-navy-800 text-white px-3 py-2 rounded-lg hover:bg-navy-900 transition-colors text-xs font-semibold"
                               >
                                 📋 Voir le devis
                               </button>
@@ -1542,7 +1542,7 @@ export default function MesDemandesExpressPage() {
                             {prop?.devisJoint && (
                               <button
                                 onClick={() => setDevisConsultModal(prop)}
-                                className="shrink-0 flex items-center gap-1.5 bg-[#2C3E50] text-white px-3 py-2 rounded-lg hover:bg-[#1A3A5C] transition-colors text-xs font-semibold"
+                                className="shrink-0 flex items-center gap-1.5 bg-navy-800 text-white px-3 py-2 rounded-lg hover:bg-navy-900 transition-colors text-xs font-semibold"
                               >
                                 📋 Voir le devis
                               </button>
@@ -1556,9 +1556,9 @@ export default function MesDemandesExpressPage() {
                             <div className="flex items-start gap-3">
                               <span className="text-2xl">⏳</span>
                               <div className="flex-1">
-                                <p className="font-bold text-[#2C3E50] mb-1">L&apos;artisan a terminé les travaux</p>
+                                <p className="font-bold text-navy-800 mb-1">L&apos;artisan a terminé les travaux</p>
                                 <p className="text-sm text-amber-800 mb-1">Validez pour libérer le paiement à l&apos;artisan.</p>
-                                <p className="text-xs text-[#6C757D] mb-3">
+                                <p className="text-xs text-slate-500 mb-3">
                                   Si vous ne validez pas dans 24h, le paiement sera libéré automatiquement.
                                   {demande.travauxTerminesAt && (() => {
                                     const autoAt = tsToDate(demande.travauxTerminesAt!).getTime() + 24 * 60 * 60 * 1000;
@@ -1582,7 +1582,7 @@ export default function MesDemandesExpressPage() {
                                   <button
                                     onClick={(e) => { e.stopPropagation(); handleValiderTravaux(demande.id); }}
                                     disabled={validatingId === demande.id}
-                                    className="px-4 py-3 bg-[#28A745] text-white rounded-xl hover:bg-green-700 font-bold text-sm transition-all disabled:opacity-50"
+                                    className="px-4 py-3 bg-green-700 text-white rounded-xl hover:bg-green-700 font-bold text-sm transition-all disabled:opacity-50"
                                   >
                                     {validatingId === demande.id ? '⏳ Libération du paiement...' : t('clientExpressRequests.dispute.validateButton')}
                                   </button>
@@ -1591,7 +1591,7 @@ export default function MesDemandesExpressPage() {
                                 {prop?.devisJoint && (
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setDevisConsultModal(prop); }}
-                                    className="w-full flex items-center justify-center gap-1.5 bg-[#2C3E50] text-white px-3 py-2 rounded-lg hover:bg-[#1A3A5C] transition-colors text-xs font-semibold"
+                                    className="w-full flex items-center justify-center gap-1.5 bg-navy-800 text-white px-3 py-2 rounded-lg hover:bg-navy-900 transition-colors text-xs font-semibold"
                                   >
                                     📋 Consulter / Télécharger le devis
                                   </button>
@@ -1627,15 +1627,15 @@ export default function MesDemandesExpressPage() {
                               {prop?.devisJoint && (
                                 <button
                                   onClick={(e) => { e.stopPropagation(); setDevisConsultModal(prop); }}
-                                  className="w-full flex items-center justify-center gap-1.5 bg-[#2C3E50] text-white px-3 py-2 rounded-lg hover:bg-[#1A3A5C] transition-colors text-xs font-semibold"
+                                  className="w-full flex items-center justify-center gap-1.5 bg-navy-800 text-white px-3 py-2 rounded-lg hover:bg-navy-900 transition-colors text-xs font-semibold"
                                 >
                                   📋 Consulter / Télécharger le devis
                                 </button>
                               )}
                               {dejaEvalue ? (
-                                <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-5 py-3">
+                                <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-5 py-3">
                                   <span className="text-lg">⭐</span>
-                                  <p className="text-sm text-gray-500 italic">Votre évaluation a bien été prise en compte. Merci pour votre retour.</p>
+                                  <p className="text-sm text-slate-500 italic">Votre évaluation a bien été prise en compte. Merci pour votre retour.</p>
                                 </div>
                               ) : (
                                 <button
@@ -1650,7 +1650,7 @@ export default function MesDemandesExpressPage() {
                                     setAvisPointsAmelioration([]);
                                     setShowAvisPopup(true);
                                   }}
-                                  className="flex items-center justify-center gap-2 w-full px-5 py-3 bg-[#FF6B00] hover:bg-[#E56100] text-white rounded-xl font-semibold transition-colors"
+                                  className="flex items-center justify-center gap-2 w-full px-5 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-xl font-semibold transition-colors"
                                 >
                                   ⭐ Évaluer cette intervention
                                 </button>
@@ -1675,18 +1675,18 @@ export default function MesDemandesExpressPage() {
     {/* ── Modale Signature Devis (propositions > 150€) ───────────── */}
     {signatureDevisModal && (
       <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg my-4">
+        <div className="bg-white rounded-2xl shadow-lg w-full max-w-lg my-4">
           {/* En-tête */}
-          <div className="bg-[#2C3E50] text-white rounded-t-2xl px-6 py-5 flex items-center justify-between">
+          <div className="bg-navy-800 text-white rounded-t-2xl px-6 py-5 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold">📋 Signature du devis</h2>
-              <p className="text-sm text-gray-300 mt-0.5">
-                Montant : <strong className="text-[#FF6B00]">{signatureDevisModal.prop.devisJoint!.totaux.totalTTC.toFixed(2)}€ TTC</strong>
+              <p className="text-sm text-slate-300 mt-0.5">
+                Montant : <strong className="text-brand-700">{signatureDevisModal.prop.devisJoint!.totaux.totalTTC.toFixed(2)}€ TTC</strong>
               </p>
             </div>
             <button
               onClick={() => setSignatureDevisModal(null)}
-              className="text-gray-300 hover:text-white text-2xl leading-none"
+              className="text-slate-300 hover:text-white text-2xl leading-none"
             >
               ×
             </button>
@@ -1696,14 +1696,14 @@ export default function MesDemandesExpressPage() {
           <div className="p-6 space-y-4">
             {/* Récapitulatif devis */}
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Prestations</p>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Prestations</p>
               <div className="space-y-1 text-sm">
                 {signatureDevisModal.prop.devisJoint!.lignes.map((l, i) => (
                   <div key={i} className="flex justify-between">
-                    <span className="text-[#2C3E50]">
+                    <span className="text-navy-800">
                       {l.description} &times; {l.quantite} {l.unite}
                     </span>
-                    <span className="font-medium text-[#2C3E50]">{l.totalTTC.toFixed(2)}€</span>
+                    <span className="font-medium text-navy-800">{l.totalTTC.toFixed(2)}€</span>
                   </div>
                 ))}
               </div>
@@ -1711,35 +1711,35 @@ export default function MesDemandesExpressPage() {
 
             {/* Conditions */}
             {signatureDevisModal.prop.devisJoint!.delaiRealisation && (
-              <p className="text-xs text-[#6C757D]">
+              <p className="text-xs text-slate-500">
                 ⏱️ Délai : <strong>{signatureDevisModal.prop.devisJoint!.delaiRealisation}</strong>
               </p>
             )}
             {signatureDevisModal.prop.devisJoint!.conditions && (
-              <p className="text-xs text-[#6C757D] italic">
+              <p className="text-xs text-slate-500 italic">
                 {signatureDevisModal.prop.devisJoint!.conditions}
               </p>
             )}
 
             {/* Totaux */}
-            <div className="bg-[#FFF5EB] rounded-xl p-4 space-y-1 text-sm">
-              <div className="flex justify-between text-gray-600">
+            <div className="bg-brand-50 rounded-xl p-4 space-y-1 text-sm">
+              <div className="flex justify-between text-slate-600">
                 <span>Total HT</span>
                 <span>{signatureDevisModal.prop.devisJoint!.totaux.totalHT.toFixed(2)}€</span>
               </div>
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-slate-600">
                 <span>TVA</span>
                 <span>{signatureDevisModal.prop.devisJoint!.totaux.totalTVAGlobal.toFixed(2)}€</span>
               </div>
-              <div className="flex justify-between font-bold text-[#2C3E50] text-base border-t pt-1">
+              <div className="flex justify-between font-bold text-navy-800 text-base border-t pt-1">
                 <span>Total TTC</span>
-                <span className="text-[#FF6B00]">{signatureDevisModal.prop.devisJoint!.totaux.totalTTC.toFixed(2)}€</span>
+                <span className="text-brand-700">{signatureDevisModal.prop.devisJoint!.totaux.totalTTC.toFixed(2)}€</span>
               </div>
             </div>
 
             {/* Signature artisan (aperçu) */}
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
                 Signature artisan (apposée)
               </p>
               <div className="border border-green-300 rounded-lg overflow-hidden h-16">
@@ -1753,14 +1753,14 @@ export default function MesDemandesExpressPage() {
 
             {/* Zone de signature client */}
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
                 Votre signature <span className="text-red-500">*</span>
               </p>
-              <p className="text-xs text-gray-400 mb-2">
+              <p className="text-xs text-slate-400 mb-2">
                 Signez ci-dessous pour accepter les conditions de ce devis.
               </p>
               <div
-                className="relative bg-[#F8F9FA] border-2 border-dashed border-gray-300 rounded-lg overflow-hidden"
+                className="relative bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg overflow-hidden"
                 style={{ height: 100 }}
               >
                 <canvas
@@ -1777,7 +1777,7 @@ export default function MesDemandesExpressPage() {
                   onTouchEnd={signatureStopDraw}
                 />
                 {!signatureHasDrawn && (
-                  <span className="absolute inset-0 flex items-center justify-center text-gray-300 text-sm pointer-events-none select-none">
+                  <span className="absolute inset-0 flex items-center justify-center text-slate-300 text-sm pointer-events-none select-none">
                     ✍️ Signez ici
                   </span>
                 )}
@@ -1786,7 +1786,7 @@ export default function MesDemandesExpressPage() {
                 <button
                   type="button"
                   onClick={effacerSignatureClient}
-                  className="text-xs text-gray-400 hover:text-red-500 transition"
+                  className="text-xs text-slate-400 hover:text-red-500 transition"
                 >
                   Effacer
                 </button>
@@ -1802,7 +1802,7 @@ export default function MesDemandesExpressPage() {
               <button
                 onClick={() => setSignatureDevisModal(null)}
                 disabled={submitting}
-                className="flex-1 px-4 py-2.5 border-2 border-[#E9ECEF] text-[#6C757D] rounded-xl hover:border-[#2C3E50] font-medium text-sm"
+                className="flex-1 px-4 py-2.5 border-2 border-slate-200 text-slate-500 rounded-xl hover:border-navy-800 font-medium text-sm"
               >
                 Annuler
               </button>
@@ -1823,18 +1823,18 @@ export default function MesDemandesExpressPage() {
     {/* ── Modale Signature Devis (propositions > 150€) ─────────────────── */}
     {signatureDevisModal && (
       <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg my-4">
+        <div className="bg-white rounded-2xl shadow-lg w-full max-w-lg my-4">
           {/* En-tête */}
-          <div className="bg-[#2C3E50] text-white rounded-t-2xl px-6 py-5 flex items-center justify-between">
+          <div className="bg-navy-800 text-white rounded-t-2xl px-6 py-5 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold">📋 Signature du devis</h2>
-              <p className="text-sm text-gray-300 mt-0.5">
-                Montant : <strong className="text-[#FF6B00]">{signatureDevisModal.prop.devisJoint!.totaux.totalTTC.toFixed(2)}€ TTC</strong>
+              <p className="text-sm text-slate-300 mt-0.5">
+                Montant : <strong className="text-brand-700">{signatureDevisModal.prop.devisJoint!.totaux.totalTTC.toFixed(2)}€ TTC</strong>
               </p>
             </div>
             <button
               onClick={() => setSignatureDevisModal(null)}
-              className="text-gray-300 hover:text-white text-2xl leading-none"
+              className="text-slate-300 hover:text-white text-2xl leading-none"
             >
               ×
             </button>
@@ -1844,14 +1844,14 @@ export default function MesDemandesExpressPage() {
           <div className="p-6 space-y-4">
             {/* Récapitulatif devis */}
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Prestations</p>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Prestations</p>
               <div className="space-y-1 text-sm">
                 {signatureDevisModal.prop.devisJoint!.lignes.map((l, i) => (
                   <div key={i} className="flex justify-between">
-                    <span className="text-[#2C3E50]">
+                    <span className="text-navy-800">
                       {l.description} &times; {l.quantite} {l.unite}
                     </span>
-                    <span className="font-medium text-[#2C3E50]">{l.totalTTC.toFixed(2)}€</span>
+                    <span className="font-medium text-navy-800">{l.totalTTC.toFixed(2)}€</span>
                   </div>
                 ))}
               </div>
@@ -1859,35 +1859,35 @@ export default function MesDemandesExpressPage() {
 
             {/* Conditions */}
             {signatureDevisModal.prop.devisJoint!.delaiRealisation && (
-              <p className="text-xs text-[#6C757D]">
+              <p className="text-xs text-slate-500">
                 ⏱️ Délai : <strong>{signatureDevisModal.prop.devisJoint!.delaiRealisation}</strong>
               </p>
             )}
             {signatureDevisModal.prop.devisJoint!.conditions && (
-              <p className="text-xs text-[#6C757D] italic">
+              <p className="text-xs text-slate-500 italic">
                 {signatureDevisModal.prop.devisJoint!.conditions}
               </p>
             )}
 
             {/* Totaux */}
-            <div className="bg-[#FFF5EB] rounded-xl p-4 space-y-1 text-sm">
-              <div className="flex justify-between text-gray-600">
+            <div className="bg-brand-50 rounded-xl p-4 space-y-1 text-sm">
+              <div className="flex justify-between text-slate-600">
                 <span>Total HT</span>
                 <span>{signatureDevisModal.prop.devisJoint!.totaux.totalHT.toFixed(2)}€</span>
               </div>
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-slate-600">
                 <span>TVA</span>
                 <span>{signatureDevisModal.prop.devisJoint!.totaux.totalTVAGlobal.toFixed(2)}€</span>
               </div>
-              <div className="flex justify-between font-bold text-[#2C3E50] text-base border-t pt-1">
+              <div className="flex justify-between font-bold text-navy-800 text-base border-t pt-1">
                 <span>Total TTC</span>
-                <span className="text-[#FF6B00]">{signatureDevisModal.prop.devisJoint!.totaux.totalTTC.toFixed(2)}€</span>
+                <span className="text-brand-700">{signatureDevisModal.prop.devisJoint!.totaux.totalTTC.toFixed(2)}€</span>
               </div>
             </div>
 
             {/* Signature artisan (aperçu) */}
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
                 Signature artisan (apposée)
               </p>
               <div className="border border-green-300 rounded-lg overflow-hidden h-16 bg-white">
@@ -1901,14 +1901,14 @@ export default function MesDemandesExpressPage() {
 
             {/* Zone de signature client */}
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
                 Votre signature <span className="text-red-500">*</span>
               </p>
-              <p className="text-xs text-gray-400 mb-2">
+              <p className="text-xs text-slate-400 mb-2">
                 Signez ci-dessous pour accepter les conditions de ce devis.
               </p>
               <div
-                className="relative bg-[#F8F9FA] border-2 border-dashed border-gray-300 rounded-lg overflow-hidden"
+                className="relative bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg overflow-hidden"
                 style={{ height: 100 }}
               >
                 <canvas
@@ -1925,7 +1925,7 @@ export default function MesDemandesExpressPage() {
                   onTouchEnd={signatureStopDraw}
                 />
                 {!signatureHasDrawn && (
-                  <span className="absolute inset-0 flex items-center justify-center text-gray-300 text-sm pointer-events-none select-none">
+                  <span className="absolute inset-0 flex items-center justify-center text-slate-300 text-sm pointer-events-none select-none">
                     ✍️ Signez ici
                   </span>
                 )}
@@ -1934,7 +1934,7 @@ export default function MesDemandesExpressPage() {
                 <button
                   type="button"
                   onClick={effacerSignatureClient}
-                  className="text-xs text-gray-400 hover:text-red-500 transition"
+                  className="text-xs text-slate-400 hover:text-red-500 transition"
                 >
                   Effacer
                 </button>
@@ -1950,7 +1950,7 @@ export default function MesDemandesExpressPage() {
               <button
                 onClick={() => setSignatureDevisModal(null)}
                 disabled={submitting}
-                className="flex-1 px-4 py-2.5 border-2 border-[#E9ECEF] text-[#6C757D] rounded-xl hover:border-[#2C3E50] font-medium text-sm"
+                className="flex-1 px-4 py-2.5 border-2 border-slate-200 text-slate-500 rounded-xl hover:border-navy-800 font-medium text-sm"
               >
                 Annuler
               </button>
@@ -1971,16 +1971,16 @@ export default function MesDemandesExpressPage() {
     {/* ── Modale Refus ─────────────────────────────── */}
     {refusModal && (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-          <h3 className="text-xl font-bold text-[#2C3E50] mb-2">❌ Refuser la proposition</h3>
-          <p className="text-[#6C757D] text-sm mb-4">Indiquez pourquoi vous refusez (l&apos;artisan sera notifié). La demande reviendra en attente.</p>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 max-w-md w-full p-6">
+          <h3 className="text-xl font-bold text-navy-800 mb-2">❌ Refuser la proposition</h3>
+          <p className="text-slate-500 text-sm mb-4">Indiquez pourquoi vous refusez (l&apos;artisan sera notifié). La demande reviendra en attente.</p>
           <textarea
             value={motifRefusField.value}
             onChange={motifRefusField.onChange}
             onBlur={motifRefusField.onBlur}
             rows={4}
             className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none mb-1 text-sm transition-colors ${
-              motifRefusField.warning ? 'border-orange-400 focus:border-orange-500' : 'border-[#E9ECEF] focus:border-red-400'
+              motifRefusField.warning ? 'border-orange-400 focus:border-orange-500' : 'border-slate-200 focus:border-red-400'
             }`}
             placeholder="Ex : Le tarif est trop élevé pour ce travail…"
           />
@@ -1990,13 +1990,13 @@ export default function MesDemandesExpressPage() {
               <span>{motifRefusField.warning}</span>
             </div>
           ) : (
-            <p className="mb-3 text-xs text-[#6C757D]">🔒 Coordonnées personnelles non autorisées avant paiement</p>
+            <p className="mb-3 text-xs text-slate-500">🔒 Coordonnées personnelles non autorisées avant paiement</p>
           )}
           <div className="flex gap-3">
             <button
               onClick={() => { setRefusModal(null); motifRefusField.reset(); }}
               disabled={submitting}
-              className="flex-1 px-4 py-2.5 border-2 border-[#E9ECEF] text-[#6C757D] rounded-xl hover:border-[#2C3E50] font-medium text-sm"
+              className="flex-1 px-4 py-2.5 border-2 border-slate-200 text-slate-500 rounded-xl hover:border-navy-800 font-medium text-sm"
             >
               Annuler
             </button>
@@ -2015,22 +2015,22 @@ export default function MesDemandesExpressPage() {
     {/* ===== POPUP AVIS POST-VALIDATION EXPRESS ===== */}
     {showAvisPopup && (
       <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg my-4">
+        <div className="bg-white rounded-2xl shadow-lg w-full max-w-lg my-4">
           {/* En-tête */}
-          <div className="bg-[#2C3E50] text-white rounded-t-2xl px-6 py-5">
+          <div className="bg-navy-800 text-white rounded-t-2xl px-6 py-5">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold">⭐ Donner un avis</h2>
-                <p className="text-sm text-gray-300 mt-0.5">
+                <p className="text-sm text-slate-300 mt-0.5">
                   Partagez votre expérience avec{' '}
-                  <span className="text-[#FF6B00] font-semibold">
+                  <span className="text-brand-700 font-semibold">
                     {avisDemandeId ? (artisanNomMap.get(avisDemandeId) ?? 'l\'artisan') : 'l\'artisan'}
                   </span>
                 </p>
               </div>
               <button
                 onClick={() => setShowAvisPopup(false)}
-                className="text-gray-300 hover:text-white text-2xl leading-none"
+                className="text-slate-300 hover:text-white text-2xl leading-none"
                 title="Plus tard"
               >
                 ×
@@ -2042,7 +2042,7 @@ export default function MesDemandesExpressPage() {
           <div className="px-6 py-5 space-y-5 max-h-[75vh] overflow-y-auto">
             {/* Sélection de la note */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-3">
+              <label className="block text-sm font-semibold text-navy-800 mb-3">
                 Note globale <span className="text-red-500">*</span>
               </label>
               <div className="flex gap-2 justify-center">
@@ -2053,13 +2053,13 @@ export default function MesDemandesExpressPage() {
                     onClick={() => setAvisNote(star)}
                     onMouseEnter={() => setAvisNoteHover(star)}
                     onMouseLeave={() => setAvisNoteHover(0)}
-                    className="transition-transform hover:scale-110"
+                    className="transition-transform hover:scale-105"
                   >
                     <svg
                       className={`w-10 h-10 ${
                         star <= (avisNoteHover || avisNote)
                           ? 'text-yellow-400 fill-current'
-                          : 'text-gray-300'
+                          : 'text-slate-300'
                       }`}
                       viewBox="0 0 24 24"
                     >
@@ -2068,7 +2068,7 @@ export default function MesDemandesExpressPage() {
                   </button>
                 ))}
                 {avisNote > 0 && (
-                  <span className="ml-2 text-2xl font-bold text-[#FF6B00] self-center">
+                  <span className="ml-2 text-2xl font-bold text-brand-700 self-center">
                     {avisNote}/5
                   </span>
                 )}
@@ -2077,23 +2077,23 @@ export default function MesDemandesExpressPage() {
 
             {/* Commentaire */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+              <label className="block text-sm font-semibold text-navy-800 mb-2">
                 Votre commentaire <span className="text-red-500">*</span>
               </label>
               <textarea
                 value={avisCommentaire}
                 onChange={e => setAvisCommentaire(e.target.value)}
                 placeholder="Décrivez votre expérience (minimum 10 caractères)..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00] resize-none text-sm"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none text-sm"
                 rows={4}
               />
-              <p className="text-xs text-gray-400 mt-1 text-right">{avisCommentaire.length}/500</p>
+              <p className="text-xs text-slate-400 mt-1 text-right">{avisCommentaire.length}/500</p>
             </div>
 
             {/* Points forts */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                Points forts <span className="text-gray-400 font-normal">(optionnel)</span>
+              <label className="block text-sm font-semibold text-navy-800 mb-2">
+                Points forts <span className="text-slate-400 font-normal">(optionnel)</span>
               </label>
               <div className="flex flex-wrap gap-2">
                 {AVIS_POINTS_FORTS.map(point => (
@@ -2106,7 +2106,7 @@ export default function MesDemandesExpressPage() {
                     className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
                       avisPointsForts.includes(point)
                         ? 'bg-green-50 border-green-500 text-green-700'
-                        : 'border-gray-300 text-gray-600 hover:border-green-400'
+                        : 'border-slate-300 text-slate-600 hover:border-green-400'
                     }`}
                   >
                     {avisPointsForts.includes(point) && '✓ '}{point}
@@ -2117,8 +2117,8 @@ export default function MesDemandesExpressPage() {
 
             {/* Points à améliorer */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                Points à améliorer <span className="text-gray-400 font-normal">(optionnel)</span>
+              <label className="block text-sm font-semibold text-navy-800 mb-2">
+                Points à améliorer <span className="text-slate-400 font-normal">(optionnel)</span>
               </label>
               <div className="flex flex-wrap gap-2">
                 {AVIS_POINTS_AMELIORATION.map(point => (
@@ -2131,7 +2131,7 @@ export default function MesDemandesExpressPage() {
                     className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
                       avisPointsAmelioration.includes(point)
                         ? 'bg-orange-50 border-orange-500 text-orange-700'
-                        : 'border-gray-300 text-gray-600 hover:border-orange-400'
+                        : 'border-slate-300 text-slate-600 hover:border-orange-400'
                     }`}
                   >
                     {avisPointsAmelioration.includes(point) && '⚠ '}{point}
@@ -2142,11 +2142,11 @@ export default function MesDemandesExpressPage() {
           </div>
 
           {/* Boutons */}
-          <div className="px-6 py-4 border-t border-gray-200 flex gap-3">
+          <div className="px-6 py-4 border-t border-slate-200 flex gap-3">
             <button
               type="button"
               onClick={() => setShowAvisPopup(false)}
-              className="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-600 rounded-lg font-medium hover:bg-gray-50 transition text-sm"
+              className="flex-1 px-4 py-2.5 border-2 border-slate-300 text-slate-600 rounded-lg font-medium hover:bg-slate-50 transition text-sm"
             >
               Plus tard
             </button>
@@ -2154,7 +2154,7 @@ export default function MesDemandesExpressPage() {
               type="button"
               onClick={handleSubmitAvisExpress}
               disabled={avisSubmitting || avisNote === 0 || avisCommentaire.trim().length < 10}
-              className="flex-1 px-4 py-2.5 bg-[#FF6B00] text-white rounded-lg font-semibold hover:bg-[#E56100] disabled:bg-gray-300 disabled:cursor-not-allowed transition text-sm"
+              className="flex-1 px-4 py-2.5 bg-brand-700 text-white rounded-lg font-semibold hover:bg-brand-800 disabled:bg-slate-300 disabled:cursor-not-allowed transition text-sm"
             >
               {avisSubmitting ? 'Publication...' : '⭐ Publier mon avis'}
             </button>

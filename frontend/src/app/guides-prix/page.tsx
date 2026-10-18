@@ -661,12 +661,12 @@ export default function GuidesPrixPage() {
   const [categorieActive, setCategorieActive] = useState<string | null>(null);
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-[#2C3E50] to-[#3D5A73] text-white py-16">
+      <div className=" bg-navy-800 text-white py-16">
         <div className="container mx-auto px-4">
           <h1 className="text-5xl font-bold mb-4 text-center">Guides des prix</h1>
-          <p className="text-xl text-gray-200 max-w-3xl mx-auto text-center">
+          <p className="text-xl text-slate-200 max-w-3xl mx-auto text-center">
             Seriez-vous intéressé par des informations sur le prix concernant vos travaux ? Consultez nos guides détaillés.
           </p>
         </div>
@@ -682,8 +682,8 @@ export default function GuidesPrixPage() {
                 onClick={() => setCategorieActive(categorieActive === key ? null : key)}
                 className={`px-6 py-3 rounded-lg font-medium transition-all ${
                   categorieActive === key
-                    ? 'bg-[#FF6B00] text-white shadow-lg scale-105'
-                    : 'bg-gray-100 text-[#2C3E50] hover:bg-gray-200'
+                    ? 'bg-brand-700 text-white shadow-lg scale-105'
+                    : 'bg-slate-100 text-navy-800 hover:bg-slate-200'
                 }`}
               >
                 <span className="mr-2 text-xl">{categorie.icone}</span>
@@ -700,22 +700,22 @@ export default function GuidesPrixPage() {
           // Vue détaillée d'une catégorie
           <div>
             <div className="mb-8 text-center">
-              <h2 className="text-4xl font-bold text-[#2C3E50] mb-2">
+              <h2 className="text-4xl font-bold text-navy-800 mb-2">
                 {guidesParCategorie[categorieActive as keyof typeof guidesParCategorie].icone}{' '}
                 {guidesParCategorie[categorieActive as keyof typeof guidesParCategorie].titre}
               </h2>
-              <p className="text-[#6C757D]">
+              <p className="text-slate-500">
                 {guidesParCategorie[categorieActive as keyof typeof guidesParCategorie].guides.length} guides disponibles
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               {guidesParCategorie[categorieActive as keyof typeof guidesParCategorie].guides.map((guide, index) => (
-                <Card key={index} className="p-6 hover:shadow-xl transition-shadow">
-                  <h3 className="text-2xl font-bold text-[#2C3E50] mb-4">{guide.titre}</h3>
+                <Card key={index} className="p-6 hover:shadow-md transition-shadow">
+                  <h3 className="text-2xl font-bold text-navy-800 mb-4">{guide.titre}</h3>
                   
                   {/* Prix */}
-                  <div className="bg-gradient-to-r from-[#FF6B00] to-[#E56100] text-white p-4 rounded-lg mb-4">
+                  <div className=" bg-brand-600 text-white p-4 rounded-lg mb-4">
                     <p className="text-sm opacity-90 mb-1">Prix estimé</p>
                     <p className="text-3xl font-bold">
                       {guide.prixMin}€ - {guide.prixMax}€
@@ -724,24 +724,24 @@ export default function GuidesPrixPage() {
                   </div>
 
                   {/* Description */}
-                  <p className="text-[#6C757D] mb-4">{guide.description}</p>
+                  <p className="text-slate-500 mb-4">{guide.description}</p>
 
                   {/* Détails */}
                   <div className="space-y-2">
-                    <p className="font-semibold text-[#2C3E50]">Inclus dans la prestation :</p>
+                    <p className="font-semibold text-navy-800">Inclus dans la prestation :</p>
                     {guide.details.map((detail, idx) => (
                       <div key={idx} className="flex items-start gap-2">
                         <span className="text-green-500 mt-1">✓</span>
-                        <span className="text-sm text-[#6C757D]">{detail}</span>
+                        <span className="text-sm text-slate-500">{detail}</span>
                       </div>
                     ))}
                   </div>
 
                   {/* CTA */}
-                  <div className="mt-6 pt-6 border-t border-gray-100">
+                  <div className="mt-6 pt-6 border-t border-slate-100">
                     <Link
                       href="/inscription?role=client"
-                      className="block w-full text-center bg-[#FF6B00] text-white py-3 rounded-lg hover:bg-[#E56100] transition-colors font-medium"
+                      className="block w-full text-center bg-brand-700 text-white py-3 rounded-lg hover:bg-brand-800 transition-colors font-medium"
                     >
                       Demander des devis gratuitement
                     </Link>
@@ -754,25 +754,25 @@ export default function GuidesPrixPage() {
           // Vue globale de toutes les catégories
           <div className="space-y-12">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-[#2C3E50] mb-4">
+              <h2 className="text-3xl font-bold text-navy-800 mb-4">
                 Sélectionnez votre type de travaux
               </h2>
-              <p className="text-[#6C757D] max-w-2xl mx-auto">
+              <p className="text-slate-500 max-w-2xl mx-auto">
                 Cliquez sur une catégorie pour consulter les guides de prix détaillés
               </p>
             </div>
 
             {/* Aperçu de chaque catégorie */}
             {Object.entries(guidesParCategorie).map(([key, categorie]) => (
-              <div key={key} className="bg-white rounded-lg shadow-md p-8">
+              <div key={key} className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-3xl font-bold text-[#2C3E50]">
+                  <h3 className="text-3xl font-bold text-navy-800">
                     <span className="mr-3 text-4xl">{categorie.icone}</span>
                     {categorie.titre}
                   </h3>
                   <button
                     onClick={() => setCategorieActive(key)}
-                    className="bg-[#FF6B00] text-white px-6 py-2 rounded-lg hover:bg-[#E56100] transition-colors font-medium"
+                    className="bg-brand-700 text-white px-6 py-2 rounded-lg hover:bg-brand-800 transition-colors font-medium"
                   >
                     Voir tous les guides
                   </button>
@@ -782,14 +782,14 @@ export default function GuidesPrixPage() {
                   {categorie.guides.map((guide, index) => (
                     <div
                       key={index}
-                      className="border border-gray-200 rounded-lg p-4 hover:border-[#FF6B00] hover:shadow-md transition-all cursor-pointer"
+                      className="border border-slate-200 rounded-lg p-4 hover:border-brand-500 hover:shadow-md transition-all cursor-pointer"
                       onClick={() => setCategorieActive(key)}
                     >
-                      <p className="font-semibold text-[#2C3E50] mb-2 text-sm">{guide.titre}</p>
-                      <p className="text-2xl font-bold text-[#FF6B00]">
+                      <p className="font-semibold text-navy-800 mb-2 text-sm">{guide.titre}</p>
+                      <p className="text-2xl font-bold text-brand-700">
                         {guide.prixMin}€ - {guide.prixMax}€
                       </p>
-                      <p className="text-xs text-[#6C757D] mt-1">{guide.duree}</p>
+                      <p className="text-xs text-slate-500 mt-1">{guide.duree}</p>
                     </div>
                   ))}
                 </div>
@@ -803,46 +803,46 @@ export default function GuidesPrixPage() {
       <div className="bg-white py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-[#2C3E50] mb-8 text-center">
+            <h2 className="text-3xl font-bold text-navy-800 mb-8 text-center">
               💡 Bon à savoir
             </h2>
             
             <div className="grid md:grid-cols-2 gap-6">
               <Card className="p-6">
-                <h3 className="text-xl font-bold text-[#2C3E50] mb-3">
+                <h3 className="text-xl font-bold text-navy-800 mb-3">
                   📊 Prix indicatifs
                 </h3>
-                <p className="text-[#6C757D] text-sm">
+                <p className="text-slate-500 text-sm">
                   Les prix affichés sont des estimations moyennes en France. Le coût réel peut varier
                   selon votre localisation, la complexité du projet et les finitions choisies.
                 </p>
               </Card>
 
               <Card className="p-6">
-                <h3 className="text-xl font-bold text-[#2C3E50] mb-3">
+                <h3 className="text-xl font-bold text-navy-800 mb-3">
                   ✅ Artisans vérifiés
                 </h3>
-                <p className="text-[#6C757D] text-sm">
+                <p className="text-slate-500 text-sm">
                   Tous nos artisans sont vérifiés (KBIS, assurances). Ils vous fourniront
                   des devis détaillés et personnalisés pour votre projet.
                 </p>
               </Card>
 
               <Card className="p-6">
-                <h3 className="text-xl font-bold text-[#2C3E50] mb-3">
+                <h3 className="text-xl font-bold text-navy-800 mb-3">
                   💰 Commission transparente
                 </h3>
-                <p className="text-[#6C757D] text-sm">
+                <p className="text-slate-500 text-sm">
                   ArtisanDispo prend 8% de commission sur les devis classiques et 10% sur les demandes express (la plus basse du marché).
                   Les prix ne sont jamais gonflés - vous payez le juste prix.
                 </p>
               </Card>
 
               <Card className="p-6">
-                <h3 className="text-xl font-bold text-[#2C3E50] mb-3">
+                <h3 className="text-xl font-bold text-navy-800 mb-3">
                   📅 Devis gratuits
                 </h3>
-                <p className="text-[#6C757D] text-sm">
+                <p className="text-slate-500 text-sm">
                   Recevez plusieurs devis gratuits et sans engagement. Comparez et choisissez
                   l'artisan qui correspond le mieux à vos besoins.
                 </p>
@@ -853,7 +853,7 @@ export default function GuidesPrixPage() {
       </div>
 
       {/* CTA Bottom */}
-      <div className="bg-gradient-to-r from-[#FF6B00] to-[#E56100] text-white py-16">
+      <div className=" bg-brand-600 text-white py-16">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-4">Prêt à lancer vos travaux ?</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
@@ -861,7 +861,7 @@ export default function GuidesPrixPage() {
           </p>
           <Link
             href="/inscription?role=client"
-            className="inline-block bg-white text-[#FF6B00] px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg"
+            className="inline-block bg-white text-brand-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-100 transition-colors shadow-sm border border-slate-200"
           >
             Demander des devis gratuitement
           </Link>
