@@ -166,13 +166,13 @@ export default function NouvelAvisPage() {
             onClick={() => setNote(star)}
             onMouseEnter={() => setNoteHover(star)}
             onMouseLeave={() => setNoteHover(0)}
-            className="transition-transform hover:scale-110"
+            className="transition-transform hover:scale-105"
           >
             <svg
               className={`w-10 h-10 ${
                 star <= (noteHover || note)
                   ? 'text-yellow-400 fill-current'
-                  : 'text-gray-300'
+                  : 'text-slate-300'
               }`}
               viewBox="0 0 24 24"
             >
@@ -198,23 +198,23 @@ export default function NouvelAvisPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
+          <p className="mt-4 text-slate-600">Chargement...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] py-8">
+    <div className="min-h-screen bg-slate-50 py-8">
       <div className="container mx-auto px-4 max-w-3xl">
         {/* Breadcrumb */}
         <div className="mb-6">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 text-[#FF6B00] hover:underline"
+            className="inline-flex items-center gap-2 text-brand-700 hover:underline"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -225,8 +225,8 @@ export default function NouvelAvisPage() {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#2C3E50] mb-2">Donner un avis</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-navy-800 mb-2">Donner un avis</h1>
+          <p className="text-slate-600">
             Partagez votre expérience avec {artisan?.raisonSociale || 'cet artisan'}
           </p>
         </div>
@@ -234,14 +234,14 @@ export default function NouvelAvisPage() {
         {/* Formulaire */}
         <form onSubmit={handleSubmit}>
           {/* Note */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-semibold text-[#2C3E50] mb-4">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+            <h2 className="text-xl font-semibold text-navy-800 mb-4">
               Note globale <span className="text-red-500">*</span>
             </h2>
             <div className="flex items-center gap-4">
               {renderStars()}
               {note > 0 && (
-                <span className="text-2xl font-bold text-[#FF6B00]">
+                <span className="text-2xl font-bold text-brand-700">
                   {note}/5
                 </span>
               )}
@@ -249,28 +249,28 @@ export default function NouvelAvisPage() {
           </div>
 
           {/* Commentaire */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-semibold text-[#2C3E50] mb-4">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+            <h2 className="text-xl font-semibold text-navy-800 mb-4">
               Votre commentaire <span className="text-red-500">*</span>
             </h2>
             <textarea
               value={commentaire}
               onChange={(e) => setCommentaire(e.target.value)}
               placeholder="Décrivez votre expérience avec cet artisan (minimum 10 caractères)..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00] resize-none"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
               rows={6}
               required
               minLength={10}
             />
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-slate-500 mt-2">
               {commentaire.length}/500 caractères
             </p>
           </div>
 
           {/* Points forts */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-semibold text-[#2C3E50] mb-4">
-              Points forts <span className="text-gray-400">(optionnel)</span>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+            <h2 className="text-xl font-semibold text-navy-800 mb-4">
+              Points forts <span className="text-slate-400">(optionnel)</span>
             </h2>
             <div className="flex flex-wrap gap-3">
               {POINTS_FORTS_OPTIONS.map((point) => (
@@ -281,7 +281,7 @@ export default function NouvelAvisPage() {
                   className={`px-4 py-2 rounded-full border-2 transition-all ${
                     pointsForts.includes(point)
                       ? 'bg-green-50 border-green-500 text-green-700 font-medium'
-                      : 'border-gray-300 text-gray-600 hover:border-green-400'
+                      : 'border-slate-300 text-slate-600 hover:border-green-400'
                   }`}
                 >
                   <span className="inline-flex items-center gap-2">
@@ -298,9 +298,9 @@ export default function NouvelAvisPage() {
           </div>
 
           {/* Points d'amélioration */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-semibold text-[#2C3E50] mb-4">
-              Points à améliorer <span className="text-gray-400">(optionnel)</span>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+            <h2 className="text-xl font-semibold text-navy-800 mb-4">
+              Points à améliorer <span className="text-slate-400">(optionnel)</span>
             </h2>
             <div className="flex flex-wrap gap-3">
               {POINTS_AMELIORATION_OPTIONS.map((point) => (
@@ -311,7 +311,7 @@ export default function NouvelAvisPage() {
                   className={`px-4 py-2 rounded-full border-2 transition-all ${
                     pointsAmelioration.includes(point)
                       ? 'bg-orange-50 border-orange-500 text-orange-700 font-medium'
-                      : 'border-gray-300 text-gray-600 hover:border-orange-400'
+                      : 'border-slate-300 text-slate-600 hover:border-orange-400'
                   }`}
                 >
                   <span className="inline-flex items-center gap-2">
@@ -332,14 +332,14 @@ export default function NouvelAvisPage() {
             <button
               type="button"
               onClick={() => router.push('/dashboard')}
-              className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+              className="flex-1 px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-lg font-medium hover:bg-slate-50 transition-colors"
             >
               Annuler
             </button>
             <button
               type="submit"
               disabled={submitting || note === 0 || commentaire.trim().length < 10}
-              className="flex-1 px-6 py-3 bg-[#FF6B00] text-white rounded-lg font-medium hover:bg-[#E56100] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              className="flex-1 px-6 py-3 bg-brand-700 text-white rounded-lg font-medium hover:bg-brand-800 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
             >
               {submitting ? 'Publication...' : 'Publier l\'avis'}
             </button>

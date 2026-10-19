@@ -134,7 +134,7 @@ export default function ClientLitigeDetailPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center">
-          <p className="text-gray-600">Chargement...</p>
+          <p className="text-slate-600">Chargement...</p>
         </div>
       </div>
     );
@@ -159,18 +159,18 @@ export default function ClientLitigeDetailPage() {
       {/* Navigation */}
       <Link
         href="/client/litiges"
-        className="inline-flex items-center gap-2 text-[#FF6B00] hover:underline mb-6"
+        className="inline-flex items-center gap-2 text-brand-700 hover:underline mb-6"
       >
         <ArrowLeft className="w-4 h-4" />
         Retour à mes litiges
       </Link>
 
       {/* Header */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+      <div className="bg-white border border-slate-200 rounded-lg p-6 mb-6">
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-[#2C3E50] mb-2">{litige.motif}</h1>
-            <p className="text-gray-600">{litige.description}</p>
+            <h1 className="text-2xl font-bold text-navy-800 mb-2">{litige.motif}</h1>
+            <p className="text-slate-600">{litige.description}</p>
           </div>
           <div className="text-right">
             {litige.statut === 'ouvert' && (
@@ -198,23 +198,23 @@ export default function ClientLitigeDetailPage() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
-            <p className="text-gray-500">Type</p>
-            <p className="font-medium text-[#2C3E50]">{litige.type}</p>
+            <p className="text-slate-500">Type</p>
+            <p className="font-medium text-navy-800">{litige.type}</p>
           </div>
           <div>
-            <p className="text-gray-500">Montant contesté</p>
-            <p className="font-medium text-[#2C3E50]">{litige.montantConteste}€</p>
+            <p className="text-slate-500">Montant contesté</p>
+            <p className="font-medium text-navy-800">{litige.montantConteste}€</p>
           </div>
           <div>
-            <p className="text-gray-500">Date d'ouverture</p>
-            <p className="font-medium text-[#2C3E50]">
+            <p className="text-slate-500">Date d'ouverture</p>
+            <p className="font-medium text-navy-800">
               {litige.dateOuverture ? formatDate(litige.dateOuverture.toDate()) : 'N/A'}
             </p>
           </div>
           {litige.dateResolution && (
             <div>
-              <p className="text-gray-500">Date de résolution</p>
-              <p className="font-medium text-[#2C3E50]">
+              <p className="text-slate-500">Date de résolution</p>
+              <p className="font-medium text-navy-800">
                 {formatDate(litige.dateResolution.toDate())}
               </p>
             </div>
@@ -232,7 +232,7 @@ export default function ClientLitigeDetailPage() {
 
       {/* Proposition de résolution */}
       {hasProposition && !clientAlreadyAccepted && (
-        <div className="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-300 rounded-lg p-6 mb-6">
+        <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-6 mb-6">
           <div className="flex items-start gap-4">
             <AlertTriangle className="w-8 h-8 text-purple-600 flex-shrink-0" />
             <div className="flex-1">
@@ -270,7 +270,7 @@ export default function ClientLitigeDetailPage() {
                     value={motifRefus}
                     onChange={(e) => setMotifRefus(e.target.value)}
                     placeholder="Expliquez pourquoi vous refusez cette proposition..."
-                    className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full p-3 border border-slate-300 rounded-lg resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     rows={3}
                   />
                   <div className="flex gap-3">
@@ -287,7 +287,7 @@ export default function ClientLitigeDetailPage() {
                         setMotifRefus('');
                       }}
                       disabled={submitting}
-                      className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition"
+                      className="bg-slate-300 text-slate-700 px-6 py-2 rounded-lg hover:bg-slate-400 transition"
                     >
                       Annuler
                     </button>
@@ -308,27 +308,27 @@ export default function ClientLitigeDetailPage() {
       )}
 
       {/* Timeline */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+      <div className="bg-white border border-slate-200 rounded-lg p-6 mb-6">
         <LitigeTimeline historique={litige.historique} currentUserId={user?.uid || ''} />
       </div>
 
       {/* Formulaire commentaire */}
       {canRespond && !isResolved && (
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-[#2C3E50] mb-4">
+        <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-navy-800 mb-4">
             Ajouter un commentaire
           </h3>
           <textarea
             value={commentaire}
             onChange={(e) => setCommentaire(e.target.value)}
             placeholder="Partagez des informations complémentaires..."
-            className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent mb-4"
+            className="w-full p-3 border border-slate-300 rounded-lg resize-none focus:ring-2 focus:ring-brand-500 focus:border-transparent mb-4"
             rows={4}
           />
           <button
             onClick={handleAddComment}
             disabled={submitting || !commentaire.trim()}
-            className="flex items-center gap-2 bg-[#FF6B00] text-white px-6 py-2 rounded-lg hover:bg-[#E56100] transition disabled:opacity-50"
+            className="flex items-center gap-2 bg-brand-700 text-white px-6 py-2 rounded-lg hover:bg-brand-800 transition disabled:opacity-50"
           >
             <MessageSquare className="w-5 h-5" />
             Envoyer le commentaire

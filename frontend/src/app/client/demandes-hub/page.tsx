@@ -252,14 +252,14 @@ export default function ClientDemandesHubPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00]"></div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 relative overflow-hidden">
       {/* Vague couche arrière */}
       <svg className="absolute bottom-0 left-0 w-full pointer-events-none z-0" viewBox="0 0 1440 180" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path d="M0,120 C200,160 400,60 600,100 C800,140 1000,80 1200,110 C1320,130 1400,100 1440,90 L1440,180 L0,180 Z" fill="#2C3E50" fillOpacity="0.08"/>
@@ -269,19 +269,19 @@ export default function ClientDemandesHubPage() {
         <path d="M0,80 C180,40 360,120 600,80 C840,40 1100,110 1300,70 C1380,50 1420,65 1440,60 L1440,140 L0,140 Z" fill="#2C3E50" fillOpacity="0.13"/>
       </svg>
       {/* En-tête */}
-      <div className="relative z-10 bg-[#2C3E50] text-white py-8 px-4">
+      <div className="relative z-10 bg-navy-800 text-white py-8 px-4">
         <div className="container mx-auto max-w-5xl">
           <button
             onClick={() => router.push('/dashboard')}
-            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4"
+            className="flex items-center gap-2 text-white hover:text-brand-300 mb-4"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Retour au tableau de bord
           </button>
-          <h1 className="text-2xl font-bold">📋 Mes Demandes</h1>
-          <p className="text-gray-300 text-sm mt-1">Gérez vos demandes de travaux</p>
+          <h1 className="text-2xl font-bold">Mes Demandes</h1>
+          <p className="text-slate-300 text-sm mt-1">Gérez vos demandes de travaux</p>
         </div>
       </div>
 
@@ -291,16 +291,16 @@ export default function ClientDemandesHubPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
           {/* ── CARTE Demandes Classiques ── */}
-          <div className="bg-[#2C3E50] rounded-2xl shadow-lg overflow-hidden flex flex-col">
+          <div className="bg-navy-800 rounded-2xl shadow-lg overflow-hidden flex flex-col">
             {/* Bandeau */}
-            <div className="bg-[#2C3E50] px-8 py-8 flex items-center gap-4">
+            <div className="bg-navy-800 px-8 py-8 flex items-center gap-4">
               <span className="text-5xl">🏗️</span>
               <div className="flex-1">
                 <div className="text-white font-bold text-2xl">Demandes Classiques</div>
-                <div className="text-gray-300 text-base mt-1">Demandes directes et publiées</div>
+                <div className="text-slate-300 text-base mt-1">Demandes directes et publiées</div>
               </div>
               {nbClassiques > 0 && (
-                <span className="bg-white text-[#2C3E50] text-base font-black px-3 py-1 rounded-full animate-bounce shadow">
+                <span className="bg-white text-navy-800 text-base font-black px-3 py-1 rounded-full animate-bounce shadow">
                   🔔 {nbClassiques}
                 </span>
               )}
@@ -309,44 +309,44 @@ export default function ClientDemandesHubPage() {
             <div className="bg-white px-8 py-7 space-y-5 flex-1">
               <button
                 onClick={openDemandesDirectes}
-                className="w-full flex items-center gap-5 p-5 rounded-xl bg-orange-50 border border-orange-200 hover:border-[#FF6B00] hover:bg-orange-100 transition"
+                className="w-full flex items-center gap-5 p-5 rounded-xl bg-orange-50 border border-orange-200 hover:border-brand-500 hover:bg-orange-100 transition"
               >
                 <span className="text-3xl">🎯</span>
                 <div className="flex-1 text-left">
-                  <div className="font-semibold text-[#2C3E50] text-base">Mes demandes de devis directes</div>
-                  <div className="text-sm text-gray-500 mt-1">
+                  <div className="font-semibold text-navy-800 text-base">Mes demandes de devis directes</div>
+                  <div className="text-sm text-slate-500 mt-1">
                     {nbDemandesDirectes > 0
                       ? `${nbDemandesDirectes} notification${nbDemandesDirectes > 1 ? 's' : ''} concernent vos demandes directes.`
                       : 'Suivre vos demandes de devis envoyées à vos artisans.'}
                   </div>
                 </div>
                 {nbDemandesDirectes > 0 && (
-                  <span className="bg-[#FF6B00] text-white text-sm font-bold px-3 py-1.5 rounded-full min-w-[32px] text-center">
+                  <span className="bg-brand-700 text-white text-sm font-bold px-3 py-1.5 rounded-full min-w-[32px] text-center">
                     {nbDemandesDirectes}
                   </span>
                 )}
               </button>
               <button
                 onClick={openDemandesPubliees}
-                className="w-full flex items-center gap-5 p-5 rounded-xl bg-slate-50 border border-slate-200 hover:border-[#2C3E50] hover:bg-slate-100 transition"
+                className="w-full flex items-center gap-5 p-5 rounded-xl bg-slate-50 border border-slate-200 hover:border-navy-800 hover:bg-slate-100 transition"
               >
                 <span className="text-3xl">📢</span>
                 <div className="flex-1 text-left">
-                  <div className="font-semibold text-[#2C3E50] text-base">Mes demandes de devis publiées</div>
-                  <div className="text-sm text-gray-500 mt-1">
+                  <div className="font-semibold text-navy-800 text-base">Mes demandes de devis publiées</div>
+                  <div className="text-sm text-slate-500 mt-1">
                     {nbDemandesPubliees > 0
                       ? `${nbDemandesPubliees} notification${nbDemandesPubliees > 1 ? 's' : ''} concernent vos demandes publiées.`
                       : 'Demandes visibles par tous les artisans qualifiés.'}
                   </div>
                 </div>
                 {nbDemandesPubliees > 0 && (
-                  <span className="bg-[#2C3E50] text-white text-sm font-bold px-3 py-1.5 rounded-full min-w-[32px] text-center">
+                  <span className="bg-navy-800 text-white text-sm font-bold px-3 py-1.5 rounded-full min-w-[32px] text-center">
                     {nbDemandesPubliees}
                   </span>
                 )}
               </button>
               {unresolvedClassicCount > 0 && (
-                <div className="rounded-xl border border-[#FFC107] bg-amber-50 px-4 py-3 text-xs text-[#2C3E50]">
+                <div className="rounded-xl border border-amber-400 bg-amber-50 px-4 py-3 text-xs text-navy-800">
                   {unresolvedClassicCount} notification{unresolvedClassicCount > 1 ? 's' : ''} classique{unresolvedClassicCount > 1 ? 's restent' : ' reste'} visible{unresolvedClassicCount > 1 ? 's' : ''} dans vos demandes, sans rattachement automatique direct/publiée.
                 </div>
               )}
@@ -354,16 +354,16 @@ export default function ClientDemandesHubPage() {
           </div>
 
           {/* ── CARTE Demandes Express ── */}
-          <div className="text-left bg-[#FF6B00] rounded-2xl shadow-lg overflow-hidden flex flex-col relative">
+          <div className="text-left bg-brand-700 rounded-2xl shadow-lg overflow-hidden flex flex-col relative">
             {/* Bandeau */}
-            <div className="bg-[#FF6B00] px-8 py-8 flex items-center gap-4">
+            <div className="bg-brand-700 px-8 py-8 flex items-center gap-4">
               <span className="text-5xl">⚡</span>
               <div className="flex-1">
                 <div className="text-white font-bold text-2xl">Demandes en urgence</div>
                 <div className="text-orange-100 text-base mt-1">Petits travaux rapides</div>
               </div>
               {nbExpress > 0 && (
-                <span className="bg-white text-[#FF6B00] text-base font-black px-3 py-1 rounded-full animate-bounce shadow">
+                <span className="bg-white text-brand-700 text-base font-black px-3 py-1 rounded-full animate-bounce shadow">
                   🔔 {nbExpress}
                 </span>
               )}
@@ -374,50 +374,50 @@ export default function ClientDemandesHubPage() {
                 onClick={openDemandesExpressDirectes}
                 className={`w-full flex items-center gap-5 p-5 rounded-xl border transition ${
                   (nbExpressDirectes + unresolvedExpressCount) > 0
-                    ? 'bg-orange-50 border-[#FF6B00] ring-2 ring-[#FF6B00]/30'
-                    : 'bg-orange-50 border-orange-200 hover:border-[#FF6B00] hover:bg-orange-100'
+                    ? 'bg-orange-50 border-brand-500 ring-2 ring-brand-500/30'
+                    : 'bg-orange-50 border-orange-200 hover:border-brand-500 hover:bg-orange-100'
                 }`}
               >
                 <span className="text-3xl">{(nbExpressDirectes + unresolvedExpressCount) > 0 ? '🔔' : '⚡'}</span>
                 <div className="flex-1 text-left">
-                  <div className="font-semibold text-[#2C3E50] text-base">Mes demandes express directes</div>
+                  <div className="font-semibold text-navy-800 text-base">Mes demandes express directes</div>
                   <div className="text-sm mt-1">
                     {(nbExpressDirectes + unresolvedExpressCount) > 0 ? (
-                      <span className="text-[#FF6B00] font-semibold">
+                      <span className="text-brand-700 font-semibold">
                         {nbExpressDirectes + unresolvedExpressCount} nouvelle{(nbExpressDirectes + unresolvedExpressCount) > 1 ? 's proposition(s)' : ' proposition'} reçue{(nbExpressDirectes + unresolvedExpressCount) > 1 ? 's' : ''} — cliquez pour consulter
                       </span>
                     ) : (
-                      <span className="text-gray-500">Suivre vos demandes en urgence envoyées à vos artisans.</span>
+                      <span className="text-slate-500">Suivre vos demandes en urgence envoyées à vos artisans.</span>
                     )}
                   </div>
                 </div>
                 {(nbExpressDirectes + unresolvedExpressCount) > 0 && (
-                  <span className="bg-[#FF6B00] text-white text-sm font-bold px-3 py-1.5 rounded-full min-w-[32px] text-center animate-bounce">
+                  <span className="bg-brand-700 text-white text-sm font-bold px-3 py-1.5 rounded-full min-w-[32px] text-center animate-bounce">
                     {nbExpressDirectes + unresolvedExpressCount}
                   </span>
                 )}
               </button>
               <button
                 onClick={openDemandesExpressPubliees}
-                className="w-full flex items-center gap-5 p-5 rounded-xl bg-slate-50 border border-slate-200 hover:border-[#2C3E50] hover:bg-slate-100 transition"
+                className="w-full flex items-center gap-5 p-5 rounded-xl bg-slate-50 border border-slate-200 hover:border-navy-800 hover:bg-slate-100 transition"
               >
                 <span className="text-3xl">📢</span>
                 <div className="flex-1 text-left">
-                  <div className="font-semibold text-[#2C3E50] text-base">Mes demandes express publiées</div>
-                  <div className="text-sm text-gray-500 mt-1">
+                  <div className="font-semibold text-navy-800 text-base">Mes demandes express publiées</div>
+                  <div className="text-sm text-slate-500 mt-1">
                     {nbExpressPubliees > 0
                       ? `${nbExpressPubliees} notification${nbExpressPubliees > 1 ? 's' : ''} concernent vos demandes express publiées.`
                       : 'Demandes visibles par tous les artisans qualifiés.'}
                   </div>
                 </div>
                 {nbExpressPubliees > 0 && (
-                  <span className="bg-[#2C3E50] text-white text-sm font-bold px-3 py-1.5 rounded-full min-w-[32px] text-center">
+                  <span className="bg-navy-800 text-white text-sm font-bold px-3 py-1.5 rounded-full min-w-[32px] text-center">
                     {nbExpressPubliees}
                   </span>
                 )}
               </button>
               {unresolvedExpressCount > 0 && (
-                <div className="rounded-xl border border-[#FFC107] bg-amber-50 px-4 py-3 text-xs text-[#2C3E50]">
+                <div className="rounded-xl border border-amber-400 bg-amber-50 px-4 py-3 text-xs text-navy-800">
                   {unresolvedExpressCount} notification{unresolvedExpressCount > 1 ? 's' : ''} express sans rattachement clair sont conservées dans le total.
                 </div>
               )}

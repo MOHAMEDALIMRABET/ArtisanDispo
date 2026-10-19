@@ -316,16 +316,16 @@ export default function DevisExpressForm({ onChange, montantInitial, initialDevi
   // ── Rendu ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="mt-4 border-2 border-[#FF6B00] rounded-xl p-5 bg-orange-50 space-y-6">
+    <div className="mt-4 border-2 border-brand-500 rounded-xl p-5 bg-orange-50 space-y-6">
 
       {/* En-tête */}
       <div className="flex items-center gap-2">
         <span className="text-lg">📋</span>
         <div>
-          <h3 className="font-bold text-[#2C3E50] text-base">
+          <h3 className="font-bold text-navy-800 text-base">
             Devis obligatoire — Montant supérieur ou égal à 150€
           </h3>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-slate-500">
             Remplissez et signez ce devis. Le client devra le contre-signer pour accepter votre proposition.
           </p>
         </div>
@@ -333,21 +333,21 @@ export default function DevisExpressForm({ onChange, montantInitial, initialDevi
 
       {/* ── Section 1 : Lignes de prestation ── */}
       <div>
-        <h4 className="text-sm font-semibold text-[#2C3E50] mb-2">
+        <h4 className="text-sm font-semibold text-navy-800 mb-2">
           Prestations <span className="text-red-500">*</span>
         </h4>
         <div className="space-y-3">
           {lignes.map((ligne, idx) => (
-            <div key={ligne.id} className="bg-white rounded-lg border border-gray-200 p-3">
+            <div key={ligne.id} className="bg-white rounded-lg border border-slate-200 p-3">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-medium text-gray-400 w-5">{idx + 1}</span>
+                <span className="text-xs font-medium text-slate-400 w-5">{idx + 1}</span>
                 <input
                   type="text"
                   placeholder="Description de la prestation"
                   value={ligne.description}
                   onChange={e => modifierLigne(ligne.id, 'description', e.target.value)}
                   onBlur={e => onBlurLigne(ligne.id, e.target.value)}
-                  className={`flex-1 border rounded px-2 py-1.5 text-sm focus:outline-none ${lignesWarnings.has(ligne.id) ? 'border-orange-400 focus:border-orange-500' : 'border-gray-300 focus:border-[#FF6B00]'}`}
+                  className={`flex-1 border rounded px-2 py-1.5 text-sm focus:outline-none ${lignesWarnings.has(ligne.id) ? 'border-orange-400 focus:border-orange-500' : 'border-slate-300 focus:border-brand-500'}`}
                 />
                 {lignes.length > 1 && (
                   <button
@@ -366,52 +366,52 @@ export default function DevisExpressForm({ onChange, montantInitial, initialDevi
                   <span>{lignesWarnings.get(ligne.id)}</span>
                 </div>
               )}
-              <div className="grid grid-cols-4 gap-2 text-xs">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
                 <div>
-                  <label className="text-gray-500 block mb-0.5">Qté</label>
+                  <label className="text-slate-500 block mb-0.5">Qté</label>
                   <input
                     type="number"
                     min="0.01"
                     step="0.01"
                     value={ligne.quantite}
                     onChange={e => modifierLigne(ligne.id, 'quantite', parseFloat(e.target.value) || 0)}
-                    className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
+                    className="w-full border border-slate-300 rounded px-2 py-1 focus:outline-none focus:border-brand-500"
                   />
                 </div>
                 <div>
-                  <label className="text-gray-500 block mb-0.5">Unité</label>
+                  <label className="text-slate-500 block mb-0.5">Unité</label>
                   <select
                     value={ligne.unite}
                     onChange={e => modifierLigne(ligne.id, 'unite', e.target.value)}
-                    className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
+                    className="w-full border border-slate-300 rounded px-2 py-1 focus:outline-none focus:border-brand-500"
                   >
                     {UNITE_OPTIONS.map(u => <option key={u} value={u}>{u}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-gray-500 block mb-0.5">Prix HT (€)</label>
+                  <label className="text-slate-500 block mb-0.5">Prix HT (€)</label>
                   <input
                     type="number"
                     min="0"
                     step="0.01"
                     value={ligne.prixUnitaireHT}
                     onChange={e => modifierLigne(ligne.id, 'prixUnitaireHT', parseFloat(e.target.value) || 0)}
-                    className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
+                    className="w-full border border-slate-300 rounded px-2 py-1 focus:outline-none focus:border-brand-500"
                   />
                 </div>
                 <div>
-                  <label className="text-gray-500 block mb-0.5">TVA (%)</label>
+                  <label className="text-slate-500 block mb-0.5">TVA (%)</label>
                   <select
                     value={ligne.tauxTVA}
                     onChange={e => modifierLigne(ligne.id, 'tauxTVA', parseFloat(e.target.value) as TVARate)}
-                    className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
+                    className="w-full border border-slate-300 rounded px-2 py-1 focus:outline-none focus:border-brand-500"
                   >
                     {TVA_OPTIONS.map(t => <option key={t} value={t}>{t}%</option>)}
                   </select>
                 </div>
               </div>
-              <div className="mt-1 text-right text-xs text-gray-400">
-                Total TTC : <span className="font-semibold text-[#2C3E50]">{ligne.totalTTC.toFixed(2)}€</span>
+              <div className="mt-1 text-right text-xs text-slate-400">
+                Total TTC : <span className="font-semibold text-navy-800">{ligne.totalTTC.toFixed(2)}€</span>
               </div>
             </div>
           ))}
@@ -419,7 +419,7 @@ export default function DevisExpressForm({ onChange, montantInitial, initialDevi
         <button
           type="button"
           onClick={ajouterLigne}
-          className="mt-2 text-[#FF6B00] text-xs font-medium hover:underline"
+          className="mt-2 text-brand-700 text-xs font-medium hover:underline"
         >
           + Ajouter une prestation
         </button>
@@ -427,58 +427,58 @@ export default function DevisExpressForm({ onChange, montantInitial, initialDevi
 
       {/* ── Section 2 : Main d'œuvre (optionnelle) ── */}
       <div>
-        <label className="flex items-center gap-2 text-sm font-semibold text-[#2C3E50] cursor-pointer">
+        <label className="flex items-center gap-2 text-sm font-semibold text-navy-800 cursor-pointer">
           <input
             type="checkbox"
             checked={ajouterMO}
             onChange={e => setAjouterMO(e.target.checked)}
-            className="accent-[#FF6B00]"
+            className="accent-brand-500"
           />
           Ajouter la main d&apos;œuvre séparément (optionnel)
         </label>
-        <p className="text-xs text-gray-400 mt-0.5 ml-5">
+        <p className="text-xs text-slate-400 mt-0.5 ml-5">
           Si elle est déjà incluse dans vos prestations, laissez décoché.
         </p>
         {ajouterMO && (
-          <div className="mt-2 bg-white rounded-lg border border-gray-200 p-3 grid grid-cols-4 gap-2 text-xs">
+          <div className="mt-2 bg-white rounded-lg border border-slate-200 p-3 grid grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
             <div>
-              <label className="text-gray-500 block mb-0.5">Qté</label>
+              <label className="text-slate-500 block mb-0.5">Qté</label>
               <input
                 type="number"
                 min="0.01"
                 step="0.01"
                 value={mainOeuvre.quantite}
                 onChange={e => setMainOeuvre(prev => ({ ...prev, quantite: parseFloat(e.target.value) || 0 }))}
-                className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
+                className="w-full border border-slate-300 rounded px-2 py-1 focus:outline-none focus:border-brand-500"
               />
             </div>
             <div>
-              <label className="text-gray-500 block mb-0.5">Unité</label>
+              <label className="text-slate-500 block mb-0.5">Unité</label>
               <select
                 value={mainOeuvre.unite}
                 onChange={e => setMainOeuvre(prev => ({ ...prev, unite: e.target.value }))}
-                className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
+                className="w-full border border-slate-300 rounded px-2 py-1 focus:outline-none focus:border-brand-500"
               >
                 {UNITE_OPTIONS.map(u => <option key={u} value={u}>{u}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-gray-500 block mb-0.5">Prix HT (€)</label>
+              <label className="text-slate-500 block mb-0.5">Prix HT (€)</label>
               <input
                 type="number"
                 min="0"
                 step="0.01"
                 value={mainOeuvre.prixHT}
                 onChange={e => setMainOeuvre(prev => ({ ...prev, prixHT: parseFloat(e.target.value) || 0 }))}
-                className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
+                className="w-full border border-slate-300 rounded px-2 py-1 focus:outline-none focus:border-brand-500"
               />
             </div>
             <div>
-              <label className="text-gray-500 block mb-0.5">TVA (%)</label>
+              <label className="text-slate-500 block mb-0.5">TVA (%)</label>
               <select
                 value={mainOeuvre.tauxTVA}
                 onChange={e => setMainOeuvre(prev => ({ ...prev, tauxTVA: parseFloat(e.target.value) as TVARate }))}
-                className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
+                className="w-full border border-slate-300 rounded px-2 py-1 focus:outline-none focus:border-brand-500"
               >
                 {TVA_OPTIONS.map(t => <option key={t} value={t}>{t}%</option>)}
               </select>
@@ -489,55 +489,55 @@ export default function DevisExpressForm({ onChange, montantInitial, initialDevi
 
       {/* ── Section 3 : Matières premières ── */}
       <div>
-        <label className="flex items-center gap-2 text-sm font-semibold text-[#2C3E50] cursor-pointer">
+        <label className="flex items-center gap-2 text-sm font-semibold text-navy-800 cursor-pointer">
           <input
             type="checkbox"
             checked={ajouterMP}
             onChange={e => setAjouterMP(e.target.checked)}
-            className="accent-[#FF6B00]"
+            className="accent-brand-500"
           />
           Ajouter des matières premières (optionnel)
         </label>
         {ajouterMP && (
-          <div className="mt-2 bg-white rounded-lg border border-gray-200 p-3 grid grid-cols-4 gap-2 text-xs">
+          <div className="mt-2 bg-white rounded-lg border border-slate-200 p-3 grid grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
             <div>
-              <label className="text-gray-500 block mb-0.5">Qté</label>
+              <label className="text-slate-500 block mb-0.5">Qté</label>
               <input
                 type="number"
                 min="0.01"
                 step="0.01"
                 value={matierePremiere.quantite}
                 onChange={e => setMatierePremiere(prev => ({ ...prev, quantite: parseFloat(e.target.value) || 0 }))}
-                className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
+                className="w-full border border-slate-300 rounded px-2 py-1 focus:outline-none focus:border-brand-500"
               />
             </div>
             <div>
-              <label className="text-gray-500 block mb-0.5">Unité</label>
+              <label className="text-slate-500 block mb-0.5">Unité</label>
               <select
                 value={matierePremiere.unite}
                 onChange={e => setMatierePremiere(prev => ({ ...prev, unite: e.target.value }))}
-                className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
+                className="w-full border border-slate-300 rounded px-2 py-1 focus:outline-none focus:border-brand-500"
               >
                 {UNITE_OPTIONS.map(u => <option key={u} value={u}>{u}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-gray-500 block mb-0.5">Prix HT (€)</label>
+              <label className="text-slate-500 block mb-0.5">Prix HT (€)</label>
               <input
                 type="number"
                 min="0"
                 step="0.01"
                 value={matierePremiere.prixHT}
                 onChange={e => setMatierePremiere(prev => ({ ...prev, prixHT: parseFloat(e.target.value) || 0 }))}
-                className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
+                className="w-full border border-slate-300 rounded px-2 py-1 focus:outline-none focus:border-brand-500"
               />
             </div>
             <div>
-              <label className="text-gray-500 block mb-0.5">TVA (%)</label>
+              <label className="text-slate-500 block mb-0.5">TVA (%)</label>
               <select
                 value={matierePremiere.tauxTVA}
                 onChange={e => setMatierePremiere(prev => ({ ...prev, tauxTVA: parseFloat(e.target.value) as TVARate }))}
-                className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-[#FF6B00]"
+                className="w-full border border-slate-300 rounded px-2 py-1 focus:outline-none focus:border-brand-500"
               >
                 {TVA_OPTIONS.map(t => <option key={t} value={t}>{t}%</option>)}
               </select>
@@ -549,7 +549,7 @@ export default function DevisExpressForm({ onChange, montantInitial, initialDevi
       {/* ── Section 4 : Conditions ── */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-xs font-medium text-gray-600 block mb-1">
+          <label className="text-xs font-medium text-slate-600 block mb-1">
             Délai d'intervention
           </label>
           <input
@@ -558,7 +558,7 @@ export default function DevisExpressForm({ onChange, montantInitial, initialDevi
             value={delaiRealisationField.value}
             onChange={delaiRealisationField.onChange}
             onBlur={delaiRealisationField.onBlur}
-            className={`w-full border rounded px-2 py-1.5 text-sm focus:outline-none ${delaiRealisationField.warning ? 'border-orange-400 focus:border-orange-500' : 'border-gray-300 focus:border-[#FF6B00]'}`}
+            className={`w-full border rounded px-2 py-1.5 text-sm focus:outline-none ${delaiRealisationField.warning ? 'border-orange-400 focus:border-orange-500' : 'border-slate-300 focus:border-brand-500'}`}
           />
           {/* Avertissement anti-bypass sur le délai d'intervention */}
           {delaiRealisationField.warning && (
@@ -568,7 +568,7 @@ export default function DevisExpressForm({ onChange, montantInitial, initialDevi
           )}
         </div>
         <div>
-          <label className="text-xs font-medium text-gray-600 block mb-1">
+          <label className="text-xs font-medium text-slate-600 block mb-1">
             Date de début prévue <span className="text-red-500">*</span>
           </label>
           <input
@@ -576,7 +576,7 @@ export default function DevisExpressForm({ onChange, montantInitial, initialDevi
             value={dateDebutPrevue}
             onChange={e => setDateDebutPrevue(e.target.value)}
             required
-            className={`w-full border rounded px-2 py-1.5 text-sm focus:outline-none ${!dateDebutPrevue ? 'border-red-300 focus:border-red-400' : 'border-gray-300 focus:border-[#FF6B00]'}`}
+            className={`w-full border rounded px-2 py-1.5 text-sm focus:outline-none ${!dateDebutPrevue ? 'border-red-300 focus:border-red-400' : 'border-slate-300 focus:border-brand-500'}`}
           />
           {/* Indicateur visuel si champ vide */}
           {!dateDebutPrevue && (
@@ -585,7 +585,7 @@ export default function DevisExpressForm({ onChange, montantInitial, initialDevi
         </div>
 
         <div className="col-span-2">
-          <label className="text-xs font-medium text-gray-600 block mb-1">
+          <label className="text-xs font-medium text-slate-600 block mb-1">
             Conditions particulières
           </label>
           <textarea
@@ -594,7 +594,7 @@ export default function DevisExpressForm({ onChange, montantInitial, initialDevi
             onChange={conditionsField.onChange}
             onBlur={conditionsField.onBlur}
             rows={2}
-            className={`w-full border rounded px-2 py-1.5 text-sm focus:outline-none resize-none ${conditionsField.warning ? 'border-orange-400 focus:border-orange-500' : 'border-gray-300 focus:border-[#FF6B00]'}`}
+            className={`w-full border rounded px-2 py-1.5 text-sm focus:outline-none resize-none ${conditionsField.warning ? 'border-orange-400 focus:border-orange-500' : 'border-slate-300 focus:border-brand-500'}`}
           />
           {/* Avertissement anti-bypass sur les conditions particulières */}
           {conditionsField.warning && (
@@ -606,20 +606,20 @@ export default function DevisExpressForm({ onChange, montantInitial, initialDevi
       </div>
 
       {/* ── Section 5 : Récapitulatif TTC ── */}
-      <div className="bg-white rounded-lg border border-[#FF6B00] p-3">
-        <h4 className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">
+      <div className="bg-white rounded-lg border border-brand-500 p-3">
+        <h4 className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">
           Récapitulatif
         </h4>
         <div className="space-y-1 text-sm">
-          <div className="flex justify-between text-gray-600">
+          <div className="flex justify-between text-slate-600">
             <span>Total HT</span>
             <span>{totaux.totalHT.toFixed(2)} €</span>
           </div>
-          <div className="flex justify-between text-gray-600">
+          <div className="flex justify-between text-slate-600">
             <span>Total TVA</span>
             <span>{totaux.totalTVAGlobal.toFixed(2)} €</span>
           </div>
-          <div className="flex justify-between font-bold text-[#2C3E50] text-base border-t pt-1">
+          <div className="flex justify-between font-bold text-navy-800 text-base border-t pt-1">
             <span>Total TTC</span>
             <span>{totaux.totalTTC.toFixed(2)} €</span>
           </div>
@@ -628,13 +628,13 @@ export default function DevisExpressForm({ onChange, montantInitial, initialDevi
 
       {/* ── Section 6 : Signature artisan ── */}
       <div>
-        <h4 className="text-sm font-semibold text-[#2C3E50] mb-1">
+        <h4 className="text-sm font-semibold text-navy-800 mb-1">
           Signature artisan <span className="text-red-500">*</span>
         </h4>
-        <p className="text-xs text-gray-500 mb-2">
+        <p className="text-xs text-slate-500 mb-2">
           Signez dans le cadre ci-dessous pour valider ce devis.
         </p>
-        <div className="relative bg-white border-2 border-dashed border-gray-300 rounded-lg overflow-hidden"
+        <div className="relative bg-white border-2 border-dashed border-slate-300 rounded-lg overflow-hidden"
           style={{ height: 120 }}>
           <canvas
             ref={canvasRef}
@@ -650,7 +650,7 @@ export default function DevisExpressForm({ onChange, montantInitial, initialDevi
             onTouchEnd={stopDrawing}
           />
           {!hasDrawn && (
-            <span className="absolute inset-0 flex items-center justify-center text-gray-300 text-sm pointer-events-none select-none">
+            <span className="absolute inset-0 flex items-center justify-center text-slate-300 text-sm pointer-events-none select-none">
               ✍️ Signez ici
             </span>
           )}
@@ -659,7 +659,7 @@ export default function DevisExpressForm({ onChange, montantInitial, initialDevi
           <button
             type="button"
             onClick={effacerSignature}
-            className="text-xs text-gray-400 hover:text-red-500 transition"
+            className="text-xs text-slate-400 hover:text-red-500 transition"
           >
             Effacer la signature
           </button>

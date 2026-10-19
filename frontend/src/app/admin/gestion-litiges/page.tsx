@@ -353,75 +353,75 @@ export default function AdminGestionLitigesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
-          <RefreshCw className="w-12 h-12 text-[#FF6B00] animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Chargement des litiges...</p>
+          <RefreshCw className="w-12 h-12 text-brand-700 animate-spin mx-auto mb-4" />
+          <p className="text-slate-600">Chargement des litiges...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <LitigesNavigation />
       <div className="py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#2C3E50] mb-2">Gestion des Litiges</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-navy-800 mb-2">Gestion des Litiges</h1>
+          <p className="text-slate-600">
             Médiation et résolution des litiges entre clients et artisans
           </p>
         </div>
 
         {/* Statistiques */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total</p>
-                <p className="text-3xl font-bold text-[#2C3E50]">{stats.total}</p>
+                <p className="text-sm text-slate-600">Total</p>
+                <p className="text-3xl font-bold text-navy-800">{stats.total}</p>
               </div>
-              <FileText className="w-12 h-12 text-gray-400" />
+              <FileText className="w-12 h-12 text-slate-400" />
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Ouverts</p>
-                <p className="text-3xl font-bold text-[#FF6B00]">{stats.ouverts}</p>
+                <p className="text-sm text-slate-600">Ouverts</p>
+                <p className="text-3xl font-bold text-brand-700">{stats.ouverts}</p>
               </div>
-              <AlertTriangle className="w-12 h-12 text-[#FF6B00]" />
+              <AlertTriangle className="w-12 h-12 text-brand-700" />
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">En médiation</p>
-                <p className="text-3xl font-bold text-[#FFC107]">{stats.enMediation}</p>
+                <p className="text-sm text-slate-600">En médiation</p>
+                <p className="text-3xl font-bold text-amber-500">{stats.enMediation}</p>
               </div>
-              <Scale className="w-12 h-12 text-[#FFC107]" />
+              <Scale className="w-12 h-12 text-amber-500" />
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Résolus</p>
-                <p className="text-3xl font-bold text-[#28A745]">{stats.resolus}</p>
+                <p className="text-sm text-slate-600">Résolus</p>
+                <p className="text-3xl font-bold text-green-700">{stats.resolus}</p>
               </div>
-              <CheckCircle className="w-12 h-12 text-[#28A745]" />
+              <CheckCircle className="w-12 h-12 text-green-700" />
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Panneau gauche - Liste des litiges */}
-          <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-bold text-[#2C3E50] mb-4">
+          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h2 className="text-xl font-bold text-navy-800 mb-4">
               Liste des litiges ({filteredLitiges.length})
             </h2>
 
@@ -429,26 +429,26 @@ export default function AdminGestionLitigesPage() {
             <div className="mb-6 space-y-4">
               {/* Recherche */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
                 <input
                   type="text"
                   placeholder="Rechercher par ID, client, artisan..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 />
               </div>
 
               {/* Filtres */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     Statut
                   </label>
                   <select
                     value={filterStatut}
                     onChange={(e) => setFilterStatut(e.target.value as LitigeStatut | 'tous')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   >
                     <option value="tous">Tous</option>
                     <option value="ouvert">Ouvert</option>
@@ -461,7 +461,7 @@ export default function AdminGestionLitigesPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     Priorité
                   </label>
                   <select
@@ -469,7 +469,7 @@ export default function AdminGestionLitigesPage() {
                     onChange={(e) =>
                       setFilterPriorite(e.target.value as LitigePriorite | 'tous')
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   >
                     <option value="tous">Toutes</option>
                     <option value="urgente">Urgente</option>
@@ -480,13 +480,13 @@ export default function AdminGestionLitigesPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     Type
                   </label>
                   <select
                     value={filterType}
                     onChange={(e) => setFilterType(e.target.value as LitigeType | 'tous')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   >
                     <option value="tous">Tous</option>
                     {Object.entries(LITIGE_TYPE_LABELS).map(([value, label]) => (
@@ -503,8 +503,8 @@ export default function AdminGestionLitigesPage() {
             <div className="space-y-4 max-h-[600px] overflow-y-auto">
               {filteredLitiges.length === 0 ? (
                 <div className="text-center py-12">
-                  <AlertTriangle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">Aucun litige trouvé</p>
+                  <AlertTriangle className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                  <p className="text-slate-500">Aucun litige trouvé</p>
                 </div>
               ) : (
                 filteredLitiges.map((litige) => (
@@ -513,30 +513,30 @@ export default function AdminGestionLitigesPage() {
                     onClick={() => handleSelectLitige(litige.id)}
                     className={`p-4 border rounded-lg cursor-pointer transition-all ${
                       selectedLitige?.id === litige.id
-                        ? 'border-[#FF6B00] bg-orange-50'
-                        : 'border-gray-200 hover:border-[#FF6B00] hover:bg-gray-50'
+                        ? 'border-brand-500 bg-orange-50'
+                        : 'border-slate-200 hover:border-brand-500 hover:bg-slate-50'
                     }`}
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-[#2C3E50]">
+                          <span className="font-medium text-navy-800">
                             Litige #{litige.id.substring(0, 8)}
                           </span>
                           {litige.priorite && getPrioriteBadge(litige.priorite)}
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">
+                        <p className="text-sm text-slate-600 mb-2">
                           {LITIGE_TYPE_LABELS[litige.type]}
                         </p>
                       </div>
                       {getStatutBadge(litige.statut)}
                     </div>
 
-                    <div className="text-sm text-gray-700 mb-2 line-clamp-2">
+                    <div className="text-sm text-slate-700 mb-2 line-clamp-2">
                       {litige.description}
                     </div>
 
-                    <div className="flex items-center justify-between text-xs text-gray-500">
+                    <div className="flex items-center justify-between text-xs text-slate-500">
                       <div>
                         <span className="font-medium">Client:</span> {litige.clientNom}
                       </div>
@@ -546,7 +546,7 @@ export default function AdminGestionLitigesPage() {
                     </div>
 
                     {litige.montantConteste && litige.montantConteste > 0 && (
-                      <div className="mt-2 text-sm font-medium text-[#FF6B00]">
+                      <div className="mt-2 text-sm font-medium text-brand-700">
                         Montant contesté : {litige.montantConteste.toFixed(2)} €
                       </div>
                     )}
@@ -557,52 +557,52 @@ export default function AdminGestionLitigesPage() {
           </div>
 
           {/* Panneau droit - Détails */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             {selectedLitige ? (
               <>
-                <h2 className="text-xl font-bold text-[#2C3E50] mb-4">Détails du litige</h2>
+                <h2 className="text-xl font-bold text-navy-800 mb-4">Détails du litige</h2>
 
                 {/* Informations générales */}
                 <div className="space-y-3 mb-6">
                   <div>
-                    <p className="text-sm text-gray-600">ID</p>
-                    <p className="font-medium text-[#2C3E50]">
+                    <p className="text-sm text-slate-600">ID</p>
+                    <p className="font-medium text-navy-800">
                       {selectedLitige.id.substring(0, 12)}...
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-sm text-gray-600">Statut</p>
+                    <p className="text-sm text-slate-600">Statut</p>
                     {getStatutBadge(selectedLitige.statut)}
                   </div>
 
                   {selectedLitige.priorite && (
                     <div>
-                      <p className="text-sm text-gray-600">Priorité</p>
+                      <p className="text-sm text-slate-600">Priorité</p>
                       {getPrioriteBadge(selectedLitige.priorite)}
                     </div>
                   )}
 
                   <div>
-                    <p className="text-sm text-gray-600">Type</p>
-                    <p className="font-medium text-[#2C3E50]">
+                    <p className="text-sm text-slate-600">Type</p>
+                    <p className="font-medium text-navy-800">
                       {LITIGE_TYPE_LABELS[selectedLitige.type]}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-sm text-gray-600">Client</p>
-                    <p className="font-medium text-[#2C3E50]">{selectedLitige.clientNom}</p>
+                    <p className="text-sm text-slate-600">Client</p>
+                    <p className="font-medium text-navy-800">{selectedLitige.clientNom}</p>
                   </div>
 
                   <div>
-                    <p className="text-sm text-gray-600">Artisan</p>
-                    <p className="font-medium text-[#2C3E50]">{selectedLitige.artisanNom}</p>
+                    <p className="text-sm text-slate-600">Artisan</p>
+                    <p className="font-medium text-navy-800">{selectedLitige.artisanNom}</p>
                   </div>
 
                   <div>
-                    <p className="text-sm text-gray-600">Date d'ouverture</p>
-                    <p className="font-medium text-[#2C3E50]">
+                    <p className="text-sm text-slate-600">Date d'ouverture</p>
+                    <p className="font-medium text-navy-800">
                       {selectedLitige.dateOuverture
                         ? formatDate(selectedLitige.dateOuverture.toDate())
                         : '-'}
@@ -611,16 +611,16 @@ export default function AdminGestionLitigesPage() {
 
                   {selectedLitige.montantConteste && selectedLitige.montantConteste > 0 && (
                     <div>
-                      <p className="text-sm text-gray-600">Montant contesté</p>
-                      <p className="font-bold text-[#FF6B00] text-lg">
+                      <p className="text-sm text-slate-600">Montant contesté</p>
+                      <p className="font-bold text-brand-700 text-lg">
                         {selectedLitige.montantConteste.toFixed(2)} €
                       </p>
                     </div>
                   )}
 
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Description</p>
-                    <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">
+                    <p className="text-sm text-slate-600 mb-1">Description</p>
+                    <p className="text-sm text-slate-700 bg-slate-50 p-3 rounded-lg">
                       {selectedLitige.description}
                     </p>
                   </div>
@@ -628,12 +628,12 @@ export default function AdminGestionLitigesPage() {
 
                 {/* Actions admin */}
                 <div className="border-t pt-4 mb-6">
-                  <p className="text-sm font-medium text-gray-700 mb-3">Actions admin</p>
+                  <p className="text-sm font-medium text-slate-700 mb-3">Actions admin</p>
                   <div className="space-y-2">
                     {selectedLitige.statut === 'ouvert' && (
                       <button
                         onClick={() => openActionModal('mediation')}
-                        className="w-full px-4 py-2 bg-[#FFC107] text-white rounded-lg hover:bg-yellow-600 transition-colors flex items-center justify-center gap-2"
+                        className="w-full px-4 py-2 bg-amber-400 text-white rounded-lg hover:bg-yellow-600 transition-colors flex items-center justify-center gap-2"
                       >
                         <Scale className="w-4 h-4" />
                         Passer en médiation
@@ -643,7 +643,7 @@ export default function AdminGestionLitigesPage() {
                     {['ouvert', 'en_mediation'].includes(selectedLitige.statut) && (
                       <button
                         onClick={() => openActionModal('proposition')}
-                        className="w-full px-4 py-2 bg-[#FF6B00] text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
+                        className="w-full px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
                       >
                         <MessageSquare className="w-4 h-4" />
                         Proposer résolution
@@ -652,7 +652,7 @@ export default function AdminGestionLitigesPage() {
 
                     <button
                       onClick={() => openActionModal('cloture')}
-                      className="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
+                      className="w-full px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"
                     >
                       <XCircle className="w-4 h-4" />
                       Clôturer sans suite
@@ -662,7 +662,7 @@ export default function AdminGestionLitigesPage() {
 
                 {/* Timeline */}
                 <div className="border-t pt-4">
-                  <p className="text-sm font-medium text-gray-700 mb-3">
+                  <p className="text-sm font-medium text-slate-700 mb-3">
                     Historique des actions
                   </p>
                   <LitigeTimeline 
@@ -673,8 +673,8 @@ export default function AdminGestionLitigesPage() {
               </>
             ) : (
               <div className="text-center py-12">
-                <Clock className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">Sélectionnez un litige pour voir les détails</p>
+                <Clock className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                <p className="text-slate-500">Sélectionnez un litige pour voir les détails</p>
               </div>
             )}
           </div>
@@ -685,7 +685,7 @@ export default function AdminGestionLitigesPage() {
       {showActionModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-[#2C3E50] mb-4">
+            <h3 className="text-xl font-bold text-navy-800 mb-4">
               {actionType === 'mediation' && 'Passer en médiation'}
               {actionType === 'proposition' && 'Proposer une résolution'}
               {actionType === 'cloture' && 'Clôturer le litige'}
@@ -694,14 +694,14 @@ export default function AdminGestionLitigesPage() {
             <div className="space-y-4 mb-6">
               {actionType === 'proposition' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     Montant proposé (€)
                   </label>
                   <input
                     type="number"
                     value={propositionMontant}
                     onChange={(e) => setPropositionMontant(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                     min="0"
                     step="0.01"
                   />
@@ -709,14 +709,14 @@ export default function AdminGestionLitigesPage() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Commentaire {actionType === 'proposition' ? '(obligatoire)' : '(optionnel)'}
                 </label>
                 <textarea
                   value={actionComment}
                   onChange={(e) => setActionComment(e.target.value)}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   placeholder="Expliquez votre décision..."
                 />
               </div>
@@ -726,7 +726,7 @@ export default function AdminGestionLitigesPage() {
               <button
                 onClick={() => setShowActionModal(false)}
                 disabled={actionLoading}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
               >
                 Annuler
               </button>
@@ -736,7 +736,7 @@ export default function AdminGestionLitigesPage() {
                   actionLoading ||
                   (actionType === 'proposition' && !actionComment.trim())
                 }
-                className="flex-1 px-4 py-2 bg-[#FF6B00] text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
               >
                 {actionLoading ? 'En cours...' : 'Confirmer'}
               </button>

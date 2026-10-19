@@ -128,7 +128,7 @@ export default function UploadPiecesJointes({
       case 'facture':
         return <FileText className="w-5 h-5 text-red-500" />;
       default:
-        return <File className="w-5 h-5 text-gray-500" />;
+        return <File className="w-5 h-5 text-slate-500" />;
     }
   }
 
@@ -142,20 +142,20 @@ export default function UploadPiecesJointes({
     <div className="space-y-4">
       {/* Zone d'upload */}
       <div>
-        <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+        <label className="block text-sm font-semibold text-navy-800 mb-2">
           Pièces jointes (optionnel)
         </label>
         <div
           onClick={() => fileInputRef.current?.click()}
           className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition ${
-            uploading ? 'border-gray-300 bg-gray-50 cursor-not-allowed' : 'border-gray-300 hover:border-[#FF6B00] hover:bg-orange-50'
+            uploading ? 'border-slate-300 bg-slate-50 cursor-not-allowed' : 'border-slate-300 hover:border-brand-500 hover:bg-orange-50'
           }`}
         >
-          <Upload className={`w-8 h-8 mx-auto mb-2 ${uploading ? 'text-gray-400' : 'text-gray-500'}`} />
-          <p className="text-sm text-gray-600">
+          <Upload className={`w-8 h-8 mx-auto mb-2 ${uploading ? 'text-slate-400' : 'text-slate-500'}`} />
+          <p className="text-sm text-slate-600">
             {uploading ? 'Upload en cours...' : 'Cliquez pour ajouter des fichiers'}
           </p>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             JPG, PNG, PDF - Max {maxSizePerFile}Mo par fichier - {maxFiles} fichiers max
           </p>
         </div>
@@ -181,19 +181,19 @@ export default function UploadPiecesJointes({
       {/* Liste des fichiers uploadés */}
       {uploadedPieces.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm font-medium text-[#2C3E50]">
+          <p className="text-sm font-medium text-navy-800">
             Fichiers ajoutés ({uploadedPieces.length}/{maxFiles})
           </p>
           {uploadedPieces.map((piece, index) => (
             <div
               key={index}
-              className="flex items-center justify-between gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg"
+              className="flex items-center justify-between gap-3 p-3 bg-slate-50 border border-slate-200 rounded-lg"
             >
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 {getFileIcon(piece.type)}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#2C3E50] truncate">{piece.nom}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-sm font-medium text-navy-800 truncate">{piece.nom}</p>
+                  <p className="text-xs text-slate-500">
                     {formatFileSize(piece.taille || 0)} • {piece.type}
                   </p>
                 </div>

@@ -134,8 +134,8 @@ export default function ContactSupportPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto mb-4"></div>
-          <p className="text-[#6C757D]">{t('artisanSupport.loading')}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
+          <p className="text-slate-500">{t('artisanSupport.loading')}</p>
         </div>
       </div>
     );
@@ -147,13 +147,13 @@ export default function ContactSupportPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-slate-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="mb-6">
           <button
             onClick={() => router.back()}
-            className="text-[#6C757D] hover:text-[#2C3E50] mb-4 flex items-center gap-2"
+            className="text-slate-500 hover:text-navy-800 mb-4 flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -161,10 +161,10 @@ export default function ContactSupportPage() {
             {t('artisanSupport.backButton')}
           </button>
 
-          <h1 className="text-3xl font-bold text-[#2C3E50] mb-2">
+          <h1 className="text-3xl font-bold text-navy-800 mb-2">
             {t('artisanSupport.pageTitle')}
           </h1>
-          <p className="text-[#6C757D]" dangerouslySetInnerHTML={{ __html: t('artisanSupport.pageSubtitle') }} />
+          <p className="text-slate-500" dangerouslySetInnerHTML={{ __html: t('artisanSupport.pageSubtitle') }} />
         </div>
 
         {/* Message succès */}
@@ -187,21 +187,21 @@ export default function ContactSupportPage() {
         <div className="grid md:grid-cols-3 gap-6">
           {/* Formulaire (2/3) */}
           <div className="md:col-span-2">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold text-[#2C3E50] mb-4">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <h2 className="text-xl font-semibold text-navy-800 mb-4">
                 {t('artisanSupport.form.title')}
               </h2>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Catégorie */}
                 <div>
-                  <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+                  <label className="block text-sm font-medium text-navy-800 mb-2">
                     {t('artisanSupport.form.categoryLabel')} <span className="text-red-500">{t('artisanSupport.form.required')}</span>
                   </label>
                   <select
                     value={categorie}
                     onChange={(e) => setCategorie(e.target.value as SupportTicketCategorie)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                     required
                   >
                     <option value="modification_iban">{t('artisanSupport.form.categories.modification_iban')}</option>
@@ -215,7 +215,7 @@ export default function ContactSupportPage() {
 
                 {/* Sujet */}
                 <div>
-                  <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+                  <label className="block text-sm font-medium text-navy-800 mb-2">
                     {t('artisanSupport.form.subjectLabel')} <span className="text-red-500">{t('artisanSupport.form.required')}</span>
                   </label>
                   <input
@@ -223,16 +223,16 @@ export default function ContactSupportPage() {
                     value={sujet}
                     onChange={(e) => setSujet(e.target.value)}
                     placeholder={t('artisanSupport.form.subjectPlaceholder')}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                     maxLength={150}
                     required
                   />
-                  <p className="text-xs text-[#6C757D] mt-1">{t('artisanSupport.form.subjectCounter').replace('{count}', String(sujet.length))}</p>
+                  <p className="text-xs text-slate-500 mt-1">{t('artisanSupport.form.subjectCounter').replace('{count}', String(sujet.length))}</p>
                 </div>
 
                 {/* Message */}
                 <div>
-                  <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+                  <label className="block text-sm font-medium text-navy-800 mb-2">
                     {t('artisanSupport.form.messageLabel')} <span className="text-red-500">{t('artisanSupport.form.required')}</span>
                   </label>
                   <textarea
@@ -240,11 +240,11 @@ export default function ContactSupportPage() {
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder={t('artisanSupport.form.messagePlaceholder')}
                     rows={8}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent resize-none"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
                     maxLength={2000}
                     required
                   />
-                  <p className="text-xs text-[#6C757D] mt-1">{t('artisanSupport.form.messageCounter').replace('{count}', String(message.length))}</p>
+                  <p className="text-xs text-slate-500 mt-1">{t('artisanSupport.form.messageCounter').replace('{count}', String(message.length))}</p>
                 </div>
 
                 {/* Info importante */}
@@ -259,7 +259,7 @@ export default function ContactSupportPage() {
                   <button
                     type="submit"
                     disabled={submitting || !sujet.trim() || !message.trim()}
-                    className="flex-1 bg-[#FF6B00] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#E56100] disabled:bg-gray-300 disabled:cursor-not-allowed transition"
+                    className="flex-1 bg-brand-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand-800 disabled:bg-slate-300 disabled:cursor-not-allowed transition"
                   >
                     {submitting ? (
                       <span className="flex items-center justify-center gap-2">
@@ -277,7 +277,7 @@ export default function ContactSupportPage() {
                   <button
                     type="button"
                     onClick={() => router.back()}
-                    className="px-6 py-3 border-2 border-gray-300 text-[#6C757D] rounded-lg font-semibold hover:bg-gray-50 transition"
+                    className="px-6 py-3 border-2 border-slate-300 text-slate-500 rounded-lg font-semibold hover:bg-slate-50 transition"
                   >
                     {t('artisanSupport.form.cancelButton')}
                   </button>
@@ -288,15 +288,15 @@ export default function ContactSupportPage() {
 
           {/* Mes tickets (1/3) */}
           <div className="md:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-lg font-semibold text-[#2C3E50] mb-4">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <h2 className="text-lg font-semibold text-navy-800 mb-4">
                 {t('artisanSupport.myTickets.title')}
               </h2>
 
               {loadingTickets ? (
-                <p className="text-[#6C757D] text-sm text-center py-4">{t('artisanSupport.myTickets.loading')}</p>
+                <p className="text-slate-500 text-sm text-center py-4">{t('artisanSupport.myTickets.loading')}</p>
               ) : mesTickets.length === 0 ? (
-                <p className="text-[#6C757D] text-sm text-center py-4">
+                <p className="text-slate-500 text-sm text-center py-4">
                   {t('artisanSupport.myTickets.empty')}
                 </p>
               ) : (
@@ -304,23 +304,23 @@ export default function ContactSupportPage() {
                   {mesTickets.slice(0, 5).map((ticket) => (
                     <div
                       key={ticket.id}
-                      className="border border-gray-200 rounded-lg p-3 hover:border-[#FF6B00] transition cursor-pointer"
+                      className="border border-slate-200 rounded-lg p-3 hover:border-brand-500 transition cursor-pointer"
                       onClick={() => router.push(`/artisan/contact-support/${ticket.id}`)}
                     >
                       <div className="flex items-start justify-between mb-2">
-                        <span className="text-xs font-mono text-[#6C757D]">{ticket.numero}</span>
+                        <span className="text-xs font-mono text-slate-500">{ticket.numero}</span>
                         <span className={`text-xs px-2 py-0.5 rounded ${getStatutColor(ticket.statut)}`}>
                           {ticket.statut}
                         </span>
                       </div>
-                      <p className="text-sm font-medium text-[#2C3E50] mb-1 line-clamp-1">
+                      <p className="text-sm font-medium text-navy-800 mb-1 line-clamp-1">
                         {ticket.sujet}
                       </p>
-                      <p className="text-xs text-[#6C757D]">
+                      <p className="text-xs text-slate-500">
                         {getCategorieLabel(ticket.categorie)}
                       </p>
                       {ticket.nonLuParUser && (
-                        <div className="mt-2 flex items-center gap-1 text-xs text-[#FF6B00] font-semibold">
+                        <div className="mt-2 flex items-center gap-1 text-xs text-brand-700 font-semibold">
                           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                             <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
@@ -334,7 +334,7 @@ export default function ContactSupportPage() {
                   {mesTickets.length > 5 && (
                     <button
                       onClick={() => router.push('/artisan/mes-tickets')}
-                      className="w-full text-[#FF6B00] hover:underline text-sm font-medium py-2"
+                      className="w-full text-brand-700 hover:underline text-sm font-medium py-2"
                     >
                       {t('artisanSupport.myTickets.viewAll').replace('{count}', String(mesTickets.length))}
                     </button>
@@ -345,13 +345,13 @@ export default function ContactSupportPage() {
 
             {/* Info utile */}
             <div className="bg-blue-50 rounded-lg p-4 mt-4">
-              <h3 className="font-semibold text-[#2C3E50] mb-2 flex items-center gap-2">
+              <h3 className="font-semibold text-navy-800 mb-2 flex items-center gap-2">
                 <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
                 {t('artisanSupport.info.title')}
               </h3>
-              <ul className="text-sm text-[#6C757D] space-y-2">
+              <ul className="text-sm text-slate-500 space-y-2">
                 <li className="flex items-start gap-2">
                   <span className="text-green-600 flex-shrink-0">✓</span>
                   <span>{t('artisanSupport.info.response')}</span>

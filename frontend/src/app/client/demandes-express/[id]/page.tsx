@@ -230,10 +230,10 @@ export default function DemandeExpressDetailClientPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA]">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto mb-4" />
-          <p className="text-[#6C757D]">Chargement de votre demande…</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4" />
+          <p className="text-slate-500">Chargement de votre demande…</p>
         </div>
       </div>
     );
@@ -241,21 +241,21 @@ export default function DemandeExpressDetailClientPage() {
 
   if (loadError) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA]">
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 max-w-md w-full text-center">
           <div className="text-5xl mb-4">⚠️</div>
-          <h2 className="text-xl font-bold text-[#2C3E50] mb-2">Impossible de charger</h2>
-          <p className="text-[#6C757D] mb-6">{loadError}</p>
+          <h2 className="text-xl font-bold text-navy-800 mb-2">Impossible de charger</h2>
+          <p className="text-slate-500 mb-6">{loadError}</p>
           <div className="flex gap-3 justify-center">
             <button
               onClick={() => { setLoading(true); loadData(); }}
-              className="px-5 py-2.5 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] font-medium"
+              className="px-5 py-2.5 bg-brand-700 text-white rounded-lg hover:bg-brand-800 font-medium"
             >
               Réessayer
             </button>
             <Link
               href="/client/demandes-express"
-              className="px-5 py-2.5 border-2 border-[#2C3E50] text-[#2C3E50] rounded-lg hover:bg-[#2C3E50] hover:text-white font-medium"
+              className="px-5 py-2.5 border-2 border-navy-800 text-navy-800 rounded-lg hover:bg-navy-800 hover:text-white font-medium"
             >
               Retour
             </Link>
@@ -281,11 +281,11 @@ export default function DemandeExpressDetailClientPage() {
     payee:                  { bg: 'bg-orange-100', color: 'text-orange-800', label: '💳 Payé - En attente de début des travaux' },
     en_cours:               { bg: 'bg-purple-100', color: 'text-purple-800', label: '🔧 En cours' },
     travaux_termines:       { bg: 'bg-amber-100',  color: 'text-amber-800',  label: '⏳ Travaux terminés — Validation requise' },
-    terminee:               { bg: 'bg-gray-100',   color: 'text-gray-700',   label: '🎉 Terminée' },
+    terminee:               { bg: 'bg-slate-100',   color: 'text-slate-700',   label: '🎉 Terminée' },
     annulee:                { bg: 'bg-red-100',    color: 'text-red-700',    label: '❌ Annulée' },
-    expiree:                { bg: 'bg-gray-100',   color: 'text-gray-600',   label: '⏰ Expirée' },
+    expiree:                { bg: 'bg-slate-100',   color: 'text-slate-600',   label: '⏰ Expirée' },
   };
-  const badge = statutBadge[demande.statut] ?? { bg: 'bg-gray-100', color: 'text-gray-700', label: demande.statut };
+  const badge = statutBadge[demande.statut] ?? { bg: 'bg-slate-100', color: 'text-slate-700', label: demande.statut };
   const isPublished = !demande.artisanId;
   const openPropositions = allPropositions.filter((p) =>
     ['en_attente_acceptation', 'en_negociation', 'proposition_finale_artisan'].includes(p.statut)
@@ -314,10 +314,10 @@ export default function DemandeExpressDetailClientPage() {
   })();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#F8F9FA] to-white">
+    <div className="min-h-screen bg-slate-50">
 
       {/* ── Header ─────────────────────────────────────── */}
-      <div className="bg-[#2C3E50] text-white">
+      <div className="bg-navy-800 text-white">
         <div className="container mx-auto px-4 py-5">
           <nav className="flex items-center gap-2 text-sm mb-3 text-white/70">
             <Link href="/client/dashboard" className="hover:text-white transition-colors">Dashboard</Link>
@@ -328,7 +328,7 @@ export default function DemandeExpressDetailClientPage() {
           </nav>
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
-              <h1 className="text-2xl font-bold">🚀 Demande express</h1>
+              <h1 className="text-2xl font-bold">Demande express</h1>
               <p className="text-white/70 text-sm mt-0.5">
                 {typeTravauxLabel} · {categorieLabel}
                 {sousCategorieLabel && ` · ${sousCategorieLabel}`}
@@ -345,21 +345,21 @@ export default function DemandeExpressDetailClientPage() {
         <div className="space-y-6">
 
           {/* ── Ma demande ──────────────────────────────── */}
-          <div className="bg-white rounded-2xl shadow-md p-6">
-            <h2 className="text-lg font-bold text-[#2C3E50] mb-4 flex items-center gap-2">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <h2 className="text-lg font-bold text-navy-800 mb-4 flex items-center gap-2">
               📋 Ma demande
             </h2>
 
             <div className="space-y-4">
               <div>
-                <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">Description</p>
-                <p className="text-[#2C3E50] whitespace-pre-wrap break-words leading-relaxed">{demande.description}</p>
+                <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">Description</p>
+                <p className="text-navy-800 whitespace-pre-wrap break-words leading-relaxed">{demande.description}</p>
               </div>
 
               {/* Photos du chantier */}
               {demande.photos && demande.photos.length > 0 && (
                 <div>
-                  <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-2">
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-2">
                     📷 Mes photos ({demande.photos.length})
                   </p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -368,7 +368,7 @@ export default function DemandeExpressDetailClientPage() {
                         <img
                           src={url}
                           alt={`Photo chantier ${i + 1}`}
-                          className="w-full h-32 object-cover rounded-xl border-2 border-[#E9ECEF] hover:border-[#FF6B00] transition-colors cursor-pointer"
+                          className="w-full h-32 object-cover rounded-xl border-2 border-slate-200 hover:border-brand-500 transition-colors cursor-pointer"
                         />
                       </a>
                     ))}
@@ -378,52 +378,52 @@ export default function DemandeExpressDetailClientPage() {
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">🧭 Type de travaux</p>
-                  <p className="text-[#2C3E50] font-medium text-sm">{typeTravauxLabel}</p>
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">🧭 Type de travaux</p>
+                  <p className="text-navy-800 font-medium text-sm">{typeTravauxLabel}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">🛠️ Catégorie</p>
-                  <p className="text-[#2C3E50] font-medium text-sm">{categorieLabel}</p>
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">🛠️ Catégorie</p>
+                  <p className="text-navy-800 font-medium text-sm">{categorieLabel}</p>
                 </div>
                 {sousCategorieLabel && (
                   <div>
-                    <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">🔎 Sous catégorie</p>
-                    <p className="text-[#2C3E50] font-medium text-sm">{sousCategorieLabel}</p>
+                    <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">🔎 Sous catégorie</p>
+                    <p className="text-navy-800 font-medium text-sm">{sousCategorieLabel}</p>
                   </div>
                 )}
                 <div>
-                  <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">📍 Ville</p>
-                  <p className="text-[#2C3E50] font-medium text-sm">{demande.ville} ({demande.codePostal})</p>
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">📍 Ville</p>
+                  <p className="text-navy-800 font-medium text-sm">{demande.ville} ({demande.codePostal})</p>
                 </div>
                 {demande.adresse && (
                   <div className="col-span-2">
-                    <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">📍 Adresse</p>
-                    <p className="text-[#2C3E50] font-medium text-sm">{demande.adresse}</p>
+                    <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">📍 Adresse</p>
+                    <p className="text-navy-800 font-medium text-sm">{demande.adresse}</p>
                   </div>
                 )}
 
                 {['payee', 'en_cours', 'travaux_termines', 'terminee'].includes(demande.statut) && montantPaye != null ? (
                   <div>
-                    <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">💳 Montant payé (séquestre)</p>
-                    <p className="text-[#28A745] font-bold text-lg">🔒 {montantPaye}€</p>
+                    <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">💳 Montant payé (séquestre)</p>
+                    <p className="text-green-700 font-bold text-lg">🔒 {montantPaye}€</p>
                   </div>
                 ) : demande.budgetPropose ? (
                   <div>
-                    <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">💰 Mon budget</p>
-                    <p className="text-[#FF6B00] font-bold text-lg">{demande.budgetPropose}€</p>
+                    <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">💰 Mon budget</p>
+                    <p className="text-brand-700 font-bold text-lg">{demande.budgetPropose}€</p>
                   </div>
                 ) : null}
                 <div>
-                  <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">🔥 Urgence</p>
-                  <p className="text-[#2C3E50] font-medium text-sm">
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">🔥 Urgence</p>
+                  <p className="text-navy-800 font-medium text-sm">
                     {demande.typeTravauxExpress === 'depannage-urgence'
                       ? '⚡ Immédiat (30 min - 1h)'
                       : demande.urgence === 'immediat' ? '🚨 En urgence (2h)' : '🚨 Urgent (24h)'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">📅 Déposée le</p>
-                  <p className="text-[#2C3E50] font-medium text-sm">
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">📅 Déposée le</p>
+                  <p className="text-navy-800 font-medium text-sm">
                     {demande.createdAt ? format(demande.createdAt.toDate(), "dd MMM yyyy 'à' HH:mm:ss", { locale: fr }) : '—'}
                   </p>
                 </div>
@@ -437,8 +437,8 @@ export default function DemandeExpressDetailClientPage() {
               <div className="flex items-start gap-4">
                 <div className="text-3xl">⏳</div>
                 <div>
-                  <h3 className="text-lg font-bold text-[#2C3E50] mb-1">En attente d&apos;une proposition</h3>
-                  <p className="text-[#6C757D] text-sm">
+                  <h3 className="text-lg font-bold text-navy-800 mb-1">En attente d&apos;une proposition</h3>
+                  <p className="text-slate-500 text-sm">
                     {demande.artisanId
                       ? "Votre demande a été envoyée à l'artisan. En attente de sa proposition de prix."
                       : "Votre demande est visible par les artisans qualifiés de votre zone. Un artisan va bientôt vous soumettre son offre."}
@@ -455,9 +455,9 @@ export default function DemandeExpressDetailClientPage() {
 
           {/* ── Demande publiée : sélection de proposition ───────────── */}
           {isPublished && openPropositions.length > 1 && (
-            <div className="bg-white rounded-2xl shadow-md p-6">
-              <h3 className="text-lg font-bold text-[#2C3E50] mb-3">📨 Propositions reçues</h3>
-              <p className="text-sm text-[#6C757D] mb-4">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+              <h3 className="text-lg font-bold text-navy-800 mb-3">📨 Propositions reçues</h3>
+              <p className="text-sm text-slate-500 mb-4">
                 Votre demande est publiée: comparez les propositions et sélectionnez celle à traiter.
               </p>
               <div className="space-y-2">
@@ -469,18 +469,18 @@ export default function DemandeExpressDetailClientPage() {
                       onClick={() => setSelectedPropositionId(p.id)}
                       className={`w-full text-left rounded-xl border-2 px-4 py-3 transition-all ${
                         isSelected
-                          ? 'border-[#FF6B00] bg-orange-50'
-                          : 'border-[#E9ECEF] bg-white hover:border-[#FF6B00]'
+                          ? 'border-brand-500 bg-orange-50'
+                          : 'border-slate-200 bg-white hover:border-brand-500'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <p className="text-sm font-semibold text-[#2C3E50]">Proposition artisan</p>
-                          <p className="text-xs text-[#6C757D]">
+                          <p className="text-sm font-semibold text-navy-800">Proposition artisan</p>
+                          <p className="text-xs text-slate-500">
                             {p.createdAt ? format(p.createdAt.toDate(), 'dd MMM yyyy à HH:mm', { locale: fr }) : ''}
                           </p>
                         </div>
-                        <p className="text-lg font-extrabold text-[#FF6B00]">{p.montantPropose}€</p>
+                        <p className="text-lg font-extrabold text-brand-700">{p.montantPropose}€</p>
                       </div>
                     </button>
                   );
@@ -495,13 +495,13 @@ export default function DemandeExpressDetailClientPage() {
               <div className="flex items-start gap-4">
                 <div className="text-3xl">💬</div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-[#2C3E50] mb-1">Contre-proposition envoyée</h3>
-                  <p className="text-[#6C757D] text-sm mb-4">
+                  <h3 className="text-lg font-bold text-navy-800 mb-1">Contre-proposition envoyée</h3>
+                  <p className="text-slate-500 text-sm mb-4">
                     Vous avez proposé <strong className="text-blue-700">{proposition.contrePropositionMontant}€</strong>.
                     L\'artisan va répondre : accepter votre budget, vous faire une proposition finale, ou refuser.
                   </p>
                   {proposition.contrePropositionMessage && (
-                    <div className="bg-white rounded-xl p-3 border border-blue-200 text-sm text-[#2C3E50] italic">
+                    <div className="bg-white rounded-xl p-3 border border-blue-200 text-sm text-navy-800 italic">
                       « {proposition.contrePropositionMessage} »
                     </div>
                   )}
@@ -523,15 +523,15 @@ export default function DemandeExpressDetailClientPage() {
               </div>
               <div className="p-6 space-y-5">
                 <div className="bg-purple-50 rounded-xl p-4">
-                  <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">Tarif final proposé</p>
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">Tarif final proposé</p>
                   <p className="text-5xl font-extrabold text-purple-700">{proposition.propositionFinaleMontant ?? proposition.montantCourant ?? proposition.montantPropose}€</p>
                   <p className="text-xs text-purple-500 mt-1">⚠️ C'est la dernière offre — vous ne pouvez plus contre-proposer.</p>
                 </div>
                 {proposition.propositionFinaleMessage && (
                   <div>
-                    <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-2">📝 Message de l'artisan</p>
-                    <div className="bg-[#F8F9FA] rounded-xl p-4">
-                      <p className="text-[#2C3E50] whitespace-pre-wrap break-words">{proposition.propositionFinaleMessage}</p>
+                    <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-2">📝 Message de l'artisan</p>
+                    <div className="bg-slate-50 rounded-xl p-4">
+                      <p className="text-navy-800 whitespace-pre-wrap break-words">{proposition.propositionFinaleMessage}</p>
                     </div>
                   </div>
                 )}
@@ -544,7 +544,7 @@ export default function DemandeExpressDetailClientPage() {
                     </p>
                   </div>
                 )}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t border-[#E9ECEF]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t border-slate-200">
                   <button
                     onClick={() => setShowRefusModal(true)}
                     disabled={submitting}
@@ -566,9 +566,9 @@ export default function DemandeExpressDetailClientPage() {
 
           {/* ── Proposition initiale artisan : Accept / Contre / Refuser ── */}
           {proposition && proposition.statut === 'en_attente_acceptation' && (
-            <div className="bg-white rounded-2xl shadow-md border-2 border-[#FF6B00] overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-md border-2 border-brand-500 overflow-hidden">
               {/* Badge artisan */}
-              <div className="bg-[#FF6B00] px-6 py-3 flex items-center justify-between">
+              <div className="bg-brand-700 px-6 py-3 flex items-center justify-between">
                 <span className="text-white font-bold text-lg">💬 Nouvelle proposition</span>
                 {artisanNom && (
                   <span className="bg-white/20 text-white text-sm px-3 py-1 rounded-full font-medium">
@@ -579,15 +579,15 @@ export default function DemandeExpressDetailClientPage() {
 
               <div className="p-6">
                 {/* Montant — élément le plus visible */}
-                <div className="flex items-center justify-between mb-6 p-4 bg-[#FFF5EB] rounded-xl">
+                <div className="flex items-center justify-between mb-6 p-4 bg-brand-50 rounded-xl">
                   <div>
-                    <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">Montant proposé (TTC)</p>
-                    <p className="text-5xl font-extrabold text-[#FF6B00]">{proposition.montantPropose}€</p>
+                    <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">Montant proposé (TTC)</p>
+                    <p className="text-5xl font-extrabold text-brand-700">{proposition.montantPropose}€</p>
                   </div>
                   {demande.budgetPropose && (
                     <div className="text-right">
-                      <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-1">Votre budget initial</p>
-                      <p className="text-2xl font-bold text-[#6C757D]">{demande.budgetPropose}€</p>
+                      <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">Votre budget initial</p>
+                      <p className="text-2xl font-bold text-slate-500">{demande.budgetPropose}€</p>
                       {proposition.montantPropose <= demande.budgetPropose ? (
                         <p className="text-green-600 text-xs font-semibold mt-1">✅ Dans votre budget</p>
                       ) : (
@@ -599,16 +599,16 @@ export default function DemandeExpressDetailClientPage() {
 
                 {/* Description de la prestation */}
                 <div className="mb-5">
-                  <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-2">📝 Ce qui est inclus dans la prestation</p>
-                  <div className="bg-[#F8F9FA] rounded-xl p-4">
-                    <p className="text-[#2C3E50] whitespace-pre-wrap break-words leading-relaxed">{proposition.description}</p>
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-2">📝 Ce qui est inclus dans la prestation</p>
+                  <div className="bg-slate-50 rounded-xl p-4">
+                    <p className="text-navy-800 whitespace-pre-wrap break-words leading-relaxed">{proposition.description}</p>
                   </div>
                 </div>
 
                 {/* Délai */}
                 {proposition.delaiIntervention && (
                   <div className="mb-5">
-                    <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-2">⏱️ Délai d'intervention</p>
+                    <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-2">⏱️ Délai d'intervention</p>
                     <div className="flex items-center gap-2">
                       <span className="bg-purple-100 text-purple-800 px-4 py-2 rounded-lg font-semibold text-sm">
                         {proposition.delaiIntervention}
@@ -620,7 +620,7 @@ export default function DemandeExpressDetailClientPage() {
                 {/* Date proposée */}
                 {proposition.dateInterventionProposee && (
                   <div className="mb-5">
-                    <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-2">📅 Date d'intervention proposée</p>
+                    <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-2">📅 Date d'intervention proposée</p>
                     <span className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg font-semibold text-sm">
                       {format(proposition.dateInterventionProposee.toDate(), 'EEEE dd MMMM yyyy à HH:mm', { locale: fr })}
                     </span>
@@ -629,25 +629,25 @@ export default function DemandeExpressDetailClientPage() {
 
                 {/* Info artisan complète */}
                 {artisanData && (
-                  <div className="mb-5 p-4 bg-[#F8F9FA] rounded-xl">
-                    <p className="text-xs text-[#6C757D] font-semibold uppercase tracking-wide mb-2">👤 À propos de l'artisan</p>
+                  <div className="mb-5 p-4 bg-slate-50 rounded-xl">
+                    <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-2">👤 À propos de l'artisan</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                       <div>
-                        <span className="text-[#6C757D]">Entreprise : </span>
-                        <span className="font-semibold text-[#2C3E50]">
+                        <span className="text-slate-500">Entreprise : </span>
+                        <span className="font-semibold text-navy-800">
                           {(artisanData as any).businessName || (artisanData as any).raisonSociale || '—'}
                         </span>
                       </div>
                       {(artisanData as any).location?.city && (
                         <div>
-                          <span className="text-[#6C757D]">Ville : </span>
-                          <span className="font-semibold text-[#2C3E50]">{(artisanData as any).location.city}</span>
+                          <span className="text-slate-500">Ville : </span>
+                          <span className="font-semibold text-navy-800">{(artisanData as any).location.city}</span>
                         </div>
                       )}
                       {(artisanData as any).metiers?.length > 0 && (
                         <div className="col-span-2">
-                          <span className="text-[#6C757D]">Spécialités : </span>
-                          <span className="font-semibold text-[#2C3E50]">
+                          <span className="text-slate-500">Spécialités : </span>
+                          <span className="font-semibold text-navy-800">
                             {(artisanData as any).metiers.join(', ')}
                           </span>
                         </div>
@@ -658,7 +658,7 @@ export default function DemandeExpressDetailClientPage() {
 
                 {/* Reçue le */}
                 {proposition.createdAt && (
-                  <p className="text-xs text-[#6C757D] mb-5">
+                  <p className="text-xs text-slate-500 mb-5">
                     Proposition reçue le {format(proposition.createdAt.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr })}
                   </p>
                 )}
@@ -676,7 +676,7 @@ export default function DemandeExpressDetailClientPage() {
                 )}
 
                 {/* Boutons d'action */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-[#E9ECEF]">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-slate-200">
                   <button
                     onClick={() => setShowRefusModal(true)}
                     disabled={submitting}
@@ -687,7 +687,7 @@ export default function DemandeExpressDetailClientPage() {
                   <button
                     onClick={() => { setContreMontant(String(demande.budgetPropose || '')); setShowContreModal(true); }}
                     disabled={submitting}
-                    className="px-5 py-3 border-2 border-[#FF6B00] text-[#FF6B00] rounded-xl hover:bg-[#FFF5EB] font-semibold text-sm transition-all disabled:opacity-50"
+                    className="px-5 py-3 border-2 border-brand-500 text-brand-700 rounded-xl hover:bg-brand-50 font-semibold text-sm transition-all disabled:opacity-50"
                   >
                     💬 Contre-proposer
                   </button>
@@ -709,7 +709,7 @@ export default function DemandeExpressDetailClientPage() {
               <div className="flex items-start gap-4">
                 <div className="text-3xl">✅</div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-[#2C3E50] mb-1">Proposition acceptée</h3>
+                  <h3 className="text-lg font-bold text-navy-800 mb-1">Proposition acceptée</h3>
 
                   {/* Chrono paiement avec délai selon urgence */}
                   {demande.paymentDeadline && (
@@ -747,15 +747,15 @@ export default function DemandeExpressDetailClientPage() {
                     </div>
                   )}
 
-                  <p className="text-[#6C757D] text-sm mb-4">
+                  <p className="text-slate-500 text-sm mb-4">
                     Procédez au paiement sécurisé pour confirmer l'intervention de l'artisan.
                   </p>
                   {proposition && (
-                    <p className="text-2xl font-extrabold text-[#FF6B00] mb-4">{proposition.montantPropose}€ TTC</p>
+                    <p className="text-2xl font-extrabold text-brand-700 mb-4">{proposition.montantPropose}€ TTC</p>
                   )}
                   <button
                     onClick={() => router.push(`/client/paiement-express/${proposition?.id}`)}
-                    className="px-6 py-3 bg-[#FF6B00] text-white rounded-xl hover:bg-[#E56100] font-bold shadow-md animate-pulse"
+                    className="px-6 py-3 bg-brand-700 text-white rounded-xl hover:bg-brand-800 font-bold shadow-md animate-pulse"
                   >
                     💳 Procéder au paiement maintenant
                   </button>
@@ -770,10 +770,10 @@ export default function DemandeExpressDetailClientPage() {
               <div className="flex items-start gap-4">
                 <div className="text-3xl">💳</div>
                 <div>
-                  <h3 className="text-lg font-bold text-[#2C3E50] mb-1">Paiement confirmé</h3>
-                  <p className="text-[#6C757D] text-sm">
+                  <h3 className="text-lg font-bold text-navy-800 mb-1">Paiement confirmé</h3>
+                  <p className="text-slate-500 text-sm">
                     Votre paiement de{' '}
-                    <strong className="text-[#FF6B00]">{proposition?.montantPropose}€</strong>{' '}
+                    <strong className="text-brand-700">{proposition?.montantPropose}€</strong>{' '}
                     est sécurisé en séquestre. L'artisan va intervenir sous peu.
                   </p>
                 </div>
@@ -787,8 +787,8 @@ export default function DemandeExpressDetailClientPage() {
               <div className="flex items-start gap-4">
                 <div className="text-3xl">🔧</div>
                 <div>
-                  <h3 className="text-lg font-bold text-[#2C3E50] mb-1">Intervention en cours</h3>
-                  <p className="text-[#6C757D] text-sm">
+                  <h3 className="text-lg font-bold text-navy-800 mb-1">Intervention en cours</h3>
+                  <p className="text-slate-500 text-sm">
                     L'artisan est en train d'effectuer les travaux. Vous serez notifié dès la fin.
                   </p>
                 </div>
@@ -802,10 +802,10 @@ export default function DemandeExpressDetailClientPage() {
               <div className="flex items-start gap-4">
                 <div className="text-3xl">⏳</div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-[#2C3E50] mb-1">
+                  <h3 className="text-lg font-bold text-navy-800 mb-1">
                     🔔 Travaux terminés — Votre validation est requise
                   </h3>
-                  <p className="text-[#6C757D] text-sm mb-2">
+                  <p className="text-slate-500 text-sm mb-2">
                     L'artisan a déclaré la fin des travaux. Confirmez que tout est conforme
                     pour libérer le paiement à l'artisan.
                   </p>
@@ -864,18 +864,18 @@ export default function DemandeExpressDetailClientPage() {
 
           {/* ── Terminée ─────────────────────────────────── */}
           {demande.statut === 'terminee' && (
-            <div className="bg-gray-50 border-2 border-gray-300 rounded-2xl p-6">
+            <div className="bg-slate-50 border-2 border-slate-300 rounded-2xl p-6">
               <div className="flex items-start gap-4">
                 <div className="text-3xl">🎉</div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-[#2C3E50] mb-1">Intervention terminée</h3>
-                  <p className="text-[#6C757D] text-sm mb-4">
+                  <h3 className="text-lg font-bold text-navy-800 mb-1">Intervention terminée</h3>
+                  <p className="text-slate-500 text-sm mb-4">
                     Les travaux sont terminés. Le paiement a été libéré à l'artisan. Merci d'avoir utilisé ArtisanSafe !
                   </p>
                   {artisanData && (
                     <button
                       onClick={() => router.push(`/client/avis/nouveau?artisanId=${artisanData.userId}`)}
-                      className="px-5 py-2.5 bg-[#FFC107] text-[#2C3E50] rounded-xl hover:bg-yellow-400 font-bold text-sm shadow"
+                      className="px-5 py-2.5 bg-amber-400 text-navy-800 rounded-xl hover:bg-yellow-400 font-bold text-sm shadow"
                     >
                       ⭐ Laisser un avis
                     </button>
@@ -891,8 +891,8 @@ export default function DemandeExpressDetailClientPage() {
               <div className="flex items-start gap-4">
                 <div className="text-3xl">❌</div>
                 <div>
-                  <h3 className="text-lg font-bold text-[#2C3E50] mb-1">Demande annulée</h3>
-                  <p className="text-[#6C757D] text-sm">Cette demande a été annulée.</p>
+                  <h3 className="text-lg font-bold text-navy-800 mb-1">Demande annulée</h3>
+                  <p className="text-slate-500 text-sm">Cette demande a été annulée.</p>
                 </div>
               </div>
             </div>
@@ -908,7 +908,7 @@ export default function DemandeExpressDetailClientPage() {
                     /* Cas 1 : Expiration par timeout paiement (15/30 min) */
                     <>
                       <h3 className="text-lg font-bold text-red-700 mb-2">⏰ Demande expirée définitivement</h3>
-                      <p className="text-[#2C3E50] text-sm mb-3">
+                      <p className="text-navy-800 text-sm mb-3">
                         Vous n'avez pas effectué le paiement dans les délais requis{' '}
                         <strong>({demande.urgence === 'immediat' ? '15 minutes' : '30 minutes'})</strong>.
                       </p>
@@ -941,8 +941,8 @@ export default function DemandeExpressDetailClientPage() {
                           );
                         } else {
                           return (
-                            <div className="bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 mb-4">
-                              <p className="text-sm text-gray-700">
+                            <div className="bg-slate-100 border border-slate-300 rounded-lg px-4 py-3 mb-4">
+                              <p className="text-sm text-slate-700">
                                 ✅ Demande en cours de suppression automatique...
                               </p>
                             </div>
@@ -960,7 +960,7 @@ export default function DemandeExpressDetailClientPage() {
                         </p>
                         <button
                           onClick={() => router.push('/client/demandes-express/nouvelle')}
-                          className="px-4 py-2 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] font-semibold text-sm transition-colors"
+                          className="px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-brand-800 font-semibold text-sm transition-colors"
                         >
                           🚀 Créer une nouvelle demande
                         </button>
@@ -969,13 +969,13 @@ export default function DemandeExpressDetailClientPage() {
                   ) : (
                     /* Cas 2 : Expiration normale (pas de proposition reçue sous 48h) */
                     <>
-                      <h3 className="text-lg font-bold text-[#2C3E50] mb-1">Demande expirée</h3>
-                      <p className="text-[#6C757D] text-sm mb-4">
+                      <h3 className="text-lg font-bold text-navy-800 mb-1">Demande expirée</h3>
+                      <p className="text-slate-500 text-sm mb-4">
                         Cette demande a expiré sans recevoir de proposition d'artisan.
                       </p>
                       <button
                         onClick={() => router.push('/client/demandes-express/nouvelle')}
-                        className="px-4 py-2 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] font-semibold text-sm transition-colors"
+                        className="px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-brand-800 font-semibold text-sm transition-colors"
                       >
                         🚀 Créer une nouvelle demande
                       </button>
@@ -994,14 +994,14 @@ export default function DemandeExpressDetailClientPage() {
                 disabled={!peutAnnuler || submitting}
                 className={`px-6 py-2.5 border-2 rounded-xl font-medium text-sm transition-all ${
                   peutAnnuler
-                    ? 'border-[#6C757D] text-[#6C757D] hover:border-red-500 hover:text-red-500 disabled:opacity-50'
-                    : 'border-gray-300 text-gray-400 cursor-not-allowed opacity-60'
+                    ? 'border-slate-500 text-slate-500 hover:border-red-500 hover:text-red-500 disabled:opacity-50'
+                    : 'border-slate-300 text-slate-400 cursor-not-allowed opacity-60'
                 }`}
               >
                 Annuler ma demande
               </button>
               {annulationBloqueeParProposition && (
-                <p className="text-xs text-[#6C757D] text-center">
+                <p className="text-xs text-slate-500 text-center">
                   🔒 Un artisan vous a soumis une proposition — l&apos;annulation n&apos;est plus possible.
                 </p>
               )}
@@ -1014,23 +1014,23 @@ export default function DemandeExpressDetailClientPage() {
       {/* ── Modale : Refus ──────────────────────────────── */}
       {showRefusModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-[#2C3E50] mb-2">❌ Refuser la proposition</h3>
-            <p className="text-[#6C757D] text-sm mb-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-navy-800 mb-2">❌ Refuser la proposition</h3>
+            <p className="text-slate-500 text-sm mb-4">
               Indiquez pourquoi vous refusez (l'artisan sera notifié). La demande reviendra en attente.
             </p>
             <textarea
               value={motifRefus}
               onChange={(e) => setMotifRefus(e.target.value)}
               rows={4}
-              className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-xl focus:outline-none focus:border-red-400 mb-4 text-sm"
+              className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-red-400 mb-4 text-sm"
               placeholder="Ex : Le tarif est trop élevé pour ce travail…"
             />
             <div className="flex gap-3">
               <button
                 onClick={() => { setShowRefusModal(false); setMotifRefus(''); }}
                 disabled={submitting}
-                className="flex-1 px-4 py-2.5 border-2 border-[#E9ECEF] text-[#6C757D] rounded-xl hover:border-[#2C3E50] font-medium text-sm"
+                className="flex-1 px-4 py-2.5 border-2 border-slate-200 text-slate-500 rounded-xl hover:border-navy-800 font-medium text-sm"
               >
                 Annuler
               </button>
@@ -1049,18 +1049,18 @@ export default function DemandeExpressDetailClientPage() {
       {/* ── Modale : Contre-proposition ─────────────────── */}
       {showContreModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-[#2C3E50] mb-2">💬 Faire une contre-proposition</h3>
-            <p className="text-[#6C757D] text-sm mb-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-navy-800 mb-2">💬 Faire une contre-proposition</h3>
+            <p className="text-slate-500 text-sm mb-4">
               Proposez un montant et expliquez vos attentes. L'artisan pourra faire une nouvelle offre.
             </p>
             {proposition && (
-              <p className="bg-[#FFF5EB] text-[#FF6B00] text-sm font-semibold px-4 py-2 rounded-lg mb-4">
+              <p className="bg-brand-50 text-brand-700 text-sm font-semibold px-4 py-2 rounded-lg mb-4">
                 Proposition actuelle : {proposition.montantPropose}€
               </p>
             )}
             <div className="mb-4">
-              <label className="text-sm font-semibold text-[#2C3E50] mb-1 block">
+              <label className="text-sm font-semibold text-navy-800 mb-1 block">
                 💰 Votre budget souhaité (max 150€)
               </label>
               <div className="relative">
@@ -1070,21 +1070,21 @@ export default function DemandeExpressDetailClientPage() {
                   max="150"
                   value={contreMonant}
                   onChange={(e) => setContreMontant(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-xl focus:outline-none focus:border-[#FF6B00] pr-10"
+                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 pr-10"
                   placeholder="Ex : 80"
                 />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6C757D] font-bold">€</span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">€</span>
               </div>
             </div>
             <div className="mb-4">
-              <label className="text-sm font-semibold text-[#2C3E50] mb-1 block">
+              <label className="text-sm font-semibold text-navy-800 mb-1 block">
                 📝 Message à l'artisan
               </label>
               <textarea
                 value={contreMessage}
                 onChange={(e) => setContreMessage(e.target.value)}
                 rows={4}
-                className="w-full px-4 py-3 border-2 border-[#E9ECEF] rounded-xl focus:outline-none focus:border-[#FF6B00] text-sm"
+                className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 text-sm"
                 placeholder="Ex : Je peux aller jusqu'à 80€. Le travail concerne seulement le robinet du lavabo, pas la douche."
               />
             </div>
@@ -1092,14 +1092,14 @@ export default function DemandeExpressDetailClientPage() {
               <button
                 onClick={() => { setShowContreModal(false); setContreMontant(''); setContreMessage(''); }}
                 disabled={submitting}
-                className="flex-1 px-4 py-2.5 border-2 border-[#E9ECEF] text-[#6C757D] rounded-xl hover:border-[#2C3E50] font-medium text-sm"
+                className="flex-1 px-4 py-2.5 border-2 border-slate-200 text-slate-500 rounded-xl hover:border-navy-800 font-medium text-sm"
               >
                 Annuler
               </button>
               <button
                 onClick={handleContreProposition}
                 disabled={submitting || !contreMonant || !contreMessage.trim()}
-                className="flex-1 px-4 py-2.5 bg-[#FF6B00] text-white rounded-xl hover:bg-[#E56100] font-semibold text-sm disabled:opacity-50"
+                className="flex-1 px-4 py-2.5 bg-brand-700 text-white rounded-xl hover:bg-brand-800 font-semibold text-sm disabled:opacity-50"
               >
                 {submitting ? '⏳ Envoi…' : 'Envoyer ma contre-proposition'}
               </button>

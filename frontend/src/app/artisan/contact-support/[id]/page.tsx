@@ -109,8 +109,8 @@ export default function TicketDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto mb-4"></div>
-          <p className="text-[#6C757D]">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
+          <p className="text-slate-500">Chargement...</p>
         </div>
       </div>
     );
@@ -126,13 +126,13 @@ export default function TicketDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-slate-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="mb-6">
           <button
             onClick={() => router.push('/artisan/contact-support')}
-            className="text-[#6C757D] hover:text-[#2C3E50] mb-4 flex items-center gap-2"
+            className="text-slate-500 hover:text-navy-800 mb-4 flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -142,8 +142,8 @@ export default function TicketDetailPage() {
 
           <div className="flex items-start justify-between">
             <div>
-              <span className="text-sm font-mono text-[#6C757D]">{ticket.numero}</span>
-              <h1 className="text-3xl font-bold text-[#2C3E50] mt-1">
+              <span className="text-sm font-mono text-slate-500">{ticket.numero}</span>
+              <h1 className="text-3xl font-bold text-navy-800 mt-1">
                 {ticket.sujet}
               </h1>
             </div>
@@ -152,7 +152,7 @@ export default function TicketDetailPage() {
             </span>
           </div>
 
-          <div className="flex flex-wrap gap-4 mt-4 text-sm text-[#6C757D]">
+          <div className="flex flex-wrap gap-4 mt-4 text-sm text-slate-500">
             <div>
               <strong>Catégorie:</strong> {getCategorieLabel(ticket.categorie)}
             </div>
@@ -170,20 +170,20 @@ export default function TicketDetailPage() {
         {/* Conversation */}
         <div className="bg-white rounded-lg shadow">
           {/* Message initial */}
-          <div className="p-6 border-b bg-gray-50">
+          <div className="p-6 border-b bg-slate-50">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold flex-shrink-0">
                 {ticket.userNom.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1">
-                <div className="bg-white rounded-lg p-4 shadow-sm">
+                <div className="bg-white rounded-xl p-4 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
-                    <strong className="text-[#2C3E50]">{ticket.userNom}</strong>
-                    <span className="text-xs text-[#6C757D]">
+                    <strong className="text-navy-800">{ticket.userNom}</strong>
+                    <span className="text-xs text-slate-500">
                       {ticket.createdAt.toDate().toLocaleString('fr-FR')}
                     </span>
                   </div>
-                  <p className="text-[#2C3E50] whitespace-pre-wrap">{ticket.message}</p>
+                  <p className="text-navy-800 whitespace-pre-wrap">{ticket.message}</p>
                 </div>
               </div>
             </div>
@@ -202,7 +202,7 @@ export default function TicketDetailPage() {
                   <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center font-bold flex-shrink-0 ${
                       reponse.auteurRole === 'admin'
-                        ? 'bg-[#FF6B00] text-white'
+                        ? 'bg-brand-700 text-white'
                         : 'bg-blue-500 text-white'
                     }`}
                   >
@@ -215,14 +215,14 @@ export default function TicketDetailPage() {
                       }`}
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <strong className="text-[#2C3E50]">
+                        <strong className="text-navy-800">
                           {reponse.auteurRole === 'admin' ? '🛡️ Support ArtisanDispo' : reponse.auteurNom}
                         </strong>
-                        <span className="text-xs text-[#6C757D]">
+                        <span className="text-xs text-slate-500">
                           {reponse.dateReponse.toDate().toLocaleString('fr-FR')}
                         </span>
                       </div>
-                      <p className="text-[#2C3E50] whitespace-pre-wrap">{reponse.message}</p>
+                      <p className="text-navy-800 whitespace-pre-wrap">{reponse.message}</p>
                     </div>
                   </div>
                 </div>
@@ -232,8 +232,8 @@ export default function TicketDetailPage() {
 
           {/* Formulaire réponse (seulement si pas fermé) */}
           {ticket.statut !== 'ferme' ? (
-            <div className="p-6 border-t bg-gray-50">
-              <label className="block text-sm font-medium text-[#2C3E50] mb-2">
+            <div className="p-6 border-t bg-slate-50">
+              <label className="block text-sm font-medium text-navy-800 mb-2">
                 Votre réponse
               </label>
               <textarea
@@ -241,30 +241,30 @@ export default function TicketDetailPage() {
                 onChange={(e) => setReponseMessage(e.target.value)}
                 placeholder="Écrivez votre message au support..."
                 rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent resize-none"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
                 maxLength={2000}
               />
               <div className="flex items-center justify-between mt-3">
-                <p className="text-xs text-[#6C757D]">
+                <p className="text-xs text-slate-500">
                   {reponseMessage.length}/2000 caractères
                 </p>
                 <button
                   onClick={handleSendReponse}
                   disabled={!reponseMessage.trim() || submitting}
-                  className="bg-[#FF6B00] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#E56100] disabled:bg-gray-300 disabled:cursor-not-allowed transition"
+                  className="bg-brand-700 text-white px-6 py-2 rounded-lg font-semibold hover:bg-brand-800 disabled:bg-slate-300 disabled:cursor-not-allowed transition"
                 >
                   {submitting ? 'Envoi...' : '📨 Envoyer'}
                 </button>
               </div>
             </div>
           ) : (
-            <div className="p-6 border-t bg-gray-100 text-center">
-              <p className="text-[#6C757D]">
+            <div className="p-6 border-t bg-slate-100 text-center">
+              <p className="text-slate-500">
                 🔒 Ce ticket est fermé. Créez un nouveau ticket si vous avez besoin d'aide.
               </p>
               <button
                 onClick={() => router.push('/artisan/contact-support')}
-                className="mt-3 text-[#FF6B00] hover:underline font-semibold"
+                className="mt-3 text-brand-700 hover:underline font-semibold"
               >
                 Créer un nouveau ticket
               </button>

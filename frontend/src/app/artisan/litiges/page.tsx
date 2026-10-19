@@ -65,7 +65,7 @@ export default function ArtisanLitigesPage() {
       proposition_resolution: { bg: 'bg-purple-100', text: 'text-purple-800' },
       resolu_accord: { bg: 'bg-green-100', text: 'text-green-800' },
       resolu_admin: { bg: 'bg-green-100', text: 'text-green-800' },
-      abandonne: { bg: 'bg-gray-100', text: 'text-gray-800' },
+      abandonne: { bg: 'bg-slate-100', text: 'text-slate-800' },
       escalade: { bg: 'bg-orange-100', text: 'text-orange-800' },
     };
 
@@ -79,7 +79,7 @@ export default function ArtisanLitigesPage() {
 
   const getTypeBadge = (type: LitigeType) => {
     return (
-      <span className="px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">
+      <span className="px-2 py-1 rounded text-xs bg-slate-100 text-slate-700">
         {t(`artisanDisputes.types.${type}`)}
       </span>
     );
@@ -89,7 +89,7 @@ export default function ArtisanLitigesPage() {
     if (!priorite) return null;
 
     const styles: Record<string, { bg: string; text: string }> = {
-      basse: { bg: 'bg-gray-100', text: 'text-gray-700' },
+      basse: { bg: 'bg-slate-100', text: 'text-slate-700' },
       moyenne: { bg: 'bg-yellow-100', text: 'text-yellow-800' },
       haute: { bg: 'bg-orange-100', text: 'text-orange-800' },
       urgente: { bg: 'bg-red-100', text: 'text-red-800' },
@@ -107,7 +107,7 @@ export default function ArtisanLitigesPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center">
-          <p className="text-gray-600">{t('artisanDisputes.loading')}</p>
+          <p className="text-slate-600">{t('artisanDisputes.loading')}</p>
         </div>
       </div>
     );
@@ -119,8 +119,8 @@ export default function ArtisanLitigesPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-[#2C3E50]">{t('artisanDisputes.pageTitle')}</h1>
-            <p className="text-gray-600 mt-2">{t('artisanDisputes.pageDescription')}</p>
+            <h1 className="text-3xl font-bold text-navy-800">{t('artisanDisputes.pageTitle')}</h1>
+            <p className="text-slate-600 mt-2">{t('artisanDisputes.pageDescription')}</p>
           </div>
         </div>
 
@@ -130,8 +130,8 @@ export default function ArtisanLitigesPage() {
             onClick={() => setFilter('tous')}
             className={`px-4 py-2 rounded-lg transition ${
               filter === 'tous'
-                ? 'bg-[#2C3E50] text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-navy-800 text-white'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
             {t('artisanDisputes.filters.all')} ({litiges.length})
@@ -140,8 +140,8 @@ export default function ArtisanLitigesPage() {
             onClick={() => setFilter('ouverts')}
             className={`px-4 py-2 rounded-lg transition ${
               filter === 'ouverts'
-                ? 'bg-[#2C3E50] text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-navy-800 text-white'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
             {t('artisanDisputes.filters.inProgress')} (
@@ -159,8 +159,8 @@ export default function ArtisanLitigesPage() {
             onClick={() => setFilter('resolus')}
             className={`px-4 py-2 rounded-lg transition ${
               filter === 'resolus'
-                ? 'bg-[#2C3E50] text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-navy-800 text-white'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
             {t('artisanDisputes.filters.resolved')} (
@@ -172,13 +172,13 @@ export default function ArtisanLitigesPage() {
 
       {/* Liste des litiges */}
       {filteredLitiges.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <AlertTriangle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 text-lg">{t('artisanDisputes.empty.title')}</p>
+        <div className="text-center py-12 bg-slate-50 rounded-lg">
+          <AlertTriangle className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+          <p className="text-slate-600 text-lg">{t('artisanDisputes.empty.title')}</p>
           {filter !== 'tous' && (
             <button
               onClick={() => setFilter('tous')}
-              className="mt-4 text-[#FF6B00] hover:underline"
+              className="mt-4 text-brand-700 hover:underline"
             >
               {t('artisanDisputes.empty.showAll')}
             </button>
@@ -189,7 +189,7 @@ export default function ArtisanLitigesPage() {
           {filteredLitiges.map((litige) => (
             <div
               key={litige.id}
-              className="bg-white border border-gray-200 rounded-lg p-6 hover:border-[#FF6B00] transition"
+              className="bg-white border border-slate-200 rounded-lg p-6 hover:border-brand-500 transition"
             >
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div className="flex-1">
@@ -208,12 +208,12 @@ export default function ArtisanLitigesPage() {
                       </span>
                     )}
                   </div>
-                  <h3 className="text-lg font-semibold text-[#2C3E50] mb-1">{litige.motif}</h3>
-                  <p className="text-gray-600 text-sm line-clamp-2">{litige.description}</p>
+                  <h3 className="text-lg font-semibold text-navy-800 mb-1">{litige.motif}</h3>
+                  <p className="text-slate-600 text-sm line-clamp-2">{litige.description}</p>
                 </div>
                 <Link
                   href={`/artisan/litiges/${litige.id}`}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] transition whitespace-nowrap"
+                  className="flex items-center gap-2 px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition whitespace-nowrap"
                 >
                   <Eye className="w-4 h-4" />
                   {t('artisanDisputes.viewButton')}
@@ -222,8 +222,8 @@ export default function ArtisanLitigesPage() {
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm border-t pt-4">
                 <div>
-                  <p className="text-gray-500">{t('artisanDisputes.details.openedOn')}</p>
-                  <p className="font-medium text-[#2C3E50]">
+                  <p className="text-slate-500">{t('artisanDisputes.details.openedOn')}</p>
+                  <p className="font-medium text-navy-800">
                     {litige.dateOuverture
                       ? formatDistanceToNow(litige.dateOuverture.toDate(), {
                           addSuffix: true,
@@ -234,17 +234,17 @@ export default function ArtisanLitigesPage() {
                 </div>
                 {litige.montantConteste && litige.montantConteste > 0 && (
                   <div>
-                    <p className="text-gray-500">{t('artisanDisputes.details.contested')}</p>
-                    <p className="font-medium text-[#2C3E50]">{litige.montantConteste}€</p>
+                    <p className="text-slate-500">{t('artisanDisputes.details.contested')}</p>
+                    <p className="font-medium text-navy-800">{litige.montantConteste}€</p>
                   </div>
                 )}
                 <div>
-                  <p className="text-gray-500">{t('artisanDisputes.details.actions')}</p>
-                  <p className="font-medium text-[#2C3E50]">{litige.historique.length}</p>
+                  <p className="text-slate-500">{t('artisanDisputes.details.actions')}</p>
+                  <p className="font-medium text-navy-800">{litige.historique.length}</p>
                 </div>
                 {litige.dateResolution && (
                   <div>
-                    <p className="text-gray-500">{t('artisanDisputes.details.resolvedOn')}</p>
+                    <p className="text-slate-500">{t('artisanDisputes.details.resolvedOn')}</p>
                     <p className="font-medium text-green-600">
                       {formatDistanceToNow(litige.dateResolution.toDate(), {
                         addSuffix: true,

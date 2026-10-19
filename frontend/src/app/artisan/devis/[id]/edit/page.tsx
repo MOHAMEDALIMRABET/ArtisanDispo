@@ -276,10 +276,10 @@ export default function EditDevisPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
-          <p className="mt-4 text-[#6C757D]">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
+          <p className="mt-4 text-slate-500">Chargement...</p>
         </div>
       </div>
     );
@@ -292,49 +292,49 @@ export default function EditDevisPage() {
   const totaux = calculerTotauxGlobaux();
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-[#2C3E50] text-white py-8">
+      <div className="bg-navy-800 text-white py-8">
         <div className="container mx-auto px-4">
           <button
             onClick={() => router.push('/artisan/devis')}
-            className="text-[#FF6B00] hover:underline mb-4"
+            className="text-brand-700 hover:underline mb-4"
           >
             ← Retour aux devis
           </button>
-          <h1 className="text-3xl font-bold text-[#2C3E50]">Modifier le devis {devis.numeroDevis}</h1>
-          <p className="text-[#6C757D] mt-2">
+          <h1 className="text-3xl font-bold text-navy-800">Modifier le devis {devis.numeroDevis}</h1>
+          <p className="text-slate-500 mt-2">
             Client: {devis.client.prenom} {devis.client.nom}
           </p>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="bg-white rounded-lg shadow-md p-8">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
           {/* Titre */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Titre du devis *
             </label>
             <input
               type="text"
               value={titre}
               onChange={(e) => setTitre(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               placeholder="Ex: Rénovation salle de bain"
             />
           </div>
 
           {/* Description */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Description (optionnelle)
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               placeholder="Détails complémentaires..."
             />
           </div>
@@ -342,10 +342,10 @@ export default function EditDevisPage() {
           {/* Lignes de prestation */}
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Prestations</h3>
+              <h3 className="text-lg font-semibold text-slate-800">Prestations</h3>
               <button
                 onClick={ajouterLigne}
-                className="bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100]"
+                className="bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800"
               >
                 + Ajouter une ligne
               </button>
@@ -353,40 +353,40 @@ export default function EditDevisPage() {
 
             <div className="space-y-4">
               {lignes.map((ligne, index) => (
-                <div key={ligne.id} className="border border-gray-200 rounded-lg p-4">
+                <div key={ligne.id} className="border border-slate-200 rounded-lg p-4">
                   <div className="grid grid-cols-12 gap-4">
                     {/* Description */}
                     <div className="col-span-12 md:col-span-6">
-                      <label className="block text-xs text-gray-600 mb-1">Description *</label>
+                      <label className="block text-xs text-slate-600 mb-1">Description *</label>
                       <input
                         type="text"
                         value={ligne.description}
                         onChange={(e) => modifierLigne(index, 'description', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                        className="w-full px-3 py-2 border border-slate-300 rounded text-sm"
                         placeholder="Ex: Remplacement WC"
                       />
                     </div>
 
                     {/* Quantité */}
                     <div className="col-span-4 md:col-span-2">
-                      <label className="block text-xs text-gray-600 mb-1">Quantité</label>
+                      <label className="block text-xs text-slate-600 mb-1">Quantité</label>
                       <input
                         type="number"
                         min="0"
                         step="0.01"
                         value={ligne.quantite}
                         onChange={(e) => modifierLigne(index, 'quantite', parseFloat(e.target.value) || 0)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                        className="w-full px-3 py-2 border border-slate-300 rounded text-sm"
                       />
                     </div>
 
                     {/* Unité */}
                     <div className="col-span-4 md:col-span-2">
-                      <label className="block text-xs text-gray-600 mb-1">Unité</label>
+                      <label className="block text-xs text-slate-600 mb-1">Unité</label>
                       <select
                         value={ligne.unite}
                         onChange={(e) => modifierLigne(index, 'unite', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                        className="w-full px-3 py-2 border border-slate-300 rounded text-sm"
                       >
                         <option value="h">heure</option>
                         <option value="j">jour</option>
@@ -399,14 +399,14 @@ export default function EditDevisPage() {
 
                     {/* Prix unitaire HT */}
                     <div className="col-span-4 md:col-span-2">
-                      <label className="block text-xs text-gray-600 mb-1">Prix HT (€)</label>
+                      <label className="block text-xs text-slate-600 mb-1">Prix HT (€)</label>
                       <input
                         type="number"
                         min="0"
                         step="0.01"
                         value={ligne.prixUnitaireHT}
                         onChange={(e) => modifierLigne(index, 'prixUnitaireHT', parseFloat(e.target.value) || 0)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                        className="w-full px-3 py-2 border border-slate-300 rounded text-sm"
                       />
                     </div>
                   </div>
@@ -414,11 +414,11 @@ export default function EditDevisPage() {
                   <div className="grid grid-cols-12 gap-4 mt-3">
                     {/* TVA */}
                     <div className="col-span-4 md:col-span-2">
-                      <label className="block text-xs text-gray-600 mb-1">TVA (%)</label>
+                      <label className="block text-xs text-slate-600 mb-1">TVA (%)</label>
                       <select
                         value={ligne.tauxTVA}
                         onChange={(e) => modifierLigne(index, 'tauxTVA', parseFloat(e.target.value) as TVARate)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                        className="w-full px-3 py-2 border border-slate-300 rounded text-sm"
                       >
                         <option value={20}>20%</option>
                         <option value={10}>10%</option>
@@ -429,8 +429,8 @@ export default function EditDevisPage() {
 
                     {/* Total TTC */}
                     <div className="col-span-4 md:col-span-3">
-                      <label className="block text-xs text-gray-600 mb-1">Total TTC</label>
-                      <div className="px-3 py-2 bg-gray-50 rounded text-sm font-semibold text-gray-800">
+                      <label className="block text-xs text-slate-600 mb-1">Total TTC</label>
+                      <div className="px-3 py-2 bg-slate-50 rounded text-sm font-semibold text-slate-800">
                         {ligne.totalTTC.toFixed(2)} €
                       </div>
                     </div>
@@ -451,17 +451,17 @@ export default function EditDevisPage() {
           </div>
 
           {/* Totaux */}
-          <div className="bg-gray-50 rounded-lg p-6 mb-6">
+          <div className="bg-slate-50 rounded-lg p-6 mb-6">
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-700">Total HT</span>
+                <span className="text-slate-700">Total HT</span>
                 <span className="font-semibold">{totaux.totalHT.toFixed(2)} €</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-700">Total TVA</span>
+                <span className="text-slate-700">Total TVA</span>
                 <span className="font-semibold">{totaux.totalTVAGlobal.toFixed(2)} €</span>
               </div>
-              <div className="flex justify-between text-lg font-bold text-[#FF6B00] border-t pt-2">
+              <div className="flex justify-between text-lg font-bold text-brand-700 border-t pt-2">
                 <span>Total TTC</span>
                 <span>{totaux.totalTTC.toFixed(2)} €</span>
               </div>
@@ -471,25 +471,25 @@ export default function EditDevisPage() {
           {/* Date de début et délai */}
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Date de début prévue *
               </label>
               <input
                 type="date"
                 value={dateDebutPrevue}
                 onChange={(e) => setDateDebutPrevue(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Délai de réalisation
               </label>
               <input
                 type="text"
                 value={delaiRealisation}
                 onChange={(e) => setDelaiRealisation(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg"
                 placeholder="Ex: 2 semaines"
               />
             </div>
@@ -497,7 +497,7 @@ export default function EditDevisPage() {
 
           {/* Validité */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Validité du devis (jours)
             </label>
             <input
@@ -505,20 +505,20 @@ export default function EditDevisPage() {
               min="1"
               value={dateValidite}
               onChange={(e) => setDateValidite(parseInt(e.target.value) || 30)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg"
             />
           </div>
 
           {/* Conditions */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Conditions particulières
             </label>
             <textarea
               value={conditions}
               onChange={(e) => setConditions(e.target.value)}
               rows={3}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg"
               placeholder="Acompte, modalités de paiement..."
             />
           </div>
@@ -527,21 +527,21 @@ export default function EditDevisPage() {
           <div className="flex gap-4 justify-end pt-6 border-t">
             <button
               onClick={() => router.push('/artisan/devis')}
-              className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              className="px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50"
               disabled={saving}
             >
               Annuler
             </button>
             <button
               onClick={sauvegarderBrouillon}
-              className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+              className="px-6 py-3 bg-slate-500 text-white rounded-lg hover:bg-slate-600"
               disabled={saving}
             >
               {saving ? 'Sauvegarde...' : '💾 Sauvegarder le brouillon'}
             </button>
             <button
               onClick={envoyerDevis}
-              className="px-6 py-3 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100]"
+              className="px-6 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800"
               disabled={saving}
             >
               {saving ? 'Envoi...' : '📤 Envoyer au client'}

@@ -195,13 +195,13 @@ function ResultatsContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#FF6B00] border-t-transparent mx-auto mb-4"></div>
-          <p className="text-[#2C3E50] text-lg font-semibold">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-brand-500 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-navy-800 text-lg font-semibold">
             Recherche des artisans disponibles...
           </p>
-          <p className="text-[#6C757D] text-sm mt-2">
+          <p className="text-slate-500 text-sm mt-2">
             Analyse des disponibilités
           </p>
         </div>
@@ -211,14 +211,14 @@ function ResultatsContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <Card className="p-8 text-center max-w-md">
           <div className="text-5xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-[#2C3E50] mb-2">Erreur</h2>
-          <p className="text-[#6C757D] mb-6">{error}</p>
+          <h2 className="text-2xl font-bold text-navy-800 mb-2">Erreur</h2>
+          <p className="text-slate-500 mb-6">{error}</p>
           <Button
             onClick={() => router.push('/recherche')}
-            className="bg-[#FF6B00] hover:bg-[#E56100] text-white"
+            className="bg-brand-700 hover:bg-brand-800 text-white"
           >
             Nouvelle recherche
           </Button>
@@ -250,31 +250,31 @@ function ResultatsContent() {
   }
   
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Titre de la page */}
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <div className="text-center mb-3">
-            <h1 className="text-3xl font-bold text-[#2C3E50]">Trouvez votre artisan</h1>
-            <p className="text-[#6C757D] text-sm mt-2">Décrivez votre projet, nous trouvons les artisans disponibles</p>
+            <h1 className="text-3xl font-bold text-navy-800">Trouvez votre artisan</h1>
+            <p className="text-slate-500 text-sm mt-2">Décrivez votre projet, nous trouvons les artisans disponibles</p>
           </div>
         </div>
       </div>
 
       {/* Bannière de recherche rapide */}
-      <div className="bg-white border-b border-[#E9ECEF] py-4 sticky top-0 z-40 shadow-sm">
+      <div className="bg-white border-b border-slate-200 py-4 sticky top-0 z-40 shadow-sm">
         <div className="container mx-auto px-4">
           <div className="max-w-screen-xl mx-auto">
             <div className="grid md:grid-cols-24 gap-2">
               {/* Type de travaux */}
               <div className="relative min-w-0 md:col-span-4">
-                <label className="block text-xs font-medium text-[#6C757D] mb-1 ml-3">{t('home.searchTypeOfWork')}</label>
-                <div className="flex items-center bg-[#F5F7FA] rounded-xl px-3 h-11 hover:bg-[#E9ECEF] transition-colors cursor-pointer">
-                  <svg className="w-5 h-5 text-[#FF6B00] mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <label className="block text-xs font-medium text-slate-500 mb-1 ml-3">{t('home.searchTypeOfWork')}</label>
+                <div className="flex items-center bg-slate-50 rounded-xl px-3 h-11 hover:bg-slate-100 transition-colors cursor-pointer">
+                  <svg className="w-5 h-5 text-brand-700 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                   <select
-                    className="bg-transparent border-none outline-none w-full text-[#2C3E50] font-medium cursor-pointer"
+                    className="bg-transparent border-none outline-none w-full text-navy-800 font-medium cursor-pointer"
                     value={categorieInput}
                     onChange={e => setCategorieInput(e.target.value)}
                   >
@@ -287,16 +287,16 @@ function ResultatsContent() {
 
               {/* Localisation */}
               <div className="relative md:col-span-6">
-                <label className="block text-xs font-medium text-[#6C757D] mb-1 ml-3">{t('home.searchLocation')}</label>
-                <div className="flex items-center bg-[#F5F7FA] rounded-xl px-3 h-11 hover:bg-[#E9ECEF] transition-colors">
-                  <svg className="w-5 h-5 text-[#FF6B00] mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <label className="block text-xs font-medium text-slate-500 mb-1 ml-3">{t('home.searchLocation')}</label>
+                <div className="flex items-center bg-slate-50 rounded-xl px-3 h-11 hover:bg-slate-100 transition-colors">
+                  <svg className="w-5 h-5 text-brand-700 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <input
                     type="text"
                     placeholder="Paris, Lyon..."
-                    className="bg-transparent border-none outline-none w-full text-[#2C3E50] font-medium placeholder-[#95A5A6]"
+                    className="bg-transparent border-none outline-none w-full text-navy-800 font-medium placeholder-slate-400"
                     value={villeInput}
                     onChange={(e) => {
                       setVilleInput(e.target.value);
@@ -310,19 +310,19 @@ function ResultatsContent() {
 
                 {/* Liste des suggestions */}
                 {showSuggestions && villeSuggestions.length > 0 && (
-                  <div className="absolute z-50 w-full mt-1 bg-white border-2 border-[#FF6B00] rounded-lg shadow-lg max-h-60 overflow-y-auto top-full">
+                  <div className="absolute z-50 w-full mt-1 bg-white border-2 border-brand-500 rounded-lg shadow-lg max-h-60 overflow-y-auto top-full">
                     {villeSuggestions.map((suggestion, index) => (
                       <button
                         key={`${suggestion.nom}-${suggestion.codePostal}-${index}`}
                         type="button"
                         onClick={() => selectVille(suggestion)}
-                        className="w-full text-left px-4 py-3 hover:bg-[#FFF3E0] transition-colors border-b border-[#E9ECEF] last:border-b-0"
+                        className="w-full text-left px-4 py-3 hover:bg-brand-50 transition-colors border-b border-slate-200 last:border-b-0"
                       >
                         <div className="flex justify-between items-center">
-                          <span className="font-medium text-[#2C3E50]">{suggestion.nom}</span>
-                          <span className="text-sm text-[#6C757D]">{suggestion.codePostal}</span>
+                          <span className="font-medium text-navy-800">{suggestion.nom}</span>
+                          <span className="text-sm text-slate-500">{suggestion.codePostal}</span>
                         </div>
-                        <span className="text-xs text-[#95A5A6]">Dépt. {suggestion.departement}</span>
+                        <span className="text-xs text-slate-400">Dépt. {suggestion.departement}</span>
                       </button>
                     ))}
                   </div>
@@ -331,13 +331,13 @@ function ResultatsContent() {
 
               {/* Rayon de recherche */}
               <div className="relative md:col-span-3">
-                <label className="block text-xs font-medium text-[#6C757D] mb-1 ml-3 whitespace-nowrap">{t('home.searchRadius')}</label>
-                <div className="flex items-center bg-[#F5F7FA] rounded-xl px-3 h-11 hover:bg-[#E9ECEF] transition-colors">
-                  <svg className="w-5 h-5 text-[#FF6B00] mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <label className="block text-xs font-medium text-slate-500 mb-1 ml-3 whitespace-nowrap">{t('home.searchRadius')}</label>
+                <div className="flex items-center bg-slate-50 rounded-xl px-3 h-11 hover:bg-slate-100 transition-colors">
+                  <svg className="w-5 h-5 text-brand-700 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c1.657 0 3-1.343 3-3S13.657 2 12 2 9 3.343 9 5s1.343 3 3 3zm0 0v14m6-6H6" />
                   </svg>
                   <select
-                    className="bg-transparent border-none outline-none w-full text-[#2C3E50] font-medium cursor-pointer"
+                    className="bg-transparent border-none outline-none w-full text-navy-800 font-medium cursor-pointer"
                     value={rayonMaxInput}
                     onChange={(e) => setRayonMaxInput(e.target.value)}
                   >
@@ -353,9 +353,9 @@ function ResultatsContent() {
 
               {/* Date souhaitée */}
               <div className="relative min-w-0 md:col-span-4">
-                <label className="block text-xs font-medium text-[#6C757D] mb-1 ml-3">{t('home.searchDate')}</label>
-                <div className="flex items-center bg-[#F5F7FA] rounded-xl px-3 h-11 hover:bg-[#E9ECEF] transition-colors">
-                  <svg className="w-5 h-5 text-[#FF6B00] mr-3 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                <label className="block text-xs font-medium text-slate-500 mb-1 ml-3">{t('home.searchDate')}</label>
+                <div className="flex items-center bg-slate-50 rounded-xl px-3 h-11 hover:bg-slate-100 transition-colors">
+                  <svg className="w-5 h-5 text-brand-700 mr-3 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     onClick={(e) => {
                       const input = e.currentTarget.parentElement?.querySelector('input[type="date"]') as HTMLInputElement;
                       input?.showPicker?.();
@@ -365,7 +365,7 @@ function ResultatsContent() {
                   </svg>
                   <input
                     type="date"
-                    className="bg-transparent border-none outline-none w-full text-[#2C3E50] font-medium cursor-pointer"
+                    className="bg-transparent border-none outline-none w-full text-navy-800 font-medium cursor-pointer"
                     value={dateInput}
                     onChange={e => setDateInput(e.target.value)}
                     onClick={(e) => {
@@ -377,13 +377,13 @@ function ResultatsContent() {
 
               {/* Flexibilité */}
               <div className="relative min-w-0 md:col-span-3">
-                <label className="block text-xs font-medium text-[#6C757D] mb-1 ml-3">{t('home.flexibility')}</label>
-                <div className="flex items-center bg-[#F5F7FA] rounded-xl px-3 h-11 hover:bg-[#E9ECEF] transition-colors">
-                  <svg className="w-5 h-5 text-[#FF6B00] mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <label className="block text-xs font-medium text-slate-500 mb-1 ml-3">{t('home.flexibility')}</label>
+                <div className="flex items-center bg-slate-50 rounded-xl px-3 h-11 hover:bg-slate-100 transition-colors">
+                  <svg className="w-5 h-5 text-brand-700 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                   </svg>
                   <select
-                    className="bg-transparent border-none outline-none w-full text-[#2C3E50] font-medium cursor-pointer"
+                    className="bg-transparent border-none outline-none w-full text-navy-800 font-medium cursor-pointer"
                     value={flexibiliteInput}
                     onChange={e => setFlexibiliteInput(e.target.value)}
                   >
@@ -398,9 +398,9 @@ function ResultatsContent() {
 
               {/* Bouton Rechercher */}
               <div className="relative min-w-0 md:col-span-3">
-                <label className="block text-xs font-medium text-[#6C757D] mb-1 ml-3">&nbsp;</label>
+                <label className="block text-xs font-medium text-slate-500 mb-1 ml-3">&nbsp;</label>
                 <button
-                  className="w-full h-11 bg-[#FF6B00] hover:bg-[#E56100] text-white font-bold rounded-xl px-6 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center"
+                  className="w-full h-11 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl px-6 transition-all duration-200 shadow-lg hover:shadow-md flex items-center justify-center"
                   onClick={async (e) => {
                     e.preventDefault();
                     console.log('🔍 CLIC BOUTON RECHERCHER');
@@ -484,52 +484,52 @@ function ResultatsContent() {
             {/* Carte "Aucun artisan disponible" */}
             <Card className="p-12 text-center">
               <div className="text-6xl mb-4">🔍</div>
-              <h2 className="text-2xl font-bold text-[#2C3E50] mb-2">
+              <h2 className="text-2xl font-bold text-navy-800 mb-2">
                 Aucun artisan disponible
               </h2>
-              <p className="text-[#6C757D] mb-6">
+              <p className="text-slate-500 mb-6">
                 Aucun artisan n'est disponible pour vos dates souhaitées.
               </p>
             </Card>
 
             {/* Carte "Publier quand même" */}
-            <Card className="p-8 bg-gradient-to-br from-[#FFF3E0] to-[#FFE0B2] border-2 border-[#FF6B00]">
+            <Card className="p-8 bg-brand-50 border-2 border-brand-500">
               <div className="flex items-start gap-6">
-                <div className="flex-shrink-0 bg-[#FF6B00] rounded-full p-4">
+                <div className="flex-shrink-0 bg-brand-700 rounded-full p-4">
                   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-2xl font-bold text-[#2C3E50] mb-3">
+                  <h3 className="text-2xl font-bold text-navy-800 mb-3">
                     💡 Publiez votre demande
                   </h3>
-                  <p className="text-[#6C757D] mb-4 text-base leading-relaxed">
-                    Aucun artisan n'est libre à vos dates ? <strong className="text-[#FF6B00]">Publiez quand même votre demande</strong> !
+                  <p className="text-slate-500 mb-4 text-base leading-relaxed">
+                    Aucun artisan n'est libre à vos dates ? <strong className="text-brand-700">Publiez quand même votre demande</strong> !
                     Les artisans pourront la consulter même s'ils sont occupés : ils pourront ajuster leur planning, vous proposer une date alternative ou s'organiser pour répondre à votre besoin.
                   </p>
-                  <div className="bg-white rounded-lg p-4 mb-5 border border-[#FF6B00]">
+                  <div className="bg-white rounded-lg p-4 mb-5 border border-brand-500">
                     <div className="flex items-start gap-3 mb-2">
-                      <svg className="w-5 h-5 text-[#28A745] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-green-700 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
-                      <p className="text-[#2C3E50] text-sm">
+                      <p className="text-navy-800 text-sm">
                         <strong>Visible par tous les artisans qualifiés</strong> de votre région
                       </p>
                     </div>
                     <div className="flex items-start gap-3 mb-2">
-                      <svg className="w-5 h-5 text-[#28A745] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-green-700 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
-                      <p className="text-[#2C3E50] text-sm">
+                      <p className="text-navy-800 text-sm">
                         <strong>Les artisans pourront vous proposer d'autres dates</strong> ou ajuster leur planning
                       </p>
                     </div>
                     <div className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-[#28A745] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-green-700 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
-                      <p className="text-[#2C3E50] text-sm">
+                      <p className="text-navy-800 text-sm">
                         <strong>Recevez plusieurs devis</strong> pour comparer les offres
                       </p>
                     </div>
@@ -545,21 +545,21 @@ function ResultatsContent() {
                           setPublishDescription(defaultDescription);
                           setShowPublishModal(true);
                         }}
-                        className="bg-[#FF6B00] hover:bg-[#E56100] text-white font-bold px-8 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                        className="bg-brand-700 hover:bg-brand-800 text-white font-bold px-8 py-4 text-lg shadow-lg hover:shadow-md transition-all duration-200"
                       >
                         📢 Publier ma demande
                       </Button>
                     ) : (
                       <Button
                         onClick={() => router.push('/connexion')}
-                        className="bg-[#FF6B00] hover:bg-[#E56100] text-white font-bold px-8 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                        className="bg-brand-700 hover:bg-brand-800 text-white font-bold px-8 py-4 text-lg shadow-lg hover:shadow-md transition-all duration-200"
                       >
                         🔑 Se connecter pour publier
                       </Button>
                     )}
                     <Button
                       onClick={() => router.push('/recherche')}
-                      className="border-2 border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white font-semibold px-8 py-4 text-lg transition-all duration-200"
+                      className="border-2 border-navy-800 text-navy-800 hover:bg-navy-800 hover:text-white font-semibold px-8 py-4 text-lg transition-all duration-200"
                     >
                       🔍 Modifier ma recherche
                     </Button>
@@ -572,9 +572,9 @@ function ResultatsContent() {
           <div className="space-y-4">
             {/* Bandeau pour visiteurs non connectés - MASQUÉ */}
             {/* {!user && (
-              <div className="bg-gradient-to-r from-[#2C3E50] to-[#34495E] border-2 border-[#FF6B00] p-6 rounded-lg shadow-lg">
+              <div className="bg-navy-800 border-2 border-brand-500 p-6 rounded-lg shadow-lg">
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 bg-[#FF6B00] rounded-full p-3">
+                  <div className="flex-shrink-0 bg-brand-700 rounded-full p-3">
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
@@ -583,19 +583,19 @@ function ResultatsContent() {
                     <h3 className="text-xl font-bold text-white mb-2">
                       🔍 Recherche publique - Créez un compte pour contacter les artisans
                     </h3>
-                    <p className="text-gray-200 mb-4">
+                    <p className="text-slate-200 mb-4">
                       Vous consultez les résultats en mode visiteur. Pour demander un devis et contacter directement les artisans, créez votre compte gratuitement.
                     </p>
                     <div className="flex gap-3">
                       <Button
                         onClick={() => router.push('/inscription?type=client')}
-                        className="bg-[#FF6B00] hover:bg-[#E56100] text-white font-bold"
+                        className="bg-brand-700 hover:bg-brand-800 text-white font-bold"
                       >
                         📝 Créer un compte gratuit
                       </Button>
                       <Button
                         onClick={() => router.push('/connexion')}
-                        className="border-2 border-white bg-transparent text-white hover:bg-white hover:text-[#2C3E50] font-semibold"
+                        className="border-2 border-white bg-transparent text-white hover:bg-white hover:text-navy-800 font-semibold"
                       >
                         🔑 Se connecter
                       </Button>
@@ -606,8 +606,8 @@ function ResultatsContent() {
             )} */}
 
             {/* Bandeau info */}
-            <div className="bg-[#FFF3E0] border-l-4 border-[#FF6B00] p-4 rounded">
-              <p className="text-[#2C3E50]">
+            <div className="bg-brand-50 border-l-4 border-brand-500 p-4 rounded">
+              <p className="text-navy-800">
                 <strong>💡 Astuce :</strong> Contactez plusieurs artisans pour comparer les devis et choisir la meilleure offre.
               </p>
             </div>
@@ -615,11 +615,11 @@ function ResultatsContent() {
             {/* Liste des artisans */}
             {results.map((result, index) => (
               <div key={result.artisan.userId} onClick={() => router.push(`/artisan/${result.artisan.userId}`)} className="cursor-pointer">
-              <Card className="p-6 hover:border-[#FF6B00] transition-all">
+              <Card className="p-6 hover:border-brand-500 transition-all">
                 <div className="flex gap-6">
                     {/* Photo profil */}
                     <div className="flex-shrink-0">
-                      <div className="w-24 h-24 bg-[#E9ECEF] rounded-full flex items-center justify-center text-4xl">
+                      <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center text-4xl">
                         {result.artisan.photoProfil ? (
                           <img
                             src={result.artisan.photoProfil}
@@ -636,12 +636,12 @@ function ResultatsContent() {
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-xl font-bold text-[#2C3E50]">
+                          <h3 className="text-xl font-bold text-navy-800">
                             {result.artisan.raisonSociale || result.artisan.nom}
                           </h3>
                           {/* Badge vérifié à côté du nom */}
                           {result.artisan.verified && (
-                            <div className="bg-[#28A745] text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
+                            <div className="bg-green-700 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
                               ✓ Vérifié
                             </div>
                           )}
@@ -664,7 +664,7 @@ function ResultatsContent() {
                                 e.stopPropagation();
                                 router.push(`/demande/nouvelle?artisan=${result.artisan.userId}`);
                               }}
-                              className="bg-[#FF6B00] hover:bg-[#E56100] text-white"
+                              className="bg-brand-700 hover:bg-brand-800 text-white"
                             >
                               Demander un devis
                             </Button>
@@ -674,7 +674,7 @@ function ResultatsContent() {
                                 e.stopPropagation();
                                 router.push('/connexion');
                               }}
-                              className="bg-[#FF6B00] hover:bg-[#E56100] text-white font-bold rounded-xl px-6 py-3 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                              className="bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl px-6 py-3 transition-all duration-200 shadow-lg hover:shadow-md flex items-center justify-center gap-2"
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -684,7 +684,7 @@ function ResultatsContent() {
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-[#6C757D] mb-1">
+                      <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
                         <span>{result.artisan.metiers?.join(' • ')}</span>
                       </div>
 
@@ -695,16 +695,16 @@ function ResultatsContent() {
                             {[...Array(5)].map((_, i) => (
                               <span
                                 key={i}
-                                className={i < Math.round(result.artisan.notation) ? 'text-[#FFC107]' : 'text-[#E9ECEF]'}
+                                className={i < Math.round(result.artisan.notation) ? 'text-amber-500' : 'text-slate-200'}
                               >
                                 ★
                               </span>
                             ))}
                           </div>
-                          <span className="text-[#2C3E50] font-semibold">
+                          <span className="text-navy-800 font-semibold">
                             {result.artisan.notation.toFixed(1)}
                           </span>
-                          <span className="text-[#6C757D] text-sm">
+                          <span className="text-slate-500 text-sm">
                             ({result.artisan.nombreAvis} avis)
                           </span>
                         </div>
@@ -712,7 +712,7 @@ function ResultatsContent() {
 
                       {/* Description */}
                       {result.artisan.presentation && (
-                        <p className="text-[#6C757D] mb-3 line-clamp-2">
+                        <p className="text-slate-500 mb-3 line-clamp-2">
                           {result.artisan.presentation}
                         </p>
                       )}
@@ -723,16 +723,16 @@ function ResultatsContent() {
             ))}
 
             {/* Section "Pas trouvé l'artisan idéal ?" - MASQUÉE */}
-            {/* <div className="mt-12 bg-gradient-to-r from-[#2C3E50] to-[#1A3A5C] rounded-2xl shadow-2xl p-8 text-center">
+            {/* <div className="mt-12 bg-navy-800 rounded-2xl shadow-lg p-8 text-center">
               <h2 className="text-3xl font-bold text-white mb-3">
                 Vous n'avez pas trouvé l'artisan idéal ?
               </h2>
-              <p className="text-[#95A5A6] text-lg mb-6">
+              <p className="text-slate-400 text-lg mb-6">
                 Modifiez vos critères ou activez la flexibilité des dates pour plus de résultats
               </p>
               <Button
                 onClick={() => router.push('/recherche')}
-                className="bg-[#FF6B00] hover:bg-[#E56100] text-white font-bold px-8 py-3 rounded-lg text-lg shadow-lg hover:shadow-xl transition-all"
+                className="bg-brand-700 hover:bg-brand-800 text-white font-bold px-8 py-3 rounded-lg text-lg shadow-lg hover:shadow-md transition-all"
               >
                 Nouvelle recherche
               </Button>
@@ -745,8 +745,8 @@ function ResultatsContent() {
       {showPublishModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-[#2C3E50]">📢 Publier ma demande</h2>
+            <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-navy-800">📢 Publier ma demande</h2>
               <button
                 onClick={() => {
                   setShowPublishModal(false);
@@ -754,7 +754,7 @@ function ResultatsContent() {
                   setPublishPhotos([]);
                   setPublishBudget('');
                 }}
-                className="text-[#6C757D] hover:text-[#2C3E50] text-2xl"
+                className="text-slate-500 hover:text-navy-800 text-2xl"
               >
                 ✕
               </button>
@@ -763,7 +763,7 @@ function ResultatsContent() {
             <div className="p-6 space-y-6">
               {/* Description */}
               <div>
-                <label className="block text-[#2C3E50] font-semibold mb-2">
+                <label className="block text-navy-800 font-semibold mb-2">
                   Description de votre besoin *
                 </label>
                 <textarea
@@ -773,19 +773,19 @@ function ResultatsContent() {
                   required
                   rows={6}
                   maxLength={2000}
-                  className="w-full px-4 py-3 border border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:ring-2 focus:ring-[#FF6B00] focus:ring-opacity-20 outline-none resize-none"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-brand-500 focus:ring-2 focus:ring-brand-500 focus:ring-opacity-20 outline-none resize-none"
                 />
-                <p className="text-sm text-[#6C757D] mt-1">
+                <p className="text-sm text-slate-500 mt-1">
                   {publishDescription.length}/2000 caractères
                 </p>
               </div>
 
               {/* Photos */}
               <div>
-                <label className="block text-[#2C3E50] font-semibold mb-2">
+                <label className="block text-navy-800 font-semibold mb-2">
                   Photos du chantier (optionnel)
                 </label>
-                <div className="border-2 border-dashed border-[#E9ECEF] rounded-lg p-6 text-center hover:border-[#FF6B00] transition-colors">
+                <div className="border-2 border-dashed border-slate-200 rounded-lg p-6 text-center hover:border-brand-500 transition-colors">
                   <input
                     type="file"
                     accept="image/*"
@@ -817,10 +817,10 @@ function ResultatsContent() {
                   />
                   <label htmlFor="modal-photo-upload" className="cursor-pointer">
                     <div className="text-5xl mb-3">📷</div>
-                    <p className="text-[#2C3E50] font-semibold mb-1">
+                    <p className="text-navy-800 font-semibold mb-1">
                       Cliquez pour ajouter des photos
                     </p>
-                    <p className="text-sm text-[#6C757D]">
+                    <p className="text-sm text-slate-500">
                       Maximum 5 photos • 5MB par photo • JPG, PNG
                     </p>
                   </label>
@@ -834,12 +834,12 @@ function ResultatsContent() {
                         <img
                           src={URL.createObjectURL(photo)}
                           alt={`Photo ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg border border-[#E9ECEF]"
+                          className="w-full h-24 object-cover rounded-lg border border-slate-200"
                         />
                         <button
                           type="button"
                           onClick={() => setPublishPhotos(publishPhotos.filter((_, i) => i !== index))}
-                          className="absolute top-1 right-1 bg-[#DC3545] text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute top-1 right-1 bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           ✕
                         </button>
@@ -851,7 +851,7 @@ function ResultatsContent() {
 
               {/* Budget */}
               <div>
-                <label className="block text-[#2C3E50] font-semibold mb-2">
+                <label className="block text-navy-800 font-semibold mb-2">
                   Budget estimé (optionnel)
                 </label>
                 <div className="flex items-center gap-2">
@@ -861,11 +861,11 @@ function ResultatsContent() {
                     onChange={(e) => setPublishBudget(e.target.value)}
                     placeholder="1000"
                     min="0"
-                    className="flex-1 px-4 py-3 border border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:ring-2 focus:ring-[#FF6B00] focus:ring-opacity-20 outline-none"
+                    className="flex-1 px-4 py-3 border border-slate-200 rounded-lg focus:border-brand-500 focus:ring-2 focus:ring-brand-500 focus:ring-opacity-20 outline-none"
                   />
-                  <span className="text-[#6C757D] font-semibold">€</span>
+                  <span className="text-slate-500 font-semibold">€</span>
                 </div>
-                <p className="text-sm text-[#6C757D] mt-2">
+                <p className="text-sm text-slate-500 mt-2">
                   Indiquer un budget aide les artisans à adapter leurs devis
                 </p>
               </div>
@@ -880,7 +880,7 @@ function ResultatsContent() {
                     setPublishPhotos([]);
                     setPublishBudget('');
                   }}
-                  className="flex-1 px-6 py-3 border-2 border-[#6C757D] text-[#6C757D] hover:bg-[#6C757D] hover:text-white rounded-lg font-semibold transition-colors"
+                  className="flex-1 px-6 py-3 border-2 border-slate-500 text-slate-500 hover:bg-slate-500 hover:text-white rounded-lg font-semibold transition-colors"
                   disabled={isPublishing}
                 >
                   Annuler
@@ -977,7 +977,7 @@ function ResultatsContent() {
                       setIsPublishing(false);
                     }
                   }}
-                  className="flex-1 px-6 py-3 bg-[#FF6B00] hover:bg-[#E56100] text-white rounded-lg font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isPublishing}
                 >
                   {isPublishing ? '⏳ Publication...' : '📢 Publier ma demande'}
@@ -994,8 +994,8 @@ function ResultatsContent() {
 export default function ResultatsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#FF6B00] border-t-transparent"></div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-brand-500 border-t-transparent"></div>
       </div>
     }>
       <ResultatsContent />

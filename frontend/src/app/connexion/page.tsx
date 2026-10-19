@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { authService } from '@/lib/auth-service';
 import { Button, Input, Card, Logo } from '@/components/ui';
+import { BadgeCheck, Lock, Scale } from 'lucide-react';
 import { getSearchContext } from '@/lib/utils/search-context';
 
 export default function ConnexionPage() {
@@ -120,13 +121,40 @@ export default function ConnexionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#2C3E50] to-[#1A3A5C] flex items-center justify-center p-4">
-      <Card className="max-w-md w-full">
+    <div className="grid min-h-screen lg:grid-cols-2">
+      {/* Panneau de réassurance (desktop) */}
+      <aside className="relative hidden flex-col justify-between overflow-hidden bg-navy-900 p-12 text-white lg:flex">
+        <div className="premium-grid-fade absolute inset-0 opacity-40" aria-hidden="true" />
+        <Link href="/" className="relative text-xl font-bold">
+          Artisan<span className="text-brand-400">Dispo</span>
+        </Link>
+        <div className="relative max-w-md">
+          <h2 className="text-3xl font-bold leading-tight">Vos travaux, en toute confiance.</h2>
+          <ul className="mt-8 space-y-5 text-navy-100">
+            <li className="flex gap-3">
+              <Lock className="mt-0.5 h-5 w-5 flex-shrink-0 text-brand-400" aria-hidden="true" />
+              <span>Paiement bloqué en séquestre jusqu&apos;à la validation des travaux.</span>
+            </li>
+            <li className="flex gap-3">
+              <BadgeCheck className="mt-0.5 h-5 w-5 flex-shrink-0 text-brand-400" aria-hidden="true" />
+              <span>Artisans vérifiés : SIRET, KBIS, pièce d&apos;identité et assurances.</span>
+            </li>
+            <li className="flex gap-3">
+              <Scale className="mt-0.5 h-5 w-5 flex-shrink-0 text-brand-400" aria-hidden="true" />
+              <span>Médiation ArtisanDispo en cas de litige.</span>
+            </li>
+          </ul>
+        </div>
+        <p className="relative text-sm text-navy-300">© {new Date().getFullYear()} ArtisanDispo</p>
+      </aside>
+
+      <main className="flex items-center justify-center bg-slate-50 px-4 py-12 sm:px-6">
+      <Card className="w-full max-w-md" padding="lg">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <Logo size="md" href="/" />
           </div>
-          <p className="text-gray-600">{t('auth.loginTitle')}</p>
+          <p className="text-slate-600">{t('auth.loginTitle')}</p>
         </div>
 
         {error && (
@@ -162,11 +190,11 @@ export default function ConnexionPage() {
           />
 
           <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center text-gray-600">
-              <input type="checkbox" className="mr-2" />
+            <label className="flex items-center text-slate-600">
+              <input type="checkbox" className="mr-2 h-4 w-4 rounded border-slate-300 accent-brand-700" />
               {t('auth.rememberMe')}
             </label>
-            <Link href="/mot-de-passe-oublie" className="text-[#FF6B00] hover:underline">
+            <Link href="/mot-de-passe-oublie" className="text-brand-700 hover:underline">
               {t('auth.forgotPassword')}
             </Link>
           </div>
@@ -183,25 +211,25 @@ export default function ConnexionPage() {
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-600">
+          <p className="text-slate-600">
             {t('auth.noAccount')}{' '}
-            <Link href="/inscription" className="text-[#FF6B00] hover:underline font-medium">
+            <Link href="/inscription" className="text-brand-700 hover:underline font-medium">
               {t('auth.signUp')}
             </Link>
           </p>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <p className="text-center text-sm text-gray-500 mb-4">{t('auth.orContinueWith')}</p>
+        <div className="mt-8 pt-6 border-t border-slate-200">
+          <p className="text-center text-sm text-slate-500 mb-4">{t('auth.orContinueWith')}</p>
           <div className="flex justify-center">
             <button
               type="button"
               onClick={handleGoogleSignIn}
               disabled={isGoogleLoading || isLoading}
-              className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex min-h-11 w-full items-center justify-center rounded-lg border border-slate-300 bg-white px-4 text-[15px] font-medium text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isGoogleLoading ? (
-                <div className="w-5 h-5 mr-2 border-2 border-gray-300 border-t-[#FF6B00] rounded-full animate-spin" />
+                <div className="w-5 h-5 mr-2 border-2 border-slate-300 border-t-brand-500 rounded-full animate-spin" />
               ) : (
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path
@@ -227,6 +255,7 @@ export default function ConnexionPage() {
           </div>
         </div>
       </Card>
+      </main>
     </div>
   );
 }

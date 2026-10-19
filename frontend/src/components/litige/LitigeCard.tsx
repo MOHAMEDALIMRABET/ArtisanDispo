@@ -29,7 +29,7 @@ export default function LitigeCard({ litige, userRole }: LitigeCardProps) {
 
   return (
     <Link href={`/litiges/${litige.id}`}>
-      <div className="bg-white border border-[#E9ECEF] hover:border-[#FF6B00] rounded-lg p-6 shadow-sm hover:shadow-md transition-all cursor-pointer">
+      <div className="bg-white border border-slate-200 hover:border-brand-500 rounded-lg p-6 shadow-sm hover:shadow-md transition-all cursor-pointer">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
@@ -37,14 +37,14 @@ export default function LitigeCard({ litige, userRole }: LitigeCardProps) {
               <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statutColor}`}>
                 {statutLabel}
               </span>
-              <span className="px-3 py-1 bg-[#F8F9FA] text-[#2C3E50] rounded-full text-xs font-semibold">
+              <span className="px-3 py-1 bg-slate-50 text-navy-800 rounded-full text-xs font-semibold">
                 {typeLabel}
               </span>
             </div>
-            <h3 className="text-lg font-bold text-[#2C3E50] mb-1">
+            <h3 className="text-lg font-bold text-navy-800 mb-1">
               {litige.motif}
             </h3>
-            <p className="text-sm text-[#6C757D]">
+            <p className="text-sm text-slate-500">
               Litige #{litige.id.slice(0, 8)} • Ouvert {tempsEcoule}
             </p>
           </div>
@@ -52,11 +52,11 @@ export default function LitigeCard({ litige, userRole }: LitigeCardProps) {
           {/* Icône rôle */}
           <div className="ml-4">
             {estDeclarantClient ? (
-              <div className="bg-[#E7F3FF] text-[#004085] px-3 py-1 rounded-full text-xs font-semibold">
+              <div className="bg-blue-50 text-blue-900 px-3 py-1 rounded-full text-xs font-semibold">
                 👤 Client
               </div>
             ) : (
-              <div className="bg-[#FFF3CD] text-[#856404] px-3 py-1 rounded-full text-xs font-semibold">
+              <div className="bg-amber-50 text-amber-800 px-3 py-1 rounded-full text-xs font-semibold">
                 🔧 Artisan
               </div>
             )}
@@ -64,15 +64,15 @@ export default function LitigeCard({ litige, userRole }: LitigeCardProps) {
         </div>
 
         {/* Description */}
-        <p className="text-sm text-[#6C757D] mb-4 line-clamp-2">
+        <p className="text-sm text-slate-500 mb-4 line-clamp-2">
           {litige.description}
         </p>
 
         {/* Info supplémentaires */}
-        <div className="flex items-center gap-4 text-xs text-[#6C757D]">
+        <div className="flex items-center gap-4 text-xs text-slate-500">
           {litige.montantConteste && (
             <div className="flex items-center gap-1">
-              <span className="font-semibold text-[#DC3545]">
+              <span className="font-semibold text-red-700">
                 Montant contesté : {litige.montantConteste.toFixed(2)} €
               </span>
             </div>
@@ -80,7 +80,7 @@ export default function LitigeCard({ litige, userRole }: LitigeCardProps) {
 
           {litige.adminAssigne && (
             <div className="flex items-center gap-1">
-              <span className="text-[#28A745]">✓ Médiateur assigné</span>
+              <span className="text-green-700">✓ Médiateur assigné</span>
             </div>
           )}
 
@@ -93,11 +93,11 @@ export default function LitigeCard({ litige, userRole }: LitigeCardProps) {
 
         {/* Résolution si litige résolu */}
         {(litige.statut === 'resolu_accord' || litige.statut === 'resolu_admin' || litige.statut === 'resolu') && litige.resolution && (
-          <div className="mt-4 p-3 bg-[#D4EDDA] border-l-4 border-[#28A745] rounded">
-            <p className="text-sm text-[#155724] font-semibold mb-1">
+          <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-600 rounded">
+            <p className="text-sm text-green-800 font-semibold mb-1">
               ✅ Résolution
             </p>
-            <p className="text-sm text-[#155724]">
+            <p className="text-sm text-green-800">
               {litige.resolution}
             </p>
           </div>
@@ -105,10 +105,10 @@ export default function LitigeCard({ litige, userRole }: LitigeCardProps) {
 
         {/* Footer */}
         <div className="mt-4 pt-4 border-t flex items-center justify-between">
-          <div className="text-xs text-[#6C757D]">
+          <div className="text-xs text-slate-500">
             Devis #{litige.devisId.slice(0, 8)}
           </div>
-          <div className="text-sm text-[#FF6B00] font-semibold hover:underline">
+          <div className="text-sm text-brand-700 font-semibold hover:underline">
             Voir les détails →
           </div>
         </div>

@@ -189,7 +189,7 @@ export default function AvisArtisanPage() {
         {[1, 2, 3, 4, 5].map((star) => (
           <svg
             key={star}
-            className={`w-5 h-5 ${star <= note ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+            className={`w-5 h-5 ${star <= note ? 'text-yellow-400 fill-current' : 'text-slate-300'}`}
             viewBox="0 0 24 24"
           >
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -201,48 +201,48 @@ export default function AvisArtisanPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
-          <p className="mt-4 text-gray-600">{t('artisanReviews.loading')}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
+          <p className="mt-4 text-slate-600">{t('artisanReviews.loading')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-[#2C3E50] text-white py-8">
+      <div className="bg-navy-800 text-white py-8">
         <div className="container mx-auto px-4 max-w-6xl">
           <Link
             href="/artisan/dashboard"
-            className="inline-flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4 transition-colors"
+            className="inline-flex items-center gap-2 text-white hover:text-brand-300 mb-4 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             {t('artisanReviews.backToDashboard')}
           </Link>
-          <h1 className="text-3xl font-bold">⭐ {t('artisanReviews.pageTitle')}</h1>
-          <p className="text-gray-300 mt-2">{t('artisanReviews.pageDescription')}</p>
+          <h1 className="text-3xl font-bold">{t('artisanReviews.pageTitle')}</h1>
+          <p className="text-slate-300 mt-2">{t('artisanReviews.pageDescription')}</p>
         </div>
       </div>
       <div className="container mx-auto px-4 max-w-6xl py-8">
 
         {/* Statistiques avec répartition */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
           <div className="grid md:grid-cols-2 gap-8">
             {/* Note globale */}
             <div>
-              <h2 className="text-lg font-semibold text-[#2C3E50] mb-4">{t('artisanReviews.stats.globalRating')}</h2>
+              <h2 className="text-lg font-semibold text-navy-800 mb-4">{t('artisanReviews.stats.globalRating')}</h2>
               <div className="flex items-center gap-6">
-                <div className="text-6xl font-bold text-[#FF6B00]">
+                <div className="text-6xl font-bold text-brand-700">
                   {stats.moyenne.toFixed(1)}
                 </div>
                 <div>
                   {renderStars(Math.round(stats.moyenne))}
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-slate-600 mt-1">
                     {t('artisanReviews.stats.totalReviews').replace('{total}', String(stats.total))}
                   </p>
                 </div>
@@ -251,18 +251,18 @@ export default function AvisArtisanPage() {
 
             {/* Répartition */}
             <div>
-              <h2 className="text-lg font-semibold text-[#2C3E50] mb-4">{t('artisanReviews.stats.distribution')}</h2>
+              <h2 className="text-lg font-semibold text-navy-800 mb-4">{t('artisanReviews.stats.distribution')}</h2>
               <div className="space-y-2">
                 {calculerRepartition().map(({ note, count, percentage }) => (
                   <div key={note} className="flex items-center gap-3">
-                    <span className="text-sm text-gray-600 w-8">{note}★</span>
-                    <div className="flex-1 bg-gray-200 rounded-full h-2.5">
+                    <span className="text-sm text-slate-600 w-8">{note}★</span>
+                    <div className="flex-1 bg-slate-200 rounded-full h-2.5">
                       <div
-                        className="bg-[#FF6B00] h-2.5 rounded-full transition-all"
+                        className="bg-brand-700 h-2.5 rounded-full transition-all"
                         style={{ width: `${percentage}%` }}
                       ></div>
                     </div>
-                    <span className="text-sm text-gray-600 w-12 text-right">
+                    <span className="text-sm text-slate-600 w-12 text-right">
                       {count}
                     </span>
                   </div>
@@ -273,17 +273,17 @@ export default function AvisArtisanPage() {
         </div>
 
         {/* Filtres et recherche */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
           <div className="grid md:grid-cols-3 gap-4">
             {/* Filtre par note */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 {t('artisanReviews.filters.filterByRating')}
               </label>
               <select
                 value={filtreNote || ''}
                 onChange={(e) => setFiltreNote(e.target.value ? parseInt(e.target.value) : null)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
                 <option value="">{t('artisanReviews.filters.allRatings')}</option>
                 <option value="5">{t('artisanReviews.filters.fiveStars')}</option>
@@ -296,13 +296,13 @@ export default function AvisArtisanPage() {
 
             {/* Tri */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 {t('artisanReviews.filters.sortBy')}
               </label>
               <select
                 value={tri}
                 onChange={(e) => setTri(e.target.value as any)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
                 <option value="recent">{t('artisanReviews.filters.mostRecent')}</option>
                 <option value="ancien">{t('artisanReviews.filters.oldest')}</option>
@@ -313,7 +313,7 @@ export default function AvisArtisanPage() {
 
             {/* Recherche */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 {t('artisanReviews.filters.search')}
               </label>
               <div className="relative">
@@ -322,10 +322,10 @@ export default function AvisArtisanPage() {
                   value={recherche}
                   onChange={(e) => setRecherche(e.target.value)}
                   placeholder={t('artisanReviews.filters.searchPlaceholder')}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
+                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
                 <svg
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -338,8 +338,8 @@ export default function AvisArtisanPage() {
 
           {/* Compteur résultats */}
           {(filtreNote !== null || recherche.trim()) && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-sm text-gray-600">
+            <div className="mt-4 pt-4 border-t border-slate-200">
+              <p className="text-sm text-slate-600">
                 {t('artisanReviews.filters.resultsFound')
                   .replace('{count}', String(avisFiltres.length))
                   .replace('{plural}', avisFiltres.length !== 1 ? t('artisanReviews.filters.resultPlural') : t('artisanReviews.filters.resultSingular'))}
@@ -351,14 +351,14 @@ export default function AvisArtisanPage() {
         {/* Liste des avis */}
         <div className="space-y-6">
           {avisFiltres.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-md p-12 text-center">
-              <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
+              <svg className="w-16 h-16 text-slate-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
               </svg>
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              <h3 className="text-xl font-semibold text-slate-700 mb-2">
                 {avis.length === 0 ? t('artisanReviews.empty.noReviews') : t('artisanReviews.empty.noResults')}
               </h3>
-              <p className="text-gray-500">
+              <p className="text-slate-500">
                 {avis.length === 0
                   ? t('artisanReviews.empty.noReviewsMessage')
                   : t('artisanReviews.empty.noResultsMessage')}
@@ -366,11 +366,11 @@ export default function AvisArtisanPage() {
             </div>
           ) : (
             avisFiltres.map((avisItem) => (
-              <div key={avisItem.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6">
+              <div key={avisItem.id} className="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-lg transition-shadow p-6">
                 {/* En-tête de l'avis */}
                 <div className="flex items-start gap-4 mb-4">
                   {/* Avatar */}
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF6B00] to-[#E56100] flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-brand-600 flex items-center justify-center flex-shrink-0">
                     <span className="text-white font-semibold text-lg">
                       {(clientsNoms[avisItem.clientId] || 'CL').substring(0, 2).toUpperCase()}
                     </span>
@@ -378,7 +378,7 @@ export default function AvisArtisanPage() {
 
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-[#2C3E50]">
+                      <span className="font-semibold text-navy-800">
                         {clientsNoms[avisItem.clientId] || t('artisanReviews.review.client')}
                       </span>
                       <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-medium">
@@ -390,7 +390,7 @@ export default function AvisArtisanPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       {renderStars(avisItem.note)}
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-slate-500">
                         • {formatDate(avisItem.dateCreation)}
                       </span>
                     </div>
@@ -433,8 +433,8 @@ export default function AvisArtisanPage() {
 
                 {/* Commentaire */}
                 {avisItem.commentaire && (
-                  <div className="bg-gray-50 border-l-4 border-gray-300 p-4 rounded-r-lg mb-4">
-                    <p className="text-gray-700 leading-relaxed">
+                  <div className="bg-slate-50 border-l-4 border-slate-300 p-4 rounded-r-lg mb-4">
+                    <p className="text-slate-700 leading-relaxed">
                       "{avisItem.commentaire}"
                     </p>
                   </div>
@@ -448,7 +448,7 @@ export default function AvisArtisanPage() {
                         key={idx}
                         src={photo}
                         alt={t('artisanReviews.review.photo').replace('{number}', String(idx + 1))}
-                        className="h-28 w-28 object-cover rounded-lg border-2 border-gray-200 hover:border-[#FF6B00] transition-colors cursor-pointer flex-shrink-0"
+                        className="h-28 w-28 object-cover rounded-lg border-2 border-slate-200 hover:border-brand-500 transition-colors cursor-pointer flex-shrink-0"
                       />
                     ))}
                   </div>
@@ -456,17 +456,17 @@ export default function AvisArtisanPage() {
 
                 {/* Réponse artisan ou formulaire */}
                 {avisItem.reponseArtisan ? (
-                  <div className="bg-orange-50 border-l-4 border-[#FF6B00] p-4 rounded-r-lg">
+                  <div className="bg-orange-50 border-l-4 border-brand-500 p-4 rounded-r-lg">
                     <div className="flex items-center gap-2 mb-2">
-                      <svg className="w-5 h-5 text-[#FF6B00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                       </svg>
-                      <span className="font-semibold text-[#2C3E50]">{t('artisanReviews.review.yourResponse')}</span>
-                      <span className="text-sm text-gray-500">
+                      <span className="font-semibold text-navy-800">{t('artisanReviews.review.yourResponse')}</span>
+                      <span className="text-sm text-slate-500">
                         • {formatDate(avisItem.reponseArtisan.date)}
                       </span>
                     </div>
-                    <p className="text-gray-700 leading-relaxed">
+                    <p className="text-slate-700 leading-relaxed">
                       {avisItem.reponseArtisan.contenu}
                     </p>
                   </div>
@@ -474,13 +474,13 @@ export default function AvisArtisanPage() {
                   <>
                     {reponseEnCours === avisItem.id ? (
                       <div className="border-t pt-4 mt-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
                           {t('artisanReviews.review.responseLabel')}
                         </label>
                         <textarea
                           value={reponseTexte}
                           onChange={(e) => setReponseTexte(e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                           rows={4}
                           placeholder={t('artisanReviews.review.responsePlaceholder')}
                         />
@@ -488,7 +488,7 @@ export default function AvisArtisanPage() {
                           <button
                             onClick={() => handleRepondre(avisItem.id)}
                             disabled={submitting || reponseTexte.trim().length < 10}
-                            className="bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {submitting ? t('artisanReviews.review.publishing') : t('artisanReviews.review.publishResponse')}
                           </button>
@@ -497,7 +497,7 @@ export default function AvisArtisanPage() {
                               setReponseEnCours(null);
                               setReponseTexte('');
                             }}
-                            className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300"
+                            className="bg-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-300"
                           >
                             {t('artisanReviews.review.cancel')}
                           </button>
@@ -506,7 +506,7 @@ export default function AvisArtisanPage() {
                     ) : (
                       <button
                         onClick={() => setReponseEnCours(avisItem.id)}
-                        className="mt-4 text-[#FF6B00] font-medium hover:underline flex items-center gap-2"
+                        className="mt-4 text-brand-700 font-medium hover:underline flex items-center gap-2"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />

@@ -63,7 +63,7 @@ export default function LanguageSelector() {
       {/* Bouton sélecteur de langue — cercle identique au bouton connexion */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-full overflow-hidden border border-transparent hover:border-[#FF6B00] shadow-md transition-all duration-200 flex items-center justify-center p-0"
+        className="h-8 w-8 rounded-full overflow-hidden ring-1 ring-slate-200 hover:ring-2 hover:ring-brand-500 transition-shadow flex items-center justify-center p-0"
         aria-label="Changer la langue"
         title={language === 'fr' ? 'Français' : 'English'}
       >
@@ -74,18 +74,18 @@ export default function LanguageSelector() {
 
       {/* Dropdown menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden">
+        <div className="animate-slideDown absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 z-50 overflow-hidden p-1.5">
           {/* Option Français */}
           <button
             onClick={() => handleLanguageChange('fr')}
-            className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${
-              language === 'fr' ? 'bg-orange-50 border-l-4 border-[#FF6B00]' : ''
+            className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-slate-100 transition-colors ${
+              language === 'fr' ? 'bg-slate-100' : ''
             }`}
           >
             <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 shadow-sm"><FranceFlag /></div>
-            <span className="font-medium text-gray-800">Français</span>
+            <span className="text-sm font-medium text-slate-800">Français</span>
             {language === 'fr' && (
-              <svg className="w-5 h-5 text-[#FF6B00] ml-auto" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-5 h-5 text-brand-700 ml-auto" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
             )}
@@ -94,22 +94,22 @@ export default function LanguageSelector() {
           {/* Option English */}
           <button
             onClick={() => handleLanguageChange('en')}
-            className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${
-              language === 'en' ? 'bg-orange-50 border-l-4 border-[#FF6B00]' : ''
+            className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-slate-100 transition-colors ${
+              language === 'en' ? 'bg-slate-100' : ''
             }`}
           >
             <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 shadow-sm"><UKFlag /></div>
-            <span className="font-medium text-gray-800">English</span>
+            <span className="text-sm font-medium text-slate-800">English</span>
             {language === 'en' && (
-              <svg className="w-5 h-5 text-[#FF6B00] ml-auto" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-5 h-5 text-brand-700 ml-auto" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
             )}
           </button>
 
           {/* Note en bas */}
-          <div className="px-4 py-2 bg-gray-50 border-t border-gray-200">
-            <p className="text-xs text-gray-500 text-center">
+          <div className="mt-1 px-3 py-2 border-t border-slate-100">
+            <p className="text-xs text-slate-500 text-center">
               {language === 'fr' ? 'Choisissez votre langue' : 'Select your language'}
             </p>
           </div>

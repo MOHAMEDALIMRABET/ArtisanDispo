@@ -156,16 +156,16 @@ export function PaymentForm({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="bg-[#2C3E50] text-white p-6 rounded-t-lg">
+        <div className="bg-navy-800 text-white p-6 rounded-t-lg">
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
             </svg>
             Paiement sécurisé
           </h2>
-          <p className="text-sm text-gray-300 mt-2">
+          <p className="text-sm text-slate-300 mt-2">
             Devis {numeroDevis}
           </p>
         </div>
@@ -213,10 +213,10 @@ export function PaymentForm({
           </div>
 
           {/* Montant */}
-          <div className="bg-[#FF6B00] bg-opacity-10 border-2 border-[#FF6B00] rounded-lg p-4">
+          <div className="bg-brand-700 bg-opacity-10 border-2 border-brand-500 rounded-lg p-4">
             <div className="flex justify-between items-center">
-              <span className="text-gray-700 font-semibold">Montant à payer :</span>
-              <span className="text-3xl font-bold text-[#FF6B00]">
+              <span className="text-slate-700 font-semibold">Montant à payer :</span>
+              <span className="text-3xl font-bold text-brand-700">
                 {montantTTC.toFixed(2)} €
               </span>
             </div>
@@ -226,7 +226,7 @@ export function PaymentForm({
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Numéro de carte */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Numéro de carte <span className="text-red-600">*</span>
               </label>
               <div className="relative">
@@ -235,13 +235,13 @@ export function PaymentForm({
                   value={cardNumber}
                   onChange={handleCardNumberChange}
                   placeholder="1234 5678 9012 3456"
-                  className={`w-full border-2 rounded-lg px-4 py-3 pr-12 focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent ${
-                    errors.cardNumber ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full border-2 rounded-lg px-4 py-3 pr-12 focus:ring-2 focus:ring-brand-500 focus:border-transparent ${
+                    errors.cardNumber ? 'border-red-500' : 'border-slate-300'
                   }`}
                   disabled={processing}
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <svg className="w-8 h-6 text-gray-400" fill="currentColor" viewBox="0 0 48 32">
+                  <svg className="w-8 h-6 text-slate-400" fill="currentColor" viewBox="0 0 48 32">
                     <rect width="48" height="32" rx="4" fill="#1A1F71"/>
                     <circle cx="18" cy="16" r="8" fill="#EB001B"/>
                     <circle cx="30" cy="16" r="8" fill="#F79E1B"/>
@@ -255,7 +255,7 @@ export function PaymentForm({
 
             {/* Titulaire */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Nom du titulaire <span className="text-red-600">*</span>
               </label>
               <input
@@ -263,8 +263,8 @@ export function PaymentForm({
                 value={cardName}
                 onChange={(e) => setCardName(e.target.value.toUpperCase())}
                 placeholder="JEAN DUPONT"
-                className={`w-full border-2 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent uppercase ${
-                  errors.cardName ? 'border-red-500' : 'border-gray-300'
+                className={`w-full border-2 rounded-lg px-4 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent uppercase ${
+                  errors.cardName ? 'border-red-500' : 'border-slate-300'
                 }`}
                 disabled={processing}
               />
@@ -276,7 +276,7 @@ export function PaymentForm({
             {/* Date + CVV */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Date d'expiration <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -284,8 +284,8 @@ export function PaymentForm({
                   value={expiryDate}
                   onChange={handleExpiryChange}
                   placeholder="MM/YY"
-                  className={`w-full border-2 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent ${
-                    errors.expiryDate ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full border-2 rounded-lg px-4 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent ${
+                    errors.expiryDate ? 'border-red-500' : 'border-slate-300'
                   }`}
                   disabled={processing}
                 />
@@ -295,7 +295,7 @@ export function PaymentForm({
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   CVV <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -303,8 +303,8 @@ export function PaymentForm({
                   value={cvv}
                   onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').substring(0, 4))}
                   placeholder="123"
-                  className={`w-full border-2 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent ${
-                    errors.cvv ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full border-2 rounded-lg px-4 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent ${
+                    errors.cvv ? 'border-red-500' : 'border-slate-300'
                   }`}
                   disabled={processing}
                 />
@@ -334,18 +334,18 @@ export function PaymentForm({
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 p-6 rounded-b-lg flex flex-wrap gap-3 justify-end border-t">
+        <div className="bg-slate-50 p-6 rounded-b-lg flex flex-wrap gap-3 justify-end border-t">
           <button
             onClick={onCancel}
             disabled={processing}
-            className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition-colors disabled:opacity-50"
+            className="px-6 py-3 bg-slate-300 text-slate-700 rounded-lg font-semibold hover:bg-slate-400 transition-colors disabled:opacity-50"
           >
             ❌ Annuler
           </button>
           <button
             onClick={handleSubmit}
             disabled={processing}
-            className="px-8 py-3 bg-[#FF6B00] text-white rounded-lg font-semibold hover:bg-[#E56100] disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            className="px-8 py-3 bg-brand-700 text-white rounded-lg font-semibold hover:bg-brand-800 disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
           >
             {processing ? (
               <>

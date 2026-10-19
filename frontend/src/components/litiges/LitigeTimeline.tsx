@@ -35,7 +35,7 @@ export default function LitigeTimeline({ historique, currentUserId }: LitigeTime
   const getActionIcon = (type: string) => {
     switch (type) {
       case 'creation':
-        return <Plus className="w-5 h-5 text-[#FF6B00]" />;
+        return <Plus className="w-5 h-5 text-brand-700" />;
       case 'commentaire':
         return <MessageSquare className="w-5 h-5 text-blue-500" />;
       case 'assignation':
@@ -51,7 +51,7 @@ export default function LitigeTimeline({ historique, currentUserId }: LitigeTime
       case 'resolution':
         return <CheckCircle className="w-5 h-5 text-green-700" />;
       default:
-        return <AlertTriangle className="w-5 h-5 text-gray-500" />;
+        return <AlertTriangle className="w-5 h-5 text-slate-500" />;
     }
   };
 
@@ -87,24 +87,24 @@ export default function LitigeTimeline({ historique, currentUserId }: LitigeTime
       case 'resolution':
         return 'bg-green-100 border-green-400';
       default:
-        return 'bg-gray-50 border-gray-200';
+        return 'bg-slate-50 border-slate-200';
     }
   };
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-[#2C3E50]">Historique du litige</h3>
+      <h3 className="text-lg font-semibold text-navy-800">Historique du litige</h3>
 
       <div className="relative">
         {/* Ligne verticale */}
-        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-300" />
+        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-slate-300" />
 
         {/* Actions */}
         <div className="space-y-6">
           {sortedHistorique.map((action, index) => (
             <div key={index} className="relative flex gap-4">
               {/* Icône */}
-              <div className="relative z-10 flex-shrink-0 w-12 h-12 bg-white border-2 border-gray-300 rounded-full flex items-center justify-center">
+              <div className="relative z-10 flex-shrink-0 w-12 h-12 bg-white border-2 border-slate-300 rounded-full flex items-center justify-center">
                 {getActionIcon(action.type)}
               </div>
 
@@ -114,45 +114,45 @@ export default function LitigeTimeline({ historique, currentUserId }: LitigeTime
                   <div className="flex-1">
                     {/* Auteur et rôle */}
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="font-medium text-[#2C3E50]">
+                      <span className="font-medium text-navy-800">
                         {getRoleLabel(action.acteurRole)}
                       </span>
                       {action.acteur === currentUserId && (
-                        <span className="px-2 py-0.5 text-xs bg-[#FF6B00] text-white rounded">
+                        <span className="px-2 py-0.5 text-xs bg-brand-700 text-white rounded">
                           Vous
                         </span>
                       )}
                     </div>
 
                     {/* Description */}
-                    <p className="text-gray-700 mb-2">{action.description}</p>
+                    <p className="text-slate-700 mb-2">{action.description}</p>
 
                     {/* Détails supplémentaires */}
                     {action.metadata && Object.keys(action.metadata).length > 0 && (
-                      <div className="mt-2 p-3 bg-white/50 rounded border border-gray-200">
-                        <p className="text-sm text-gray-600 font-medium mb-1">Détails :</p>
+                      <div className="mt-2 p-3 bg-white/50 rounded border border-slate-200">
+                        <p className="text-sm text-slate-600 font-medium mb-1">Détails :</p>
                         {action.metadata.montantClient !== undefined && (
-                          <p className="text-sm text-gray-700">
+                          <p className="text-sm text-slate-700">
                             • Remboursement client : {action.metadata.montantClient}€
                           </p>
                         )}
                         {action.metadata.montantArtisan !== undefined && (
-                          <p className="text-sm text-gray-700">
+                          <p className="text-sm text-slate-700">
                             • Paiement artisan : {action.metadata.montantArtisan}€
                           </p>
                         )}
                         {action.metadata.motif && (
-                          <p className="text-sm text-gray-700">• Motif : {action.metadata.motif}</p>
+                          <p className="text-sm text-slate-700">• Motif : {action.metadata.motif}</p>
                         )}
                         {action.metadata.raison && (
-                          <p className="text-sm text-gray-700">• Raison : {action.metadata.raison}</p>
+                          <p className="text-sm text-slate-700">• Raison : {action.metadata.raison}</p>
                         )}
                       </div>
                     )}
                   </div>
 
                   {/* Date */}
-                  <span className="text-xs text-gray-500 whitespace-nowrap">
+                  <span className="text-xs text-slate-500 whitespace-nowrap">
                     {action.timestamp
                       ? formatDistanceToNow(action.timestamp.toDate(), {
                           addSuffix: true,
@@ -168,7 +168,7 @@ export default function LitigeTimeline({ historique, currentUserId }: LitigeTime
       </div>
 
       {sortedHistorique.length === 0 && (
-        <p className="text-center text-gray-500 py-8">Aucune action enregistrée</p>
+        <p className="text-center text-slate-500 py-8">Aucune action enregistrée</p>
       )}
     </div>
   );

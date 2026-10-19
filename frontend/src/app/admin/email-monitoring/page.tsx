@@ -125,10 +125,10 @@ export default function EmailMonitoringPage() {
 
   if (loadingData) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#FF6B00] mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement des statistiques...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-brand-500 mx-auto mb-4"></div>
+          <p className="text-slate-600">Chargement des statistiques...</p>
         </div>
       </div>
     );
@@ -145,14 +145,14 @@ export default function EmailMonitoringPage() {
   else if (gmailCount >= 300) alertLevel = 'warning';
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-[#2C3E50] text-white py-6">
+      <div className="bg-navy-800 text-white py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">📊 Monitoring Emails Gmail</h1>
-              <p className="text-gray-300 mt-1">Suivi en temps réel des emails transactionnels</p>
+              <h1 className="text-3xl font-bold">Monitoring Emails Gmail</h1>
+              <p className="text-slate-300 mt-1">Suivi en temps réel des emails transactionnels</p>
             </div>
             <div className="flex gap-3">
               <button
@@ -191,15 +191,15 @@ export default function EmailMonitoringPage() {
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <p className="font-bold text-gray-900">{alert.message}</p>
-                    <p className="text-gray-700 mt-1">{alert.recommendation}</p>
-                    <p className="text-sm text-gray-600 mt-2">
+                    <p className="font-bold text-slate-900">{alert.message}</p>
+                    <p className="text-slate-700 mt-1">{alert.recommendation}</p>
+                    <p className="text-sm text-slate-600 mt-2">
                       {new Date(alert.timestamp._seconds * 1000).toLocaleString('fr-FR')}
                     </p>
                   </div>
                   <button
                     onClick={() => markAlertAsRead(alert.id)}
-                    className="ml-4 text-gray-500 hover:text-gray-700"
+                    className="ml-4 text-slate-500 hover:text-slate-700"
                   >
                     ✕
                   </button>
@@ -210,10 +210,10 @@ export default function EmailMonitoringPage() {
         )}
 
         {/* Jauge Gmail aujourd'hui */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">📧 Limite Gmail Aujourd'hui</h2>
-            <span className="text-sm text-gray-500">
+            <h2 className="text-xl font-bold text-slate-900">📧 Limite Gmail Aujourd'hui</h2>
+            <span className="text-sm text-slate-500">
               {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </span>
           </div>
@@ -221,7 +221,7 @@ export default function EmailMonitoringPage() {
           {/* Barre de progression */}
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-3xl font-bold text-gray-900">{gmailCount} / {gmailLimit}</span>
+              <span className="text-3xl font-bold text-slate-900">{gmailCount} / {gmailLimit}</span>
               <span className={`text-2xl font-bold ${
                 alertLevel === 'danger' ? 'text-red-600' :
                 alertLevel === 'critical' ? 'text-orange-600' :
@@ -231,7 +231,7 @@ export default function EmailMonitoringPage() {
                 {gmailPercentage}%
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+            <div className="w-full bg-slate-200 rounded-full h-6 overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${
                   alertLevel === 'danger' ? 'bg-red-600' :
@@ -271,18 +271,18 @@ export default function EmailMonitoringPage() {
           )}
 
           {/* Détails par provider */}
-          <div className="mt-6 grid grid-cols-3 gap-4">
-            <div className="text-center p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">Gmail (SMTP)</p>
-              <p className="text-2xl font-bold text-gray-900">{todayStats?.byProvider.gmail || 0}</p>
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="text-center p-3 bg-slate-50 rounded-lg">
+              <p className="text-sm text-slate-600">Gmail (SMTP)</p>
+              <p className="text-2xl font-bold text-slate-900">{todayStats?.byProvider.gmail || 0}</p>
             </div>
-            <div className="text-center p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">Firebase Auth</p>
-              <p className="text-2xl font-bold text-gray-900">{todayStats?.byProvider.firebase || 0}</p>
+            <div className="text-center p-3 bg-slate-50 rounded-lg">
+              <p className="text-sm text-slate-600">Firebase Auth</p>
+              <p className="text-2xl font-bold text-slate-900">{todayStats?.byProvider.firebase || 0}</p>
             </div>
-            <div className="text-center p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">Brevo</p>
-              <p className="text-2xl font-bold text-gray-900">{todayStats?.byProvider.brevo || 0}</p>
+            <div className="text-center p-3 bg-slate-50 rounded-lg">
+              <p className="text-sm text-slate-600">Brevo</p>
+              <p className="text-2xl font-bold text-slate-900">{todayStats?.byProvider.brevo || 0}</p>
             </div>
           </div>
         </div>
@@ -290,19 +290,19 @@ export default function EmailMonitoringPage() {
         {/* Stats aujourd'hui */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Emails par statut */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">📬 Statut Emails</h3>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h3 className="text-lg font-bold text-slate-900 mb-4">📬 Statut Emails</h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-gray-700">✅ Envoyés</span>
+                <span className="text-slate-700">✅ Envoyés</span>
                 <span className="text-2xl font-bold text-green-600">{todayStats?.totalSent || 0}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-700">❌ Échecs</span>
+                <span className="text-slate-700">❌ Échecs</span>
                 <span className="text-2xl font-bold text-red-600">{todayStats?.totalFailed || 0}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-700">📊 Taux de succès</span>
+                <span className="text-slate-700">📊 Taux de succès</span>
                 <span className="text-xl font-bold text-blue-600">
                   {todayStats && todayStats.totalSent > 0
                     ? Math.round((todayStats.totalSent / (todayStats.totalSent + todayStats.totalFailed)) * 100)
@@ -313,24 +313,24 @@ export default function EmailMonitoringPage() {
           </div>
 
           {/* Emails par type */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">📋 Types d'Emails</h3>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h3 className="text-lg font-bold text-slate-900 mb-4">📋 Types d'Emails</h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-gray-700">💼 Transactionnels</span>
-                <span className="text-xl font-bold text-gray-900">{todayStats?.byType.transactional || 0}</span>
+                <span className="text-slate-700">💼 Transactionnels</span>
+                <span className="text-xl font-bold text-slate-900">{todayStats?.byType.transactional || 0}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-700">🔔 Notifications</span>
-                <span className="text-xl font-bold text-gray-900">{todayStats?.byType.notification || 0}</span>
+                <span className="text-slate-700">🔔 Notifications</span>
+                <span className="text-xl font-bold text-slate-900">{todayStats?.byType.notification || 0}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-700">🔐 Auth</span>
-                <span className="text-xl font-bold text-gray-900">{todayStats?.byType.auth || 0}</span>
+                <span className="text-slate-700">🔐 Auth</span>
+                <span className="text-xl font-bold text-slate-900">{todayStats?.byType.auth || 0}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-700">⚙️ Système</span>
-                <span className="text-xl font-bold text-gray-900">{todayStats?.byType.system || 0}</span>
+                <span className="text-slate-700">⚙️ Système</span>
+                <span className="text-xl font-bold text-slate-900">{todayStats?.byType.system || 0}</span>
               </div>
             </div>
           </div>
@@ -338,28 +338,28 @@ export default function EmailMonitoringPage() {
 
         {/* Rapport hebdomadaire */}
         {weeklyReport && (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">📈 Rapport Hebdomadaire (7 derniers jours)</h3>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h3 className="text-xl font-bold text-slate-900 mb-4">📈 Rapport Hebdomadaire (7 derniers jours)</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <p className="text-sm text-gray-600">Total envoyés</p>
+                <p className="text-sm text-slate-600">Total envoyés</p>
                 <p className="text-3xl font-bold text-blue-600">{weeklyReport.totalSent}</p>
               </div>
               <div className="text-center p-4 bg-green-50 rounded-lg">
-                <p className="text-sm text-gray-600">Moyenne/jour</p>
+                <p className="text-sm text-slate-600">Moyenne/jour</p>
                 <p className="text-3xl font-bold text-green-600">{weeklyReport.averagePerDay}</p>
               </div>
               <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <p className="text-sm text-gray-600">Pic journalier</p>
+                <p className="text-sm text-slate-600">Pic journalier</p>
                 <p className="text-3xl font-bold text-purple-600">{weeklyReport.peakDay.count}</p>
-                <p className="text-xs text-gray-500 mt-1">{weeklyReport.peakDay.date}</p>
+                <p className="text-xs text-slate-500 mt-1">{weeklyReport.peakDay.date}</p>
               </div>
               <div className="text-center p-4 bg-orange-50 rounded-lg">
-                <p className="text-sm text-gray-600">Tendance</p>
+                <p className="text-sm text-slate-600">Tendance</p>
                 <p className={`text-2xl font-bold ${
                   weeklyReport.trend === 'increasing' ? 'text-orange-600' :
                   weeklyReport.trend === 'decreasing' ? 'text-green-600' :
-                  'text-gray-600'
+                  'text-slate-600'
                 }`}>
                   {weeklyReport.trend === 'increasing' ? '📈 Hausse' :
                    weeklyReport.trend === 'decreasing' ? '📉 Baisse' :
@@ -371,35 +371,35 @@ export default function EmailMonitoringPage() {
         )}
 
         {/* Derniers logs */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">📜 Derniers Emails Envoyés (50 derniers)</h3>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <h3 className="text-xl font-bold text-slate-900 mb-4">📜 Derniers Emails Envoyés (50 derniers)</h3>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date/Heure</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Destinataire</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sujet</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Provider</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Date/Heure</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Destinataire</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Sujet</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Type</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Provider</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Statut</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-slate-200">
                 {recentLogs.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
                       Aucun email envoyé aujourd'hui
                     </td>
                   </tr>
                 ) : (
                   recentLogs.map((log) => (
-                    <tr key={log.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm text-gray-900">
+                    <tr key={log.id} className="hover:bg-slate-50">
+                      <td className="px-4 py-3 text-sm text-slate-900">
                         {new Date(log.timestamp._seconds * 1000).toLocaleString('fr-FR')}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900">{log.recipient}</td>
-                      <td className="px-4 py-3 text-sm text-gray-700">{log.subject}</td>
+                      <td className="px-4 py-3 text-sm text-slate-900">{log.recipient}</td>
+                      <td className="px-4 py-3 text-sm text-slate-700">{log.subject}</td>
                       <td className="px-4 py-3 text-sm">
                         <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
                           {log.type}

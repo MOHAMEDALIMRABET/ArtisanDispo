@@ -625,7 +625,7 @@ export default function MesDemandesPage() {
     
     return (
       <span 
-        className={`px-3 py-1 rounded-full text-xs font-semibold ${badges[statut as keyof typeof badges] || 'bg-gray-200 text-gray-800'}`}
+        className={`px-3 py-1 rounded-full text-xs font-semibold ${badges[statut as keyof typeof badges] || 'bg-slate-200 text-slate-800'}`}
         title={statut === 'expiree' ? t('clientDemandes.badges.expiredTooltip') : undefined}
       >
         {t(`clientDemandes.badges.${labelKeys[statut as keyof typeof labelKeys]}` as any) || statut}
@@ -845,20 +845,20 @@ export default function MesDemandesPage() {
 
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#FF6B00] border-t-transparent"></div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-brand-500 border-t-transparent"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-[#2C3E50] text-white py-8">
+      <div className="bg-navy-800 text-white py-8">
         <div className="container mx-auto px-4">
           <button
             onClick={() => router.push('/client/demandes-hub')}
-            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4"
+            className="flex items-center gap-2 text-white hover:text-brand-300 mb-4"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -868,13 +868,13 @@ export default function MesDemandesPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">{t('clientDemandes.pageTitle')}</h1>
-              <p className="text-gray-300 mt-2">Suivez vos projets en temps réel</p>
+              <p className="text-slate-300 mt-2">Suivez vos projets en temps réel</p>
             </div>
             
             <div className="flex items-center gap-3">
               <Button
                 onClick={() => router.push('/recherche')}
-                className="bg-[#FF6B00] hover:bg-[#E56100] text-white px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+                className="bg-brand-700 hover:bg-brand-800 text-white px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-md transition-all duration-200 flex items-center gap-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -896,7 +896,7 @@ export default function MesDemandesPage() {
       {/* Message de succès */}
       {successMessage && (
         <div className="container mx-auto px-4 pt-6 max-w-6xl">
-          <div className="bg-gradient-to-r from-green-50 to-green-100 border-l-4 border-green-500 p-5 rounded-lg shadow-lg flex items-start gap-4 animate-fade-in">
+          <div className="bg-green-50 border-l-4 border-green-500 p-5 rounded-lg shadow-lg flex items-start gap-4 animate-fade-in">
             <div className="flex-shrink-0 bg-green-500 rounded-full p-2">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -925,101 +925,101 @@ export default function MesDemandesPage() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           <button
             onClick={() => setFiltreSection('toutes')}
-            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-0.5 ${
               filtreSection === 'toutes' 
-                ? 'bg-gradient-to-br from-[#FF6B00] to-[#E56100] text-white shadow-xl scale-105' 
-                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                ? ' bg-brand-600 text-white shadow-md scale-105' 
+                : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${
-              filtreSection === 'toutes' ? 'text-white' : 'text-[#FF6B00]'
+              filtreSection === 'toutes' ? 'text-white' : 'text-brand-700'
             }`}>{demandes.length}</div>
             <div className={`text-xs font-semibold uppercase tracking-wide ${
-              filtreSection === 'toutes' ? 'text-white' : 'text-gray-600'
+              filtreSection === 'toutes' ? 'text-white' : 'text-slate-600'
             }`}>{t('clientDemandes.sections.all')}</div>
           </button>
           
           <button
             onClick={() => setFiltreSection('envoyes')}
-            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-0.5 ${
               filtreSection === 'envoyes' 
-                ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-xl scale-105' 
-                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                ? ' bg-orange-500 text-white shadow-md scale-105' 
+                : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${
               filtreSection === 'envoyes' ? 'text-white' : 'text-orange-600'
             }`}>{getDemandesEnvoyees(demandes).length}</div>
             <div className={`text-xs font-semibold uppercase tracking-wide ${
-              filtreSection === 'envoyes' ? 'text-white' : 'text-gray-600'
+              filtreSection === 'envoyes' ? 'text-white' : 'text-slate-600'
             }`}>{t('clientDemandes.sections.sent')}</div>
           </button>
           
           <button
             onClick={() => setFiltreSection('publiees')}
-            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-0.5 ${
               filtreSection === 'publiees' 
-                ? 'bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-xl scale-105' 
-                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                ? ' bg-purple-500 text-white shadow-md scale-105' 
+                : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${
               filtreSection === 'publiees' ? 'text-white' : 'text-purple-600'
             }`}>{getDemandesPubliees(demandes).length}</div>
             <div className={`text-xs font-semibold uppercase tracking-wide ${
-              filtreSection === 'publiees' ? 'text-white' : 'text-gray-600'
+              filtreSection === 'publiees' ? 'text-white' : 'text-slate-600'
             }`}>{t('clientDemandes.sections.published')}</div>
           </button>
           
           <button
             onClick={() => setFiltreSection('en_traitement')}
-            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-0.5 ${
               filtreSection === 'en_traitement' 
-                ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl scale-105' 
-                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                ? ' bg-blue-500 text-white shadow-md scale-105' 
+                : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${
               filtreSection === 'en_traitement' ? 'text-white' : 'text-blue-600'
             }`}>{getDemandesEnTraitement(demandes).length}</div>
             <div className={`text-xs font-semibold uppercase tracking-wide ${
-              filtreSection === 'en_traitement' ? 'text-white' : 'text-gray-600'
+              filtreSection === 'en_traitement' ? 'text-white' : 'text-slate-600'
             }`}>{t('clientDemandes.sections.inProgress')}</div>
           </button>
           
           <button
             onClick={() => setFiltreSection('traitees')}
-            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-1 ${
+            className={`group rounded-xl p-5 text-center transition-all duration-300 transform hover:-translate-y-0.5 ${
               filtreSection === 'traitees' 
-                ? 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-xl scale-105' 
-                : 'bg-white hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-100'
+                ? ' bg-green-500 text-white shadow-md scale-105' 
+                : 'bg-white hover:bg-slate-50 shadow-md hover:shadow-lg border border-slate-100'
             }`}
           >
             <div className={`text-3xl font-black mb-1 ${
               filtreSection === 'traitees' ? 'text-white' : 'text-green-600'
             }`}>{getToutesDemandesTraitees(demandes).length}</div>
             <div className={`text-xs font-semibold uppercase tracking-wide ${
-              filtreSection === 'traitees' ? 'text-white' : 'text-gray-600'
+              filtreSection === 'traitees' ? 'text-white' : 'text-slate-600'
             }`}>{t('clientDemandes.sections.processed')}</div>
           </button>
         </div>
 
         {demandes.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg p-16 text-center border border-gray-100">
-            <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white rounded-2xl shadow-lg p-16 text-center border border-slate-100">
+            <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h2 className="text-3xl font-bold text-[#2C3E50] mb-3">
+            <h2 className="text-3xl font-bold text-navy-800 mb-3">
               {t('clientDemandes.empty.noRequests')}
             </h2>
-            <p className="text-gray-500 mb-8 text-lg max-w-md mx-auto">
+            <p className="text-slate-500 mb-8 text-lg max-w-md mx-auto">
               {t('clientDemandes.empty.noRequestsDescription')}
             </p>
             <Button
               onClick={() => router.push('/recherche')}
-              className="bg-gradient-to-r from-[#FF6B00] to-[#E56100] hover:from-[#E56100] hover:to-[#D55000] text-white px-8 py-4 rounded-xl font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-0.5"
+              className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
             >
               {t('clientDemandes.empty.searchArtisan')}
             </Button>
@@ -1049,17 +1049,17 @@ export default function MesDemandesPage() {
                 
                 // Section "🎯 Envoyés" → Orange
                 if (filtreSection === 'envoyes') {
-                  return 'bg-gradient-to-b from-[#FF6B00] to-[#E56100]';
+                  return ' bg-brand-600 ';
                 }
                 
                 // Section "📢 Publiées" → Violet
                 if (filtreSection === 'publiees') {
-                  return 'bg-gradient-to-b from-purple-400 to-purple-600';
+                  return ' bg-purple-400 ';
                 }
                 
                 // Section "⏳ En traitement" → Bleu
                 if (filtreSection === 'en_traitement') {
-                  return 'bg-gradient-to-b from-blue-400 to-blue-600';
+                  return ' bg-blue-400 ';
                 }
                 
                 // Section "✅ Traitées" → Couleur selon badge spécifique
@@ -1068,29 +1068,29 @@ export default function MesDemandesPage() {
                   if (devisPaye) {
                     // Badge "✅ Travaux validés" → Noir
                     if (['termine_valide', 'termine_auto_valide'].includes(devisPaye.statut)) {
-                      return 'bg-gradient-to-b from-gray-700 to-gray-900';
+                      return ' bg-slate-700 ';
                     }
                     
                     // Badge "🏁 Travaux terminés" (en attente validation) → Orange
                     if (devisPaye.statut === 'travaux_termines') {
-                      return 'bg-gradient-to-b from-orange-400 to-orange-600';
+                      return ' bg-orange-400 ';
                     }
                     
                     // Badge "🚧 Travaux en cours" → Jaune
                     if (devisPaye.statut === 'en_cours') {
-                      return 'bg-gradient-to-b from-yellow-400 to-yellow-600';
+                      return ' bg-yellow-400 ';
                     }
                     
                     // Badge "✅ Devis signé" (payé) → Vert
                     if (devisPaye.statut === 'paye') {
-                      return 'bg-gradient-to-b from-green-400 to-green-600';
+                      return ' bg-green-400 ';
                     }
                   }
                   
                   // PRIORITÉ 2 : Statuts de demande (sans devis payé)
                   // Badge "❌ Refusée" → Rouge uni
                   if (demande.statut === 'annulee') {
-                    return 'bg-gradient-to-b from-red-400 to-red-600';
+                    return ' bg-red-400 ';
                   }
                   
                   // Badge "⏰ Expirée" → Rouge rayé diagonal (vérification dateExpiration réelle)
@@ -1100,16 +1100,16 @@ export default function MesDemandesPage() {
                   
                   // Badge "✅ Terminée" (sans contrat) → Vert standard
                   if (demande.statut === 'terminee') {
-                    return 'bg-gradient-to-b from-green-400 to-green-600';
+                    return ' bg-green-400 ';
                   }
                 }
                 
                 // Fallback (section "Toutes") - ancienne logique
-                if (demande.statut === 'terminee') return 'bg-gradient-to-b from-green-400 to-green-600';
-                if (demande.statut === 'annulee') return 'bg-gradient-to-b from-red-400 to-red-600';
+                if (demande.statut === 'terminee') return ' bg-green-400 ';
+                if (demande.statut === 'annulee') return ' bg-red-400 ';
                 if (demande.dateExpiration && isDemandeExpired(demande.dateExpiration)) return 'bg-[repeating-linear-gradient(45deg,#f87171,#f87171_10px,#dc2626_10px,#dc2626_20px)]';
-                if (demande.statut === 'publiee') return 'bg-gradient-to-b from-purple-400 to-purple-600';
-                return 'bg-gradient-to-b from-blue-400 to-blue-600';
+                if (demande.statut === 'publiee') return ' bg-purple-400 ';
+                return ' bg-blue-400 ';
               };
 
               const renderDemande = (demande: Demande) => {
@@ -1120,8 +1120,8 @@ export default function MesDemandesPage() {
                     key={demande.id}
                     ref={(el) => { demandeRefs.current[demande.id] = el; }}
                     onClick={() => toggleExpandDemande(demande.id)}
-                    className={`bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer relative border-2 overflow-hidden group ${
-                      isExpanded ? 'border-[#FF6B00] ring-1 ring-[#FF6B00] ring-opacity-30' : 'border-transparent hover:border-gray-200'
+                    className={`bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer relative border-2 overflow-hidden group ${
+                      isExpanded ? 'border-brand-500 ring-1 ring-brand-500 ring-opacity-30' : 'border-transparent hover:border-slate-200'
                     }`}
                   >
                     {/* Barre latérale colorée selon section et statut */}
@@ -1134,11 +1134,11 @@ export default function MesDemandesPage() {
                       e.stopPropagation();
                       toggleExpandDemande(demande.id);
                     }}
-                    className="absolute top-5 right-5 p-2.5 rounded-xl hover:bg-gray-100 transition-all duration-200 group"
+                    className="absolute top-5 right-5 p-2.5 rounded-xl hover:bg-slate-100 transition-all duration-200 group"
                     title={isExpanded ? t('clientDemandes.card.collapse') : t('clientDemandes.card.expand')}
                   >
                     <svg 
-                      className={`w-5 h-5 text-gray-400 group-hover:text-[#FF6B00] transition-all duration-200 ${
+                      className={`w-5 h-5 text-slate-400 group-hover:text-brand-700 transition-all duration-200 ${
                         isExpanded ? 'rotate-180' : ''
                       }`} 
                       fill="none" 
@@ -1150,7 +1150,7 @@ export default function MesDemandesPage() {
                     </svg>
                   </button>
 
-                  <div className="flex items-start justify-between mb-5 pb-5 border-b border-gray-100 pr-14">
+                  <div className="flex items-start justify-between mb-5 pb-5 border-b border-slate-100 pr-14">
                     <div className="flex-1">
                       {/* Nom de l'entreprise (artisan) avec badge style identique demandeur */}
                     {(() => {
@@ -1161,13 +1161,13 @@ export default function MesDemandesPage() {
                           .map(word => word[0]?.toUpperCase() || '')
                           .join('');
                         return (
-                          <div className="mb-5 bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-xl border border-gray-200">
+                          <div className="mb-5 bg-slate-50 p-4 rounded-xl border border-slate-200">
                             <div className="flex items-center gap-3">
-                              <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">Artisan</span>
-                              <div className="w-10 h-10 bg-gradient-to-br from-[#2C3E50] to-[#1A3A5C] text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">
+                              <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Artisan</span>
+                              <div className="w-10 h-10 bg-navy-800 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">
                                 {initiales || 'A'}
                               </div>
-                              <p className="font-bold text-[#2C3E50] text-lg">
+                              <p className="font-bold text-navy-800 text-lg">
                                 {demande.artisanRefuseNom}
                               </p>
                             </div>
@@ -1183,13 +1183,13 @@ export default function MesDemandesPage() {
                           .map(word => word[0]?.toUpperCase() || '')
                           .join('');
                         return (
-                          <div className="mb-5 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100">
+                          <div className="mb-5 bg-blue-50 p-4 rounded-xl border border-blue-100">
                             <div className="flex items-center gap-3">
                               <span className="text-xs font-bold text-blue-600 uppercase tracking-wide">{t('clientDemandes.artisan.label')}</span>
-                              <div className="w-10 h-10 bg-gradient-to-br from-[#2C3E50] to-[#1A3A5C] text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">
+                              <div className="w-10 h-10 bg-navy-800 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">
                                 {initiales || 'A'}
                               </div>
-                              <p className="font-bold text-[#2C3E50] text-lg">
+                              <p className="font-bold text-navy-800 text-lg">
                                 {raisonSociale}
                               </p>
                             </div>
@@ -1197,13 +1197,13 @@ export default function MesDemandesPage() {
                         );
                       } else {
                         return (
-                          <div className="mb-5 bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-xl border border-gray-200">
+                          <div className="mb-5 bg-slate-50 p-4 rounded-xl border border-slate-200">
                             <div className="flex items-center gap-3">
-                              <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">{t('clientDemandes.artisan.label')}</span>
-                              <div className="w-10 h-10 bg-gradient-to-br from-gray-400 to-gray-500 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">
+                              <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t('clientDemandes.artisan.label')}</span>
+                              <div className="w-10 h-10 bg-slate-400 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">
                                 ?
                               </div>
-                              <p className="font-semibold text-gray-500 text-lg">
+                              <p className="font-semibold text-slate-500 text-lg">
                                 {t('clientDemandes.artisan.notAssigned')}
                               </p>
                             </div>
@@ -1214,11 +1214,11 @@ export default function MesDemandesPage() {
                     
                     {/* Titre principal + Dates + Badge statut */}
                     <div className="flex items-center gap-2 mb-3">
-                      <h2 className="text-2xl font-extrabold text-[#2C3E50] tracking-tight">
+                      <h2 className="text-2xl font-extrabold text-navy-800 tracking-tight">
                         {demande.titre}
                       </h2>
                       {demandeNotifsInitialIds.has(demande.id) && (
-                        <span className="inline-flex items-center bg-[#FF6B00] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse" title="Notification récente sur cette demande">
+                        <span className="inline-flex items-center bg-brand-700 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse" title="Notification récente sur cette demande">
                           🔔
                         </span>
                       )}
@@ -1228,7 +1228,7 @@ export default function MesDemandesPage() {
                         <span className="text-blue-600">🏷️</span>
                         <span className="font-semibold text-blue-900">{demande.categorie}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-gray-600 whitespace-nowrap">
+                      <div className="flex items-center gap-2 text-slate-600 whitespace-nowrap">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
@@ -1293,9 +1293,9 @@ export default function MesDemandesPage() {
                               </div>
                             )}
                             {dateValidation && (
-                              <div className="flex items-start gap-2 bg-gray-100 px-3 py-1.5 rounded-lg max-w-full break-words">
-                                <span className="text-gray-700">📅</span>
-                                <span className="font-semibold text-gray-900">{(t('clientDemandes.card.validationDate') === 'clientDemandes.card.validationDate' ? 'Date de validation' : t('clientDemandes.card.validationDate'))}: {dateValidation.toDate().toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                              <div className="flex items-start gap-2 bg-slate-100 px-3 py-1.5 rounded-lg max-w-full break-words">
+                                <span className="text-slate-700">📅</span>
+                                <span className="font-semibold text-slate-900">{(t('clientDemandes.card.validationDate') === 'clientDemandes.card.validationDate' ? 'Date de validation' : t('clientDemandes.card.validationDate'))}: {dateValidation.toDate().toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                               </div>
                             )}
                           </>
@@ -1318,8 +1318,8 @@ export default function MesDemandesPage() {
 
                 {/* Description (toujours visible, tronquée si collapsed) */}
                 <div className="mb-4">
-                  <p className="text-sm font-bold text-gray-700 mb-2">{t('clientDemandes.card.description')}</p>
-                  <p className={`text-gray-700 leading-relaxed break-words ${!isExpanded ? 'line-clamp-2' : 'whitespace-pre-wrap'}`}>
+                  <p className="text-sm font-bold text-slate-700 mb-2">{t('clientDemandes.card.description')}</p>
+                  <p className={`text-slate-700 leading-relaxed break-words ${!isExpanded ? 'line-clamp-2' : 'whitespace-pre-wrap'}`}>
                     {demande.description}
                   </p>
                 </div>
@@ -1334,7 +1334,7 @@ export default function MesDemandesPage() {
                           e.stopPropagation();
                           router.push(`/demande/nouvelle?brouillonId=${demande.id}`);
                         }}
-                        className="px-3 py-2 bg-[#FF6B00] text-white hover:bg-[#E56100] rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5 shadow-sm hover:shadow-md"
+                        className="px-3 py-2 bg-brand-700 text-white hover:bg-brand-800 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5 shadow-sm hover:shadow-md"
                         title={t('clientDemandes.card.completeDraftTitle')}
                       >
                         <svg 
@@ -1372,7 +1372,7 @@ export default function MesDemandesPage() {
                           sessionStorage.setItem('searchCriteria', JSON.stringify(searchCriteria));
                           router.push('/recherche');
                         }}
-                        className="px-3 py-2 bg-[#FF6B00] text-white hover:bg-[#E56100] rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5 shadow-sm hover:shadow-md"
+                        className="px-3 py-2 bg-brand-700 text-white hover:bg-brand-800 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5 shadow-sm hover:shadow-md"
                         title={t('clientDemandes.card.relaunchSearchTitle')}
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1389,7 +1389,7 @@ export default function MesDemandesPage() {
                           e.stopPropagation();
                           handleDeleteDemande(demande.id, demande.titre);
                         }}
-                        className="px-3 py-2 border-2 border-[#DC3545] text-[#DC3545] hover:bg-[#DC3545] hover:text-white rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5 shadow-sm hover:shadow-md"
+                        className="px-3 py-2 border-2 border-red-600 text-red-700 hover:bg-red-700 hover:text-white rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5 shadow-sm hover:shadow-md"
                         title={t('clientDemandes.card.deleteTitle')}
                       >
                         <svg 
@@ -1414,8 +1414,8 @@ export default function MesDemandesPage() {
 
                 {/* Informations détaillées - visibles uniquement si étendu */}
                 {isExpanded && (
-                  <div className="mt-6 pt-6 border-t border-gray-200 space-y-4">
-                    <h4 className="font-bold text-[#2C3E50] text-lg mb-4">{t('clientDemandes.details.title')}</h4>
+                  <div className="mt-6 pt-6 border-t border-slate-200 space-y-4">
+                    <h4 className="font-bold text-navy-800 text-lg mb-4">{t('clientDemandes.details.title')}</h4>
                     
                     {/* Photos du projet */}
                     {(() => {
@@ -1426,7 +1426,7 @@ export default function MesDemandesPage() {
                       
                       return (
                         <div className="mb-4">
-                          <p className="text-sm font-semibold text-gray-700 mb-2">
+                          <p className="text-sm font-semibold text-slate-700 mb-2">
                             {t('clientDemandes.details.photos').replace('{count}', String(validPhotos.length))}
                           </p>
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -1435,7 +1435,7 @@ export default function MesDemandesPage() {
                               return (
                                 <div
                                   key={idx}
-                                  className="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-200 hover:border-[#FF6B00] transition-all shadow-sm"
+                                  className="relative aspect-square rounded-lg overflow-hidden border-2 border-slate-200 hover:border-brand-500 transition-all shadow-sm"
                                   style={{ backgroundColor: '#ffffff' }}
                                 >
                                   <a
@@ -1534,15 +1534,15 @@ export default function MesDemandesPage() {
                               return (
                                 <div key={devis.id} className="bg-white rounded-lg p-4 border border-purple-100 flex items-center justify-between gap-4">
                                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                                    <div className="w-10 h-10 bg-gradient-to-br from-[#2C3E50] to-[#1A3A5C] text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                                    <div className="w-10 h-10 bg-navy-800 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
                                       {initiales || 'A'}
                                     </div>
                                     <div className="min-w-0">
-                                      <p className="font-semibold text-[#2C3E50] truncate">{nomArtisan}</p>
+                                      <p className="font-semibold text-navy-800 truncate">{nomArtisan}</p>
                                       <div className="flex items-center gap-3 text-sm flex-wrap">
-                                        <span className="font-bold text-[#FF6B00]">{devis.totaux?.totalTTC?.toFixed(2)} € TTC</span>
+                                        <span className="font-bold text-brand-700">{devis.totaux?.totalTTC?.toFixed(2)} € TTC</span>
                                         {devis.delaiRealisation && (
-                                          <span className="text-gray-600">
+                                          <span className="text-slate-600">
                                             ⏱️ {t('clientDemandes.card.delay')} {devis.delaiRealisation} {t('clientDemandes.card.days')}
                                           </span>
                                         )}
@@ -1554,7 +1554,7 @@ export default function MesDemandesPage() {
                                       e.stopPropagation();
                                       router.push(`/client/devis/${devis.id}`);
                                     }}
-                                    className="flex-shrink-0 bg-[#FF6B00] text-white hover:bg-[#E56100] px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap shadow-sm"
+                                    className="flex-shrink-0 bg-brand-700 text-white hover:bg-brand-800 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap shadow-sm"
                                   >
                                     {t('clientDemandes.devis.examine')}
                                   </button>
@@ -1700,7 +1700,7 @@ export default function MesDemandesPage() {
                                 router.push(`/client/contrats?demandeId=${demande.id}`);
                               }
                             }}
-                            className="flex-1 bg-[#FF6B00] text-white hover:bg-[#E56100] rounded-lg px-4 py-2.5 font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+                            className="flex-1 bg-brand-700 text-white hover:bg-brand-800 rounded-lg px-4 py-2.5 font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
                           >
                             {t('clientDemandes.contract.viewQuote')}
                           </button>
@@ -1757,7 +1757,7 @@ export default function MesDemandesPage() {
                                   router.push(`/messages?userId=${artisanId}&demandeId=${demande.id}`);
                                 }
                               }}
-                              className="px-4 py-2.5 border-2 border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
+                              className="px-4 py-2.5 border-2 border-navy-800 text-navy-800 hover:bg-navy-800 hover:text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
                             >
                               {t('clientDemandes.contract.contactArtisan')}
                             </button>
@@ -1766,7 +1766,7 @@ export default function MesDemandesPage() {
 
                         {/* 🆕 Boutons Valider/Contester si travaux terminés */}
                         {st === 'travaux_termines' && devisPaye?.id && (
-                          <div className="flex gap-3 mt-3 pt-3 border-t border-gray-200">
+                          <div className="flex gap-3 mt-3 pt-3 border-t border-slate-200">
                             <button
                               onClick={async (e) => {
                                 e.stopPropagation();
@@ -1830,7 +1830,7 @@ export default function MesDemandesPage() {
                   
                   if (devisRefuse) {
                     return (
-                      <div className="flex justify-center pt-4 border-t border-gray-100">
+                      <div className="flex justify-center pt-4 border-t border-slate-100">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -1857,7 +1857,7 @@ export default function MesDemandesPage() {
                             
                             router.push(`/recherche?${params.toString()}`);
                           }}
-                          className="text-sm bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100] transition font-medium flex items-center gap-2"
+                          className="text-sm bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 transition font-medium flex items-center gap-2"
                         >
                           {t('clientDemandes.searchAnotherArtisan')}
                         </button>
@@ -1876,13 +1876,13 @@ export default function MesDemandesPage() {
               {/* Titre de la section active */}
               {filtreSection !== 'toutes' && demandesFiltrees.length > 0 && (
                 <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-[#2C3E50]">
+                  <h2 className="text-2xl font-bold text-navy-800">
                     {filtreSection === 'envoyes' && t('clientDemandes.sectionTitles.sent')}
                     {filtreSection === 'publiees' && t('clientDemandes.sectionTitles.published')}
                     {filtreSection === 'en_traitement' && t('clientDemandes.sectionTitles.inProgress')}
                     {filtreSection === 'traitees' && t('clientDemandes.sectionTitles.processed')}
                   </h2>
-                  <p className="text-sm text-[#6C757D] mt-1">
+                  <p className="text-sm text-slate-500 mt-1">
                     {filtreSection === 'envoyes' && t('clientDemandes.sectionDescriptions.sent')}
                     {filtreSection === 'publiees' && t('clientDemandes.sectionDescriptions.published')}
                     {filtreSection === 'en_traitement' && t('clientDemandes.sectionDescriptions.inProgress')}
@@ -1947,8 +1947,8 @@ export default function MesDemandesPage() {
                           onClick={() => setSousFiltreTraitees('tout')}
                           className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                             sousFiltreTraitees === 'tout'
-                              ? 'bg-[#2C3E50] text-white shadow-lg transform scale-105'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              ? 'bg-navy-800 text-white shadow-lg transform scale-105'
+                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                           }`}
                         >
                           {t('clientDemandes.subFilters.all')} ({toutesTraitees.length})
@@ -1960,7 +1960,7 @@ export default function MesDemandesPage() {
                             onClick={() => setSousFiltreTraitees('devis_signes')}
                             className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                               sousFiltreTraitees === 'devis_signes'
-                                ? 'bg-gradient-to-r from-green-400 to-green-600 text-white shadow-lg transform scale-105'
+                                ? ' bg-green-400 text-white shadow-lg transform scale-105'
                                 : 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-200'
                             }`}
                           >
@@ -1974,7 +1974,7 @@ export default function MesDemandesPage() {
                             onClick={() => setSousFiltreTraitees('travaux_en_cours')}
                             className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                               sousFiltreTraitees === 'travaux_en_cours'
-                                ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white shadow-lg transform scale-105'
+                                ? ' bg-yellow-400 text-white shadow-lg transform scale-105'
                                 : 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200'
                             }`}
                           >
@@ -1988,8 +1988,8 @@ export default function MesDemandesPage() {
                             onClick={() => setSousFiltreTraitees('termines')}
                             className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                               sousFiltreTraitees === 'termines'
-                                ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg transform scale-105'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                                ? ' bg-slate-700 text-white shadow-lg transform scale-105'
+                                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300'
                             }`}
                           >
                             {t('clientDemandes.subFilters.completed')} ({countTermines})
@@ -2002,7 +2002,7 @@ export default function MesDemandesPage() {
                             onClick={() => setSousFiltreTraitees('litiges')}
                             className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                               sousFiltreTraitees === 'litiges'
-                                ? 'bg-gradient-to-r from-orange-400 to-orange-600 text-white shadow-lg transform scale-105'
+                                ? ' bg-orange-400 text-white shadow-lg transform scale-105'
                                 : 'bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-300'
                             }`}
                           >
@@ -2016,7 +2016,7 @@ export default function MesDemandesPage() {
                             onClick={() => setSousFiltreTraitees('refusees')}
                             className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                               sousFiltreTraitees === 'refusees'
-                                ? 'bg-gradient-to-r from-red-400 to-red-600 text-white shadow-lg transform scale-105'
+                                ? ' bg-red-400 text-white shadow-lg transform scale-105'
                                 : 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200'
                             }`}
                           >
@@ -2030,7 +2030,7 @@ export default function MesDemandesPage() {
                             onClick={() => setSousFiltreTraitees('expirees')}
                             className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                               sousFiltreTraitees === 'expirees'
-                                ? 'bg-gradient-to-r from-red-500 to-red-700 text-white shadow-lg transform scale-105'
+                                ? ' bg-red-500 text-white shadow-lg transform scale-105'
                                 : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-300'
                             }`}
                           >
@@ -2066,10 +2066,10 @@ export default function MesDemandesPage() {
               ) : (
                 <Card className="p-12 text-center">
                   <div className="text-6xl mb-4">🔍</div>
-                  <h2 className="text-2xl font-bold text-[#2C3E50] mb-2">
+                  <h2 className="text-2xl font-bold text-navy-800 mb-2">
                     {t('clientDemandes.empty.noRequestsInCategory')}
                   </h2>
-                  <p className="text-[#6C757D]">
+                  <p className="text-slate-500">
                     {filtreSection === 'toutes' ? t('clientDemandes.empty.noRequestsYet') : t('clientDemandes.empty.tryAnotherCategory')}
                   </p>
                 </Card>
@@ -2084,9 +2084,9 @@ export default function MesDemandesPage() {
       {/* 🆘 Modal d'aide : Expiration automatique */}
       {showExpirationHelp && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={() => setShowExpirationHelp(false)}>
-          <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-lg" onClick={(e) => e.stopPropagation()}>
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-2xl">
+            <div className="bg-blue-600 text-white p-6 rounded-t-2xl">
               <div className="flex items-start justify-between">
                 <div>
                   <h2 className="text-2xl font-bold mb-2 flex items-center gap-3">
@@ -2112,7 +2112,7 @@ export default function MesDemandesPage() {
             <div className="p-6 space-y-6">
               {/* Intro */}
               <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                <p className="text-gray-700">
+                <p className="text-slate-700">
                   <strong>{t('clientDemandes.expirationHelp.intro.title')}</strong><br />
                   {t('clientDemandes.expirationHelp.intro.description')}
                 </p>
@@ -2120,7 +2120,7 @@ export default function MesDemandesPage() {
 
               {/* Règles détaillées */}
               <div>
-                <h3 className="text-xl font-bold text-[#2C3E50] mb-4 flex items-center gap-2">
+                <h3 className="text-xl font-bold text-navy-800 mb-4 flex items-center gap-2">
                   <span className="text-2xl">📐</span>
                   {t('clientDemandes.expirationHelp.rules.title')}
                 </h3>
@@ -2129,7 +2129,7 @@ export default function MesDemandesPage() {
                   {/* Règle 1 */}
                   <div className="border-l-4 border-orange-400 bg-orange-50 p-4 rounded">
                     <h4 className="font-bold text-orange-900 mb-2">{t('clientDemandes.expirationHelp.rules.urgent.title')}</h4>
-                    <p className="text-sm text-gray-700 mb-2">
+                    <p className="text-sm text-slate-700 mb-2">
                       <strong>{t('clientDemandes.expirationHelp.rules.urgent.expiration')}</strong> {t('clientDemandes.expirationHelp.rules.urgent.expirationValue')}
                     </p>
                     <div className="bg-white p-3 rounded text-sm">
@@ -2137,14 +2137,14 @@ export default function MesDemandesPage() {
                       {t('clientDemandes.expirationHelp.rules.urgent.created')}<br />
                       {t('clientDemandes.expirationHelp.rules.urgent.worksStart')}<br />
                       → <span className="text-green-600 font-bold">{t('clientDemandes.expirationHelp.rules.urgent.result')}</span><br />
-                      <span className="text-xs text-gray-600">{t('clientDemandes.expirationHelp.rules.urgent.note')}</span>
+                      <span className="text-xs text-slate-600">{t('clientDemandes.expirationHelp.rules.urgent.note')}</span>
                     </div>
                   </div>
 
                   {/* Règle 2 */}
                   <div className="border-l-4 border-blue-400 bg-blue-50 p-4 rounded">
                     <h4 className="font-bold text-blue-900 mb-2">{t('clientDemandes.expirationHelp.rules.normal.title')}</h4>
-                    <p className="text-sm text-gray-700 mb-2">
+                    <p className="text-sm text-slate-700 mb-2">
                       <strong>{t('clientDemandes.expirationHelp.rules.normal.expiration')}</strong> {t('clientDemandes.expirationHelp.rules.normal.expirationValue')}
                     </p>
                     <div className="bg-white p-3 rounded text-sm">
@@ -2152,14 +2152,14 @@ export default function MesDemandesPage() {
                       {t('clientDemandes.expirationHelp.rules.normal.created')}<br />
                       {t('clientDemandes.expirationHelp.rules.normal.worksStart')}<br />
                       → <span className="text-green-600 font-bold">{t('clientDemandes.expirationHelp.rules.normal.result')}</span><br />
-                      <span className="text-xs text-gray-600">{t('clientDemandes.expirationHelp.rules.normal.note')}</span>
+                      <span className="text-xs text-slate-600">{t('clientDemandes.expirationHelp.rules.normal.note')}</span>
                     </div>
                   </div>
 
                   {/* Règle 3 */}
                   <div className="border-l-4 border-purple-400 bg-purple-50 p-4 rounded">
                     <h4 className="font-bold text-purple-900 mb-2">{t('clientDemandes.expirationHelp.rules.distant.title')}</h4>
-                    <p className="text-sm text-gray-700 mb-2">
+                    <p className="text-sm text-slate-700 mb-2">
                       <strong>{t('clientDemandes.expirationHelp.rules.distant.expiration')}</strong> {t('clientDemandes.expirationHelp.rules.distant.expirationValue')}
                     </p>
                     <div className="bg-white p-3 rounded text-sm">
@@ -2167,14 +2167,14 @@ export default function MesDemandesPage() {
                       {t('clientDemandes.expirationHelp.rules.distant.created')}<br />
                       {t('clientDemandes.expirationHelp.rules.distant.worksStart')}<br />
                       → <span className="text-green-600 font-bold">{t('clientDemandes.expirationHelp.rules.distant.result')}</span><br />
-                      <span className="text-xs text-gray-600">{t('clientDemandes.expirationHelp.rules.distant.note')}</span>
+                      <span className="text-xs text-slate-600">{t('clientDemandes.expirationHelp.rules.distant.note')}</span>
                     </div>
                   </div>
 
                   {/* Règle 4 */}
-                  <div className="border-l-4 border-gray-400 bg-gray-50 p-4 rounded">
-                    <h4 className="font-bold text-gray-900 mb-2">{t('clientDemandes.expirationHelp.rules.noDate.title')}</h4>
-                    <p className="text-sm text-gray-700 mb-2">
+                  <div className="border-l-4 border-slate-400 bg-slate-50 p-4 rounded">
+                    <h4 className="font-bold text-slate-900 mb-2">{t('clientDemandes.expirationHelp.rules.noDate.title')}</h4>
+                    <p className="text-sm text-slate-700 mb-2">
                       <strong>{t('clientDemandes.expirationHelp.rules.noDate.expiration')}</strong> {t('clientDemandes.expirationHelp.rules.noDate.expirationValue')}
                     </p>
                     <div className="bg-white p-3 rounded text-sm">
@@ -2188,20 +2188,20 @@ export default function MesDemandesPage() {
               </div>
 
               {/* FAQ rapide */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-bold text-[#2C3E50] mb-3">{t('clientDemandes.expirationHelp.faq.title')}</h3>
+              <div className="bg-slate-50 p-4 rounded-lg">
+                <h3 className="text-lg font-bold text-navy-800 mb-3">{t('clientDemandes.expirationHelp.faq.title')}</h3>
                 <div className="space-y-3 text-sm">
                   <div>
-                    <p className="font-semibold text-gray-900">{t('clientDemandes.expirationHelp.faq.why5Days.question')}</p>
-                    <p className="text-gray-700">{t('clientDemandes.expirationHelp.faq.why5Days.answer')}</p>
+                    <p className="font-semibold text-slate-900">{t('clientDemandes.expirationHelp.faq.why5Days.question')}</p>
+                    <p className="text-slate-700">{t('clientDemandes.expirationHelp.faq.why5Days.answer')}</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">{t('clientDemandes.expirationHelp.faq.expired.question')}</p>
-                    <p className="text-gray-700">{t('clientDemandes.expirationHelp.faq.expired.answer')}</p>
+                    <p className="font-semibold text-slate-900">{t('clientDemandes.expirationHelp.faq.expired.question')}</p>
+                    <p className="text-slate-700">{t('clientDemandes.expirationHelp.faq.expired.answer')}</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">{t('clientDemandes.expirationHelp.faq.extend.question')}</p>
-                    <p className="text-gray-700">{t('clientDemandes.expirationHelp.faq.extend.answer')}</p>
+                    <p className="font-semibold text-slate-900">{t('clientDemandes.expirationHelp.faq.extend.question')}</p>
+                    <p className="text-slate-700">{t('clientDemandes.expirationHelp.faq.extend.answer')}</p>
                   </div>
                   <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                     <p className="font-semibold text-orange-900">{t('clientDemandes.expirationHelp.faq.retention.question')}</p>

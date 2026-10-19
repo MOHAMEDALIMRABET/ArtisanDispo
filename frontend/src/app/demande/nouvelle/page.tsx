@@ -294,22 +294,22 @@ function NouvelleDemandeContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="bg-[#2C3E50] text-white py-6 shadow-lg">
+      <header className="bg-navy-800 text-white py-6 shadow-lg">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">
                 {isEditingBrouillon ? 'Compléter votre brouillon' : 'Créer votre demande de devis'}
               </h1>
-              <p className="text-[#95A5A6] mt-2">
+              <p className="text-slate-400 mt-2">
                 {isEditingBrouillon ? 'Finalisez et publiez votre demande' : 'Complétez les détails de votre projet'}
               </p>
             </div>
             <button
               onClick={() => setShowExpirationInfo(!showExpirationInfo)}
-              className="flex items-center gap-2 px-4 py-2 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] transition-colors shadow-md"
+              className="flex items-center gap-2 px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors shadow-md"
               title="Afficher/masquer les règles d'expiration"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -327,10 +327,10 @@ function NouvelleDemandeContent() {
         {/* 🕒 Encart info expiration automatique (affichage conditionnel) */}
         {showExpirationInfo && (
           <div className="mb-6 animate-fadeIn">
-            <Card className="border-l-4 border-[#FF6B00] bg-orange-50 relative">
+            <Card className="border-l-4 border-brand-500 bg-orange-50 relative">
               <button
                 onClick={() => setShowExpirationInfo(false)}
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-orange-100 transition-colors"
+                className="absolute top-2 right-2 text-slate-500 hover:text-slate-700 p-1 rounded-full hover:bg-orange-100 transition-colors"
                 title="Fermer"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -338,29 +338,29 @@ function NouvelleDemandeContent() {
                 </svg>
               </button>
               <div className="p-4 pr-8">
-                <h3 className="font-bold text-[#2C3E50] mb-2 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-[#FF6B00]" fill="currentColor" viewBox="0 0 20 20">
+                <h3 className="font-bold text-navy-800 mb-2 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-brand-700" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                   </svg>
                   ⏰ Expiration automatique de votre demande
                 </h3>
-                <div className="text-sm text-gray-700 space-y-2">
+                <div className="text-sm text-slate-700 space-y-2">
                   <p className="font-medium">Votre demande sera automatiquement fermée selon ces règles :</p>
                   <ul className="ml-4 space-y-1">
                     <li className="flex items-start gap-2">
-                      <span className="text-[#FF6B00] font-bold">•</span>
+                      <span className="text-brand-700 font-bold">•</span>
                       <span><strong>Travaux urgents</strong> (dans moins de 7 jours) : minimum 5 jours pour recevoir des devis</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-[#FF6B00] font-bold">•</span>
+                      <span className="text-brand-700 font-bold">•</span>
                       <span><strong>Travaux normaux</strong> (7-30 jours) : fermeture 5 jours avant la date de début</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-[#FF6B00] font-bold">•</span>
+                      <span className="text-brand-700 font-bold">•</span>
                       <span><strong>Travaux lointains</strong> (plus de 30 jours) : fermeture après 30 jours maximum</span>
                     </li>
                   </ul>
-                  <p className="text-xs text-gray-600 mt-2 italic">
+                  <p className="text-xs text-slate-600 mt-2 italic">
                     💡 Ces délais garantissent que les artisans aient le temps de visiter votre chantier et vous envoyer des devis de qualité.
                   </p>
                 </div>
@@ -371,24 +371,24 @@ function NouvelleDemandeContent() {
 
         {/* Bandeau artisan sélectionné */}
         {artisan && (
-          <Card className="p-6 mb-6 bg-[#FFF3E0] border-l-4 border-[#FF6B00]">
+          <Card className="p-6 mb-6 bg-brand-50 border-l-4 border-brand-500">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-[#E9ECEF] rounded-full flex items-center justify-center text-3xl flex-shrink-0">
+              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-3xl flex-shrink-0">
                 {artisan.photoProfil ? (
                   <img src={artisan.photoProfil} alt={artisan.raisonSociale} className="w-full h-full rounded-full object-cover" />
                 ) : '👷'}
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-[#2C3E50] text-lg mb-1">
+                <h3 className="font-bold text-navy-800 text-lg mb-1">
                   Demande pour : {artisan.raisonSociale}
                 </h3>
-                <p className="text-[#6C757D] text-sm">
+                <p className="text-slate-500 text-sm">
                   {artisan.metiers?.join(' • ')}
                 </p>
               </div>
               <div className="flex flex-col gap-2">
                 {artisan.verified && (
-                  <div className="bg-[#28A745] text-white px-3 py-1 rounded-full text-sm font-semibold">
+                  <div className="bg-green-700 text-white px-3 py-1 rounded-full text-sm font-semibold">
                     ✓ Vérifié
                   </div>
                 )}
@@ -407,28 +407,28 @@ function NouvelleDemandeContent() {
 
         {/* Critères de recherche */}
         {searchCriteria && (
-          <Card className="p-6 mb-6 bg-[#E3F2FD]">
-            <h3 className="font-bold text-[#2C3E50] mb-3">📋 Informations de votre recherche</h3>
+          <Card className="p-6 mb-6 bg-blue-50">
+            <h3 className="font-bold text-navy-800 mb-3">📋 Informations de votre recherche</h3>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
               <div>
-                <span className="text-[#6C757D]">Catégorie :</span>
-                <p className="font-semibold text-[#2C3E50]">{searchCriteria.categorie}</p>
+                <span className="text-slate-500">Catégorie :</span>
+                <p className="font-semibold text-navy-800">{searchCriteria.categorie}</p>
               </div>
               <div>
-                <span className="text-[#6C757D]">Localisation :</span>
-                <p className="font-semibold text-[#2C3E50]">{searchCriteria.ville} ({searchCriteria.codePostal})</p>
+                <span className="text-slate-500">Localisation :</span>
+                <p className="font-semibold text-navy-800">{searchCriteria.ville} ({searchCriteria.codePostal})</p>
               </div>
               <div>
-                <span className="text-[#6C757D]">Date souhaitée :</span>
-                <p className="font-semibold text-[#2C3E50]">{searchCriteria.dates?.[0] || 'Non précisée'}</p>
+                <span className="text-slate-500">Date souhaitée :</span>
+                <p className="font-semibold text-navy-800">{searchCriteria.dates?.[0] || 'Non précisée'}</p>
               </div>
               <div>
-                <span className="text-[#6C757D]">Flexibilité :</span>
-                <p className="font-semibold text-[#2C3E50]">±{searchCriteria.flexibiliteDays || 0}J</p>
+                <span className="text-slate-500">Flexibilité :</span>
+                <p className="font-semibold text-navy-800">±{searchCriteria.flexibiliteDays || 0}J</p>
               </div>
               <div>
-                <span className="text-[#6C757D]">Urgence :</span>
-                <p className="font-semibold text-[#2C3E50]">
+                <span className="text-slate-500">Urgence :</span>
+                <p className="font-semibold text-navy-800">
                   {searchCriteria.urgence === 'urgent' ? '⚡ Urgent' : searchCriteria.urgence === 'normale' ? '📅 Normal' : '🗓️ Flexible'}
                 </p>
               </div>
@@ -448,14 +448,14 @@ function NouvelleDemandeContent() {
                 required
                 maxLength={100}
               />
-              <p className="text-sm text-[#6C757D] mt-1">
+              <p className="text-sm text-slate-500 mt-1">
                 Un titre clair aidera les artisans à identifier rapidement votre besoin
               </p>
             </section>
 
             {/* Description détaillée */}
             <section className="mb-6">
-              <label className="block text-[#2C3E50] font-semibold mb-2">
+              <label className="block text-navy-800 font-semibold mb-2">
                 Description détaillée du projet *
               </label>
               <textarea
@@ -465,19 +465,19 @@ function NouvelleDemandeContent() {
                 required
                 rows={8}
                 maxLength={2000}
-                className="w-full px-4 py-3 border border-[#E9ECEF] rounded-lg focus:border-[#FF6B00] focus:ring-2 focus:ring-[#FF6B00] focus:ring-opacity-20 outline-none resize-none"
+                className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-brand-500 focus:ring-2 focus:ring-brand-500 focus:ring-opacity-20 outline-none resize-none"
               />
-              <p className="text-sm text-[#6C757D] mt-1">
+              <p className="text-sm text-slate-500 mt-1">
                 {formData.description.length}/2000 caractères
               </p>
             </section>
 
             {/* Photos */}
             <section className="mb-6">
-              <label className="block text-[#2C3E50] font-semibold mb-2">
+              <label className="block text-navy-800 font-semibold mb-2">
                 Photos du chantier (optionnel)
               </label>
-              <div className="border-2 border-dashed border-[#E9ECEF] rounded-lg p-6 text-center hover:border-[#FF6B00] transition-colors">
+              <div className="border-2 border-dashed border-slate-200 rounded-lg p-6 text-center hover:border-brand-500 transition-colors">
                 <input
                   type="file"
                   accept="image/*"
@@ -488,10 +488,10 @@ function NouvelleDemandeContent() {
                 />
                 <label htmlFor="photo-upload" className="cursor-pointer">
                   <div className="text-5xl mb-3">📷</div>
-                  <p className="text-[#2C3E50] font-semibold mb-1">
+                  <p className="text-navy-800 font-semibold mb-1">
                     Cliquez pour ajouter des photos
                   </p>
-                  <p className="text-sm text-[#6C757D]">
+                  <p className="text-sm text-slate-500">
                     Maximum 5 photos • 5MB par photo • JPG, PNG
                   </p>
                 </label>
@@ -505,12 +505,12 @@ function NouvelleDemandeContent() {
                       <img
                         src={URL.createObjectURL(photo)}
                         alt={`Photo ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg border border-[#E9ECEF]"
+                        className="w-full h-24 object-cover rounded-lg border border-slate-200"
                       />
                       <button
                         type="button"
                         onClick={() => removePhoto(index)}
-                        className="absolute top-1 right-1 bg-[#DC3545] text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute top-1 right-1 bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         ✕
                       </button>
@@ -522,7 +522,7 @@ function NouvelleDemandeContent() {
 
             {/* Budget */}
             <section className="mb-6">
-              <label className="block text-[#2C3E50] font-semibold mb-2">
+              <label className="block text-navy-800 font-semibold mb-2">
                 Budget estimé (optionnel)
               </label>
               <Input
@@ -538,21 +538,21 @@ function NouvelleDemandeContent() {
                 placeholder="1000"
                 min="0"
               />
-              <p className="text-sm text-[#6C757D] mt-2">
+              <p className="text-sm text-slate-500 mt-2">
                 Indiquer un budget aide les artisans à adapter leurs devis
               </p>
             </section>
           </Card>
 
           {/* Bandeau sécurité */}
-          <Card className="p-6 mb-6 bg-[#E8F5E9] border-l-4 border-[#28A745]">
+          <Card className="p-6 mb-6 bg-green-50 border-l-4 border-green-600">
             <div className="flex items-start gap-4">
               <div className="text-4xl">🔒</div>
               <div>
-                <h3 className="font-bold text-[#2C3E50] mb-2">
+                <h3 className="font-bold text-navy-800 mb-2">
                   Vos coordonnées sont protégées
                 </h3>
-                <p className="text-[#6C757D] text-sm">
+                <p className="text-slate-500 text-sm">
                   • Vos coordonnées ne seront visibles qu'après signature du contrat<br />
                   • Communication sécurisée via notre messagerie
                 </p>
@@ -565,23 +565,23 @@ function NouvelleDemandeContent() {
             <Button
               type="button"
               onClick={() => router.back()}
-              className="flex-1 border-2 border-[#6C757D] text-[#6C757D] hover:bg-[#6C757D] hover:text-white"
+              className="flex-1 border-2 border-slate-500 text-slate-500 hover:bg-slate-500 hover:text-white"
               disabled={loading}
             >
               Annuler
             </Button>
             <Button
               type="submit"
-              className="flex-1 bg-[#FF6B00] hover:bg-[#E56100] text-white font-bold"
+              className="flex-1 bg-brand-700 hover:bg-brand-800 text-white font-bold"
               disabled={loading}
             >
               {loading ? '⏳ Envoi...' : '📤 Envoyer la demande'}
             </Button>
           </div>
 
-          <p className="text-center text-sm text-[#6C757D] mt-4">
+          <p className="text-center text-sm text-slate-500 mt-4">
             En publiant, vous acceptez nos{' '}
-            <a href="/cgu" className="text-[#FF6B00] hover:underline">
+            <a href="/cgu" className="text-brand-700 hover:underline">
               Conditions Générales d'Utilisation
             </a>
           </p>
@@ -594,8 +594,8 @@ function NouvelleDemandeContent() {
 export default function NouvelleDemandePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#FF6B00] border-t-transparent"></div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-brand-500 border-t-transparent"></div>
       </div>
     }>
       <NouvelleDemandeContent />

@@ -44,27 +44,27 @@ export default function TestEmailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] py-8">
+    <div className="min-h-screen bg-slate-50 py-8">
       <div className="container mx-auto px-4 max-w-3xl">
-        <h1 className="text-3xl font-bold text-[#2C3E50] mb-6">
-          🧪 Test Email de Vérification Firebase
+        <h1 className="text-3xl font-bold text-navy-800 mb-6">
+          Test Email de Vérification Firebase
         </h1>
 
         <div className="space-y-6">
           {/* Statut utilisateur */}
           <Card>
-            <h2 className="text-xl font-bold text-[#2C3E50] mb-4">
+            <h2 className="text-xl font-bold text-navy-800 mb-4">
               1️⃣ Vérifier le statut utilisateur
             </h2>
             <Button 
               onClick={handleCheckStatus}
-              className="bg-[#FF6B00] hover:bg-[#E56100] text-white"
+              className="bg-brand-700 hover:bg-brand-800 text-white"
             >
               Vérifier le statut
             </Button>
 
             {status && (
-              <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+              <div className="mt-4 p-4 bg-slate-100 rounded-lg">
                 <pre className="text-sm overflow-auto">
                   {JSON.stringify(status, null, 2)}
                 </pre>
@@ -74,16 +74,16 @@ export default function TestEmailPage() {
 
           {/* Test envoi email */}
           <Card>
-            <h2 className="text-xl font-bold text-[#2C3E50] mb-4">
+            <h2 className="text-xl font-bold text-navy-800 mb-4">
               2️⃣ Envoyer un email de vérification
             </h2>
-            <p className="text-[#6C757D] mb-4">
+            <p className="text-slate-500 mb-4">
               Vous devez être connecté avec un compte non vérifié pour tester l'envoi.
             </p>
             <Button 
               onClick={handleTestEmail}
               disabled={loading}
-              className="bg-[#FF6B00] hover:bg-[#E56100] text-white disabled:opacity-50"
+              className="bg-brand-700 hover:bg-brand-800 text-white disabled:opacity-50"
             >
               {loading ? 'Envoi en cours...' : 'Envoyer l\'email de test'}
             </Button>
@@ -112,16 +112,16 @@ export default function TestEmailPage() {
 
           {/* Rafraîchir statut vérification */}
           <Card>
-            <h2 className="text-xl font-bold text-[#2C3E50] mb-4">
+            <h2 className="text-xl font-bold text-navy-800 mb-4">
               3️⃣ Rafraîchir le statut de vérification
             </h2>
-            <p className="text-[#6C757D] mb-4">
+            <p className="text-slate-500 mb-4">
               Après avoir cliqué sur le lien dans l'email, rafraîchissez le statut ici.
             </p>
             <Button 
               onClick={handleRefreshStatus}
               disabled={loading}
-              className="bg-[#2C3E50] hover:bg-[#1A3A5C] text-white disabled:opacity-50"
+              className="bg-navy-800 hover:bg-navy-900 text-white disabled:opacity-50"
             >
               {loading ? 'Vérification...' : 'Rafraîchir le statut'}
             </Button>
@@ -142,11 +142,11 @@ export default function TestEmailPage() {
 
           {/* Instructions */}
           <Card className="bg-blue-50 border-2 border-blue-200">
-            <h2 className="text-xl font-bold text-[#2C3E50] mb-4">
+            <h2 className="text-xl font-bold text-navy-800 mb-4">
               📋 Instructions
             </h2>
-            <ol className="list-decimal list-inside space-y-2 text-[#2C3E50]">
-              <li>Inscrivez-vous avec un compte de test sur <a href="/inscription" className="text-[#FF6B00] underline">la page d'inscription</a></li>
+            <ol className="list-decimal list-inside space-y-2 text-navy-800">
+              <li>Inscrivez-vous avec un compte de test sur <a href="/inscription" className="text-brand-700 underline">la page d'inscription</a></li>
               <li>Revenez sur cette page et vérifiez votre statut (étape 1)</li>
               <li>Envoyez un email de test (étape 2)</li>
               <li>Vérifiez votre boîte email (et spam)</li>
@@ -178,7 +178,7 @@ export default function TestEmailPage() {
                 href="https://console.firebase.google.com/project/artisansafe/authentication/emails"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#FF6B00] hover:underline font-medium"
+                className="text-brand-700 hover:underline font-medium"
               >
                 📝 Configurer les templates d'email dans Firebase →
               </a>

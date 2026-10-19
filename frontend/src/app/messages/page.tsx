@@ -114,24 +114,24 @@ function ConversationItem({
       title={isInactive ? 'Cette conversation est fermée (demande refusée ou annulée)' : undefined}
       className={`w-full p-4 border-b transition text-left ${
         isInactive
-          ? 'opacity-40 bg-gray-100 cursor-not-allowed'
-          : 'hover:bg-gray-50 cursor-pointer'
+          ? 'opacity-40 bg-slate-100 cursor-not-allowed'
+          : 'hover:bg-slate-50 cursor-pointer'
       } ${
-        isSelected && !isInactive ? 'bg-blue-50 border-l-4 border-[#FF6B00]' : ''
+        isSelected && !isInactive ? 'bg-blue-50 border-l-4 border-brand-500' : ''
       }`}
     >
       <div className="flex items-center justify-between mb-1">
-        <span className={`font-semibold ${isInactive ? 'text-gray-400' : 'text-[#2C3E50]'}`}>{fullName}</span>
+        <span className={`font-semibold ${isInactive ? 'text-slate-400' : 'text-navy-800'}`}>{fullName}</span>
         {isInactive ? (
-          <span className="text-xs text-gray-400">🚫 Fermée</span>
+          <span className="text-xs text-slate-400">🚫 Fermée</span>
         ) : (conversation.unreadCount && conversation.unreadCount > 0 && (
           <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
             {conversation.unreadCount}
           </span>
         ))}
       </div>
-      <p className="text-sm text-gray-600 truncate">{conversation.lastMessage || 'Aucun message'}</p>
-      <p className="text-xs text-gray-400 mt-1">
+      <p className="text-sm text-slate-600 truncate">{conversation.lastMessage || 'Aucun message'}</p>
+      <p className="text-xs text-slate-400 mt-1">
         {conversation.lastMessageDate?.toDate().toLocaleDateString('fr-FR')}
       </p>
     </button>
@@ -748,8 +748,8 @@ export default function MessagesPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
-          <p className="mt-4 text-gray-600">{t('messaging.loading')}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
+          <p className="mt-4 text-slate-600">{t('messaging.loading')}</p>
         </div>
       </div>
     );
@@ -760,41 +760,41 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-[#2C3E50] text-white py-8">
+      <div className="bg-navy-800 text-white py-8">
         <div className="max-w-7xl mx-auto px-4">
           <button
             onClick={() => router.push('/dashboard')}
-            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4 transition-colors"
+            className="flex items-center gap-2 text-white hover:text-brand-300 mb-4 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             {t('messaging.backToDashboard')}
           </button>
-          <h1 className="text-3xl font-bold">💬 {t('messaging.pageTitle')}</h1>
-          <p className="text-gray-300 mt-2">{t('messaging.pageSubtitle')}</p>
+          <h1 className="text-3xl font-bold">{t('messaging.pageTitle')}</h1>
+          <p className="text-slate-300 mt-2">{t('messaging.pageSubtitle')}</p>
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 py-8">
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-320px)]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 h-[calc(100dvh-15rem)] min-h-[480px]">
           {/* Liste des conversations */}
           <div className="lg:col-span-1 bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="bg-[#2C3E50] text-white p-4">
+            <div className="bg-navy-800 text-white p-4">
               <h2 className="font-semibold">{t('messaging.conversations')}</h2>
             </div>
             
             <div className="overflow-y-auto h-full">
               {loading ? (
-                <div className="p-4 text-center text-gray-500">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF6B00] mx-auto mb-2"></div>
+                <div className="p-4 text-center text-slate-500">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500 mx-auto mb-2"></div>
                   {t('messaging.loading')}
                 </div>
               ) : conversations.length === 0 ? (
-                <div className="p-6 text-center text-gray-500">
-                  <svg className="w-16 h-16 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="p-6 text-center text-slate-500">
+                  <svg className="w-16 h-16 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                   <p>{t('messaging.noConversations')}</p>
@@ -826,13 +826,13 @@ export default function MessagesPage() {
             {selectedConversation && otherUserInfo ? (
               <>
                 {/* Header */}
-                <div className="bg-[#2C3E50] text-white p-4 flex items-center justify-between">
+                <div className="bg-navy-800 text-white p-4 flex items-center justify-between">
                   <div>
                     <h2 className="font-semibold">{otherUserInfo.displayName}</h2>
                   </div>
                   <button
                     onClick={() => setSelectedConversation(null)}
-                    className="lg:hidden text-white hover:text-gray-300"
+                    className="lg:hidden text-white hover:text-slate-300"
                   >
                     ✕
                   </button>
@@ -842,21 +842,21 @@ export default function MessagesPage() {
                 <div className="flex-1 overflow-y-auto p-4 space-y-3">
                   {/* Bandeau conversation inactive */}
                   {isConversationInactive && (
-                    <div className="mb-4 p-4 bg-gray-100 border-l-4 border-gray-500 rounded">
+                    <div className="mb-4 p-4 bg-slate-100 border-l-4 border-slate-500 rounded">
                       <div className="flex items-start">
                         <span className="text-2xl mr-3">🚫</span>
                         <div>
-                          <h3 className="font-semibold text-gray-700 mb-1">
+                          <h3 className="font-semibold text-slate-700 mb-1">
                             {t('messaging.conversationInactive.title')}
                           </h3>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-slate-600">
                             {devisStatus === 'annule' && t('messaging.conversationInactive.cancelled')}
                             {devisStatus === 'refuse' && t('messaging.conversationInactive.refusedDefinitive')}
                             {devisStatus === 'expire' && t('messaging.conversationInactive.expired')}
                             {(devisStatus === 'termine_valide' || devisStatus === 'termine_auto_valide') && t('messaging.conversationInactive.completed')}
                           </p>
                           {devisInfo?.numeroDevis && (
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-slate-500 mt-1">
                               Devis #{devisInfo.numeroDevis}
                             </p>
                           )}
@@ -886,16 +886,16 @@ export default function MessagesPage() {
                           <div
                             className={`rounded-lg px-4 py-2 ${
                               isRejected 
-                                ? 'bg-[#1e3a5f] text-white border-2 border-red-500' // ✅ Style BlaBlaCar : Bleu foncé + bordure rouge
+                                ? 'bg-navy-900 text-white border-2 border-red-500' // ✅ Style BlaBlaCar : Bleu foncé + bordure rouge
                                 : isOwn
-                                ? 'bg-[#FF6B00] text-white'
-                                : 'bg-gray-200 text-[#2C3E50]'
+                                ? 'bg-brand-700 text-white'
+                                : 'bg-slate-200 text-navy-800'
                             }`}
                           >
                             <p className="break-words">{msg.content}</p>
                             <p className={`text-xs mt-1 flex items-center gap-1 ${
                               isRejected ? 'text-red-200' :
-                              isOwn ? 'text-orange-100' : 'text-gray-500'
+                              isOwn ? 'text-orange-100' : 'text-slate-500'
                             }`}>
                               {msg.createdAt?.toDate().toLocaleTimeString(language === 'en' ? 'en-US' : 'fr-FR', {
                                 hour: '2-digit',
@@ -929,12 +929,12 @@ export default function MessagesPage() {
                 <form 
                   onSubmit={handleSendMessage} 
                   className={`p-4 border-t ${
-                    isConversationInactive ? 'bg-gray-200' : 'bg-gray-50'
+                    isConversationInactive ? 'bg-slate-200' : 'bg-slate-50'
                   }`}
                 >
                   {isConversationInactive && (
                     <div className="mb-2 text-center">
-                      <p className="text-sm text-gray-500 italic">
+                      <p className="text-sm text-slate-500 italic">
                         ❌ {t('messaging.conversationInactive.sendDisabled')}
                       </p>
                     </div>
@@ -949,17 +949,17 @@ export default function MessagesPage() {
                           ? t('messaging.conversationClosed')
                           : t('messaging.typePlaceholder')
                       }
-                      className={`flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent ${
+                      className={`flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent ${
                         isConversationInactive 
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-300' 
-                          : 'bg-white border-gray-300'
+                          ? 'bg-slate-100 text-slate-400 cursor-not-allowed border-slate-300' 
+                          : 'bg-white border-slate-300'
                       }`}
                       disabled={sending || isConversationInactive}
                     />
                     <button
                       type="submit"
                       disabled={sending || !messageContent.trim() || isConversationInactive}
-                      className="bg-[#FF6B00] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#E56100] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="bg-brand-700 text-white px-6 py-2 rounded-lg font-semibold hover:bg-brand-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {sending ? '⏳' : '📤'} {sending ? t('messaging.sending') : t('messaging.send')}
                     </button>
@@ -967,13 +967,13 @@ export default function MessagesPage() {
                 </form>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center text-gray-500">
+              <div className="flex-1 flex items-center justify-center text-slate-500">
                 <div className="text-center">
-                  <svg className="w-20 h-20 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-20 h-20 mx-auto mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                   <p className="text-lg font-medium">{t('messaging.noConversation')}</p>
-                  <p className="text-sm text-gray-400 mt-2">{t('messaging.noConversationDesc')}</p>
+                  <p className="text-sm text-slate-400 mt-2">{t('messaging.noConversationDesc')}</p>
                 </div>
               </div>
             )}

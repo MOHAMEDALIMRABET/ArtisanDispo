@@ -50,10 +50,10 @@ export default function CheckoutForm({ montant, demandeId }: CheckoutFormProps) 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
-        <p className="text-sm text-[#2C3E50] mb-2">
+        <p className="text-sm text-navy-800 mb-2">
           <strong>🔒 Paiement sécurisé Stripe</strong>
         </p>
-        <p className="text-xs text-[#6C757D]">
+        <p className="text-xs text-slate-500">
           Vos informations bancaires sont chiffrées et sécurisées. Aucune donnée ne transite par nos serveurs.
         </p>
       </div>
@@ -86,10 +86,10 @@ export default function CheckoutForm({ montant, demandeId }: CheckoutFormProps) 
       </div>
 
       <div className="bg-green-50 rounded-lg p-4">
-        <p className="text-xs text-[#6C757D] mb-2">
+        <p className="text-xs text-slate-500 mb-2">
           <strong>💰 Paiement avec séquestre (escrow)</strong>
         </p>
-        <ul className="text-xs text-[#6C757D] space-y-1">
+        <ul className="text-xs text-slate-500 space-y-1">
           <li>• Votre argent est sécurisé jusqu'à la fin de l'intervention</li>
           <li>• L'artisan ne reçoit le paiement qu'après confirmation</li>
           <li>• Remboursement possible en cas de litige</li>

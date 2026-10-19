@@ -103,16 +103,16 @@ export function SignatureCanvas({ onSave, onCancel }: SignatureCanvasProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="bg-[#2C3E50] text-white p-6 rounded-t-lg">
+        <div className="bg-navy-800 text-white p-6 rounded-t-lg">
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
             </svg>
             Signature électronique
           </h2>
-          <p className="text-sm text-gray-300 mt-2">
+          <p className="text-sm text-slate-300 mt-2">
             Signez ci-dessous pour accepter le devis
           </p>
         </div>
@@ -137,7 +137,7 @@ export function SignatureCanvas({ onSave, onCancel }: SignatureCanvasProps) {
           </div>
 
           {/* Canvas de signature */}
-          <div className="border-2 border-dashed border-gray-300 rounded-lg bg-white overflow-hidden">
+          <div className="border-2 border-dashed border-slate-300 rounded-lg bg-white overflow-hidden">
             <canvas
               ref={canvasRef}
               width={700}
@@ -154,8 +154,8 @@ export function SignatureCanvas({ onSave, onCancel }: SignatureCanvasProps) {
           </div>
 
           {/* Note légale */}
-          <div className="bg-gray-50 border border-gray-200 p-4 rounded text-xs text-gray-600">
-            <p className="font-semibold text-gray-800 mb-1">📋 Valeur juridique de la signature électronique</p>
+          <div className="bg-slate-50 border border-slate-200 p-4 rounded text-xs text-slate-600">
+            <p className="font-semibold text-slate-800 mb-1">📋 Valeur juridique de la signature électronique</p>
             <p>
               Conformément au règlement eIDAS (UE n°910/2014), votre signature électronique a la même valeur 
               juridique qu'une signature manuscrite. Elle engage votre responsabilité contractuelle.
@@ -164,10 +164,10 @@ export function SignatureCanvas({ onSave, onCancel }: SignatureCanvasProps) {
         </div>
 
         {/* Footer - Boutons d'action */}
-        <div className="bg-gray-50 p-6 rounded-b-lg flex flex-wrap gap-3 justify-end border-t">
+        <div className="bg-slate-50 p-6 rounded-b-lg flex flex-wrap gap-3 justify-end border-t">
           <button
             onClick={onCancel}
-            className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition-colors"
+            className="px-6 py-3 bg-slate-300 text-slate-700 rounded-lg font-semibold hover:bg-slate-400 transition-colors"
           >
             ❌ Annuler
           </button>
@@ -180,7 +180,7 @@ export function SignatureCanvas({ onSave, onCancel }: SignatureCanvasProps) {
           <button
             onClick={saveSignature}
             disabled={!hasSignature}
-            className="px-6 py-3 bg-[#FF6B00] text-white rounded-lg font-semibold hover:bg-[#E56100] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-3 bg-brand-700 text-white rounded-lg font-semibold hover:bg-brand-800 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
           >
             ✅ Valider la signature
           </button>

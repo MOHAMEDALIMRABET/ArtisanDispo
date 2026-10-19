@@ -112,7 +112,7 @@ const loadEmailStats = async () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl text-gray-600">Chargement...</p>
+        <p className="text-xl text-slate-600">Chargement...</p>
       </div>
     );
   }
@@ -130,7 +130,7 @@ const loadEmailStats = async () => {
       title: 'Artisans',
       value: stats.artisansTotal,
       icon: '🔧',
-      color: 'bg-[#FF6B00]',
+      color: 'bg-brand-700',
       link: '/admin/comptes',
       description: `${stats.artisansActifs} actifs • ${stats.artisansSuspendus} suspendus`
     },
@@ -138,7 +138,7 @@ const loadEmailStats = async () => {
       title: 'Clients',
       value: stats.clientsTotal,
       icon: '👥',
-      color: 'bg-[#2C3E50]',
+      color: 'bg-navy-800',
       link: '/admin/comptes',
       description: `${stats.clientsActifs} actifs • ${stats.clientsSuspendus} suspendus`
     },
@@ -172,14 +172,14 @@ const loadEmailStats = async () => {
       description: 'Suspendre, réactiver, supprimer',
       icon: '🔧',
       link: '/admin/comptes',
-      color: 'bg-[#FF6B00]'
+      color: 'bg-brand-700'
     },
     {
       title: 'Gérer Clients',
       description: 'Modération des comptes clients',
       icon: '👤',
       link: '/admin/comptes',
-      color: 'bg-[#2C3E50]'
+      color: 'bg-navy-800'
     },
     {
       title: 'Demandes de rappel',
@@ -201,10 +201,10 @@ const loadEmailStats = async () => {
     <div className="min-h-screen p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-[#2C3E50] mb-2">
+        <h1 className="text-4xl font-bold text-navy-800 mb-2">
           Tableau de bord administrateur
         </h1>
-        <p className="text-gray-600">
+        <p className="text-slate-600">
           Vue d'ensemble de la plateforme ArtisanDispo
         </p>
       </div>
@@ -215,35 +215,35 @@ const loadEmailStats = async () => {
           <Link
             key={index}
             href={card.link}
-            className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer"
+            className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
           >
             <div className="flex items-start justify-between mb-4">
               <div className={`${card.color} w-12 h-12 rounded-lg flex items-center justify-center text-2xl`}>
                 {card.icon}
               </div>
-              <span className="text-3xl font-bold text-gray-800">{card.value}</span>
+              <span className="text-3xl font-bold text-slate-800">{card.value}</span>
             </div>
-            <h3 className="font-semibold text-gray-700 mb-1">{card.title}</h3>
-            <p className="text-sm text-gray-500">{card.description}</p>
+            <h3 className="font-semibold text-slate-700 mb-1">{card.title}</h3>
+            <p className="text-sm text-slate-500">{card.description}</p>
           </Link>
         ))}
       </div>
 
       {/* Actions rapides */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-[#2C3E50] mb-4">Actions rapides</h2>
+        <h2 className="text-2xl font-bold text-navy-800 mb-4">Actions rapides</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {quickActions.map((action, index) => (
             <Link
               key={index}
               href={action.link}
-              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-transparent hover:border-[#FF6B00]"
+              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-transparent hover:border-brand-500"
             >
               <div className={`${action.color} w-14 h-14 rounded-full flex items-center justify-center text-3xl mb-4 text-white`}>
                 {action.icon}
               </div>
-              <h3 className="font-bold text-lg text-gray-800 mb-2">{action.title}</h3>
-              <p className="text-sm text-gray-600">{action.description}</p>
+              <h3 className="font-bold text-lg text-slate-800 mb-2">{action.title}</h3>
+              <p className="text-sm text-slate-600">{action.description}</p>
             </Link>
           ))}
         </div>
@@ -290,7 +290,7 @@ const loadEmailStats = async () => {
                   href="https://www.brevo.com/fr/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-block bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  className="inline-block bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg transition-colors"
                 >
                   Migrer vers Brevo →
                 </a>

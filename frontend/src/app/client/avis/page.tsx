@@ -158,7 +158,7 @@ export default function AvisClientPage() {
           <svg
             key={star}
             className={`w-5 h-5 ${
-              star <= noteValue ? 'text-yellow-400 fill-current' : 'text-gray-300'
+              star <= noteValue ? 'text-yellow-400 fill-current' : 'text-slate-300'
             }`}
             viewBox="0 0 24 24"
           >
@@ -171,23 +171,23 @@ export default function AvisClientPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
-          <p className="mt-4 text-gray-600">{t('clientReviews.loading')}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
+          <p className="mt-4 text-slate-600">{t('clientReviews.loading')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-[#2C3E50] text-white py-8">
+      <div className="bg-navy-800 text-white py-8">
         <div className="container mx-auto px-4">
           <button
             onClick={() => router.push('/dashboard')}
-            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4"
+            className="flex items-center gap-2 text-white hover:text-brand-300 mb-4"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -195,24 +195,24 @@ export default function AvisClientPage() {
             {t('clientReviews.backToDashboard')}
           </button>
           <h1 className="text-3xl font-bold">{t('clientReviews.pageTitle')}</h1>
-          <p className="text-gray-300 mt-2">{t('clientReviews.pageDescription')}</p>
+          <p className="text-slate-300 mt-2">{t('clientReviews.pageDescription')}</p>
         </div>
       </div>
 
       <div className="container mx-auto px-4 max-w-6xl py-8">
 
         {/* Filtres et recherche */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
           <div className="grid md:grid-cols-3 gap-4">
             {/* Filtre par note */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 {t('clientReviews.filters.filterByRating')}
               </label>
               <select
                 value={filtreNote || ''}
                 onChange={(e) => setFiltreNote(e.target.value ? parseInt(e.target.value) : null)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
                 <option value="">{t('clientReviews.filters.allRatings')}</option>
                 <option value="5">{t('clientReviews.filters.stars5')}</option>
@@ -225,13 +225,13 @@ export default function AvisClientPage() {
 
             {/* Tri */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 {t('clientReviews.filters.sortBy')}
               </label>
               <select
                 value={tri}
                 onChange={(e) => setTri(e.target.value as any)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
                 <option value="recent">{t('clientReviews.filters.mostRecent')}</option>
                 <option value="ancien">{t('clientReviews.filters.oldest')}</option>
@@ -242,7 +242,7 @@ export default function AvisClientPage() {
 
             {/* Recherche */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 {t('clientReviews.filters.search')}
               </label>
               <div className="relative">
@@ -251,10 +251,10 @@ export default function AvisClientPage() {
                   value={recherche}
                   onChange={(e) => setRecherche(e.target.value)}
                   placeholder={t('clientReviews.filters.searchPlaceholder')}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
+                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
                 <svg
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -267,8 +267,8 @@ export default function AvisClientPage() {
 
           {/* Compteur résultats */}
           {(filtreNote !== null || recherche.trim()) && (
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <p className="text-sm text-gray-600">
+              <div className="mt-4 pt-4 border-t border-slate-200">
+                <p className="text-sm text-slate-600">
                   {avisFiltres.length !== 1
                     ? t('clientReviews.results.foundPlural').replace('{count}', String(avisFiltres.length))
                     : t('clientReviews.results.found').replace('{count}', String(avisFiltres.length))}
@@ -280,14 +280,14 @@ export default function AvisClientPage() {
         {/* Liste des avis */}
         <div className="space-y-6">
           {avisFiltres.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-md p-12 text-center">
-              <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
+              <svg className="w-16 h-16 text-slate-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
               </svg>
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              <h3 className="text-xl font-semibold text-slate-700 mb-2">
                 {avis.length === 0 ? t('clientReviews.empty.noReviews') : t('clientReviews.empty.noResults')}
               </h3>
-              <p className="text-gray-500">
+              <p className="text-slate-500">
                 {avis.length === 0
                   ? t('clientReviews.empty.noReviewsDescription')
                   : t('clientReviews.empty.noResultsDescription')}
@@ -295,11 +295,11 @@ export default function AvisClientPage() {
             </div>
           ) : (
             avisFiltres.map((avisItem) => (
-              <div key={avisItem.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6">
+              <div key={avisItem.id} className="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-lg transition-shadow p-6">
                 {/* En-tête de l'avis */}
                 <div className="flex items-start gap-4 mb-4">
                   {/* Avatar Artisan */}
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#2C3E50] to-[#1A3A5C] flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-navy-800 flex items-center justify-center flex-shrink-0">
                     <span className="text-white font-semibold text-lg">
                       {(artisansNoms[avisItem.artisanId] || 'AR').substring(0, 2).toUpperCase()}
                     </span>
@@ -307,7 +307,7 @@ export default function AvisClientPage() {
 
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-[#2C3E50]">
+                      <span className="font-semibold text-navy-800">
                         {artisansNoms[avisItem.artisanId] || t('clientReviews.card.artisan')}
                       </span>
                       <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-medium">
@@ -319,7 +319,7 @@ export default function AvisClientPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       {renderStars(avisItem.note)}
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-slate-500">
                         • {formatDate(avisItem.dateCreation)}
                       </span>
                     </div>
@@ -362,8 +362,8 @@ export default function AvisClientPage() {
 
                 {/* Commentaire */}
                 {avisItem.commentaire && (
-                  <div className="bg-gray-50 border-l-4 border-gray-300 p-4 rounded-r-lg mb-4">
-                    <p className="text-gray-700 leading-relaxed">
+                  <div className="bg-slate-50 border-l-4 border-slate-300 p-4 rounded-r-lg mb-4">
+                    <p className="text-slate-700 leading-relaxed">
                       "{avisItem.commentaire}"
                     </p>
                   </div>
@@ -377,7 +377,7 @@ export default function AvisClientPage() {
                         key={idx}
                         src={photo}
                         alt={t('clientReviews.card.photoAlt').replace('{number}', String(idx + 1))}
-                        className="h-28 w-28 object-cover rounded-lg border-2 border-gray-200 hover:border-[#FF6B00] transition-colors cursor-pointer flex-shrink-0"
+                        className="h-28 w-28 object-cover rounded-lg border-2 border-slate-200 hover:border-brand-500 transition-colors cursor-pointer flex-shrink-0"
                       />
                     ))}
                   </div>
@@ -385,17 +385,17 @@ export default function AvisClientPage() {
 
                 {/* Réponse artisan */}
                 {avisItem.reponseArtisan && (
-                  <div className="bg-blue-50 border-l-4 border-[#FF6B00] p-4 rounded-r-lg">
+                  <div className="bg-blue-50 border-l-4 border-brand-500 p-4 rounded-r-lg">
                     <div className="flex items-center gap-2 mb-2">
-                      <svg className="w-5 h-5 text-[#FF6B00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                       </svg>
-                      <span className="font-semibold text-[#2C3E50]">{t('clientReviews.card.artisanResponse')}</span>
-                      <span className="text-sm text-gray-500">
+                      <span className="font-semibold text-navy-800">{t('clientReviews.card.artisanResponse')}</span>
+                      <span className="text-sm text-slate-500">
                         • {formatDate(avisItem.reponseArtisan.date)}
                       </span>
                     </div>
-                    <p className="text-gray-700 leading-relaxed">
+                    <p className="text-slate-700 leading-relaxed">
                       {avisItem.reponseArtisan.contenu}
                     </p>
                   </div>

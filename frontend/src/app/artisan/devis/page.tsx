@@ -550,7 +550,7 @@ export default function MesDevisPage() {
 
   const getStatutBadge = (statut: string) => {
     const styles: { [key: string]: string } = {
-      brouillon: 'bg-gray-100 text-gray-800',
+      brouillon: 'bg-slate-100 text-slate-800',
       envoye: 'bg-purple-100 text-purple-700',
       accepte: 'bg-green-100 text-green-800',
       en_attente_paiement: 'bg-yellow-100 text-yellow-800',
@@ -564,7 +564,7 @@ export default function MesDevisPage() {
       en_revision: 'bg-purple-100 text-purple-800',
       expire: 'bg-orange-100 text-orange-800',
       remplace: 'bg-purple-100 text-purple-800',
-      annule: 'bg-gray-200 text-gray-700',
+      annule: 'bg-slate-200 text-slate-700',
     };
 
     const labels: { [key: string]: string} = {
@@ -586,7 +586,7 @@ export default function MesDevisPage() {
     };
 
     return (
-      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${styles[statut] || 'bg-gray-100 text-gray-800'}`}>
+      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${styles[statut] || 'bg-slate-100 text-slate-800'}`}>
         {labels[statut] || statut}
       </span>
     );
@@ -594,10 +594,10 @@ export default function MesDevisPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B00] mx-auto"></div>
-          <p className="mt-4 text-[#6C757D]">{t('quotes.loading')}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
+          <p className="mt-4 text-slate-500">{t('quotes.loading')}</p>
         </div>
       </div>
     );
@@ -664,7 +664,7 @@ export default function MesDevisPage() {
     });
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       <style jsx>{`
         @keyframes pulse-border {
           0%, 100% {
@@ -799,11 +799,11 @@ export default function MesDevisPage() {
       `}</style>
       
       {/* Header */}
-      <div className="bg-[#2C3E50] text-white py-8">
+      <div className="bg-navy-800 text-white py-8">
         <div className="container mx-auto px-4">
           <button
             onClick={() => router.push('/artisan/dashboard')}
-            className="flex items-center gap-2 text-white hover:text-[#FF6B00] mb-4"
+            className="flex items-center gap-2 text-white hover:text-brand-300 mb-4"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -813,14 +813,14 @@ export default function MesDevisPage() {
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold">{t('quotes.myQuotes')}</h1>
-              <p className="text-gray-300 mt-2">
+              <p className="text-slate-300 mt-2">
                 {highlightedDevisId ? t('quotes.quoteDetail') : t('quotes.manageQuotesInvoices')}
               </p>
             </div>
             {highlightedDevisId && (
               <button
                 onClick={() => router.push('/artisan/devis')}
-                className="flex items-center gap-2 bg-[#FF6B00] text-white px-4 py-2 rounded-lg hover:bg-[#E56100]"
+                className="flex items-center gap-2 bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -839,8 +839,8 @@ export default function MesDevisPage() {
             onClick={() => setShowInfoGestion(prev => !prev)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-all duration-200 ${
               showInfoGestion
-                ? 'bg-[#2C3E50] text-white border-[#2C3E50]'
-                : 'bg-white text-[#2C3E50] border-gray-300 hover:border-[#2C3E50] hover:bg-gray-50'
+                ? 'bg-navy-800 text-white border-navy-800'
+                : 'bg-white text-navy-800 border-slate-300 hover:border-navy-800 hover:bg-slate-50'
             }`}
           >
             <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -856,16 +856,16 @@ export default function MesDevisPage() {
           </button>
 
           {showInfoGestion && (
-            <div className="mt-2 bg-gray-50 border-l-4 border-gray-300 p-4 rounded-lg relative">
+            <div className="mt-2 bg-slate-50 border-l-4 border-slate-300 p-4 rounded-lg relative">
               <button
                 onClick={() => setShowInfoGestion(false)}
-                className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute top-3 right-3 text-slate-400 hover:text-slate-600 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
-              <p className="text-[#2C3E50] text-sm pr-6">
+              <p className="text-navy-800 text-sm pr-6">
                 <span className="block mb-1.5"><strong>{t('quotes.refusedQuoteCleanup')}</strong></span>
                 <span className="block mb-1.5"><strong>{t('quotes.cancelledQuoteCleanup')}</strong></span>
                 <span className="block"><strong>{t('quotes.revisionQuoteCleanup')}</strong></span>
@@ -876,7 +876,7 @@ export default function MesDevisPage() {
 
         {/* Bannière de notification si devis spécifique */}
         {highlightedDevisId && (
-          <div className="mb-6 bg-gradient-to-r from-[#FF6B00] to-[#E56100] text-white p-4 rounded-lg shadow-lg flex items-center justify-between animate-pulse">
+          <div className="mb-6 bg-brand-600 text-white p-4 rounded-lg shadow-lg flex items-center justify-between animate-pulse">
             <div className="flex items-center gap-3">
               <div className="bg-white bg-opacity-20 p-2 rounded-full">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -908,8 +908,8 @@ export default function MesDevisPage() {
               onClick={() => setActiveTab('devis')}
               className={`flex-1 px-6 py-4 font-semibold ${
                 activeTab === 'devis'
-                  ? 'text-[#FF6B00] border-b-2 border-[#FF6B00]'
-                  : 'text-gray-600 hover:text-[#FF6B00]'
+                  ? 'text-brand-700 border-b-2 border-brand-500'
+                  : 'text-slate-600 hover:text-brand-700'
               }`}
             >
               📋 {t('quotes.title')} ({devisActifs.length})
@@ -924,11 +924,11 @@ export default function MesDevisPage() {
             <button
               onClick={() => handleFilterChange('tous')}
               className={`rounded-lg shadow-md p-4 text-left transition-all hover:shadow-lg relative ${
-                filter === 'tous' ? 'bg-[#FF6B00] text-white ring-4 ring-[#FF6B00] ring-opacity-50' : 'bg-white'
+                filter === 'tous' ? 'bg-brand-700 text-white ring-4 ring-brand-500 ring-opacity-50' : 'bg-white'
               }`}
             >
-              <div className={`text-2xl font-bold ${filter === 'tous' ? 'text-white' : 'text-[#FF6B00]'}`}>{devisActifs.length}</div>
-              <div className={`text-sm ${filter === 'tous' ? 'text-white' : 'text-gray-600'}`}>{t('quotes.all')}</div>
+              <div className={`text-2xl font-bold ${filter === 'tous' ? 'text-white' : 'text-brand-700'}`}>{devisActifs.length}</div>
+              <div className={`text-sm ${filter === 'tous' ? 'text-white' : 'text-slate-600'}`}>{t('quotes.all')}</div>
               {compterReponsesRecentes('tous') > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center badge-reponse-client" title={t('quotes.recentClientResponses')}>
                   {compterReponsesRecentes('tous')}
@@ -938,11 +938,11 @@ export default function MesDevisPage() {
             <button
               onClick={() => handleFilterChange('genere')}
               className={`rounded-lg shadow-md p-4 text-left transition-all hover:shadow-lg relative ${
-                filter === 'genere' ? 'bg-gray-600 text-white ring-4 ring-gray-600 ring-opacity-50' : 'bg-white'
+                filter === 'genere' ? 'bg-slate-600 text-white ring-4 ring-slate-600 ring-opacity-50' : 'bg-white'
               }`}
             >
-              <div className={`text-2xl font-bold ${filter === 'genere' ? 'text-white' : 'text-gray-600'}`}>{devisGeneres.length}</div>
-              <div className={`text-sm ${filter === 'genere' ? 'text-white' : 'text-gray-600'}`}>📄 {t('quotes.generated')}</div>
+              <div className={`text-2xl font-bold ${filter === 'genere' ? 'text-white' : 'text-slate-600'}`}>{devisGeneres.length}</div>
+              <div className={`text-sm ${filter === 'genere' ? 'text-white' : 'text-slate-600'}`}>📄 {t('quotes.generated')}</div>
               {compterReponsesRecentes('genere') > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center badge-reponse-client" title={t('quotes.recentClientResponses')}>
                   {compterReponsesRecentes('genere')}
@@ -956,7 +956,7 @@ export default function MesDevisPage() {
               }`}
             >
               <div className={`text-2xl font-bold ${filter === 'envoye' ? 'text-white' : 'text-purple-600'}`}>{devisEnvoyes.length}</div>
-              <div className={`text-sm ${filter === 'envoye' ? 'text-white' : 'text-gray-600'}`}>📤 {t('quotes.sentPlural')}</div>
+              <div className={`text-sm ${filter === 'envoye' ? 'text-white' : 'text-slate-600'}`}>📤 {t('quotes.sentPlural')}</div>
               {compterReponsesRecentes('envoye') > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center badge-reponse-client" title={t('quotes.recentClientResponses')}>
                   {compterReponsesRecentes('envoye')}
@@ -998,7 +998,7 @@ export default function MesDevisPage() {
               }`}
             >
               <div className={`text-2xl font-bold ${filter === 'paye' ? 'text-white' : 'text-green-600'}`}>{devisPayes.length}</div>
-              <div className={`text-sm ${filter === 'paye' ? 'text-white' : 'text-gray-600'}`}>💰 {t('quotes.paidPlural')}</div>
+              <div className={`text-sm ${filter === 'paye' ? 'text-white' : 'text-slate-600'}`}>💰 {t('quotes.paidPlural')}</div>
               {compterReponsesRecentes('paye') > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center badge-reponse-client" title={t('quotes.recentClientResponses')}>
                   {compterReponsesRecentes('paye')}
@@ -1012,7 +1012,7 @@ export default function MesDevisPage() {
               }`}
             >
               <div className={`text-2xl font-bold ${filter === 'refuse' ? 'text-white' : 'text-red-600'}`}>{devisRefuses.length}</div>
-              <div className={`text-sm ${filter === 'refuse' ? 'text-white' : 'text-gray-600'}`}>❌ {t('quotes.refusedPlural')}</div>
+              <div className={`text-sm ${filter === 'refuse' ? 'text-white' : 'text-slate-600'}`}>❌ {t('quotes.refusedPlural')}</div>
               {compterReponsesRecentes('refuse') > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center badge-reponse-client" title={t('quotes.recentClientResponses')}>
                   {compterReponsesRecentes('refuse')}
@@ -1023,7 +1023,7 @@ export default function MesDevisPage() {
 
           {/* Sous-filtres pour la section "Payés" */}
           {filter === 'paye' && devisPayes.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6 bg-white rounded-xl shadow-sm p-3 border border-gray-100">
+            <div className="flex flex-wrap gap-2 mb-6 bg-white rounded-xl shadow-sm p-3 border border-slate-100">
               {([
                 { key: 'tout', label: '🔍 Tout', count: devisPayes.length },
                 { key: 'paye', label: '💰 Payé', count: devisActifs.filter(d => d.statut === 'paye').length },
@@ -1038,7 +1038,7 @@ export default function MesDevisPage() {
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                     sousFiltrePayes === key
                       ? 'bg-green-600 text-white shadow-sm'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                   }`}
                 >
                   {label} <span className="opacity-75">({count})</span>
@@ -1055,13 +1055,13 @@ export default function MesDevisPage() {
                   id="showRemplace"
                   checked={showRemplace}
                   onChange={(e) => setShowRemplace(e.target.checked)}
-                  className="w-4 h-4 text-[#FF6B00] border-gray-300 rounded focus:ring-[#FF6B00]"
+                  className="w-4 h-4 text-brand-700 border-slate-300 rounded focus:ring-brand-500"
                 />
-                <label htmlFor="showRemplace" className="text-sm text-gray-700 cursor-pointer">
+                <label htmlFor="showRemplace" className="text-sm text-slate-700 cursor-pointer">
                   {t('quotes.showReplaced')} ({devisRemplace.length})
                 </label>
               </div>
-              <span className="text-xs text-gray-500 bg-purple-50 px-2 py-1 rounded">
+              <span className="text-xs text-slate-500 bg-purple-50 px-2 py-1 rounded">
                 🔄 {t('quotes.obsoleteQuotes')}
               </span>
             </div>
@@ -1074,30 +1074,30 @@ export default function MesDevisPage() {
           <div className="bg-white rounded-lg shadow-md overflow-x-auto">
             {filteredDevis.length === 0 ? (
               <div className="text-center py-12">
-                <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-16 h-16 text-slate-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <p className="text-gray-600 mb-4">
+                <p className="text-slate-600 mb-4">
                   {filter === 'tous' ? t('quotes.noQuotesYet') : `${t('quotes.noQuotes')} ${filter === 'genere' ? t('quotes.noGeneratedQuote') : filter === 'envoye' ? t('quotes.noSentQuote') : filter === 'en_attente_paiement' ? t('quotes.noWaitingPaymentQuote') : filter === 'paye' ? t('quotes.noPaidQuote') : filter === 'revision' ? t('quotes.noRevisionQuote') : t('quotes.noRefusedQuote')}`}
                 </p>
                 {filter === 'tous' ? (
                   <button
                     onClick={() => router.push('/artisan/demandes')}
-                    className="bg-[#FF6B00] text-white px-6 py-2 rounded-lg hover:bg-[#E56100]"
+                    className="bg-brand-700 text-white px-6 py-2 rounded-lg hover:bg-brand-800"
                   >
                     {t('quotes.viewRequests')}
                   </button>
                 ) : (
                   <button
                     onClick={() => handleFilterChange('tous')}
-                    className="bg-[#FF6B00] text-white px-6 py-2 rounded-lg hover:bg-[#E56100]"
+                    className="bg-brand-700 text-white px-6 py-2 rounded-lg hover:bg-brand-800"
                   >
                     {t('quotes.viewAllQuotes')}
                   </button>
                 )}
               </div>
             ) : (
-              <table className="w-full min-w-[900px] divide-y divide-gray-200 table-fixed">
+              <table className="w-full min-w-[900px] divide-y divide-slate-200 table-fixed">
                 <colgroup>
                   <col style={{width:'12%'}} />
                   <col style={{width:'20%'}} />
@@ -1107,32 +1107,32 @@ export default function MesDevisPage() {
                   <col style={{width:'10%'}} />
                   <col style={{width:'22%'}} />
                 </colgroup>
-                <thead className="bg-gray-50">
+                <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       NUMERO DEVIS
                     </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       {t('quotes.associatedRequest')}
                     </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       {t('quotes.client')}
                     </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       {t('quotes.amount')}
                     </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       {t('quotes.status')}
                     </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       {t('quotes.date')}
                     </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       {t('quotes.actions')}
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-slate-200">
                   {filteredDevis.map((d) => {
                     const info = demandesInfo[d.demandeId || ''];
                     const isHighlighted = highlightedDevisId === d.id;
@@ -1143,18 +1143,18 @@ export default function MesDevisPage() {
                         key={d.id} 
                         ref={(el) => { devisRefs.current[d.id] = el; }}
                         className={`
-                          border-b border-gray-200 transition-all cursor-pointer
+                          border-b border-slate-200 transition-all cursor-pointer
                           ${isHighlighted ? 'devis-highlight' : ''}
                           ${hasRecentNotif ? 'devis-notification-recente' : ''}
-                          ${!isHighlighted && !hasRecentNotif ? 'hover:bg-gray-50' : ''}
+                          ${!isHighlighted && !hasRecentNotif ? 'hover:bg-slate-50' : ''}
                         `}
                       >
-                        <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-[#2C3E50]">
+                        <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-navy-800">
                           <div className="flex items-center gap-1.5">
                             <span className="numero-devis">{d.numeroDevis}</span>
                             {/* Le préfixe EXP- suffit à identifier les devis express */}
                             {devisNotifsInitialIds.has(d.id) && (
-                              <span className="inline-flex items-center bg-[#FF6B00] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
+                              <span className="inline-flex items-center bg-brand-700 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
                                 🔔
                               </span>
                             )}
@@ -1168,10 +1168,10 @@ export default function MesDevisPage() {
                             className="text-left hover:bg-orange-50 p-1 rounded transition-colors group"
                           >
                             <div className="flex items-center gap-1">
-                              <svg className="w-3 h-3 text-[#FF6B00] flex-shrink-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-3 h-3 text-brand-700 flex-shrink-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                               </svg>
-                              <span className="text-xs font-medium text-[#FF6B00] group-hover:text-[#E56100] whitespace-normal leading-snug">
+                              <span className="text-xs font-medium text-brand-700 group-hover:text-brand-800 whitespace-normal leading-snug">
                                 {d.titre}
                               </span>
                             </div>
@@ -1183,27 +1183,27 @@ export default function MesDevisPage() {
                             title={`${demandesInfo[d.demandeId].titre} - ${demandesInfo[d.demandeId].categorie} à ${demandesInfo[d.demandeId].ville}`}
                           >
                             <div className="flex items-center gap-1">
-                              <svg className="w-3 h-3 text-[#FF6B00] flex-shrink-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-3 h-3 text-brand-700 flex-shrink-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                               </svg>
-                              <span className="text-xs font-medium text-[#2C3E50] group-hover:text-[#FF6B00] whitespace-normal break-all leading-snug">
+                              <span className="text-xs font-medium text-navy-800 group-hover:text-brand-700 whitespace-normal break-all leading-snug">
                                 {demandesInfo[d.demandeId].titre}
                               </span>
                             </div>
                           </button>
                         ) : d.demandeId ? (
-                          <div className="text-gray-500 text-xs">
+                          <div className="text-slate-500 text-xs">
                             <div>{t('common.loading')}</div>
-                            <div className="font-mono text-[10px] text-gray-400">{d.demandeId.substring(0, 8)}...</div>
+                            <div className="font-mono text-[10px] text-slate-400">{d.demandeId.substring(0, 8)}...</div>
                           </div>
                         ) : (
-                          <span className="text-gray-400 text-xs italic">{t('quotes.manualQuote')}</span>
+                          <span className="text-slate-400 text-xs italic">{t('quotes.manualQuote')}</span>
                         )}
                       </td>
-                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 py-4 whitespace-nowrap text-sm text-slate-900">
                         {d.client.prenom} {d.client.nom}
                       </td>
-                      <td className="px-3 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                      <td className="px-3 py-4 whitespace-nowrap text-sm font-semibold text-slate-900">
                         {d.totaux.totalTTC.toFixed(2)} €
                       </td>
                       <td className="px-3 py-4 whitespace-nowrap text-sm">
@@ -1221,7 +1221,7 @@ export default function MesDevisPage() {
                                   await handleVoirDevis(d.devisRevisionId, aReponseClienteRecente(revisionData));
                                 }
                               }}
-                              className="text-xs text-[#FF6B00] hover:underline"
+                              className="text-xs text-brand-700 hover:underline"
                             >
                               → {t('quotes.seeRevision')}
                             </button>
@@ -1241,7 +1241,7 @@ export default function MesDevisPage() {
                           getStatutBadge(d.statut)
                         )}
                       </td>
-                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-3 py-4 whitespace-nowrap text-sm text-slate-500">
                         {d.dateCreation ? tsToDate(d.dateCreation).toLocaleDateString('fr-FR') : '—'}
                       </td>
                       <td className="px-3 py-4 text-sm font-medium">
@@ -1249,7 +1249,7 @@ export default function MesDevisPage() {
                         {d.typeProjet === 'express' ? (
                           <button
                             onClick={() => router.push(`/devis-express-print/${d.propositionExpressId}`)}
-                            className="px-3 py-1 bg-[#FF6B00] text-white rounded hover:bg-[#E56100] text-xs font-semibold flex items-center gap-1"
+                            className="px-3 py-1 bg-brand-700 text-white rounded hover:bg-brand-800 text-xs font-semibold flex items-center gap-1"
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -1265,19 +1265,19 @@ export default function MesDevisPage() {
                           </button>
                         ) : d.statut === 'refuse' ? (
                           <div className="flex flex-col gap-1">
-                            <span className="text-xs text-gray-500 italic">{t('quotes.definitiveRefusal')}</span>
-                            <span className="text-[10px] text-gray-400">{t('quotes.noNewProposal')}</span>
+                            <span className="text-xs text-slate-500 italic">{t('quotes.definitiveRefusal')}</span>
+                            <span className="text-[10px] text-slate-400">{t('quotes.noNewProposal')}</span>
                           </div>
                         ) : d.statut === 'annule' ? (
                           <div className="flex flex-col gap-1">
                             <span className="text-xs text-orange-600 italic">{t('quotes.clientWithdrew')}</span>
-                            <span className="text-[10px] text-gray-400">{t('quotes.autoDeleteIn24h')}</span>
+                            <span className="text-[10px] text-slate-400">{t('quotes.autoDeleteIn24h')}</span>
                           </div>
                         ) : d.statut === 'genere' ? (
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => handleEnvoyerDevis(d.id)}
-                              className="px-3 py-1 bg-[#FF6B00] text-white rounded hover:bg-[#E56100] text-xs font-semibold flex items-center gap-1 justify-center"
+                              className="px-3 py-1 bg-brand-700 text-white rounded hover:bg-brand-800 text-xs font-semibold flex items-center gap-1 justify-center"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -1298,7 +1298,7 @@ export default function MesDevisPage() {
                           // 📋 Bouton "Voir le détail"
                           <button
                             onClick={() => handleVoirDevis(d.id, aReponseClienteRecente(d))}
-                            className="px-3 py-1 bg-[#FF6B00] text-white rounded hover:bg-[#E56100] text-xs font-semibold flex items-center gap-1"
+                            className="px-3 py-1 bg-brand-700 text-white rounded hover:bg-brand-800 text-xs font-semibold flex items-center gap-1"
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -1309,7 +1309,7 @@ export default function MesDevisPage() {
                           // ⏳ EN ATTENTE VALIDATION CLIENT + Lien Voir
                           <button
                             onClick={() => handleVoirDevis(d.id, aReponseClienteRecente(d))}
-                            className="px-3 py-1 bg-[#FF6B00] text-white rounded hover:bg-[#E56100] text-xs font-semibold flex items-center gap-1"
+                            className="px-3 py-1 bg-brand-700 text-white rounded hover:bg-brand-800 text-xs font-semibold flex items-center gap-1"
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -1320,7 +1320,7 @@ export default function MesDevisPage() {
                           // ✅ TRAVAUX VALIDÉS - PAIEMENT LIBÉRÉ + Lien Voir
                           <button
                             onClick={() => handleVoirDevis(d.id, aReponseClienteRecente(d))}
-                            className="px-3 py-1 bg-[#FF6B00] text-white rounded hover:bg-[#E56100] text-xs font-semibold flex items-center gap-1"
+                            className="px-3 py-1 bg-brand-700 text-white rounded hover:bg-brand-800 text-xs font-semibold flex items-center gap-1"
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -1331,7 +1331,7 @@ export default function MesDevisPage() {
                           // ⚠️ LITIGE EN COURS
                           <button
                             onClick={() => handleVoirDevis(d.id, aReponseClienteRecente(d))}
-                            className="px-3 py-1 bg-[#FF6B00] text-white rounded hover:bg-[#E56100] text-xs font-semibold flex items-center gap-1"
+                            className="px-3 py-1 bg-brand-700 text-white rounded hover:bg-brand-800 text-xs font-semibold flex items-center gap-1"
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -1341,7 +1341,7 @@ export default function MesDevisPage() {
                         ) : (
                           <button
                             onClick={() => handleVoirDevis(d.id, aReponseClienteRecente(d))}
-                            className="px-3 py-1 bg-[#FF6B00] text-white rounded hover:bg-[#E56100] text-xs font-semibold flex items-center gap-1"
+                            className="px-3 py-1 bg-brand-700 text-white rounded hover:bg-brand-800 text-xs font-semibold flex items-center gap-1"
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

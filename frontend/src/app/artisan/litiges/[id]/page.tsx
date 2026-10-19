@@ -134,7 +134,7 @@ export default function ArtisanLitigeDetailPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center">
-          <p className="text-gray-600">Chargement...</p>
+          <p className="text-slate-600">Chargement...</p>
         </div>
       </div>
     );
@@ -159,18 +159,18 @@ export default function ArtisanLitigeDetailPage() {
       {/* Navigation */}
       <Link
         href="/artisan/litiges"
-        className="inline-flex items-center gap-2 text-[#FF6B00] hover:underline mb-6"
+        className="inline-flex items-center gap-2 text-brand-700 hover:underline mb-6"
       >
         <ArrowLeft className="w-4 h-4" />
         Retour à mes litiges
       </Link>
 
       {/* Header */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+      <div className="bg-white border border-slate-200 rounded-lg p-6 mb-6">
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-[#2C3E50] mb-2">{litige.motif}</h1>
-            <p className="text-gray-600">{litige.description}</p>
+            <h1 className="text-2xl font-bold text-navy-800 mb-2">{litige.motif}</h1>
+            <p className="text-slate-600">{litige.description}</p>
             {litige.declarantRole === 'client' && (
               <p className="text-sm text-orange-600 mt-2">
                 ⚠️ Litige déclaré par le client
@@ -208,18 +208,18 @@ export default function ArtisanLitigeDetailPage() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
-            <p className="text-gray-500">Type</p>
-            <p className="font-medium text-[#2C3E50]">{litige.type}</p>
+            <p className="text-slate-500">Type</p>
+            <p className="font-medium text-navy-800">{litige.type}</p>
           </div>
           <div>
-            <p className="text-gray-500">Priorité</p>
-            <p className="font-medium text-[#2C3E50]">
+            <p className="text-slate-500">Priorité</p>
+            <p className="font-medium text-navy-800">
               {litige.priorite ? (
                 <span className={`px-2 py-1 rounded text-xs ${
                   litige.priorite === 'urgente' ? 'bg-red-100 text-red-800' :
                   litige.priorite === 'haute' ? 'bg-orange-100 text-orange-800' :
                   litige.priorite === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-gray-100 text-gray-700'
+                  'bg-slate-100 text-slate-700'
                 }`}>
                   {litige.priorite}
                 </span>
@@ -229,15 +229,15 @@ export default function ArtisanLitigeDetailPage() {
             </p>
           </div>
           <div>
-            <p className="text-gray-500">Ouvert le</p>
-            <p className="font-medium text-[#2C3E50]">
+            <p className="text-slate-500">Ouvert le</p>
+            <p className="font-medium text-navy-800">
               {litige.dateOuverture ? formatDate(litige.dateOuverture.toDate()) : '-'}
             </p>
           </div>
           {litige.montantConteste && litige.montantConteste > 0 && (
             <div>
-              <p className="text-gray-500">Montant contesté</p>
-              <p className="font-medium text-[#2C3E50]">{litige.montantConteste}€</p>
+              <p className="text-slate-500">Montant contesté</p>
+              <p className="font-medium text-navy-800">{litige.montantConteste}€</p>
             </div>
           )}
         </div>
@@ -289,14 +289,14 @@ export default function ArtisanLitigeDetailPage() {
 
           {showRefusForm && (
             <div className="mt-4 p-4 bg-white rounded border border-red-200">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Motif du refus *
               </label>
               <textarea
                 value={motifRefus}
                 onChange={(e) => setMotifRefus(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 placeholder="Expliquez pourquoi vous refusez cette proposition..."
               />
               <div className="flex gap-2 mt-3">
@@ -312,7 +312,7 @@ export default function ArtisanLitigeDetailPage() {
                     setShowRefusForm(false);
                     setMotifRefus('');
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
+                  className="px-4 py-2 border border-slate-300 rounded hover:bg-slate-50"
                 >
                   Annuler
                 </button>
@@ -323,14 +323,14 @@ export default function ArtisanLitigeDetailPage() {
       )}
 
       {/* Timeline */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+      <div className="bg-white border border-slate-200 rounded-lg p-6 mb-6">
         <LitigeTimeline historique={litige.historique} currentUserId={user?.uid || ''} />
       </div>
 
       {/* Ajouter un commentaire */}
       {canRespond && (
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-[#2C3E50] mb-4 flex items-center gap-2">
+        <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-navy-800 mb-4 flex items-center gap-2">
             <MessageSquare className="w-5 h-5" />
             Ajouter un commentaire
           </h3>
@@ -339,12 +339,12 @@ export default function ArtisanLitigeDetailPage() {
             onChange={(e) => setCommentaire(e.target.value)}
             rows={4}
             placeholder="Expliquez votre situation, apportez des précisions..."
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent mb-4"
+            className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent mb-4"
           />
           <button
             onClick={handleAddComment}
             disabled={submitting || !commentaire.trim()}
-            className="px-6 py-3 bg-[#FF6B00] text-white rounded-lg hover:bg-[#E56100] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? 'Envoi...' : 'Envoyer le commentaire'}
           </button>

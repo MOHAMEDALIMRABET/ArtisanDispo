@@ -57,19 +57,19 @@ export default function ChoixRolePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#2C3E50] to-[#1A3A5C] flex items-center justify-center p-4">
+    <div className="min-h-[calc(100vh-4rem)] bg-slate-50 flex items-center justify-center px-4 py-12">
       <Card className="max-w-2xl w-full">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <Logo size="md" href="/" />
           </div>
-          <h1 className="text-2xl font-bold text-[#2C3E50] mb-2">
+          <h1 className="text-2xl font-bold text-navy-800 mb-2">
             Bienvenue sur ArtisanSafe !
           </h1>
-          <p className="text-gray-600">
+          <p className="text-slate-600">
             Connecté en tant que <span className="font-medium">{user.email}</span>
           </p>
-          <p className="text-gray-600 mt-2">
+          <p className="text-slate-600 mt-2">
             Pour finaliser votre inscription, veuillez sélectionner votre profil
           </p>
         </div>
@@ -86,20 +86,20 @@ export default function ChoixRolePage() {
             onClick={() => setSelectedRole('client')}
             className={`p-6 border-2 rounded-lg transition-all ${
               selectedRole === 'client'
-                ? 'border-[#FF6B00] bg-orange-50'
-                : 'border-gray-200 hover:border-[#FF6B00] hover:bg-orange-50/50'
+                ? 'border-brand-500 bg-orange-50'
+                : 'border-slate-200 hover:border-brand-500 hover:bg-orange-50/50'
             }`}
           >
             <div className="text-center">
               <div className="text-4xl mb-3">👤</div>
-              <h3 className="text-lg font-semibold text-[#2C3E50] mb-2">
+              <h3 className="text-lg font-semibold text-navy-800 mb-2">
                 Je suis un Client
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-slate-600">
                 Je recherche des artisans qualifiés pour mes projets
               </p>
               {selectedRole === 'client' && (
-                <div className="mt-3 text-[#FF6B00] font-medium text-sm">
+                <div className="mt-3 text-brand-700 font-medium text-sm">
                   ✓ Sélectionné
                 </div>
               )}
@@ -111,20 +111,20 @@ export default function ChoixRolePage() {
             onClick={() => setSelectedRole('artisan')}
             className={`p-6 border-2 rounded-lg transition-all ${
               selectedRole === 'artisan'
-                ? 'border-[#FF6B00] bg-orange-50'
-                : 'border-gray-200 hover:border-[#FF6B00] hover:bg-orange-50/50'
+                ? 'border-brand-500 bg-orange-50'
+                : 'border-slate-200 hover:border-brand-500 hover:bg-orange-50/50'
             }`}
           >
             <div className="text-center">
               <div className="text-4xl mb-3">🔧</div>
-              <h3 className="text-lg font-semibold text-[#2C3E50] mb-2">
+              <h3 className="text-lg font-semibold text-navy-800 mb-2">
                 Je suis un Artisan
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-slate-600">
                 Je propose mes services et trouve de nouveaux clients
               </p>
               {selectedRole === 'artisan' && (
-                <div className="mt-3 text-[#FF6B00] font-medium text-sm">
+                <div className="mt-3 text-brand-700 font-medium text-sm">
                   ✓ Sélectionné
                 </div>
               )}
@@ -135,7 +135,7 @@ export default function ChoixRolePage() {
         {/* Champ téléphone (optionnel mais recommandé) */}
         {selectedRole && (
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Numéro de téléphone (optionnel)
             </label>
             <input
@@ -143,9 +143,9 @@ export default function ChoixRolePage() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+33 6 12 34 56 78"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-slate-500">
               Recommandé pour recevoir des notifications importantes
             </p>
           </div>
